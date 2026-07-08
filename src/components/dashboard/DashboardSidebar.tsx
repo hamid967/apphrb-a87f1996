@@ -1,0 +1,187 @@
+import { Link, useRouterState } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import {
+  LayoutDashboard,
+  KeyRound,
+  FileText,
+  Coins,
+  Receipt,
+  Users2,
+  Settings,
+  Building2,
+  Sparkles,
+  Headphones,
+  LogOut,
+  ClipboardList,
+  BarChart3,
+} from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+
+const DASHBOARD_ROOT = "/dashboard";
+
+function normalizePath(raw: string): string {
+  const noQuery = raw.split("?")[0].split("#")[0];
+  if (noQuery.length > 1 && noQuery.endsWith("/")) return noQuery.slice(0, -1);
+  return noQuery;
+}
+
+export function isNavItemActive(currentPath: string, itemUrl: string): boolean {
+  const path = normalizePath(currentPath);
+  const url = normalizePath(itemUrl);
+  if (url === DASHBOARD_ROOT) return path === DASHBOARD_ROOT;
+  return path === url || path.startsWith(url + "/");
+}
+
+export function DashboardSidebar() {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language?.startsWith("ar");
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { state } = useSidebar();
+  const collapsed = state === "collapsed";
+
+  const items = [
+    { url: "/dashboard", icon: LayoutDashboard, ar: "الرئيسية", en: "Overview" },
+    {
+      url: "/dashboard",
+      search: { view: "smart" as const },
+      icon: Sparkles,
+      ar: "لوحة ذكية",
+      en: "Smart Dashboard",
+    },
+    { url: "/dashboard/units", icon: KeyRound, ar: "الوحدات", en: "Units" },
+    { url: "/dashboard/contracts", icon: FileText, ar: "العقود", en: "Contracts" },
+    { url: "/dashboard/payments", icon: Coins, ar: "المدفوعات", en: "Payments" },
+    { url: "/dashboard/expenses", icon: Receipt, ar: "المصروفات", en: "Expenses" },
+    { url: "/dashboard/tenants", icon: Users2, ar: "المستأجرون", en: "Tenants" },
+    { url: "/dashboard/applications", icon: ClipboardList, ar: "طلبات السكن", en: "Applications" },
+    { url: "/reports/builder", icon: BarChart3, ar: "منشئ التقارير", en: "Report Builder" },
+    { url: "/dashboard/settings", icon: Settings, ar: "الإعدادات", en: "Settings" },
+  ] as const;
+
+  const search = useRouterState({ select: (s) => s.location.search as Record<string, unknown> });
+  const currentView = (search?.view as string | undefined) ?? "classic";
+  const isActive = (item: (typeof items)[number]) => {
+    if (item.url !== "/dashboard") return isNavItemActive(pathname, item.url);
+    // Both /dashboard entries share the same URL — disambiguate by view param
+    const wantSmart = (item as { search?: { view?: string } }).search?.view === "smart";
+    if (pathname !== "/dashboard") return false;
+    return wantSmart ? currentView === "smart" : currentView !== "smart";
+  };
+
+  return (
+    <Sidebar
+      collapsible="icon"
+      side={isAr ? "right" : "left"}
+      aria-label={isAr ? "قائمة لوحة التحكم" : "Dashboard navigation"}
+      className="[&>[data-sidebar=sidebar]]:!bg-sidebar [&>[data-sidebar=sidebar]]:!border-sidebar-border"
+    >
+      <SidebarHeader className="relative z-10 px-3 pt-5 pb-2">
+        <Link
+          to="/dashboard"
+          className="group flex items-center gap-2.5 rounded-xl px-2 py-2 transition hover:bg-sidebar-accent"
+        >
+          <div
+            className="grid size-9 shrink-0 place-items-center rounded-xl text-primary-foreground shadow-[0_8px_20px_-8px_hsl(var(--primary)/0.55)] transition group-hover:scale-105"
+            style={{ background: "var(--gradient-brand)" }}
+          >
+            <Building2 className="size-4" aria-hidden />
+          </div>
+          {!collapsed && (
+            <span className="truncate text-lg font-extrabold tracking-tight text-sidebar-foreground">
+              HRHBS
+            </span>
+          )}
+        </Link>
+      </SidebarHeader>
+
+      <SidebarContent
+        role="navigation"
+        aria-label={isAr ? "أقسام لوحة التحكم" : "Dashboard sections"}
+        className="relative z-10 px-1.5"
+      >
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu className="gap-0.5">
+              {items.map((item) => {
+                const label = isAr ? item.ar : item.en;
+                const active = isActive(item);
+                return (
+                  <SidebarMenuItem
+                    key={item.url + ((item as { search?: { view?: string } }).search?.view ?? "")}
+                  >
+                    <SidebarMenuButton
+                      asChild
+                      isActive={active}
+                      tooltip={label}
+                      className={[
+                        "group relative h-11 rounded-xl px-3 text-sidebar-foreground/80 transition-colors duration-200",
+                        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:font-semibold",
+                      ].join(" ")}
+                    >
+                      <Link
+                        to={item.url}
+                        search={(item as { search?: Record<string, unknown> }).search as any}
+                        aria-label={label}
+                        aria-current={active ? "page" : undefined}
+                        className="flex items-center gap-3 focus-visible:outline-none min-w-0"
+                      >
+                        <item.icon
+                          className={`size-[18px] shrink-0 transition ${active ? "text-primary" : "text-sidebar-foreground/60 group-hover:text-primary"}`}
+                          aria-hidden="true"
+                          focusable="false"
+                        />
+                        <span className="truncate text-[13px]">{label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="relative z-10 gap-3 p-3">
+        {!collapsed && (
+          <div className="rounded-2xl border border-sidebar-border bg-sidebar-accent/40 p-3.5 text-center">
+            <div className="mx-auto mb-2 grid size-10 place-items-center rounded-full bg-primary/10 text-primary">
+              <Headphones className="size-5" aria-hidden />
+            </div>
+            <div className="text-[13px] font-semibold text-sidebar-foreground">
+              {isAr ? "مركز الدعم" : "Support Center"}
+            </div>
+            <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
+              {isAr ? "تحتاج مساعدة؟ تواصل معنا الآن" : "Need help? Contact us now"}
+            </p>
+            <Button
+              size="sm"
+              className="mt-2.5 h-8 w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {isAr ? "تواصل معنا" : "Contact us"}
+            </Button>
+          </div>
+        )}
+        <button
+          type="button"
+          className="flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] text-sidebar-foreground/80 transition hover:bg-sidebar-accent"
+        >
+          <LogOut className="size-[18px] text-sidebar-foreground/60" aria-hidden />
+          {!collapsed && <span>{isAr ? "تسجيل خروج" : "Logout"}</span>}
+        </button>
+      </SidebarFooter>
+    </Sidebar>
+  );
+}

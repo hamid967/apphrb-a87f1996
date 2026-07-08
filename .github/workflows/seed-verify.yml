@@ -1,0 +1,38 @@
+name: Seed Verification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify-core-system:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install postgresql-client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Dry-run (report planned changes)
+        run: bun run seed:core-system:dry
+
+      - name: Apply seed (idempotent)
+        run: bun run seed:core-system
+
+      - name: Verify totals — fail on drift
+        run: bun run verify:seed
+
+      - name: Idempotency test
+        run: bun run test:seed

@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /invite/
+Disallow: /onboarding/
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /security/
+
+Sitemap: https://hrhbs.com/sitemap.xml

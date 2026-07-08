@@ -1,0 +1,2 @@
+ALTER TABLE public.realtime_connection_events DROP CONSTRAINT IF EXISTS realtime_connection_events_kind_check;
+ALTER TABLE public.realtime_connection_events ADD CONSTRAINT realtime_connection_events_kind_check CHECK (kind IN ('disconnect','reconnect','failed','poll_start','poll_stop','poll_fetch','poll_error'));

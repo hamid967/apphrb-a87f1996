@@ -1,0 +1,10 @@
+GRANT EXECUTE ON FUNCTION public.is_org_member(uuid, uuid) TO authenticated, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.is_org_admin(uuid, uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.has_org_role(uuid, uuid, public.org_role[]) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.has_any_role(uuid, public.app_role[]) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.get_my_role() TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.get_my_company_id() TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.my_access_status() TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.is_linked_tenant(uuid, uuid) TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.is_linked_property_owner(uuid, uuid) TO authenticated, service_role;

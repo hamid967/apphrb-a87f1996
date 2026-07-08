@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.check_login_rate_limit(text, integer, integer) TO anon, authenticated;

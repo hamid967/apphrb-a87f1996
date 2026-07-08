@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.log_assistant_access(uuid, text, jsonb) FROM PUBLIC, anon;

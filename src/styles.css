@@ -1,0 +1,659 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/ibm-plex-sans-arabic/400.css";
+@import "@fontsource/ibm-plex-sans-arabic/600.css";
+@import "@fontsource/ibm-plex-sans-arabic/700.css";
+@import "@fontsource/almarai/400.css";
+@import "@fontsource/almarai/700.css";
+@import "@fontsource/almarai/800.css";
+@import "@fontsource/urbanist/500.css";
+@import "@fontsource/urbanist/600.css";
+@import "@fontsource/urbanist/700.css";
+@import "@fontsource/urbanist/800.css";
+@import "@fontsource/epilogue/400.css";
+@import "@fontsource/epilogue/500.css";
+@import "@fontsource/epilogue/600.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: 'Almarai', 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
+  --font-display: 'Almarai', 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  /* Sidebar tokens (shadcn/ui sidebar) — mapped to premium palette */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  /* Unified brand shadows — same scale across every screen */
+  --shadow-soft: 0 1px 2px 0 color-mix(in oklab, var(--ink) 6%, transparent),
+                 0 4px 12px -6px color-mix(in oklab, var(--ink) 10%, transparent);
+  --shadow-elevated: 0 4px 10px -4px color-mix(in oklab, var(--ink) 12%, transparent),
+                     0 18px 40px -18px color-mix(in oklab, var(--ink) 20%, transparent);
+  --shadow-glow: 0 10px 40px -12px color-mix(in oklab, var(--primary) 45%, transparent);
+}
+
+:root {
+  --radius: 1rem; /* 16px — HBSpro design grid */
+  --app-height: 100vh;
+  /* HRHBS dashboard — Violet primary on soft neutral surfaces (reference match). */
+  --background: oklch(0.985 0.003 285);         /* #F7F7FB app canvas */
+  --foreground: oklch(0.22 0.03 275);           /* #1F1E2E ink */
+  --card: oklch(1 0 0);                          /* pure white surfaces */
+  --card-foreground: oklch(0.22 0.03 275);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.03 275);
+  --primary: oklch(0.58 0.22 295);              /* #7C3AED — Violet 600 */
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.66 0.19 295);            /* #8B5CF6 — Violet 500 accent */
+  --secondary-foreground: oklch(0.99 0 0);
+  --muted: oklch(0.965 0.006 285);
+  --muted-foreground: oklch(0.5 0.02 280);
+  --accent: oklch(0.94 0.03 295);               /* soft violet tint for active nav */
+  --accent-foreground: oklch(0.42 0.2 295);
+  --destructive: oklch(0.63 0.24 27);           /* #EF4444 */
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.72 0.19 150);              /* #22C55E */
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.78 0.16 70);               /* #F59E0B */
+  --warning-foreground: oklch(0.22 0.03 275);
+  --border: oklch(0.93 0.005 285);
+  --input: oklch(0.93 0.005 285);
+  --ring: oklch(0.58 0.22 295);
+  --paper: oklch(0.985 0.003 285);
+  --ink: oklch(0.22 0.03 275);
+  /* Signature violet gradient — CTAs, hero highlight, KPI icons */
+  --gradient-brand: linear-gradient(135deg,
+                     oklch(0.66 0.22 295),       /* #8B5CF6 */
+                     oklch(0.52 0.24 295));      /* #6D28D9 */
+  --gradient-surface: linear-gradient(180deg,
+                       color-mix(in oklab, var(--card) 100%, transparent),
+                       color-mix(in oklab, var(--muted) 60%, transparent));
+  /* Sidebar — white surface, violet active */
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.35 0.03 280);
+  --sidebar-primary: oklch(0.58 0.22 295);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.94 0.03 295);
+  --sidebar-accent-foreground: oklch(0.42 0.2 295);
+  --sidebar-border: oklch(0.93 0.005 285);
+  --sidebar-ring: oklch(0.58 0.22 295);
+}
+
+@supports (height: 100lvh) {
+  :root {
+    --app-height: 100lvh;
+  }
+}
+
+.dark {
+  /* HRHBS — Dark violet variant matching the light reference. */
+  --background: oklch(0.18 0.03 285);
+  --foreground: oklch(0.99 0 0);
+  --card: oklch(0.22 0.03 285);
+  --card-foreground: oklch(0.99 0 0);
+  --popover: oklch(0.22 0.03 285 / 96%);
+  --popover-foreground: oklch(0.99 0 0);
+  --primary: oklch(0.7 0.22 295);
+  --primary-foreground: oklch(0.16 0.03 285);
+  --secondary: oklch(0.7 0.2 295);
+  --secondary-foreground: oklch(0.99 0 0);
+  --muted: oklch(1 0 0 / 6%);
+  --muted-foreground: oklch(0.82 0.02 285);
+  --accent: oklch(1 0 0 / 8%);
+  --accent-foreground: oklch(0.85 0.14 295);
+  --destructive: oklch(0.68 0.24 27);
+  --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.72 0.19 150);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.78 0.16 70);
+  --warning-foreground: oklch(0.18 0.03 285);
+  --border: oklch(0.7 0.22 295 / 22%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.7 0.22 295);
+  --paper: oklch(1 0 0 / 6%);
+  --ink: oklch(1 0 0);
+  --gradient-brand: linear-gradient(135deg,
+                     oklch(0.72 0.22 295),
+                     oklch(0.54 0.24 295));
+  --gradient-surface: linear-gradient(180deg,
+                       color-mix(in oklab, var(--card) 100%, transparent),
+                       color-mix(in oklab, var(--muted) 40%, transparent));
+  --sidebar: oklch(0.22 0.03 285);
+  --sidebar-foreground: oklch(0.9 0.02 285);
+  --sidebar-primary: oklch(0.7 0.22 295);
+  --sidebar-primary-foreground: oklch(0.16 0.03 285);
+  --sidebar-accent: oklch(1 0 0 / 8%);
+  --sidebar-accent-foreground: oklch(0.85 0.14 295);
+  --sidebar-border: oklch(0.7 0.22 295 / 22%);
+  --sidebar-ring: oklch(0.7 0.22 295);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  /* Fill the full viewport including iOS safe areas. In standalone PWA mode
+     the home-indicator zone is painted with the <html> background, so html
+     must extend to 100dvh or iOS shows a white bar at the bottom. */
+  html, body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    min-height: var(--app-height);
+    height: 100%;
+    /* Prevent stray absolute/gradient elements from causing horizontal
+       scroll on phones and tablets. */
+    overflow-x: hidden;
+    /* iOS Safari: horizontal swipe back on some routes creates rubber-band. */
+    overscroll-behavior-x: none;
+    /* Respect iPhone notch / dynamic-island / home-indicator. */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    min-height: var(--app-height);
+    overscroll-behavior-y: none;
+    /* Text sharper on hi-DPI Android + macOS. */
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  /* iOS zooms into any <input>/<textarea>/<select> whose computed font-size
+     is < 16px. Enforce 16px on mobile so the page never auto-zooms. */
+  @media (max-width: 640px) {
+    input, select, textarea { font-size: 16px; }
+  }
+  /* Larger, thumb-friendly tap targets on touch devices without visually
+     changing pointer-first layouts. */
+  @media (hover: none) and (pointer: coarse) {
+    button, a, [role="button"] { min-height: 40px; }
+  }
+  /* Media never overflows its container — a common source of horizontal
+     scroll on phones. */
+  img, video, canvas, svg { max-width: 100%; height: auto; }
+
+  /* RTL-safe responsive tables & charts inside dashboard/admin/reports.
+     Tables get inner horizontal scroll instead of pushing the page wider.
+     Recharts responsive containers can never exceed 100% of their parent.
+     Uses logical `max-inline-size` so it works identically in LTR and RTL. */
+  main table {
+    max-inline-size: 100%;
+    width: 100%;
+    display: table;
+  }
+  main .recharts-responsive-container,
+  main .recharts-wrapper {
+    max-inline-size: 100% !important;
+    inline-size: 100% !important;
+  }
+  main .recharts-wrapper svg { max-inline-size: 100%; height: auto; }
+  /* Tables that declare a min-width for readability must live inside a
+     scroll wrapper. Auto-wrap the direct parent so authors get the right
+     behavior even when they forget the wrapper. */
+  main table[class*="min-w-"] {
+    display: block;
+    max-inline-size: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Any explicit x-scroll wrapper in dashboard content stays contained. */
+  main [class*="overflow-x-auto"],
+  main [class*="overflow-auto"] {
+    max-inline-size: 100%;
+  }
+  /* Long inline strings (emails, IDs, JSON) must break instead of stretching. */
+  main pre, main code { max-inline-size: 100%; overflow-wrap: anywhere; }
+  /* Hide native number spin */
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+}
+
+@layer utilities {
+  .min-h-app {
+    min-height: var(--app-height);
+  }
+
+  .h-app {
+    height: var(--app-height);
+  }
+}
+
+/* ===== Unified surface primitives — use across ALL screens ===== */
+@utility surface-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-soft);
+}
+@utility surface-elevated {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-elevated);
+}
+@utility surface-brand {
+  background: var(--gradient-brand);
+  color: var(--color-primary-foreground);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-glow);
+}
+@utility text-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Polaroid-ish receipt frame */
+.receipt-frame {
+  background: white;
+  padding: 0.5rem 0.5rem 1.75rem 0.5rem;
+  box-shadow: 0 22px 40px -24px rgba(0,0,0,0.35), 0 6px 14px -8px rgba(0,0,0,0.2);
+}
+
+/* Liquid-glass surface treatment in dark mode.
+   Adds backdrop blur + an inner highlight to any element using a translucent
+   semantic surface token. Applied globally so existing pages get the look
+   without rewriting every card. */
+.dark .bg-card,
+.dark .bg-popover,
+.dark .bg-secondary,
+.dark .bg-muted,
+.dark .bg-accent {
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+    0 1px 0 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Hide scrollbars app-wide — content still scrolls, the bar is just not
+   painted. Matches native mobile-app feel where users discover scroll by
+   trying it. */
+html, body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legacy */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* ===== Branded Sonner toasts =====
+   Pill-shaped, glassy, swipeable. Loading toasts get a rotating emerald
+   border beam. Sonner provides swipe-to-dismiss out of the box. */
+.ei-toast {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 1rem 0.625rem 0.875rem;
+  border-radius: 9999px;
+  background: color-mix(in oklab, #0f0e16 88%, transparent);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.2;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow:
+    0 10px 30px -12px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  width: max-content;
+  max-width: min(92vw, 28rem);
+  margin-inline: auto;
+}
+.ei-toast-title { font-weight: 600; letter-spacing: -0.01em; }
+.ei-toast-desc { color: var(--color-muted-foreground); font-size: 0.78rem; margin-top: 2px; }
+.ei-toast-icon { display: inline-flex; align-items: center; justify-content: center; }
+
+.ei-toast-close {
+  position: absolute !important;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  left: auto !important;
+  width: 20px !important;
+  height: 20px !important;
+  border-radius: 9999px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: var(--color-foreground) !important;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+.ei-toast:hover .ei-toast-close,
+.ei-toast:focus-within .ei-toast-close { opacity: 1; }
+.ei-toast-close:hover { background: rgba(255, 255, 255, 0.16) !important; }
+.ei-toast[data-styled="true"] { padding-right: 2rem; }
+
+/* Status accents */
+.ei-toast-success { border-color: color-mix(in oklab, oklch(0.7 0.18 155) 45%, transparent); }
+.ei-toast-success .ei-toast-icon { color: oklch(0.78 0.18 155); }
+.ei-toast-error {
+  background: var(--color-destructive) !important;
+  color: var(--color-destructive-foreground) !important;
+  border-color: color-mix(in oklab, var(--color-destructive) 72%, black) !important;
+  box-shadow:
+    0 10px 30px -12px color-mix(in oklab, var(--color-destructive) 45%, transparent),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+.ei-toast-error .ei-toast-title,
+.ei-toast-error .ei-toast-desc,
+.ei-toast-error .ei-toast-icon {
+  color: var(--color-destructive-foreground) !important;
+}
+.ei-toast-error .ei-toast-close {
+  color: var(--color-destructive-foreground) !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.24) !important;
+}
+.ei-toast-error .ei-toast-close:hover {
+  background: rgba(255, 255, 255, 0.24) !important;
+}
+
+/* Loading toast: rotating emerald border beam */
+.ei-toast-loading {
+  background:
+    linear-gradient(color-mix(in oklab, #0f0e16 92%, transparent), color-mix(in oklab, #0f0e16 92%, transparent)) padding-box,
+    conic-gradient(
+      from var(--beam-angle, 0deg),
+      transparent 0deg,
+      transparent 280deg,
+      oklch(0.78 0.2 155) 320deg,
+      oklch(0.92 0.18 155) 340deg,
+      oklch(0.78 0.2 155) 360deg
+    ) border-box;
+  border: 1.5px solid transparent;
+  animation: ei-beam-rotate 1.6s linear infinite;
+}
+.ei-toast-loading .ei-toast-icon { color: oklch(0.78 0.2 155); }
+
+@property --beam-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes ei-beam-rotate {
+  to { --beam-angle: 360deg; }
+}
+/* Fallback for browsers without @property: pulse the border instead */
+@supports not (background: paint(something)) {
+  .ei-toast-loading {
+    animation: ei-beam-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes ei-beam-pulse {
+    0%, 100% { border-color: oklch(0.7 0.18 155 / 0.4); }
+    50% { border-color: oklch(0.85 0.2 155 / 0.9); }
+  }
+}
+
+/* ===================================================================
+   Premium luxury theme — Navy #0B1220 + Gold #D4A853.
+   Scoped via `.theme-luxe` so only the public marketing surface uses
+   it; the authenticated dashboard keeps the HBS Blue identity.
+   =================================================================== */
+.theme-luxe {
+  color-scheme: dark;
+  /* Navy Trust: #0f1b3d / #1e3a5f / #3b6fa0 / #e8edf3 */
+  --font-sans: 'Epilogue', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-display: 'Urbanist', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --background: oklch(0.19 0.06 265);           /* #0f1b3d base */
+  --foreground: oklch(0.96 0.008 250);          /* #e8edf3 */
+  --card: oklch(0.24 0.06 265 / 92%);           /* #1e3a5f surface */
+  --card-foreground: oklch(0.96 0.008 250);
+  --popover: oklch(0.22 0.06 265 / 96%);
+  --popover-foreground: oklch(0.96 0.008 250);
+  --primary: oklch(0.62 0.13 250);              /* #3b6fa0 signal blue */
+  --primary-foreground: oklch(0.98 0.005 250);
+  --secondary: oklch(0.44 0.09 260);            /* deep navy accent */
+  --secondary-foreground: oklch(0.96 0.008 250);
+  --muted: oklch(1 0 0 / 5%);
+  --muted-foreground: oklch(0.78 0.02 250);
+  --accent: oklch(0.62 0.13 250);
+  --accent-foreground: oklch(0.98 0.005 250);
+  --border: oklch(0.96 0.008 250 / 14%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.62 0.13 250);
+  --paper: oklch(1 0 0 / 5%);
+  --ink: oklch(0.96 0.008 250);
+  --gradient-brand: linear-gradient(135deg,
+                     oklch(0.62 0.13 250),
+                     oklch(0.44 0.09 260));
+  --gradient-surface: linear-gradient(180deg,
+                       oklch(1 0 0 / 6%),
+                       oklch(1 0 0 / 2%));
+  background: radial-gradient(1200px 600px at 20% -10%,
+                oklch(0.62 0.13 250 / 0.20), transparent 60%),
+              radial-gradient(900px 500px at 100% 10%,
+                oklch(0.44 0.09 260 / 0.28), transparent 55%),
+              var(--background);
+  color: var(--foreground);
+  min-height: 100%;
+}
+
+/* Glassmorphism header for public site */
+@utility glass-header {
+  background: color-mix(in oklab, var(--background) 55%, transparent);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Gold-gradient CTA — pairs with `.theme-luxe` primary token */
+@utility btn-gold {
+  background: var(--gradient-brand);
+  color: var(--primary-foreground);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 10px 30px -10px color-mix(in oklab, oklch(0.62 0.13 250) 55%, transparent);
+  transition: transform .2s ease, box-shadow .2s ease;
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 38px -10px color-mix(in oklab, oklch(0.62 0.13 250) 70%, transparent);
+  }
+}
+
+/* Card with gold hover border for luxe surfaces */
+@utility card-luxe {
+  background: color-mix(in oklab, var(--card) 100%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-elevated);
+  transition: border-color .25s ease, transform .25s ease;
+  &:hover {
+    border-color: color-mix(in oklab, oklch(0.62 0.13 250) 70%, transparent);
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Neutralize CSS transitions, keyframe animations, and hover transforms
+     everywhere — Framer Motion is handled separately by <MotionConfig>. */
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .btn-gold:hover,
+  .card-luxe:hover,
+  .luxe-icon-btn:hover,
+  [class*="hover:-translate"]:hover,
+  [class*="hover:translate"]:hover,
+  [class*="hover:scale"]:hover,
+  .hover-scale:hover {
+    transform: none !important;
+  }
+  /* Skip the cross-fade entirely when the user asks for reduced motion. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   View Transitions API — smooth cross-fade + slight lift between routes.
+   Enabled via router `defaultViewTransition: true`.
+   ========================================================================== */
+@keyframes vt-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes vt-fade-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-8px); }
+}
+
+/* Slightly longer, eased cross-fade so pages feel produced, not snappy. */
+::view-transition-old(root) {
+  animation: vt-fade-out 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+::view-transition-new(root) {
+  animation: vt-fade-in 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Opt-in shared-element transitions: add one of these classes on an element
+   in both the outgoing and incoming route to morph it across the navigation. */
+.vt-hero      { view-transition-name: vt-hero; }
+.vt-header    { view-transition-name: vt-header; }
+.vt-sidebar   { view-transition-name: vt-sidebar; }
+.vt-page-title{ view-transition-name: vt-page-title; }
+
+/* Luxury topbar icon button */
+@utility luxe-icon-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  color: rgba(226, 232, 240, 0.85);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  backdrop-filter: blur(14px) saturate(160%);
+  transition: all .25s ease;
+  &:hover {
+    color: #E9C866;
+    border-color: rgba(212, 175, 55, 0.55);
+    background: rgba(212, 175, 55, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px -12px rgba(212, 175, 55, 0.55);
+  }
+}
+
+/* Luxury topbar pill (company/branch/profile) */
+@utility luxe-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgb(241, 245, 249);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  backdrop-filter: blur(14px) saturate(160%);
+  transition: all .25s ease;
+  &:hover {
+    border-color: rgba(212, 175, 55, 0.55);
+    background: rgba(212, 175, 55, 0.08);
+    box-shadow: 0 10px 28px -12px rgba(212, 175, 55, 0.4);
+  }
+}
+
+/* ===================================================================
+   Light variant of the marketing surface. Scoped to `.theme-luxe-light`
+   so it only affects the public landing when the user toggles Light.
+   Overrides the hardcoded dark utilities used throughout sections.tsx
+   without needing to rewrite every inline style.
+   =================================================================== */
+.theme-luxe-light {
+  color-scheme: light;
+  --background: oklch(0.985 0.006 250);         /* near-white with cool cast */
+  --foreground: oklch(0.19 0.06 265);           /* deep navy */
+  --card: oklch(1 0 0 / 96%);
+  --card-foreground: oklch(0.19 0.06 265);
+  --muted-foreground: oklch(0.42 0.03 260);
+  --border: oklch(0.19 0.06 265 / 12%);
+  --input: oklch(0.19 0.06 265 / 10%);
+  --primary: oklch(0.44 0.09 260);              /* darker navy for AA on white */
+  --primary-foreground: oklch(0.98 0.005 250);
+  --ring: oklch(0.44 0.09 260);
+  color: var(--foreground);
+  background: radial-gradient(1200px 600px at 20% -10%,
+                oklch(0.62 0.13 250 / 0.10), transparent 60%),
+              radial-gradient(900px 500px at 100% 10%,
+                oklch(0.44 0.09 260 / 0.08), transparent 55%),
+              var(--background);
+}
+
+/* Flip common hardcoded dark utilities to legible tones. */
+.theme-luxe-light .text-white { color: #0B1220; }
+.theme-luxe-light .text-slate-300 { color: #334155; }
+.theme-luxe-light .text-slate-200 { color: #1e293b; }
+.theme-luxe-light .text-slate-900 { color: #0B1220; }
+.theme-luxe-light .bg-white\/5,
+.theme-luxe-light .bg-white\/\[0\.03\] {
+  background-color: rgba(11, 18, 32, 0.04);
+}
+.theme-luxe-light .hover\:bg-white\/5:hover {
+  background-color: rgba(11, 18, 32, 0.06);
+}
+
+/* Glass panels: dark-on-light with subtle navy border */
+.theme-luxe-light [class*="backdrop-blur"] {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  border-color: rgba(15, 27, 61, 0.14) !important;
+  box-shadow: 0 10px 40px -20px rgba(15, 23, 42, 0.25) !important;
+}
+
+/* Sticky nav bg when scrolled */
+.theme-luxe-light header[class*="fixed"] {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border-bottom-color: rgba(11, 18, 32, 0.08) !important;
+}

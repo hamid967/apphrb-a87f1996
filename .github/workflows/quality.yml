@@ -1,0 +1,62 @@
+name: Quality (typecheck + lint + i18n)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      # TanStack Router types every `<Link to="...">` against the generated
+      # route tree, so a broken internal link surfaces as a typecheck error
+      # here. This is our route-link checker.
+      - run: bun run typecheck
+
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+
+  i18n-audit:
+    # Warn-only gate. The baseline in `.i18n-baseline.json` records the
+    # current debt (hard-coded strings + missing keys). `bun run i18n:ci`
+    # compares HEAD to that baseline:
+    #   • equal / improved → passes
+    #   • regression       → prints ⚠️ but does NOT fail (I18N_WARN_ONLY=1)
+    # Batch cleanup: lower the baseline locally with
+    # `bun run i18n:ci:update` and commit the file with the fix.
+    # Flip to strict by removing `I18N_WARN_ONLY` and `continue-on-error`.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    continue-on-error: true
+    env:
+      I18N_WARN_ONLY: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: i18n gate (warn-only vs baseline)
+        run: bun run i18n:ci
+      - name: Full string report (informational)
+        if: always()
+        run: node scripts/i18n-audit.mjs || true
+      - name: Full key report (informational)
+        if: always()
+        run: node scripts/i18n-keys-audit.mjs || true

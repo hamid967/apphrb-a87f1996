@@ -1,0 +1,16 @@
+# HBSpro
+
+> AI-powered bilingual (Arabic / English) real-estate cloud for property management, CRM, accounting, and maintenance.
+
+HBSpro (Aqari by HRHBS) is a multi-tenant SaaS built for MENA real-estate agencies. Native RTL, bilingual document generation, and an AI assistant that helps price properties and summarize contracts.
+
+## Pages
+
+- [Home](/): Product overview, features, pricing, FAQ.
+- [Services](/services): Solutions for property management, CRM, accounting, and maintenance.
+- [Listings](/listings): Publicly available rental properties.
+- [Leasing](/leasing): Rental application and leasing information.
+
+## Optional
+
+- [Sign in](/auth): Account sign-in and sign-up.

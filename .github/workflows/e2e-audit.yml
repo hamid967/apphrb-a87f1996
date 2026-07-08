@@ -1,0 +1,65 @@
+name: E2E Route Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright (Python) + Chromium
+        run: |
+          python -m pip install --no-cache-dir playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Start dev server
+        run: |
+          bun run dev > /tmp/dev-server.log 2>&1 &
+          echo $! > /tmp/dev-server.pid
+          # wait until it responds (max ~90s)
+          for i in $(seq 1 45); do
+            if curl -sf http://localhost:8080 > /dev/null; then
+              echo "dev server ready"; exit 0
+            fi
+            sleep 2
+          done
+          echo "dev server failed to start"; tail -n 200 /tmp/dev-server.log; exit 1
+
+      - name: Run E2E audit
+        run: |
+          mkdir -p audit-output
+          python scripts/e2e-audit.py \
+            --base http://localhost:8080 \
+            --out audit-output/audit-report.md
+
+      - name: Stop dev server
+        if: always()
+        run: kill "$(cat /tmp/dev-server.pid)" 2>/dev/null || true
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-audit-report
+          path: |
+            audit-output/audit-report.md
+            /tmp/dev-server.log
+          if-no-files-found: warn

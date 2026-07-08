@@ -1,0 +1,3 @@
+CREATE POLICY "admins view any batch" ON public.expense_batches FOR SELECT TO authenticated USING (public.has_role(auth.uid(),'admin') OR public.has_role(auth.uid(),'super_admin'));
+CREATE POLICY "admins view any claim" ON public.expense_claims FOR SELECT TO authenticated USING (public.has_role(auth.uid(),'admin') OR public.has_role(auth.uid(),'super_admin'));
+CREATE POLICY "admins update any claim" ON public.expense_claims FOR UPDATE TO authenticated USING (public.has_role(auth.uid(),'admin') OR public.has_role(auth.uid(),'super_admin')) WITH CHECK (public.has_role(auth.uid(),'admin') OR public.has_role(auth.uid(),'super_admin'));
