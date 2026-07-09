@@ -220,7 +220,7 @@ function AuthPage() {
               },
             }).catch(() => {});
             setFailedAttempts(incFailedAttempts(email));
-            throw new Error("رقم المنشأة غير صحيح أو لا ينتمي لهذا الحساب");
+            throw new Error(t("auth.establishmentMismatch"));
           }
         }
         await recordLoginEvent({
