@@ -733,7 +733,7 @@ function ThreadView() {
                   (f) => f.size <= 8 * 1024 * 1024,
                 );
                 if (list.length !== (e.target.files?.length ?? 0))
-                  toast.error("الحد الأقصى للملف 8MB");
+                  toast.error(t("assistant.thread.fileTooLarge"));
                 setFiles((prev) => [...prev, ...list]);
                 if (fileInputRef.current) fileInputRef.current.value = "";
               }}
@@ -756,7 +756,7 @@ function ThreadView() {
                   submit();
                 }
               }}
-              placeholder="اكتب سؤالك… (Shift+Enter لسطر جديد)"
+              placeholder={t("assistant.thread.inputPlaceholder")}
               rows={2}
               disabled={isPending}
             />
@@ -779,13 +779,13 @@ function ThreadView() {
       <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>إعادة تسمية المحادثة</DialogTitle>
-            <DialogDescription>اختر عنواناً وصفياً للمحادثة.</DialogDescription>
+            <DialogTitle>{t("assistant.thread.renameTitle")}</DialogTitle>
+            <DialogDescription>{t("assistant.thread.renameDesc")}</DialogDescription>
           </DialogHeader>
           <Input
             value={renameValue}
             onChange={(e) => setRenameValue(e.target.value)}
-            placeholder="عنوان المحادثة"
+            placeholder={t("assistant.thread.renamePlaceholder")}
             maxLength={120}
             onKeyDown={(e) => {
               if (e.key === "Enter" && renameValue.trim()) renameM.mutate(renameValue.trim());
@@ -793,13 +793,13 @@ function ThreadView() {
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setRenameOpen(false)}>
-              إلغاء
+              {t("assistant.thread.cancel")}
             </Button>
             <Button
               onClick={() => renameM.mutate(renameValue.trim())}
               disabled={!renameValue.trim() || renameM.isPending}
             >
-              {renameM.isPending ? <Loader2 className="size-4 animate-spin" /> : "حفظ"}
+              {renameM.isPending ? <Loader2 className="size-4 animate-spin" /> : t("assistant.thread.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -808,21 +808,21 @@ function ThreadView() {
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>حذف المحادثة</DialogTitle>
+            <DialogTitle>{t("assistant.thread.deleteTitle")}</DialogTitle>
             <DialogDescription>
-              سيتم حذف هذه المحادثة وجميع رسائلها نهائياً. لا يمكن التراجع.
+              {t("assistant.thread.deleteDesc")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteOpen(false)}>
-              إلغاء
+              {t("assistant.thread.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={() => deleteM.mutate()}
               disabled={deleteM.isPending}
             >
-              {deleteM.isPending ? <Loader2 className="size-4 animate-spin" /> : "حذف"}
+              {deleteM.isPending ? <Loader2 className="size-4 animate-spin" /> : t("assistant.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>
