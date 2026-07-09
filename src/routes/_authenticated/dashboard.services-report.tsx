@@ -521,5 +521,3 @@ function ServicesReportPage() {
     </div>
   );
 }
-
-export default ServicesReportPage;
