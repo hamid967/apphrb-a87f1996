@@ -4329,6 +4329,10 @@ const ar: typeof en = {
       showing: "عرض {{shown}} من {{total}}",
       notInRows: "غير متوفر في النتائج",
       noRows: "لا توجد صفوف قابلة للعرض من هذه النتيجة.",
+      retry: "إعادة المحاولة",
+      completed: "اكتمل",
+      autoRefresh: "تحديث تلقائي",
+      autoRefreshOn: "يتم التحديث كل 30 ثانية",
       cats: {
         reports: "تقارير",
         analysis: "تحليل",
