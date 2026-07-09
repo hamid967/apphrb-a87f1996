@@ -89,20 +89,31 @@ jobs:
           rc=1
           while [ "$attempt" -le "$E2E_MAX_ATTEMPTS" ]; do
             echo "::group::WebView E2E attempt $attempt / $E2E_MAX_ATTEMPTS"
-            log="/tmp/browser/webview-redirects/run.attempt-${attempt}.log"
+            # Per-attempt artifact bucket: the spec writes screenshots,
+            # trace.zip, video/*.webm, and browser-console.log into
+            # WEBVIEW_E2E_ARTIFACT_DIR. Keeping each attempt in its own
+            # directory means a passing final attempt never overwrites the
+            # forensic evidence from the earlier failed ones.
+            attempt_dir="/tmp/browser/webview-redirects/attempt-${attempt}"
+            mkdir -p "$attempt_dir"
+            log="${attempt_dir}/run.log"
             set +e
             set -o pipefail
-            python tests/e2e/webview-auth-redirects.spec.py 2>&1 | tee "$log"
+            WEBVIEW_E2E_ARTIFACT_DIR="$attempt_dir" \
+              python tests/e2e/webview-auth-redirects.spec.py 2>&1 | tee "$log"
             rc=${PIPESTATUS[0]}
             set +o pipefail
             set -e
+            # Mirror the log at the top level too (legacy path used by prior
+            # tooling that greps /tmp/browser/webview-redirects/run.attempt-*.log).
+            cp -f "$log" "/tmp/browser/webview-redirects/run.attempt-${attempt}.log"
             echo "::endgroup::"
             if [ "$rc" -eq 0 ]; then
               echo "attempt $attempt succeeded"
               cp -f "$log" /tmp/browser/webview-redirects/run.log
               break
             fi
-            echo "attempt $attempt failed (exit=$rc)"
+            echo "::warning::WebView E2E attempt $attempt failed (exit=$rc). See attempt-${attempt}/ artifacts (screenshots, trace.zip, video/, browser-console.log)."
             if [ "$attempt" -lt "$E2E_MAX_ATTEMPTS" ]; then
               sleep "$E2E_RETRY_BACKOFF_SECONDS"
             fi
@@ -129,9 +140,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: webview-auth-redirects-artifacts
-          # Contains screenshots (1_..10_..png), the full run transcript, and
-          # the dev-server log. Uploaded on both pass and fail so reviewers
-          # can inspect the exact WebView state each PR produced.
+          # Contains, per attempt: screenshots (1_..11_..png), Playwright
+          # trace.zip (open with `playwright show-trace`), video/*.webm
+          # captures of every page, browser-console.log (console + pageerror
+          # + failed requests), and the attempt's run.log. Plus the top-level
+          # dev-server.log and run.log for the last/successful attempt.
+          # Uploaded on both pass and fail so reviewers can diagnose flakes
+          # without having to reproduce them locally.
           path: /tmp/browser/webview-redirects
           if-no-files-found: warn
           retention-days: 14
