@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { runDashboardTool } from "@/lib/ai-assistant.functions";
 import { sectionHead } from "@/lib/section-og-head";
 import {
@@ -13,6 +14,9 @@ import {
   Filter,
   X,
   AlertTriangle,
+  RefreshCw,
+  CheckCircle2,
+  Clock,
 } from "lucide-react";
 
 type SearchArgs = Record<string, string | number | undefined>;
@@ -127,6 +131,15 @@ function ScriptDetailPage() {
   const [statusF, setStatusF] = useState<string | null>(null);
   const [estF, setEstF] = useState<string | null>(null);
 
+  // Run metadata.
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<number | null>(null);
+  const [lastDurationMs, setLastDurationMs] = useState<number | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const startedAtRef = useRef<number>(0);
+
+  const title = t(`assistant.scripts.items.${name}.title` as any, { defaultValue: name });
+
   const mutation = useMutation({
     mutationFn: async () => {
       const args: Record<string, unknown> = {};
@@ -135,10 +148,39 @@ function ScriptDetailPage() {
         const asNum = typeof v === "string" ? Number(v) : v;
         args[k] = Number.isFinite(asNum as number) && String(asNum) === String(v) ? asNum : v;
       }
+      startedAtRef.current = performance.now();
       const res = await runFn({ data: { name: name as any, args } });
       return res.result;
     },
+    onSuccess: () => {
+      const dur = Math.round(performance.now() - startedAtRef.current);
+      setLastDurationMs(dur);
+      setLastUpdatedAt(Date.now());
+      setProgress(100);
+      toast.success(t("assistant.scripts.ran", { title }));
+    },
+    onError: (e: any) => {
+      setProgress(0);
+      toast.error(e?.message ?? t("assistant.scripts.runFailed"));
+    },
   });
+
+  // Fake progress while running so users see motion even for long-running fns.
+  useEffect(() => {
+    if (!mutation.isPending) return;
+    setProgress(6);
+    const id = window.setInterval(() => {
+      setProgress((p) => (p < 90 ? p + Math.max(1, (90 - p) * 0.08) : p));
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [mutation.isPending]);
+
+  // Reset progress after a moment of success so the bar hides.
+  useEffect(() => {
+    if (!mutation.isSuccess) return;
+    const id = window.setTimeout(() => setProgress(0), 700);
+    return () => window.clearTimeout(id);
+  }, [mutation.isSuccess, lastUpdatedAt]);
 
   // Auto-run on mount + when search args change.
   useEffect(() => {
@@ -146,7 +188,16 @@ function ScriptDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name, JSON.stringify(search)]);
 
-  const title = t(`assistant.scripts.items.${name}.title` as any, { defaultValue: name });
+  // Optional auto-refresh polling.
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const id = window.setInterval(() => {
+      if (!mutation.isPending) mutation.mutate();
+    }, 30_000);
+    return () => window.clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoRefresh, mutation.isPending]);
+
   const description = t(`assistant.scripts.items.${name}.desc` as any, { defaultValue: "" });
 
   const extracted = useMemo(() => extractRows(mutation.data), [mutation.data]);
@@ -221,19 +272,75 @@ function ScriptDetailPage() {
           <h1 className="text-2xl font-bold">{title}</h1>
           {description && <p className="text-sm text-muted-foreground">{description}</p>}
         </div>
-        <button
-          onClick={() => mutation.mutate()}
-          disabled={mutation.isPending}
-          className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground disabled:opacity-60"
-        >
-          {mutation.isPending ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Play className="size-4" />
-          )}
-          {t("assistant.scripts.rerun")}
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <label className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs text-muted-foreground cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={autoRefresh}
+              onChange={(e) => setAutoRefresh(e.target.checked)}
+              className="accent-primary"
+            />
+            <RefreshCw className={`size-3.5 ${autoRefresh ? "text-primary" : ""}`} />
+            {t("assistant.scripts.autoRefresh")}
+          </label>
+          <button
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground disabled:opacity-60"
+          >
+            {mutation.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Play className="size-4" />
+            )}
+            {t("assistant.scripts.rerun")}
+          </button>
+        </div>
       </header>
+
+      {/* Progress bar (visible while running; briefly on completion). */}
+      <div className="relative h-1 rounded-full bg-muted overflow-hidden" aria-hidden={progress === 0}>
+        <div
+          className={`absolute inset-y-0 start-0 transition-[width] duration-200 ease-out ${
+            mutation.isError ? "bg-destructive" : "bg-primary"
+          }`}
+          style={{ width: `${progress}%` }}
+          role="progressbar"
+          aria-valuenow={Math.round(progress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        />
+      </div>
+
+      {/* Status line: last updated / duration / auto-refresh. */}
+      <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+        {mutation.isPending ? (
+          <span className="inline-flex items-center gap-1.5 text-primary">
+            <Loader2 className="size-3.5 animate-spin" />
+            {t("assistant.scripts.running")}
+          </span>
+        ) : mutation.isSuccess && lastUpdatedAt ? (
+          <>
+            <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="size-3.5" />
+              {t("assistant.scripts.completed")}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="size-3.5" />
+              {new Date(lastUpdatedAt).toLocaleTimeString(i18n.language)}
+              {lastDurationMs !== null && (
+                <span className="text-muted-foreground/80">· {lastDurationMs} ms</span>
+              )}
+            </span>
+          </>
+        ) : null}
+        {autoRefresh && !mutation.isError && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5">
+            <RefreshCw className="size-3" />
+            {t("assistant.scripts.autoRefreshOn")}
+          </span>
+        )}
+      </div>
 
       {/* Summary chips (non-array scalar fields from result). */}
       {summaryEntries.length > 0 && (
@@ -253,9 +360,22 @@ function ScriptDetailPage() {
 
       {/* Errors */}
       {mutation.isError && (
-        <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive flex items-start gap-2">
-          <AlertTriangle className="size-4 mt-0.5 shrink-0" />
-          <div>{(mutation.error as Error)?.message ?? t("assistant.scripts.runFailed")}</div>
+        <div className="rounded-md border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive flex items-start gap-3">
+          <AlertTriangle className="size-5 mt-0.5 shrink-0" />
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="font-semibold">{t("assistant.scripts.runFailed")}</div>
+            <pre className="whitespace-pre-wrap break-words font-mono text-xs opacity-90" dir="ltr">
+              {(mutation.error as Error)?.message ?? String(mutation.error)}
+            </pre>
+            <button
+              onClick={() => mutation.mutate()}
+              disabled={mutation.isPending}
+              className="inline-flex items-center gap-1.5 rounded-md border border-destructive/40 bg-destructive/10 px-2.5 py-1 text-xs font-medium hover:bg-destructive/20 disabled:opacity-60"
+            >
+              <RefreshCw className="size-3.5" />
+              {t("assistant.scripts.retry")}
+            </button>
+          </div>
         </div>
       )}
 

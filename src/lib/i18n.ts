@@ -2145,6 +2145,10 @@ const en = {
       showing: "Showing {{shown}} of {{total}}",
       notInRows: "Not present in results",
       noRows: "No rows to display for this result.",
+      retry: "Retry",
+      completed: "Completed",
+      autoRefresh: "Auto-refresh",
+      autoRefreshOn: "Auto-refreshing every 30s",
       cats: {
         reports: "Reports",
         analysis: "Analysis",
@@ -4325,6 +4329,10 @@ const ar: typeof en = {
       showing: "عرض {{shown}} من {{total}}",
       notInRows: "غير متوفر في النتائج",
       noRows: "لا توجد صفوف قابلة للعرض من هذه النتيجة.",
+      retry: "إعادة المحاولة",
+      completed: "اكتمل",
+      autoRefresh: "تحديث تلقائي",
+      autoRefreshOn: "يتم التحديث كل 30 ثانية",
       cats: {
         reports: "تقارير",
         analysis: "تحليل",

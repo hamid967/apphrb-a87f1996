@@ -1975,3 +1975,9 @@ html.theme-lux :where(:not(.theme-luxe *)) textarea:focus {
   border-radius: 28px;
   box-shadow: 0 20px 50px -18px color-mix(in oklab, #6C5CE7 12%, transparent);
 }
+
+@keyframes progressSlide {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(50%); }
+  100% { transform: translateX(300%); }
+}

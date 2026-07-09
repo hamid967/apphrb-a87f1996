@@ -293,13 +293,29 @@ function ScriptCard({
         )}
       </div>
 
+      {/* Slim progress bar while running. */}
+      {running && (
+        <div className="h-1 rounded-full bg-muted overflow-hidden" aria-hidden>
+          <div className="h-full w-1/3 bg-primary animate-[progressSlide_1.2s_ease-in-out_infinite]" />
+        </div>
+      )}
+
       {open && error && (
-        <pre
-          className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-xs text-destructive overflow-x-auto"
-          dir="ltr"
-        >
-          {error}
-        </pre>
+        <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-xs text-destructive space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-semibold">{t("assistant.scripts.runFailed")}</span>
+            <button
+              onClick={handleRun}
+              disabled={running}
+              className="inline-flex items-center gap-1 rounded border border-destructive/40 bg-destructive/10 px-2 py-0.5 hover:bg-destructive/20 disabled:opacity-60"
+            >
+              {t("assistant.scripts.retry")}
+            </button>
+          </div>
+          <pre className="whitespace-pre-wrap break-words font-mono" dir="ltr">
+            {error}
+          </pre>
+        </div>
       )}
       {open && result && (
         <pre
