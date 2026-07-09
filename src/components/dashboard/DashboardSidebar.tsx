@@ -121,7 +121,7 @@ export function DashboardSidebar() {
       labelEn: "Operations",
       items: [
         { url: "/dashboard/tasks", icon: CheckSquare, ar: "المهام", en: "Tasks" },
-        { url: "/dashboard/documents", icon: FolderOpen, ar: "المستندات", en: "Documents" },
+        { url: "/documents", icon: FolderOpen, ar: "المستندات", en: "Documents" },
         { url: "/dashboard/maintenance", icon: Settings, ar: "الصيانة", en: "Maintenance" },
       ],
     },
