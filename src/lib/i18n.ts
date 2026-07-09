@@ -87,6 +87,8 @@ const en = {
     establishmentMismatch: "Establishment number is incorrect or doesn't belong to this account.",
     rateLimited:
       "Sign-in temporarily blocked due to repeated failures. Try again in {{minutes}} minutes.",
+    devAccountCreated: "Developer account created: {{email}} — credentials copied to clipboard",
+    comingSoonLabel: "{{label}} — coming soon",
   },
   onboarding: {
     title: "Create your company",
