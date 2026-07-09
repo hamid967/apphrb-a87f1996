@@ -415,7 +415,8 @@ function AuthPage() {
                       className="text-xs uppercase tracking-[0.18em]"
                       style={{ color: HBS.gray }}
                     >
-                      رقم المنشأة <span className="opacity-60">(اختياري)</span>
+                      {t("auth.establishmentNo")}{" "}
+                      <span className="opacity-60">{t("auth.establishmentOptional")}</span>
                     </Label>
                     <div className="relative">
                       <Building
