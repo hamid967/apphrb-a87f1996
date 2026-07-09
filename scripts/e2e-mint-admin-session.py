@@ -205,15 +205,23 @@ def ensure_test_user(supabase_url: str, service_role_key: str, email: str,
         if code not in (200, 201):
             sys.exit(f"ERROR: could not confirm E2E user email ({code}): {body}")
     # 3) Grant role (idempotent via ON CONFLICT-like Prefer)
+    # 3) Reset roles for this user, then grant the requested role.
+    #    DELETE + INSERT so we tolerate legacy rows (e.g. an old 'admin' entry
+    #    when the requested role is now 'super_admin'). The natural key
+    #    (user_id, role) isn't the PRIMARY KEY, so `merge-duplicates` wouldn't
+    #    replace by user_id alone.
+    _pgrst(
+        supabase_url, service_role_key, "DELETE",
+        f"/rest/v1/user_roles?user_id=eq.{user_id}",
+        prefer="return=minimal",
+    )
     code, body = _pgrst(
         supabase_url, service_role_key, "POST",
         "/rest/v1/user_roles",
         body={"user_id": user_id, "role": role},
-        prefer="resolution=merge-duplicates,return=minimal",
+        prefer="return=minimal",
     )
-    # 409 or 200/201 → OK; treat other codes as fatal only if not "already exists"
-    if code not in (200, 201, 204, 409):
-        # Some deployments return 400 with duplicate-key text; tolerate that.
+    if code not in (200, 201, 204):
         if "duplicate" not in body.lower() and "already exists" not in body.lower():
             sys.exit(f"ERROR: could not grant {role} to E2E user ({code}): {body}")
     return user_id
