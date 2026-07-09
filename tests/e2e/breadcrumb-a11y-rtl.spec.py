@@ -136,7 +136,9 @@ async def collect_tab_order(page) -> list[dict]:
         """() => {
           const nav = [...document.querySelectorAll('nav[aria-label]')]
             .find(n => /مسار|Breadcrumb/i.test(n.getAttribute('aria-label')||''));
-          const first = nav && nav.querySelector('a,button,[tabindex="0"]');
+          if (!nav) return;
+          const first = [...nav.querySelectorAll('a,button,[tabindex="0"]')]
+            .find(el => el.offsetParent !== null);
           if (first) first.focus();
         }"""
     )
