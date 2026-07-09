@@ -62,24 +62,76 @@ export function DashboardSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
 
-  const items = [
-    { url: "/dashboard", icon: LayoutDashboard, ar: "الرئيسية", en: "Overview" },
+  const groups: {
+    labelAr: string;
+    labelEn: string;
+    items: readonly {
+      url: string;
+      icon: typeof Home;
+      ar: string;
+      en: string;
+      search?: { view: "smart" };
+    }[];
+  }[] = [
     {
-      url: "/dashboard",
-      search: { view: "smart" as const },
-      icon: Sparkles,
-      ar: "لوحة ذكية",
-      en: "Smart Dashboard",
+      labelAr: "الرئيسية",
+      labelEn: "Overview",
+      items: [
+        { url: "/dashboard", icon: LayoutDashboard, ar: "الرئيسية", en: "Overview" },
+        { url: "/dashboard", search: { view: "smart" }, icon: Sparkles, ar: "لوحة ذكية", en: "Smart Dashboard" },
+        { url: "/dashboard/reports", icon: BarChart3, ar: "التقارير", en: "Reports" },
+      ],
     },
-    { url: "/dashboard/units", icon: KeyRound, ar: "الوحدات", en: "Units" },
-    { url: "/dashboard/contracts", icon: FileText, ar: "العقود", en: "Contracts" },
-    { url: "/dashboard/payments", icon: Coins, ar: "المدفوعات", en: "Payments" },
-    { url: "/dashboard/expenses", icon: Receipt, ar: "المصروفات", en: "Expenses" },
-    { url: "/dashboard/tenants", icon: Users2, ar: "المستأجرون", en: "Tenants" },
-    { url: "/dashboard/applications", icon: ClipboardList, ar: "طلبات السكن", en: "Applications" },
-    { url: "/reports/builder", icon: BarChart3, ar: "منشئ التقارير", en: "Report Builder" },
-    { url: "/dashboard/settings", icon: Settings, ar: "الإعدادات", en: "Settings" },
-  ] as const;
+    {
+      labelAr: "العقارات",
+      labelEn: "Properties",
+      items: [
+        { url: "/dashboard/properties", icon: Home, ar: "العقارات", en: "Properties" },
+        { url: "/dashboard/units", icon: KeyRound, ar: "الوحدات", en: "Units" },
+        { url: "/dashboard/owners", icon: Users2, ar: "الملّاك", en: "Owners" },
+        { url: "/dashboard/valuations", icon: Gauge, ar: "التقييمات", en: "Valuations" },
+        { url: "/dashboard/viewings", icon: CalendarClock, ar: "المعاينات", en: "Viewings" },
+      ],
+    },
+    {
+      labelAr: "العقود والمالية",
+      labelEn: "Contracts & Finance",
+      items: [
+        { url: "/dashboard/contracts", icon: FileText, ar: "العقود", en: "Contracts" },
+        { url: "/dashboard/payments", icon: Coins, ar: "المدفوعات", en: "Payments" },
+        { url: "/dashboard/vouchers", icon: Wallet, ar: "السندات", en: "Vouchers" },
+        { url: "/dashboard/expenses", icon: Receipt, ar: "المصروفات", en: "Expenses" },
+        { url: "/dashboard/commissions", icon: Target, ar: "العمولات", en: "Commissions" },
+      ],
+    },
+    {
+      labelAr: "المستأجرون و CRM",
+      labelEn: "Tenants & CRM",
+      items: [
+        { url: "/dashboard/tenants", icon: Users2, ar: "المستأجرون", en: "Tenants" },
+        { url: "/dashboard/applications", icon: ClipboardList, ar: "طلبات السكن", en: "Applications" },
+        { url: "/dashboard/crm/leads", icon: Target, ar: "العملاء المحتملون", en: "Leads" },
+        { url: "/dashboard/crm/deals", icon: Handshake, ar: "الصفقات", en: "Deals" },
+        { url: "/dashboard/crm/meetings", icon: CalendarClock, ar: "الاجتماعات", en: "Meetings" },
+      ],
+    },
+    {
+      labelAr: "العمليات",
+      labelEn: "Operations",
+      items: [
+        { url: "/dashboard/tasks", icon: CheckSquare, ar: "المهام", en: "Tasks" },
+        { url: "/dashboard/documents", icon: FolderOpen, ar: "المستندات", en: "Documents" },
+        { url: "/dashboard/maintenance", icon: Settings, ar: "الصيانة", en: "Maintenance" },
+      ],
+    },
+    {
+      labelAr: "الإعدادات",
+      labelEn: "Settings",
+      items: [{ url: "/dashboard/settings", icon: Settings, ar: "الإعدادات", en: "Settings" }],
+    },
+  ];
+  const items = groups.flatMap((g) => g.items);
+
 
   const search = useRouterState({ select: (s) => s.location.search as Record<string, unknown> });
   const currentView = (search?.view as string | undefined) ?? "classic";
