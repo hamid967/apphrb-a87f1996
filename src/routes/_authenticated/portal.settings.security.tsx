@@ -21,12 +21,12 @@ function SecuritySettings() {
       to: "/auth",
     },
     {
-      icon: Fingerprint,
-      ar: "التحقق بخطوتين",
-      en: "Two-factor auth",
-      arSub: "غير مفعّل",
-      enSub: "Not enabled",
-      to: "/auth",
+      icon: Smartphone,
+      ar: "الأجهزة الموثوقة",
+      en: "Trusted devices",
+      arSub: "إدارة الجلسات النشطة",
+      enSub: "Manage active sessions",
+      to: "/security/sessions",
     },
     {
       icon: Smartphone,
