@@ -74,7 +74,6 @@ import { Route as ApiPublicFilterAnalyticsBeaconRouteImport } from './routes/api
 import { Route as ApiAssistantChatRouteImport } from './routes/api/assistant.chat'
 import { Route as AuthenticatedSettingsImportRouteImport } from './routes/_authenticated/settings.import'
 import { Route as AuthenticatedSecuritySessionsRouteImport } from './routes/_authenticated/security.sessions'
-import { Route as AuthenticatedSecurityMfaRouteImport } from './routes/_authenticated/security.mfa'
 import { Route as AuthenticatedReportsTemplatesRouteImport } from './routes/_authenticated/reports.templates'
 import { Route as AuthenticatedReportsPreviewRouteImport } from './routes/_authenticated/reports.preview'
 import { Route as AuthenticatedReportsPdfRouteImport } from './routes/_authenticated/reports.pdf'
@@ -569,12 +568,6 @@ const AuthenticatedSecuritySessionsRoute =
   AuthenticatedSecuritySessionsRouteImport.update({
     id: '/security/sessions',
     path: '/security/sessions',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedSecurityMfaRoute =
-  AuthenticatedSecurityMfaRouteImport.update({
-    id: '/security/mfa',
-    path: '/security/mfa',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedReportsTemplatesRoute =
@@ -1596,7 +1589,6 @@ export interface FileRoutesByFullPath {
   '/reports/pdf': typeof AuthenticatedReportsPdfRoute
   '/reports/preview': typeof AuthenticatedReportsPreviewRoute
   '/reports/templates': typeof AuthenticatedReportsTemplatesRouteWithChildren
-  '/security/mfa': typeof AuthenticatedSecurityMfaRoute
   '/security/sessions': typeof AuthenticatedSecuritySessionsRoute
   '/settings/import': typeof AuthenticatedSettingsImportRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
@@ -1808,7 +1800,6 @@ export interface FileRoutesByTo {
   '/reports/pdf': typeof AuthenticatedReportsPdfRoute
   '/reports/preview': typeof AuthenticatedReportsPreviewRoute
   '/reports/templates': typeof AuthenticatedReportsTemplatesRouteWithChildren
-  '/security/mfa': typeof AuthenticatedSecurityMfaRoute
   '/security/sessions': typeof AuthenticatedSecuritySessionsRoute
   '/settings/import': typeof AuthenticatedSettingsImportRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
@@ -2030,7 +2021,6 @@ export interface FileRoutesById {
   '/_authenticated/reports/pdf': typeof AuthenticatedReportsPdfRoute
   '/_authenticated/reports/preview': typeof AuthenticatedReportsPreviewRoute
   '/_authenticated/reports/templates': typeof AuthenticatedReportsTemplatesRouteWithChildren
-  '/_authenticated/security/mfa': typeof AuthenticatedSecurityMfaRoute
   '/_authenticated/security/sessions': typeof AuthenticatedSecuritySessionsRoute
   '/_authenticated/settings/import': typeof AuthenticatedSettingsImportRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
@@ -2252,7 +2242,6 @@ export interface FileRouteTypes {
     | '/reports/pdf'
     | '/reports/preview'
     | '/reports/templates'
-    | '/security/mfa'
     | '/security/sessions'
     | '/settings/import'
     | '/api/assistant/chat'
@@ -2464,7 +2453,6 @@ export interface FileRouteTypes {
     | '/reports/pdf'
     | '/reports/preview'
     | '/reports/templates'
-    | '/security/mfa'
     | '/security/sessions'
     | '/settings/import'
     | '/api/assistant/chat'
@@ -2685,7 +2673,6 @@ export interface FileRouteTypes {
     | '/_authenticated/reports/pdf'
     | '/_authenticated/reports/preview'
     | '/_authenticated/reports/templates'
-    | '/_authenticated/security/mfa'
     | '/_authenticated/security/sessions'
     | '/_authenticated/settings/import'
     | '/api/assistant/chat'
@@ -3293,13 +3280,6 @@ declare module '@tanstack/react-router' {
       path: '/security/sessions'
       fullPath: '/security/sessions'
       preLoaderRoute: typeof AuthenticatedSecuritySessionsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/security/mfa': {
-      id: '/_authenticated/security/mfa'
-      path: '/security/mfa'
-      fullPath: '/security/mfa'
-      preLoaderRoute: typeof AuthenticatedSecurityMfaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/reports/templates': {
@@ -4914,7 +4894,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedReportsPdfRoute: typeof AuthenticatedReportsPdfRoute
   AuthenticatedReportsPreviewRoute: typeof AuthenticatedReportsPreviewRoute
   AuthenticatedReportsTemplatesRoute: typeof AuthenticatedReportsTemplatesRouteWithChildren
-  AuthenticatedSecurityMfaRoute: typeof AuthenticatedSecurityMfaRoute
   AuthenticatedSecuritySessionsRoute: typeof AuthenticatedSecuritySessionsRoute
   AuthenticatedSettingsImportRoute: typeof AuthenticatedSettingsImportRoute
   AuthenticatedAuctionsIndexRoute: typeof AuthenticatedAuctionsIndexRoute
@@ -4961,7 +4940,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedReportsPreviewRoute: AuthenticatedReportsPreviewRoute,
   AuthenticatedReportsTemplatesRoute:
     AuthenticatedReportsTemplatesRouteWithChildren,
-  AuthenticatedSecurityMfaRoute: AuthenticatedSecurityMfaRoute,
   AuthenticatedSecuritySessionsRoute: AuthenticatedSecuritySessionsRoute,
   AuthenticatedSettingsImportRoute: AuthenticatedSettingsImportRoute,
   AuthenticatedAuctionsIndexRoute: AuthenticatedAuctionsIndexRoute,
