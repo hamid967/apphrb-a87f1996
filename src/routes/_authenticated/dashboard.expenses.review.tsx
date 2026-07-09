@@ -219,7 +219,7 @@ function ClaimsReviewPage() {
                   const busy = decide.isPending && decide.variables?.data.claim_id === r.id;
                   const canAct = status === "submitted" || status === "in_review";
                   return (
-                    <>
+                    <Fragment key={r.id}>
                     <TableRow key={r.id}>
                       <TableCell>
                         <div className="font-medium">{r.title || r.claim_number || "—"}</div>
