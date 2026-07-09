@@ -5746,51 +5746,143 @@ export type Database = {
           },
         ]
       }
+      ticket_comments: {
+        Row: {
+          attachments: Json
+          author_id: string | null
+          body: string
+          created_at: string
+          id: string
+          is_internal: boolean
+          org_id: string
+          ticket_id: string
+        }
+        Insert: {
+          attachments?: Json
+          author_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          org_id: string
+          ticket_id: string
+        }
+        Update: {
+          attachments?: Json
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          is_internal?: boolean
+          org_id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_comments_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_sla_policies: {
+        Row: {
+          created_at: string
+          first_response_minutes: number
+          id: string
+          org_id: string
+          priority: string
+          resolution_minutes: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          first_response_minutes?: number
+          id?: string
+          org_id: string
+          priority: string
+          resolution_minutes?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          first_response_minutes?: number
+          id?: string
+          org_id?: string
+          priority?: string
+          resolution_minutes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tickets: {
         Row: {
           assignee_id: string | null
           category: string | null
+          channel: string
+          closed_at: string | null
           created_at: string
           deleted_at: string | null
           description: string | null
+          first_response_at: string | null
           id: string
           org_id: string
           priority: string
           requester_id: string | null
+          resolved_at: string | null
+          sla_due_at: string | null
           status: string
           subject: string
+          tags: string[]
           ticket_number: string | null
           updated_at: string
+          watcher_ids: string[]
         }
         Insert: {
           assignee_id?: string | null
           category?: string | null
+          channel?: string
+          closed_at?: string | null
           created_at?: string
           deleted_at?: string | null
           description?: string | null
+          first_response_at?: string | null
           id?: string
           org_id: string
           priority?: string
           requester_id?: string | null
+          resolved_at?: string | null
+          sla_due_at?: string | null
           status?: string
           subject: string
+          tags?: string[]
           ticket_number?: string | null
           updated_at?: string
+          watcher_ids?: string[]
         }
         Update: {
           assignee_id?: string | null
           category?: string | null
+          channel?: string
+          closed_at?: string | null
           created_at?: string
           deleted_at?: string | null
           description?: string | null
+          first_response_at?: string | null
           id?: string
           org_id?: string
           priority?: string
           requester_id?: string | null
+          resolved_at?: string | null
+          sla_due_at?: string | null
           status?: string
           subject?: string
+          tags?: string[]
           ticket_number?: string | null
           updated_at?: string
+          watcher_ids?: string[]
         }
         Relationships: [
           {
