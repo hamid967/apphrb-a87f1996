@@ -541,7 +541,7 @@ function AuthPage() {
                 style={{ color: HBS.gray }}
               >
                 <div className="h-px flex-1" style={{ background: HBS.border }} />
-                <span>OR</span>
+                <span>{t("auth.orDivider")}</span>
                 <div className="h-px flex-1" style={{ background: HBS.border }} />
               </div>
 
