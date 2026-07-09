@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, Link as RouterLink } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "motion/react";
 import {
   BellRing,
@@ -15,10 +15,19 @@ import {
   Sparkles,
   Check,
   CheckCheck,
+  BellOff,
+  Settings2,
+  Undo2,
 } from "lucide-react";
 import { listMyRecentClaims } from "@/lib/expense-claims.functions";
-import { Link as RouterLink } from "@tanstack/react-router";
-import { Settings2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import {
   useReminderPreferences,
   categoryFromReminderId,
