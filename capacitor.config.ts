@@ -15,8 +15,8 @@ import type { CapacitorConfig } from '@capacitor/cli';
  * client bundle is packaged inside the app itself.
  */
 const config: CapacitorConfig = {
-  appId: 'app.hbspro.mobile',
-  appName: 'HBSpro',
+  appId: 'app.hrhbs.aqari',
+  appName: 'Aqari',
   webDir: 'dist',
   server: {
     url: 'https://project--a9ead090-32b6-464c-a919-22a1f97a0364.lovable.app',
