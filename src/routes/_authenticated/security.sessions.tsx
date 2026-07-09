@@ -213,6 +213,6 @@ function SessionsPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 }
