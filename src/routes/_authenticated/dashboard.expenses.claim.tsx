@@ -433,6 +433,7 @@ function ClaimWizard() {
                   </Label>
                   <Input
                     id="claim-amount"
+                    data-coach="receipt-amount"
                     inputMode="decimal"
                     autoFocus
                     placeholder="0.00"
@@ -566,7 +567,7 @@ function ClaimWizard() {
                 {t("expenseClaim.next")} <ArrowRight className="h-4 w-4 ms-1" />
               </Button>
             ) : (
-              <Button onClick={onSubmit} disabled={!canSubmit || submit.isPending}>
+              <Button data-coach="receipt-submit" onClick={onSubmit} disabled={!canSubmit || submit.isPending}>
                 {submit.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 me-2 animate-spin" /> {t("expenseClaim.submitting")}
@@ -640,6 +641,7 @@ function ReceiptStep({
     <div className="space-y-3">
       <button
         type="button"
+        data-coach="receipt-upload"
         onClick={onPick}
         onDragOver={(e) => {
           e.preventDefault();
