@@ -1,58 +1,100 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { portalHead } from "@/lib/portal-og-head";
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { LifeBuoy, MessageCircle, Phone, Mail, BookOpen, PlayCircle } from "lucide-react";
+import { toast } from "sonner";
+import { LifeBuoy, MessageCircle, Phone, Mail, Plus, Send } from "lucide-react";
+import { portalHead } from "@/lib/portal-og-head";
 import { PortalPageHeader } from "@/components/portal/PortalPageHeader";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { HijriDateBadge } from "@/components/ui/hijri-date-badge";
+import { createSupportTicket, listMyTickets } from "@/lib/support-tickets.functions";
 
 export const Route = createFileRoute("/_authenticated/portal/support")({
-  head: () => portalHead({ titleAr: 'الدعم الفني', titleEn: 'Support', descAr: 'تواصل مع فريق الدعم وأنشئ تذاكر.', path: '/portal/support' }),
+  head: () =>
+    portalHead({
+      titleAr: "الدعم الفني",
+      titleEn: "Support",
+      descAr: "تواصل مع فريق الدعم وأنشئ تذاكر.",
+      path: "/portal/support",
+    }),
   component: SupportPage,
   errorComponent: ({ error }) => <div className="p-6 text-destructive">{error.message}</div>,
 });
 
+type Priority = "low" | "normal" | "high" | "urgent";
+
 function SupportPage() {
   const { i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [subject, setSubject] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<string>("general");
+  const [priority, setPriority] = useState<Priority>("normal");
+
+  const ticketsQ = useQuery({
+    queryKey: ["my-tickets"],
+    queryFn: () => listMyTickets(),
+  });
+
+  const createM = useMutation({
+    mutationFn: () =>
+      createSupportTicket({
+        data: {
+          subject: subject.trim(),
+          description: description.trim() || undefined,
+          category: category || undefined,
+          priority,
+        },
+      }),
+    onSuccess: () => {
+      toast.success(isAr ? "تم إنشاء التذكرة" : "Ticket created");
+      setOpen(false);
+      setSubject("");
+      setDescription("");
+      setCategory("general");
+      setPriority("normal");
+      qc.invalidateQueries({ queryKey: ["my-tickets"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const channels = [
-    {
-      icon: MessageCircle,
-      ar: "الدردشة المباشرة",
-      en: "Live chat",
-      arSub: "الرد خلال دقائق",
-      enSub: "Reply in minutes",
-      href: "#",
-    },
-    {
-      icon: Phone,
-      ar: "واتساب",
-      en: "WhatsApp",
-      arSub: "دعم فوري",
-      enSub: "Instant support",
-      href: "https://wa.me/966500000000",
-    },
-    {
-      icon: Mail,
-      ar: "البريد",
-      en: "Email",
-      arSub: "support@hrhbs.com",
-      enSub: "support@hrhbs.com",
-      href: "mailto:support@hrhbs.com",
-    },
+    { icon: MessageCircle, ar: "الدردشة المباشرة", en: "Live chat", href: "#" },
+    { icon: Phone, ar: "واتساب", en: "WhatsApp", href: "https://wa.me/966500000000" },
+    { icon: Mail, ar: "البريد", en: "Email", href: "mailto:support@hrhbs.com" },
   ];
-  const faqs = [
-    { ar: "كيف أنشئ طلباً جديداً؟", en: "How to create a new request?" },
-    { ar: "كيف أرفع وثيقة رسمية؟", en: "How to upload an official document?" },
-    { ar: "كيف أدفع فاتورة إلكترونياً؟", en: "How to pay an invoice online?" },
-    { ar: "كيف أفعّل المصادقة الثنائية؟", en: "How to enable 2FA?" },
-  ];
+
   return (
     <div className="mx-auto max-w-[1100px] p-4 sm:p-6 lg:p-8">
       <PortalPageHeader
         icon={<LifeBuoy className="size-5" />}
         title={isAr ? "مركز الدعم" : "Support Center"}
-        subtitle={isAr ? "نحن هنا لمساعدتك 24/7" : "We're here for you 24/7"}
+        subtitle={isAr ? "أنشئ تذكرة أو تواصل معنا مباشرة" : "Open a ticket or reach us directly"}
       />
-      <div className="grid gap-3 sm:grid-cols-3">
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
         {channels.map((c) => (
           <a
             key={c.en}
@@ -64,40 +106,146 @@ function SupportPage() {
             </div>
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold">{isAr ? c.ar : c.en}</div>
-              <div className="truncate text-xs text-muted-foreground">
-                {isAr ? c.arSub : c.enSub}
-              </div>
             </div>
           </a>
         ))}
       </div>
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <div className="surface-card p-5">
+
+      <div className="surface-card mt-6 p-5">
+        <div className="flex items-center justify-between gap-3">
           <h3 className="inline-flex items-center gap-2 text-sm font-semibold">
-            <BookOpen className="size-4" /> {isAr ? "الأسئلة الشائعة" : "FAQs"}
+            {isAr ? "تذاكري" : "My tickets"}
+            {ticketsQ.data && (
+              <span className="text-xs font-normal text-muted-foreground">
+                ({ticketsQ.data.length})
+              </span>
+            )}
           </h3>
-          <ul className="mt-3 divide-y divide-border/60">
-            {faqs.map((f, i) => (
-              <li key={i} className="py-2.5 text-sm">
-                {isAr ? f.ar : f.en}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Plus className="me-2 size-4" />
+                {isAr ? "تذكرة جديدة" : "New ticket"}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{isAr ? "فتح تذكرة دعم" : "Open a support ticket"}</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-3">
+                <div className="grid gap-1.5">
+                  <Label>{isAr ? "الموضوع *" : "Subject *"}</Label>
+                  <Input
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    maxLength={200}
+                    placeholder={isAr ? "ملخص المشكلة..." : "Brief summary..."}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="grid gap-1.5">
+                    <Label>{isAr ? "الفئة" : "Category"}</Label>
+                    <Select value={category} onValueChange={setCategory}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="general">{isAr ? "عام" : "General"}</SelectItem>
+                        <SelectItem value="billing">{isAr ? "الفواتير" : "Billing"}</SelectItem>
+                        <SelectItem value="technical">{isAr ? "تقني" : "Technical"}</SelectItem>
+                        <SelectItem value="account">{isAr ? "الحساب" : "Account"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-1.5">
+                    <Label>{isAr ? "الأولوية" : "Priority"}</Label>
+                    <Select
+                      value={priority}
+                      onValueChange={(v) => setPriority(v as Priority)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">{isAr ? "منخفضة" : "Low"}</SelectItem>
+                        <SelectItem value="normal">{isAr ? "عادية" : "Normal"}</SelectItem>
+                        <SelectItem value="high">{isAr ? "مرتفعة" : "High"}</SelectItem>
+                        <SelectItem value="urgent">{isAr ? "عاجلة" : "Urgent"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid gap-1.5">
+                  <Label>{isAr ? "الوصف" : "Description"}</Label>
+                  <Textarea
+                    rows={5}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    maxLength={4000}
+                    placeholder={isAr ? "تفاصيل تساعدنا في حل المشكلة..." : "Details that help us solve it..."}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setOpen(false)}>
+                  {isAr ? "إلغاء" : "Cancel"}
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (subject.trim().length < 3)
+                      return toast.error(
+                        isAr ? "الموضوع قصير جداً" : "Subject is too short",
+                      );
+                    createM.mutate();
+                  }}
+                  disabled={createM.isPending}
+                >
+                  <Send className="me-2 size-4" />
+                  {isAr ? "إرسال" : "Send"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {ticketsQ.isLoading ? (
+          <div className="mt-4 text-sm text-muted-foreground">{isAr ? "جارٍ التحميل..." : "Loading..."}</div>
+        ) : (ticketsQ.data?.length ?? 0) === 0 ? (
+          <div className="mt-4 rounded-lg border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
+            {isAr
+              ? "لا توجد تذاكر بعد — أنشئ أول تذكرة أعلاه."
+              : "No tickets yet — create one above."}
+          </div>
+        ) : (
+          <ul className="mt-4 divide-y divide-border/60">
+            {ticketsQ.data!.map((t) => (
+              <li key={t.id} className="flex items-start gap-3 py-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate text-sm font-semibold">{t.subject}</span>
+                    {t.ticket_number && (
+                      <span className="font-mono text-[10px] text-muted-foreground">
+                        #{t.ticket_number}
+                      </span>
+                    )}
+                    <Badge variant="outline" className="text-[10px]">
+                      {t.status}
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px]">
+                      {t.priority}
+                    </Badge>
+                  </div>
+                  {t.description && (
+                    <div className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                      {t.description}
+                    </div>
+                  )}
+                </div>
+                <HijriDateBadge date={t.created_at} showGregorian />
               </li>
             ))}
           </ul>
-        </div>
-        <div className="surface-card p-5">
-          <h3 className="inline-flex items-center gap-2 text-sm font-semibold">
-            <PlayCircle className="size-4" /> {isAr ? "شروحات فيديو" : "Video tutorials"}
-          </h3>
-          <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                className="aspect-video rounded-xl bg-gradient-to-br from-muted/60 to-muted/30"
-                aria-label="tutorial placeholder"
-              />
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
