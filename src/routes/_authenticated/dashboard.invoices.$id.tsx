@@ -60,8 +60,22 @@ function InvoiceDetailPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const sealMut = useMutation({
+    mutationFn: () => sealZatcaInvoice({ data: { invoiceId: id } }),
+    onSuccess: (res) => {
+      toast.success(
+        isAr
+          ? `تم ختم الفاتورة #${res.counter}`
+          : `Invoice sealed #${res.counter}`,
+      );
+      qc.invalidateQueries({ queryKey: ["invoice-zatca", id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const b = bundleQ.data as Bundle | undefined;
   const status = STATUS_LABEL[b?.zatca_status ?? "draft"];
+  const isSealed = !!b?.zatca_counter;
 
   const copy = (label: string, value?: string | null) => {
     if (!value) return;
@@ -98,16 +112,33 @@ function InvoiceDetailPage() {
           </h1>
           <p className="text-sm text-muted-foreground">
             {b?.issue_date} · {b?.total ?? 0} {b?.currency ?? "SAR"}
+            {isSealed && (
+              <> · <span className="font-mono">#{b?.zatca_counter}</span></>
+            )}
           </p>
         </div>
-        <Button
-          onClick={() => genMut.mutate()}
-          disabled={genMut.isPending}
-        >
-          <RefreshCw className={`h-4 w-4 me-1 ${genMut.isPending ? "animate-spin" : ""}`} />
-          {isAr ? "توليد/تحديث ZATCA" : "Generate ZATCA"}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => genMut.mutate()}
+            disabled={genMut.isPending || isSealed}
+            title={isSealed ? (isAr ? "الفاتورة مختومة" : "Invoice sealed") : undefined}
+          >
+            <RefreshCw className={`h-4 w-4 me-1 ${genMut.isPending ? "animate-spin" : ""}`} />
+            {isAr ? "توليد/تحديث" : "Generate"}
+          </Button>
+          <Button
+            onClick={() => sealMut.mutate()}
+            disabled={sealMut.isPending || !b?.zatca_hash || isSealed}
+          >
+            <Lock className={`h-4 w-4 me-1 ${sealMut.isPending ? "animate-pulse" : ""}`} />
+            {isSealed
+              ? (isAr ? "مختومة" : "Sealed")
+              : (isAr ? "ختم نهائي" : "Seal")}
+          </Button>
+        </div>
       </header>
+
 
       <Card className="p-4 md:p-6 space-y-4 border-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
