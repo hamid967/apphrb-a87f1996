@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { runDashboardTool } from "@/lib/ai-assistant.functions";
 import { recordRun } from "@/lib/scripts-history";
+import { exportRowsToCsv, exportRowsToPdf } from "@/lib/scripts-export";
 import { sectionHead } from "@/lib/section-og-head";
 import {
   ArrowLeft,
@@ -18,6 +19,8 @@ import {
   RefreshCw,
   CheckCircle2,
   Clock,
+  FileDown,
+  FileText,
 } from "lucide-react";
 
 type SearchArgs = Record<string, string | number | undefined>;
@@ -316,6 +319,48 @@ function ScriptDetailPage() {
               <Play className="size-4" />
             )}
             {t("assistant.scripts.rerun")}
+          </button>
+          <button
+            onClick={() => {
+              if (!filteredRows.length && !summaryEntries.length) {
+                toast.error(t("assistant.scripts.nothingToExport"));
+                return;
+              }
+              exportRowsToCsv({
+                scriptName: name,
+                title,
+                columns,
+                rows: filteredRows,
+                summary: summaryEntries,
+              });
+              toast.success(t("assistant.scripts.exportedCsv"));
+            }}
+            disabled={mutation.isPending || (!filteredRows.length && !summaryEntries.length)}
+            className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-muted disabled:opacity-50"
+          >
+            <FileDown className="size-4" />
+            {t("assistant.scripts.exportCsv")}
+          </button>
+          <button
+            onClick={() => {
+              if (!filteredRows.length && !summaryEntries.length) {
+                toast.error(t("assistant.scripts.nothingToExport"));
+                return;
+              }
+              exportRowsToPdf({
+                scriptName: name,
+                title,
+                columns,
+                rows: filteredRows,
+                summary: summaryEntries,
+              });
+              toast.success(t("assistant.scripts.exportedPdf"));
+            }}
+            disabled={mutation.isPending || (!filteredRows.length && !summaryEntries.length)}
+            className="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-muted disabled:opacity-50"
+          >
+            <FileText className="size-4" />
+            {t("assistant.scripts.exportPdf")}
           </button>
         </div>
       </header>
