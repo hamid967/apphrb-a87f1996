@@ -43,6 +43,10 @@ jobs:
     name: E2E (WebView-simulated redirects)
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: write
     env:
       E2E_MAX_ATTEMPTS: "3"
       E2E_RETRY_BACKOFF_SECONDS: "5"
