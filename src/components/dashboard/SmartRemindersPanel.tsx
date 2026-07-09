@@ -1056,6 +1056,62 @@ export function SmartRemindersPanel({
                   )}
                 </div>
 
+                {r.canAttachReceipt && r.claimId && (
+                  <div className="mt-3 rounded-lg border border-dashed p-3">
+                    <div className="mb-2 flex items-center gap-2">
+                      <Paperclip className="size-3.5 text-muted-foreground" />
+                      <p className="text-[11px] font-bold text-muted-foreground">
+                        {isAr ? "رفع الإيصال المفقود" : "Upload missing receipt"}
+                      </p>
+                    </div>
+                    <p className="mb-2 text-xs text-muted-foreground">
+                      {r.claimIsDraft
+                        ? isAr
+                          ? "سيتم إرفاق الإيصال وإرسال المطالبة تلقائياً."
+                          : "The receipt will be attached and the claim submitted automatically."
+                        : isAr
+                          ? "سيتم إرفاق الإيصال بالمطالبة الحالية فوراً."
+                          : "The receipt will be attached to this claim immediately."}
+                    </p>
+                    <input
+                      ref={receiptInputRef}
+                      type="file"
+                      accept="image/*,application/pdf"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) void handleReceiptUpload(f, r);
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      className="w-full"
+                      disabled={uploadingReceipt}
+                      onClick={() => receiptInputRef.current?.click()}
+                    >
+                      {uploadingReceipt ? (
+                        <>
+                          <Loader2 className="me-1.5 size-3.5 animate-spin" />
+                          {isAr ? `جارٍ الرفع... ${uploadPct}%` : `Uploading... ${uploadPct}%`}
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="me-1.5 size-3.5" />
+                          {isAr ? "اختيار ملف الإيصال" : "Choose receipt file"}
+                        </>
+                      )}
+                    </Button>
+                    <p className="mt-1.5 text-[10px] text-muted-foreground">
+                      {isAr
+                        ? "صورة أو PDF · الحد الأقصى 10 ميجابايت"
+                        : "Image or PDF · Max 10MB"}
+                    </p>
+                  </div>
+                )}
+
+
                 <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                   <Button
                     variant="ghost"
