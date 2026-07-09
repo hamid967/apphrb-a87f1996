@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { portalHead } from "@/lib/portal-og-head";
 import { useTranslation } from "react-i18next";
-import { KeyRound, Smartphone, LockKeyhole, Fingerprint } from "lucide-react";
+import { KeyRound, Smartphone, LockKeyhole } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/portal/settings/security")({
   head: () => portalHead({ titleAr: 'الأمان', titleEn: 'Security', descAr: 'كلمة المرور، المصادقة الثنائية، والأجهزة.', path: '/portal/settings/security' }),
