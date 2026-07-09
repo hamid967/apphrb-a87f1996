@@ -60,10 +60,6 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAccountingIndexRouteImport } from './routes/_authenticated/accounting.index'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as ListingsSlugApplyRouteImport } from './routes/listings.$slug.apply'
-import { Route as ApiPublicTestSeedSubscriptionApprovalRouteImport } from './routes/api/public/test-seed-subscription-approval'
-import { Route as ApiPublicTestSeedPortalUsersRouteImport } from './routes/api/public/test-seed-portal-users'
-import { Route as ApiPublicTestSeedFullSignupFlowRouteImport } from './routes/api/public/test-seed-full-signup-flow'
-import { Route as ApiPublicTestSeedCompleteOnboardingRouteImport } from './routes/api/public/test-seed-complete-onboarding'
 import { Route as ApiPublicSignupAssistantRouteImport } from './routes/api/public/signup-assistant'
 import { Route as ApiPublicPdfReportRouteImport } from './routes/api/public/pdf-report'
 import { Route as ApiPublicFilterAnalyticsBeaconRouteImport } from './routes/api/public/filter-analytics-beacon'
@@ -161,7 +157,6 @@ import { Route as ApiPublicV1OpenapiDotjsonRouteImport } from './routes/api/publ
 import { Route as ApiPublicV1InvoicesRouteImport } from './routes/api/public/v1/invoices'
 import { Route as ApiPublicV1ContractsRouteImport } from './routes/api/public/v1/contracts'
 import { Route as ApiPublicV1AuctionsRouteImport } from './routes/api/public/v1/auctions'
-import { Route as ApiPublicOwnerStatementsGenerateRouteImport } from './routes/api/public/owner-statements/generate'
 import { Route as ApiPublicOgImageDotsvgRouteImport } from './routes/api/public/og/image[.]svg'
 import { Route as ApiPublicOgImageDotpngRouteImport } from './routes/api/public/og/image[.]png'
 import { Route as ApiPublicHooksRentRemindersRouteImport } from './routes/api/public/hooks/rent-reminders'
@@ -475,30 +470,6 @@ const ListingsSlugApplyRoute = ListingsSlugApplyRouteImport.update({
   path: '/apply',
   getParentRoute: () => ListingsSlugRoute,
 } as any)
-const ApiPublicTestSeedSubscriptionApprovalRoute =
-  ApiPublicTestSeedSubscriptionApprovalRouteImport.update({
-    id: '/api/public/test-seed-subscription-approval',
-    path: '/api/public/test-seed-subscription-approval',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicTestSeedPortalUsersRoute =
-  ApiPublicTestSeedPortalUsersRouteImport.update({
-    id: '/api/public/test-seed-portal-users',
-    path: '/api/public/test-seed-portal-users',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicTestSeedFullSignupFlowRoute =
-  ApiPublicTestSeedFullSignupFlowRouteImport.update({
-    id: '/api/public/test-seed-full-signup-flow',
-    path: '/api/public/test-seed-full-signup-flow',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ApiPublicTestSeedCompleteOnboardingRoute =
-  ApiPublicTestSeedCompleteOnboardingRouteImport.update({
-    id: '/api/public/test-seed-complete-onboarding',
-    path: '/api/public/test-seed-complete-onboarding',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicSignupAssistantRoute =
   ApiPublicSignupAssistantRouteImport.update({
     id: '/api/public/signup-assistant',
@@ -1065,12 +1036,6 @@ const ApiPublicV1AuctionsRoute = ApiPublicV1AuctionsRouteImport.update({
   path: '/api/public/v1/auctions',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicOwnerStatementsGenerateRoute =
-  ApiPublicOwnerStatementsGenerateRouteImport.update({
-    id: '/api/public/owner-statements/generate',
-    path: '/api/public/owner-statements/generate',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ApiPublicOgImageDotsvgRoute = ApiPublicOgImageDotsvgRouteImport.update({
   id: '/api/public/og/image.svg',
   path: '/api/public/og/image.svg',
@@ -1437,10 +1402,6 @@ export interface FileRoutesByFullPath {
   '/api/public/filter-analytics-beacon': typeof ApiPublicFilterAnalyticsBeaconRoute
   '/api/public/pdf-report': typeof ApiPublicPdfReportRoute
   '/api/public/signup-assistant': typeof ApiPublicSignupAssistantRoute
-  '/api/public/test-seed-complete-onboarding': typeof ApiPublicTestSeedCompleteOnboardingRoute
-  '/api/public/test-seed-full-signup-flow': typeof ApiPublicTestSeedFullSignupFlowRoute
-  '/api/public/test-seed-portal-users': typeof ApiPublicTestSeedPortalUsersRoute
-  '/api/public/test-seed-subscription-approval': typeof ApiPublicTestSeedSubscriptionApprovalRoute
   '/listings/$slug/apply': typeof ListingsSlugApplyRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/accounting/': typeof AuthenticatedAccountingIndexRoute
@@ -1490,7 +1451,6 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/rent-reminders': typeof ApiPublicHooksRentRemindersRoute
   '/api/public/og/image.png': typeof ApiPublicOgImageDotpngRoute
   '/api/public/og/image.svg': typeof ApiPublicOgImageDotsvgRoute
-  '/api/public/owner-statements/generate': typeof ApiPublicOwnerStatementsGenerateRoute
   '/api/public/v1/auctions': typeof ApiPublicV1AuctionsRouteWithChildren
   '/api/public/v1/contracts': typeof ApiPublicV1ContractsRouteWithChildren
   '/api/public/v1/invoices': typeof ApiPublicV1InvoicesRouteWithChildren
@@ -1628,10 +1588,6 @@ export interface FileRoutesByTo {
   '/api/public/filter-analytics-beacon': typeof ApiPublicFilterAnalyticsBeaconRoute
   '/api/public/pdf-report': typeof ApiPublicPdfReportRoute
   '/api/public/signup-assistant': typeof ApiPublicSignupAssistantRoute
-  '/api/public/test-seed-complete-onboarding': typeof ApiPublicTestSeedCompleteOnboardingRoute
-  '/api/public/test-seed-full-signup-flow': typeof ApiPublicTestSeedFullSignupFlowRoute
-  '/api/public/test-seed-portal-users': typeof ApiPublicTestSeedPortalUsersRoute
-  '/api/public/test-seed-subscription-approval': typeof ApiPublicTestSeedSubscriptionApprovalRoute
   '/listings/$slug/apply': typeof ListingsSlugApplyRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/accounting': typeof AuthenticatedAccountingIndexRoute
@@ -1681,7 +1637,6 @@ export interface FileRoutesByTo {
   '/api/public/hooks/rent-reminders': typeof ApiPublicHooksRentRemindersRoute
   '/api/public/og/image.png': typeof ApiPublicOgImageDotpngRoute
   '/api/public/og/image.svg': typeof ApiPublicOgImageDotsvgRoute
-  '/api/public/owner-statements/generate': typeof ApiPublicOwnerStatementsGenerateRoute
   '/api/public/v1/auctions': typeof ApiPublicV1AuctionsRouteWithChildren
   '/api/public/v1/contracts': typeof ApiPublicV1ContractsRouteWithChildren
   '/api/public/v1/invoices': typeof ApiPublicV1InvoicesRouteWithChildren
@@ -1828,10 +1783,6 @@ export interface FileRoutesById {
   '/api/public/filter-analytics-beacon': typeof ApiPublicFilterAnalyticsBeaconRoute
   '/api/public/pdf-report': typeof ApiPublicPdfReportRoute
   '/api/public/signup-assistant': typeof ApiPublicSignupAssistantRoute
-  '/api/public/test-seed-complete-onboarding': typeof ApiPublicTestSeedCompleteOnboardingRoute
-  '/api/public/test-seed-full-signup-flow': typeof ApiPublicTestSeedFullSignupFlowRoute
-  '/api/public/test-seed-portal-users': typeof ApiPublicTestSeedPortalUsersRoute
-  '/api/public/test-seed-subscription-approval': typeof ApiPublicTestSeedSubscriptionApprovalRoute
   '/listings/$slug/apply': typeof ListingsSlugApplyRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/_authenticated/accounting/': typeof AuthenticatedAccountingIndexRoute
@@ -1881,7 +1832,6 @@ export interface FileRoutesById {
   '/api/public/hooks/rent-reminders': typeof ApiPublicHooksRentRemindersRoute
   '/api/public/og/image.png': typeof ApiPublicOgImageDotpngRoute
   '/api/public/og/image.svg': typeof ApiPublicOgImageDotsvgRoute
-  '/api/public/owner-statements/generate': typeof ApiPublicOwnerStatementsGenerateRoute
   '/api/public/v1/auctions': typeof ApiPublicV1AuctionsRouteWithChildren
   '/api/public/v1/contracts': typeof ApiPublicV1ContractsRouteWithChildren
   '/api/public/v1/invoices': typeof ApiPublicV1InvoicesRouteWithChildren
@@ -2028,10 +1978,6 @@ export interface FileRouteTypes {
     | '/api/public/filter-analytics-beacon'
     | '/api/public/pdf-report'
     | '/api/public/signup-assistant'
-    | '/api/public/test-seed-complete-onboarding'
-    | '/api/public/test-seed-full-signup-flow'
-    | '/api/public/test-seed-portal-users'
-    | '/api/public/test-seed-subscription-approval'
     | '/listings/$slug/apply'
     | '/lovable/email/suppression'
     | '/accounting/'
@@ -2081,7 +2027,6 @@ export interface FileRouteTypes {
     | '/api/public/hooks/rent-reminders'
     | '/api/public/og/image.png'
     | '/api/public/og/image.svg'
-    | '/api/public/owner-statements/generate'
     | '/api/public/v1/auctions'
     | '/api/public/v1/contracts'
     | '/api/public/v1/invoices'
@@ -2219,10 +2164,6 @@ export interface FileRouteTypes {
     | '/api/public/filter-analytics-beacon'
     | '/api/public/pdf-report'
     | '/api/public/signup-assistant'
-    | '/api/public/test-seed-complete-onboarding'
-    | '/api/public/test-seed-full-signup-flow'
-    | '/api/public/test-seed-portal-users'
-    | '/api/public/test-seed-subscription-approval'
     | '/listings/$slug/apply'
     | '/lovable/email/suppression'
     | '/accounting'
@@ -2272,7 +2213,6 @@ export interface FileRouteTypes {
     | '/api/public/hooks/rent-reminders'
     | '/api/public/og/image.png'
     | '/api/public/og/image.svg'
-    | '/api/public/owner-statements/generate'
     | '/api/public/v1/auctions'
     | '/api/public/v1/contracts'
     | '/api/public/v1/invoices'
@@ -2418,10 +2358,6 @@ export interface FileRouteTypes {
     | '/api/public/filter-analytics-beacon'
     | '/api/public/pdf-report'
     | '/api/public/signup-assistant'
-    | '/api/public/test-seed-complete-onboarding'
-    | '/api/public/test-seed-full-signup-flow'
-    | '/api/public/test-seed-portal-users'
-    | '/api/public/test-seed-subscription-approval'
     | '/listings/$slug/apply'
     | '/lovable/email/suppression'
     | '/_authenticated/accounting/'
@@ -2471,7 +2407,6 @@ export interface FileRouteTypes {
     | '/api/public/hooks/rent-reminders'
     | '/api/public/og/image.png'
     | '/api/public/og/image.svg'
-    | '/api/public/owner-statements/generate'
     | '/api/public/v1/auctions'
     | '/api/public/v1/contracts'
     | '/api/public/v1/invoices'
@@ -2536,17 +2471,12 @@ export interface RootRouteChildren {
   ApiPublicFilterAnalyticsBeaconRoute: typeof ApiPublicFilterAnalyticsBeaconRoute
   ApiPublicPdfReportRoute: typeof ApiPublicPdfReportRoute
   ApiPublicSignupAssistantRoute: typeof ApiPublicSignupAssistantRoute
-  ApiPublicTestSeedCompleteOnboardingRoute: typeof ApiPublicTestSeedCompleteOnboardingRoute
-  ApiPublicTestSeedFullSignupFlowRoute: typeof ApiPublicTestSeedFullSignupFlowRoute
-  ApiPublicTestSeedPortalUsersRoute: typeof ApiPublicTestSeedPortalUsersRoute
-  ApiPublicTestSeedSubscriptionApprovalRoute: typeof ApiPublicTestSeedSubscriptionApprovalRoute
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksAuctionsTickRoute: typeof ApiPublicHooksAuctionsTickRoute
   ApiPublicHooksDispatchNotificationsRoute: typeof ApiPublicHooksDispatchNotificationsRoute
   ApiPublicHooksRentRemindersRoute: typeof ApiPublicHooksRentRemindersRoute
   ApiPublicOgImageDotpngRoute: typeof ApiPublicOgImageDotpngRoute
   ApiPublicOgImageDotsvgRoute: typeof ApiPublicOgImageDotsvgRoute
-  ApiPublicOwnerStatementsGenerateRoute: typeof ApiPublicOwnerStatementsGenerateRoute
   ApiPublicV1AuctionsRoute: typeof ApiPublicV1AuctionsRouteWithChildren
   ApiPublicV1ContractsRoute: typeof ApiPublicV1ContractsRouteWithChildren
   ApiPublicV1InvoicesRoute: typeof ApiPublicV1InvoicesRouteWithChildren
@@ -2919,34 +2849,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/listings/$slug/apply'
       preLoaderRoute: typeof ListingsSlugApplyRouteImport
       parentRoute: typeof ListingsSlugRoute
-    }
-    '/api/public/test-seed-subscription-approval': {
-      id: '/api/public/test-seed-subscription-approval'
-      path: '/api/public/test-seed-subscription-approval'
-      fullPath: '/api/public/test-seed-subscription-approval'
-      preLoaderRoute: typeof ApiPublicTestSeedSubscriptionApprovalRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/test-seed-portal-users': {
-      id: '/api/public/test-seed-portal-users'
-      path: '/api/public/test-seed-portal-users'
-      fullPath: '/api/public/test-seed-portal-users'
-      preLoaderRoute: typeof ApiPublicTestSeedPortalUsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/test-seed-full-signup-flow': {
-      id: '/api/public/test-seed-full-signup-flow'
-      path: '/api/public/test-seed-full-signup-flow'
-      fullPath: '/api/public/test-seed-full-signup-flow'
-      preLoaderRoute: typeof ApiPublicTestSeedFullSignupFlowRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/test-seed-complete-onboarding': {
-      id: '/api/public/test-seed-complete-onboarding'
-      path: '/api/public/test-seed-complete-onboarding'
-      fullPath: '/api/public/test-seed-complete-onboarding'
-      preLoaderRoute: typeof ApiPublicTestSeedCompleteOnboardingRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/api/public/signup-assistant': {
       id: '/api/public/signup-assistant'
@@ -3625,13 +3527,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/v1/auctions'
       fullPath: '/api/public/v1/auctions'
       preLoaderRoute: typeof ApiPublicV1AuctionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/owner-statements/generate': {
-      id: '/api/public/owner-statements/generate'
-      path: '/api/public/owner-statements/generate'
-      fullPath: '/api/public/owner-statements/generate'
-      preLoaderRoute: typeof ApiPublicOwnerStatementsGenerateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/og/image.svg': {
@@ -4627,12 +4522,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicFilterAnalyticsBeaconRoute: ApiPublicFilterAnalyticsBeaconRoute,
   ApiPublicPdfReportRoute: ApiPublicPdfReportRoute,
   ApiPublicSignupAssistantRoute: ApiPublicSignupAssistantRoute,
-  ApiPublicTestSeedCompleteOnboardingRoute:
-    ApiPublicTestSeedCompleteOnboardingRoute,
-  ApiPublicTestSeedFullSignupFlowRoute: ApiPublicTestSeedFullSignupFlowRoute,
-  ApiPublicTestSeedPortalUsersRoute: ApiPublicTestSeedPortalUsersRoute,
-  ApiPublicTestSeedSubscriptionApprovalRoute:
-    ApiPublicTestSeedSubscriptionApprovalRoute,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksAuctionsTickRoute: ApiPublicHooksAuctionsTickRoute,
   ApiPublicHooksDispatchNotificationsRoute:
@@ -4640,7 +4529,6 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksRentRemindersRoute: ApiPublicHooksRentRemindersRoute,
   ApiPublicOgImageDotpngRoute: ApiPublicOgImageDotpngRoute,
   ApiPublicOgImageDotsvgRoute: ApiPublicOgImageDotsvgRoute,
-  ApiPublicOwnerStatementsGenerateRoute: ApiPublicOwnerStatementsGenerateRoute,
   ApiPublicV1AuctionsRoute: ApiPublicV1AuctionsRouteWithChildren,
   ApiPublicV1ContractsRoute: ApiPublicV1ContractsRouteWithChildren,
   ApiPublicV1InvoicesRoute: ApiPublicV1InvoicesRouteWithChildren,
@@ -4657,13 +4545,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

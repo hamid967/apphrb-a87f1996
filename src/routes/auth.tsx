@@ -32,13 +32,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { checkLoginRateLimit, recordLoginEvent } from "@/lib/sessions.functions";
-import { verifyTurnstile } from "@/lib/turnstile.functions";
-import { TurnstileWidget } from "@/components/security/TurnstileWidget";
 import {
   getFailedAttempts,
   incFailedAttempts,
   resetFailedAttempts,
-  CAPTCHA_THRESHOLD,
 } from "@/lib/auth-attempts";
 import { getDeviceFingerprint } from "@/lib/device-fingerprint";
 import { SignupAssistant } from "@/components/SignupAssistant";
@@ -102,14 +99,11 @@ function AuthPage() {
   const [oauthLoading, setOauthLoading] = useState(false);
   const [devLoading, setDevLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   useEffect(() => {
     setFailedAttempts(getFailedAttempts(email));
-    setCaptchaToken(null);
   }, [email]);
 
-  const captchaRequired = failedAttempts >= CAPTCHA_THRESHOLD;
 
   useEffect(() => {
     if (ready && user) {
@@ -141,15 +135,8 @@ function AuthPage() {
         const fp = getDeviceFingerprint();
         const ua = navigator.userAgent;
         const estNo = establishmentNo.trim();
-        if (captchaRequired) {
-          if (!captchaToken) throw new Error("يرجى إكمال التحقق (CAPTCHA)");
-          const v = await verifyTurnstile({ data: { token: captchaToken } });
-          if (!v.success) {
-            setCaptchaToken(null);
-            throw new Error("فشل التحقق من CAPTCHA. حاول مجدداً");
-          }
-        }
         const rl = await checkLoginRateLimit({ data: { identifier: email } });
+
         if (rl.blocked) {
           await recordLoginEvent({
             data: {
@@ -167,7 +154,6 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
-          options: captchaToken ? { captchaToken } : undefined,
         });
         if (error) {
           await recordLoginEvent({
@@ -180,7 +166,6 @@ function AuthPage() {
             },
           }).catch(() => {});
           setFailedAttempts(incFailedAttempts(email));
-          setCaptchaToken(null);
           throw error;
         }
         // Verify establishment membership only when the user typed a number.
@@ -202,7 +187,6 @@ function AuthPage() {
               },
             }).catch(() => {});
             setFailedAttempts(incFailedAttempts(email));
-            setCaptchaToken(null);
             throw new Error("رقم المنشأة غير صحيح أو لا ينتمي لهذا الحساب");
           }
         }
@@ -509,17 +493,13 @@ function AuthPage() {
                     background: `linear-gradient(120deg, ${HBS.blue}, ${HBS.gold})`,
                     boxShadow: `0 20px 50px -15px ${HBS.gold}`,
                   }}
-                  disabled={submitting || (mode === "signin" && captchaRequired && !captchaToken)}
+                  disabled={submitting}
                 >
                   {submitting && <Loader2 className="me-2 size-4 animate-spin" />}
                   {mode === "signup" ? t("auth.signUp") : "تسجيل الدخول"}
                 </Button>
-                {mode === "signin" && captchaRequired && (
-                  <div className="pt-2">
-                    <TurnstileWidget onToken={setCaptchaToken} />
-                  </div>
-                )}
               </form>
+
 
               {/* Divider */}
               <div

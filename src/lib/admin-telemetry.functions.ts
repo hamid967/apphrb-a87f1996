@@ -1,75 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-// Kinds that fan out as a Slack alert (in addition to being persisted to
+// Kinds that fan out as an email alert (in addition to being persisted to
 // system_events). Kept intentionally narrow so signal-to-noise stays high.
 const ALERT_KINDS = new Set(["render_error", "aal2_bypass"]);
-
-async function postSlackAlert(
-  kind: string,
-  path: string | null,
-  message: string | null,
-  actorId: string,
-  overrideUrl: string | null,
-  enabled: boolean,
-) {
-  if (!enabled) return;
-  const url = overrideUrl || process.env.SLACK_ALERT_WEBHOOK_URL;
-  if (!url) return; // No webhook configured — silently skip.
-  const emoji = kind === "render_error" ? ":rotating_light:" : ":warning:";
-  const title =
-    kind === "render_error"
-      ? "Admin render error"
-      : kind === "aal2_bypass"
-        ? "Admin AAL2 bypass activated"
-        : `Admin event: ${kind}`;
-  const body = {
-    text: `${emoji} *${title}*`,
-    blocks: [
-      {
-        type: "section",
-        text: { type: "mrkdwn", text: `${emoji} *${title}*` },
-      },
-      {
-        type: "section",
-        fields: [
-          { type: "mrkdwn", text: `*Path*\n\`${path ?? "—"}\`` },
-          { type: "mrkdwn", text: `*Actor*\n\`${actorId}\`` },
-          { type: "mrkdwn", text: `*Kind*\n\`${kind}\`` },
-          {
-            type: "mrkdwn",
-            text: `*Time*\n${new Date().toISOString()}`,
-          },
-        ],
-      },
-      ...(message
-        ? [
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `*Message*\n\`\`\`${message.slice(0, 1500)}\`\`\``,
-              },
-            },
-          ]
-        : []),
-    ],
-  };
-  try {
-    // 3s ceiling — never let a slow Slack POST hold up the request.
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 3000);
-    await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: ctrl.signal,
-    });
-    clearTimeout(timer);
-  } catch {
-    // Best-effort — Slack outages must not break admin telemetry.
-  }
-}
 
 /**
  * Records a lightweight telemetry event for the /admin/* surface.
@@ -113,38 +47,15 @@ export const logAdminEvent = createServerFn({ method: "POST" })
       payload: payload as any,
     });
     if (error) return { ok: false as const, error: error.message };
-    // Fan out to Slack after a successful insert. Non-blocking best-effort.
+
+    // Email fan-out (opt-in, requires explicit recipient).
     if (ALERT_KINDS.has(data.kind)) {
-      // Read runtime alert config from app_settings (falls back to env when unset).
       const { data: cfg } = await supabaseAdmin
         .from("app_settings")
         .select("key,value")
-        .in("key", [
-          "alerts.slack_webhook_url",
-          "alerts.slack_enabled",
-          "alerts.email_enabled",
-          "alerts.email_to",
-        ]);
+        .in("key", ["alerts.email_enabled", "alerts.email_to"]);
       const map = new Map<string, string>();
       for (const row of cfg ?? []) map.set(row.key, row.value ?? "");
-      const overrideUrl = map.get("alerts.slack_webhook_url") || null;
-      // Default ON when unset, so existing env-only setups keep working.
-      const enabledRaw = map.get("alerts.slack_enabled");
-      const enabled =
-        enabledRaw === undefined ||
-        enabledRaw === "" ||
-        enabledRaw === "true" ||
-        enabledRaw === "1";
-      await postSlackAlert(
-        data.kind,
-        data.path,
-        data.message,
-        context.userId,
-        overrideUrl,
-        enabled,
-      );
-
-      // Email fan-out (opt-in, requires explicit recipient).
       const emailEnabledRaw = map.get("alerts.email_enabled");
       const emailEnabled = emailEnabledRaw === "true" || emailEnabledRaw === "1";
       const emailTo = (map.get("alerts.email_to") || "").trim();

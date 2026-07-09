@@ -16,14 +16,7 @@ import {
   hbsPrimaryBtnStyle,
 } from "@/components/hbspro/AuthShell";
 import { HBS } from "@/components/hbspro/tokens";
-import { TurnstileWidget } from "@/components/security/TurnstileWidget";
-import { verifyTurnstile } from "@/lib/turnstile.functions";
-import {
-  CAPTCHA_THRESHOLD,
-  getFailedAttempts,
-  incFailedAttempts,
-  resetFailedAttempts,
-} from "@/lib/auth-attempts";
+import { incFailedAttempts, resetFailedAttempts } from "@/lib/auth-attempts";
 
 export const Route = createFileRoute("/forgot-password")({
   ssr: false,
@@ -45,15 +38,7 @@ function ForgotPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    setFailedAttempts(getFailedAttempts(`reset:${email}`));
-    setCaptchaToken(null);
-  }, [email]);
-
-  const captchaRequired = failedAttempts >= CAPTCHA_THRESHOLD;
+  const [, setFailedAttempts] = useState(0);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -64,17 +49,8 @@ function ForgotPasswordPage() {
   const sendReset = async (targetEmail: string) => {
     setSubmitting(true);
     try {
-      if (captchaRequired) {
-        if (!captchaToken) throw new Error(t("forgot.captchaRequired"));
-        const v = await verifyTurnstile({ data: { token: captchaToken } });
-        if (!v.success) {
-          setCaptchaToken(null);
-          throw new Error(t("forgot.captchaFailed"));
-        }
-      }
       const { error } = await supabase.auth.resetPasswordForEmail(targetEmail, {
         redirectTo: `${window.location.origin}/reset-password`,
-        captchaToken: captchaToken ?? undefined,
       });
       if (error) throw error;
       setSentTo(targetEmail);
@@ -83,12 +59,12 @@ function ForgotPasswordPage() {
       toast.success(t("forgot.sent"));
     } catch (err) {
       setFailedAttempts(incFailedAttempts(`reset:${targetEmail}`));
-      setCaptchaToken(null);
       toast.error(err instanceof Error ? err.message : t("forgot.sendFailed"));
     } finally {
       setSubmitting(false);
     }
   };
+
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,11 +119,6 @@ function ForgotPasswordPage() {
               {submitting && <Loader2 className="me-2 size-4 animate-spin" />}
               {t("forgot.submit")}
             </Button>
-            {captchaRequired && (
-              <div className="pt-2">
-                <TurnstileWidget onToken={setCaptchaToken} />
-              </div>
-            )}
           </form>
         </>
       ) : (
