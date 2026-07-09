@@ -22,6 +22,13 @@ import {
   Activity,
   Radio,
   Gavel,
+  Package,
+  LifeBuoy,
+  DatabaseBackup,
+  Mail,
+  MessageSquare,
+  Landmark,
+  Inbox,
 } from "lucide-react";
 import {
   Sidebar,

@@ -150,6 +150,7 @@ import { Route as AuthenticatedAdminNotificationsQueueRouteImport } from './rout
 import { Route as AuthenticatedAdminIntroAnalyticsRouteImport } from './routes/_authenticated/admin.intro-analytics'
 import { Route as AuthenticatedAdminFilterAnalyticsRouteImport } from './routes/_authenticated/admin.filter-analytics'
 import { Route as AuthenticatedAdminEmailProvidersRouteImport } from './routes/_authenticated/admin.email-providers'
+import { Route as AuthenticatedAdminDemoRequestsRouteImport } from './routes/_authenticated/admin.demo-requests'
 import { Route as AuthenticatedAdminDecisionLogRouteImport } from './routes/_authenticated/admin.decision-log'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 import { Route as AuthenticatedAdminBillingMetricsRouteImport } from './routes/_authenticated/admin.billing-metrics'
@@ -1018,6 +1019,12 @@ const AuthenticatedAdminEmailProvidersRoute =
     path: '/email-providers',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminDemoRequestsRoute =
+  AuthenticatedAdminDemoRequestsRouteImport.update({
+    id: '/demo-requests',
+    path: '/demo-requests',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminDecisionLogRoute =
   AuthenticatedAdminDecisionLogRouteImport.update({
     id: '/decision-log',
@@ -1506,6 +1513,7 @@ export interface FileRoutesByFullPath {
   '/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
+  '/admin/demo-requests': typeof AuthenticatedAdminDemoRequestsRoute
   '/admin/email-providers': typeof AuthenticatedAdminEmailProvidersRoute
   '/admin/filter-analytics': typeof AuthenticatedAdminFilterAnalyticsRoute
   '/admin/intro-analytics': typeof AuthenticatedAdminIntroAnalyticsRoute
@@ -1719,6 +1727,7 @@ export interface FileRoutesByTo {
   '/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
+  '/admin/demo-requests': typeof AuthenticatedAdminDemoRequestsRoute
   '/admin/email-providers': typeof AuthenticatedAdminEmailProvidersRoute
   '/admin/filter-analytics': typeof AuthenticatedAdminFilterAnalyticsRoute
   '/admin/intro-analytics': typeof AuthenticatedAdminIntroAnalyticsRoute
@@ -1936,6 +1945,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
+  '/_authenticated/admin/demo-requests': typeof AuthenticatedAdminDemoRequestsRoute
   '/_authenticated/admin/email-providers': typeof AuthenticatedAdminEmailProvidersRoute
   '/_authenticated/admin/filter-analytics': typeof AuthenticatedAdminFilterAnalyticsRoute
   '/_authenticated/admin/intro-analytics': typeof AuthenticatedAdminIntroAnalyticsRoute
@@ -2156,6 +2166,7 @@ export interface FileRouteTypes {
     | '/admin/billing-metrics'
     | '/admin/companies'
     | '/admin/decision-log'
+    | '/admin/demo-requests'
     | '/admin/email-providers'
     | '/admin/filter-analytics'
     | '/admin/intro-analytics'
@@ -2369,6 +2380,7 @@ export interface FileRouteTypes {
     | '/admin/billing-metrics'
     | '/admin/companies'
     | '/admin/decision-log'
+    | '/admin/demo-requests'
     | '/admin/email-providers'
     | '/admin/filter-analytics'
     | '/admin/intro-analytics'
@@ -2585,6 +2597,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/billing-metrics'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/decision-log'
+    | '/_authenticated/admin/demo-requests'
     | '/_authenticated/admin/email-providers'
     | '/_authenticated/admin/filter-analytics'
     | '/_authenticated/admin/intro-analytics'
@@ -3801,6 +3814,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEmailProvidersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/demo-requests': {
+      id: '/_authenticated/admin/demo-requests'
+      path: '/demo-requests'
+      fullPath: '/admin/demo-requests'
+      preLoaderRoute: typeof AuthenticatedAdminDemoRequestsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/decision-log': {
       id: '/_authenticated/admin/decision-log'
       path: '/decision-log'
@@ -4363,6 +4383,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminBillingMetricsRoute: typeof AuthenticatedAdminBillingMetricsRoute
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
   AuthenticatedAdminDecisionLogRoute: typeof AuthenticatedAdminDecisionLogRoute
+  AuthenticatedAdminDemoRequestsRoute: typeof AuthenticatedAdminDemoRequestsRoute
   AuthenticatedAdminEmailProvidersRoute: typeof AuthenticatedAdminEmailProvidersRoute
   AuthenticatedAdminFilterAnalyticsRoute: typeof AuthenticatedAdminFilterAnalyticsRoute
   AuthenticatedAdminIntroAnalyticsRoute: typeof AuthenticatedAdminIntroAnalyticsRoute
@@ -4393,6 +4414,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminBillingMetricsRoute: AuthenticatedAdminBillingMetricsRoute,
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
   AuthenticatedAdminDecisionLogRoute: AuthenticatedAdminDecisionLogRoute,
+  AuthenticatedAdminDemoRequestsRoute: AuthenticatedAdminDemoRequestsRoute,
   AuthenticatedAdminEmailProvidersRoute: AuthenticatedAdminEmailProvidersRoute,
   AuthenticatedAdminFilterAnalyticsRoute:
     AuthenticatedAdminFilterAnalyticsRoute,
