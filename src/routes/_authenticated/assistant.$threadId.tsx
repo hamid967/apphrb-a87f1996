@@ -134,7 +134,7 @@ function ThreadView() {
 
   const rateMessage = async (messageId: string, next: "up" | "down") => {
     if (!isUuid(messageId)) {
-      toast.error("سيتوفر التقييم بعد تحديث المحادثة");
+      toast.error(t("assistant.thread.feedbackNeedsUpdate"));
       return;
     }
     const current = feedbackMap[messageId] ?? null;
@@ -144,14 +144,14 @@ function ThreadView() {
       await feedbackFn({ data: { messageId, feedback: value } });
       toast.success(
         value === null
-          ? "تم إلغاء التقييم"
+          ? t("assistant.thread.feedbackCleared")
           : value === "up"
-            ? "شكراً لتقييمك 👍"
-            : "شكراً لملاحظتك 👎",
+            ? t("assistant.thread.thanksUp")
+            : t("assistant.thread.thanksDown"),
       );
     } catch (e: any) {
       setFeedbackMap((prev) => ({ ...prev, [messageId]: current }));
-      toast.error(e?.message ?? "تعذّر حفظ التقييم");
+      toast.error(e?.message ?? t("assistant.thread.feedbackFailed"));
     }
   };
 
