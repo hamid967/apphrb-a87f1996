@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Sparkles, Square } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -8,9 +8,9 @@ const STORAGE_KEY = "aqari.dashboard.theme"; // "tech" | "default"
 export type DashboardThemeMode = "tech" | "default";
 
 export function readDashboardTheme(): DashboardThemeMode {
-  if (typeof window === "undefined") return "tech";
+  if (typeof window === "undefined") return "default";
   const v = window.localStorage.getItem(STORAGE_KEY);
-  return v === "default" ? "default" : "tech";
+  return v === "tech" ? "tech" : "default";
 }
 
 // Track the pending "end of transition" timer so rapid toggles don't
@@ -35,9 +35,11 @@ export function applyDashboardTheme(mode: DashboardThemeMode, animate = true) {
   }
 
   if (mode === "tech") {
+    el.classList.remove("theme-lux");
     el.classList.add("theme-tech", "dark");
   } else {
     el.classList.remove("theme-tech", "dark");
+    el.classList.add("theme-lux");
   }
 }
 
@@ -85,8 +87,8 @@ export function DashboardThemeToggle({ className }: { className?: string }) {
 
   const isTech = mode === "tech";
   const label = isTech
-    ? t("theme.dashboard.switchToDefault", "التبديل إلى الثيم الافتراضي")
-    : t("theme.dashboard.switchToTech", "التبديل إلى Minimal Dark Tech");
+    ? t("theme.dashboard.switchToLux", "التبديل إلى الثيم الفاتح")
+    : t("theme.dashboard.switchToTech", "التبديل إلى الثيم الداكن");
 
   return (
     <Button
@@ -98,7 +100,7 @@ export function DashboardThemeToggle({ className }: { className?: string }) {
       onClick={() => setMode(isTech ? "default" : "tech")}
       className={cn("rounded-xl", className)}
     >
-      {isTech ? <Square className="size-4" /> : <Sparkles className="size-4" />}
+      {isTech ? <Sun className="size-4" /> : <Moon className="size-4" />}
     </Button>
   );
 }
