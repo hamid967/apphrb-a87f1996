@@ -111,6 +111,7 @@ import { Route as AuthenticatedDashboardReportsRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardRenewRouteImport } from './routes/_authenticated/dashboard.renew'
 import { Route as AuthenticatedDashboardPaymentsReviewRouteImport } from './routes/_authenticated/dashboard.payments-review'
 import { Route as AuthenticatedDashboardPaymentsRouteImport } from './routes/_authenticated/dashboard.payments'
+import { Route as AuthenticatedDashboardPaymentSchedulesRouteImport } from './routes/_authenticated/dashboard.payment-schedules'
 import { Route as AuthenticatedDashboardOwnersRouteImport } from './routes/_authenticated/dashboard.owners'
 import { Route as AuthenticatedDashboardNotificationsRouteImport } from './routes/_authenticated/dashboard.notifications'
 import { Route as AuthenticatedDashboardMaintenanceLogRouteImport } from './routes/_authenticated/dashboard.maintenance-log'
@@ -794,6 +795,12 @@ const AuthenticatedDashboardPaymentsRoute =
   AuthenticatedDashboardPaymentsRouteImport.update({
     id: '/payments',
     path: '/payments',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardPaymentSchedulesRoute =
+  AuthenticatedDashboardPaymentSchedulesRouteImport.update({
+    id: '/payment-schedules',
+    path: '/payment-schedules',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardOwnersRoute =
@@ -1610,6 +1617,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/maintenance-log': typeof AuthenticatedDashboardMaintenanceLogRoute
   '/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
   '/dashboard/owners': typeof AuthenticatedDashboardOwnersRoute
+  '/dashboard/payment-schedules': typeof AuthenticatedDashboardPaymentSchedulesRoute
   '/dashboard/payments': typeof AuthenticatedDashboardPaymentsRoute
   '/dashboard/payments-review': typeof AuthenticatedDashboardPaymentsReviewRoute
   '/dashboard/renew': typeof AuthenticatedDashboardRenewRoute
@@ -1831,6 +1839,7 @@ export interface FileRoutesByTo {
   '/dashboard/maintenance-log': typeof AuthenticatedDashboardMaintenanceLogRoute
   '/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
   '/dashboard/owners': typeof AuthenticatedDashboardOwnersRoute
+  '/dashboard/payment-schedules': typeof AuthenticatedDashboardPaymentSchedulesRoute
   '/dashboard/payments': typeof AuthenticatedDashboardPaymentsRoute
   '/dashboard/payments-review': typeof AuthenticatedDashboardPaymentsReviewRoute
   '/dashboard/renew': typeof AuthenticatedDashboardRenewRoute
@@ -2058,6 +2067,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/maintenance-log': typeof AuthenticatedDashboardMaintenanceLogRoute
   '/_authenticated/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
   '/_authenticated/dashboard/owners': typeof AuthenticatedDashboardOwnersRoute
+  '/_authenticated/dashboard/payment-schedules': typeof AuthenticatedDashboardPaymentSchedulesRoute
   '/_authenticated/dashboard/payments': typeof AuthenticatedDashboardPaymentsRoute
   '/_authenticated/dashboard/payments-review': typeof AuthenticatedDashboardPaymentsReviewRoute
   '/_authenticated/dashboard/renew': typeof AuthenticatedDashboardRenewRoute
@@ -2287,6 +2297,7 @@ export interface FileRouteTypes {
     | '/dashboard/maintenance-log'
     | '/dashboard/notifications'
     | '/dashboard/owners'
+    | '/dashboard/payment-schedules'
     | '/dashboard/payments'
     | '/dashboard/payments-review'
     | '/dashboard/renew'
@@ -2508,6 +2519,7 @@ export interface FileRouteTypes {
     | '/dashboard/maintenance-log'
     | '/dashboard/notifications'
     | '/dashboard/owners'
+    | '/dashboard/payment-schedules'
     | '/dashboard/payments'
     | '/dashboard/payments-review'
     | '/dashboard/renew'
@@ -2734,6 +2746,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/maintenance-log'
     | '/_authenticated/dashboard/notifications'
     | '/_authenticated/dashboard/owners'
+    | '/_authenticated/dashboard/payment-schedules'
     | '/_authenticated/dashboard/payments'
     | '/_authenticated/dashboard/payments-review'
     | '/_authenticated/dashboard/renew'
@@ -3644,6 +3657,13 @@ declare module '@tanstack/react-router' {
       path: '/payments'
       fullPath: '/dashboard/payments'
       preLoaderRoute: typeof AuthenticatedDashboardPaymentsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/payment-schedules': {
+      id: '/_authenticated/dashboard/payment-schedules'
+      path: '/payment-schedules'
+      fullPath: '/dashboard/payment-schedules'
+      preLoaderRoute: typeof AuthenticatedDashboardPaymentSchedulesRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/owners': {
@@ -4867,6 +4887,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardMaintenanceLogRoute: typeof AuthenticatedDashboardMaintenanceLogRoute
   AuthenticatedDashboardNotificationsRoute: typeof AuthenticatedDashboardNotificationsRoute
   AuthenticatedDashboardOwnersRoute: typeof AuthenticatedDashboardOwnersRoute
+  AuthenticatedDashboardPaymentSchedulesRoute: typeof AuthenticatedDashboardPaymentSchedulesRoute
   AuthenticatedDashboardPaymentsRoute: typeof AuthenticatedDashboardPaymentsRoute
   AuthenticatedDashboardPaymentsReviewRoute: typeof AuthenticatedDashboardPaymentsReviewRoute
   AuthenticatedDashboardRenewRoute: typeof AuthenticatedDashboardRenewRoute
@@ -4915,6 +4936,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardNotificationsRoute:
       AuthenticatedDashboardNotificationsRoute,
     AuthenticatedDashboardOwnersRoute: AuthenticatedDashboardOwnersRoute,
+    AuthenticatedDashboardPaymentSchedulesRoute:
+      AuthenticatedDashboardPaymentSchedulesRoute,
     AuthenticatedDashboardPaymentsRoute: AuthenticatedDashboardPaymentsRoute,
     AuthenticatedDashboardPaymentsReviewRoute:
       AuthenticatedDashboardPaymentsReviewRoute,

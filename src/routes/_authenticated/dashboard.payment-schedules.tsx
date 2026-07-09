@@ -180,7 +180,7 @@ function PaymentSchedulesPage() {
           <SelectContent>
             <SelectItem value="all">{isAr ? "كل المؤسسات" : "All organizations"}</SelectItem>
             {(orgsQ.data ?? []).map((o) => (
-              <SelectItem key={o.id} value={o.id}>{o.name}</SelectItem>
+              <SelectItem key={o.org.id} value={o.org.id}>{o.org.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
