@@ -85,7 +85,7 @@ function HBSproHome() {
     >
       <Navbar />
       <main>
-        <Hero />
+        <OpeningExperience />
         <Stats />
         <Features />
         <AISection />
