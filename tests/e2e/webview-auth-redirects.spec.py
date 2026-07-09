@@ -220,6 +220,8 @@ async def main() -> int:
             ("reset-password-without-token", test_reset_password_without_token(context)),
             ("forgot-password-redirect-to", test_forgot_password_redirect_to(context)),
             ("google-oauth-redirect-uri", test_google_oauth_redirect_uri(context)),
+            ("pending-redirect-survives-webview", test_pending_redirect_survives_webview(context)),
+            ("pending-redirect-returns-to-wizard", test_pending_redirect_returns_to_wizard(context)),
         ]:
             print(f"\n--- {name} ---")
             try:
