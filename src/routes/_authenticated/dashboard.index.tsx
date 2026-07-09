@@ -410,6 +410,10 @@ function Dashboard() {
       <DashboardHero orgName={org?.name} canCreate={canCreate} isAr={isAr} />
 
       <div className="mt-6">
+        <WelcomeChecklist isAr={isAr} />
+      </div>
+
+      <div className="mt-6">
         <ServicesGrid isAr={isAr} />
       </div>
 
