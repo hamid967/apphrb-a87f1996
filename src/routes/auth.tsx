@@ -54,7 +54,7 @@ export function safeRedirect(target: string | undefined): string | null {
   return target;
 }
 
-async function routeAfterLogin(nav: ReturnType<typeof useNavigate>, redirect?: string) {
+export async function routeAfterLogin(nav: ReturnType<typeof useNavigate>, redirect?: string) {
   const safe = safeRedirect(redirect);
   if (safe) {
     nav({ to: safe, replace: true });
