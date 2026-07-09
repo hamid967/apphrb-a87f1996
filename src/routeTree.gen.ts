@@ -194,6 +194,7 @@ import { Route as AuthenticatedPortalSettingsNotificationsRouteImport } from './
 import { Route as AuthenticatedOwnersIdLedgerRouteImport } from './routes/_authenticated/owners.$id.ledger'
 import { Route as AuthenticatedDashboardUnitsIdRouteImport } from './routes/_authenticated/dashboard.units.$id'
 import { Route as AuthenticatedDashboardSettingsZatcaRouteImport } from './routes/_authenticated/dashboard.settings.zatca'
+import { Route as AuthenticatedDashboardSettingsRemindersRouteImport } from './routes/_authenticated/dashboard.settings.reminders'
 import { Route as AuthenticatedDashboardSettingsNotificationsRouteImport } from './routes/_authenticated/dashboard.settings.notifications'
 import { Route as AuthenticatedDashboardSettingsImportRouteImport } from './routes/_authenticated/dashboard.settings.import'
 import { Route as AuthenticatedDashboardSettingsBillingRouteImport } from './routes/_authenticated/dashboard.settings.billing'
@@ -1272,6 +1273,12 @@ const AuthenticatedDashboardSettingsZatcaRoute =
     path: '/zatca',
     getParentRoute: () => AuthenticatedDashboardSettingsRoute,
   } as any)
+const AuthenticatedDashboardSettingsRemindersRoute =
+  AuthenticatedDashboardSettingsRemindersRouteImport.update({
+    id: '/reminders',
+    path: '/reminders',
+    getParentRoute: () => AuthenticatedDashboardSettingsRoute,
+  } as any)
 const AuthenticatedDashboardSettingsNotificationsRoute =
   AuthenticatedDashboardSettingsNotificationsRouteImport.update({
     id: '/notifications',
@@ -1641,6 +1648,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings/billing': typeof AuthenticatedDashboardSettingsBillingRoute
   '/dashboard/settings/import': typeof AuthenticatedDashboardSettingsImportRoute
   '/dashboard/settings/notifications': typeof AuthenticatedDashboardSettingsNotificationsRoute
+  '/dashboard/settings/reminders': typeof AuthenticatedDashboardSettingsRemindersRoute
   '/dashboard/settings/zatca': typeof AuthenticatedDashboardSettingsZatcaRoute
   '/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
   '/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
@@ -1853,6 +1861,7 @@ export interface FileRoutesByTo {
   '/dashboard/settings/billing': typeof AuthenticatedDashboardSettingsBillingRoute
   '/dashboard/settings/import': typeof AuthenticatedDashboardSettingsImportRoute
   '/dashboard/settings/notifications': typeof AuthenticatedDashboardSettingsNotificationsRoute
+  '/dashboard/settings/reminders': typeof AuthenticatedDashboardSettingsRemindersRoute
   '/dashboard/settings/zatca': typeof AuthenticatedDashboardSettingsZatcaRoute
   '/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
   '/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
@@ -2075,6 +2084,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/settings/billing': typeof AuthenticatedDashboardSettingsBillingRoute
   '/_authenticated/dashboard/settings/import': typeof AuthenticatedDashboardSettingsImportRoute
   '/_authenticated/dashboard/settings/notifications': typeof AuthenticatedDashboardSettingsNotificationsRoute
+  '/_authenticated/dashboard/settings/reminders': typeof AuthenticatedDashboardSettingsRemindersRoute
   '/_authenticated/dashboard/settings/zatca': typeof AuthenticatedDashboardSettingsZatcaRoute
   '/_authenticated/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
   '/_authenticated/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
@@ -2297,6 +2307,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/billing'
     | '/dashboard/settings/import'
     | '/dashboard/settings/notifications'
+    | '/dashboard/settings/reminders'
     | '/dashboard/settings/zatca'
     | '/dashboard/units/$id'
     | '/owners/$id/ledger'
@@ -2509,6 +2520,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/billing'
     | '/dashboard/settings/import'
     | '/dashboard/settings/notifications'
+    | '/dashboard/settings/reminders'
     | '/dashboard/settings/zatca'
     | '/dashboard/units/$id'
     | '/owners/$id/ledger'
@@ -2730,6 +2742,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/settings/billing'
     | '/_authenticated/dashboard/settings/import'
     | '/_authenticated/dashboard/settings/notifications'
+    | '/_authenticated/dashboard/settings/reminders'
     | '/_authenticated/dashboard/settings/zatca'
     | '/_authenticated/dashboard/units/$id'
     | '/_authenticated/owners/$id/ledger'
@@ -4135,6 +4148,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardSettingsZatcaRouteImport
       parentRoute: typeof AuthenticatedDashboardSettingsRoute
     }
+    '/_authenticated/dashboard/settings/reminders': {
+      id: '/_authenticated/dashboard/settings/reminders'
+      path: '/reminders'
+      fullPath: '/dashboard/settings/reminders'
+      preLoaderRoute: typeof AuthenticatedDashboardSettingsRemindersRouteImport
+      parentRoute: typeof AuthenticatedDashboardSettingsRoute
+    }
     '/_authenticated/dashboard/settings/notifications': {
       id: '/_authenticated/dashboard/settings/notifications'
       path: '/notifications'
@@ -4647,6 +4667,7 @@ interface AuthenticatedDashboardSettingsRouteChildren {
   AuthenticatedDashboardSettingsBillingRoute: typeof AuthenticatedDashboardSettingsBillingRoute
   AuthenticatedDashboardSettingsImportRoute: typeof AuthenticatedDashboardSettingsImportRoute
   AuthenticatedDashboardSettingsNotificationsRoute: typeof AuthenticatedDashboardSettingsNotificationsRoute
+  AuthenticatedDashboardSettingsRemindersRoute: typeof AuthenticatedDashboardSettingsRemindersRoute
   AuthenticatedDashboardSettingsZatcaRoute: typeof AuthenticatedDashboardSettingsZatcaRoute
 }
 
@@ -4660,6 +4681,8 @@ const AuthenticatedDashboardSettingsRouteChildren: AuthenticatedDashboardSetting
       AuthenticatedDashboardSettingsImportRoute,
     AuthenticatedDashboardSettingsNotificationsRoute:
       AuthenticatedDashboardSettingsNotificationsRoute,
+    AuthenticatedDashboardSettingsRemindersRoute:
+      AuthenticatedDashboardSettingsRemindersRoute,
     AuthenticatedDashboardSettingsZatcaRoute:
       AuthenticatedDashboardSettingsZatcaRoute,
   }

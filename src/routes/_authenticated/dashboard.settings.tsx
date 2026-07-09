@@ -406,11 +406,17 @@ function SettingsPage() {
               : "Enable WhatsApp/SMS/email channels and customize auction win templates."}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-wrap gap-2">
           <Button asChild variant="outline">
             <Link to="/dashboard/settings/notifications">
               <Bell className="size-4 me-2" />{" "}
               {isAr ? "إدارة الإشعارات والقوالب" : "Manage notifications & templates"}
+            </Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/dashboard/settings/reminders">
+              <Bell className="size-4 me-2" />{" "}
+              {isAr ? "التذكيرات الذكية" : "Smart reminders"}
             </Link>
           </Button>
         </CardContent>
