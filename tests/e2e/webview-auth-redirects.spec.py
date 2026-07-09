@@ -331,7 +331,7 @@ async def test_pending_redirect_returns_to_wizard(context) -> str | None:
     )
 
 
-
+async def main() -> int:
     failures: list[str] = []
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
