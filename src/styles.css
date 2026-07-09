@@ -1304,6 +1304,231 @@ html.theme-tech nav[aria-label] a[aria-current="page"] > span[aria-hidden="true"
   box-shadow: 0 0 8px color-mix(in oklab, var(--color-primary) 60%, transparent) !important;
 }
 
+/* ==================================================================
+   theme-royal — "Emerald Prestige" luxury dashboard skin
+   Palette:   deep emerald #064e3b, emerald #0d7a5f, gold #c9a84c,
+              cream #f5f0e0. Curvy radius, gold-dotted sidebar, rich
+              elevation. Applied by _authenticated.tsx as the default
+              dashboard theme when the user has not opted into
+              Slate & Steel.
+   ================================================================== */
+.theme-royal {
+  color-scheme: light;
+  --font-sans: 'DM Sans', 'Cairo', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'DM Sans', 'Cairo', system-ui, sans-serif;
+
+  --background: oklch(0.965 0.022 92);          /* cream #f5f0e0 */
+  --foreground: oklch(0.32 0.075 165);          /* deep emerald #064e3b */
+  --card: oklch(1 0 0);                          /* white */
+  --card-foreground: oklch(0.32 0.075 165);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.32 0.075 165);
+  --primary: oklch(0.32 0.075 165);              /* deep emerald as primary */
+  --primary-foreground: oklch(0.965 0.022 92);   /* cream text on emerald */
+  --secondary: oklch(0.5 0.10 165);              /* emerald #0d7a5f */
+  --secondary-foreground: oklch(0.98 0.02 92);
+  --muted: oklch(0.94 0.025 92);                 /* soft cream */
+  --muted-foreground: oklch(0.5 0.06 165);       /* mid emerald for meta text */
+  --accent: oklch(0.79 0.14 88);                 /* gold #c9a84c */
+  --accent-foreground: oklch(0.28 0.06 165);     /* emerald on gold — AA */
+  --destructive: oklch(0.58 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.55 0.13 155);
+  --success-foreground: oklch(0.98 0.02 92);
+  --warning: oklch(0.79 0.14 88);
+  --warning-foreground: oklch(0.28 0.06 165);
+  --border: oklch(0.32 0.075 165 / 12%);         /* emerald hairline */
+  --input: oklch(0.32 0.075 165 / 20%);
+
+  --ring: oklch(0.79 0.14 88);                    /* gold focus ring */
+  --paper: oklch(1 0 0);
+  --ink: oklch(0.32 0.075 165);
+  --radius: 1.5rem;                              /* curvy, luxe */
+
+  --shadow-soft: 0 1px 2px 0 oklch(0.32 0.075 165 / 5%),
+                 0 1px 0 0 oklch(1 0 0 / 40%) inset;
+  --shadow-elevated: 0 10px 40px -18px oklch(0.32 0.075 165 / 30%),
+                     0 1px 0 0 oklch(1 0 0 / 60%) inset;
+  --shadow-glow: 0 0 0 1px color-mix(in oklab, #c9a84c 55%, transparent),
+                 0 12px 40px -14px color-mix(in oklab, #c9a84c 45%, transparent);
+
+  --gradient-brand: linear-gradient(135deg, #064e3b 0%, #0d7a5f 100%);
+  --gradient-gold:  linear-gradient(135deg, #c9a84c 0%, #f0d78c 100%);
+  --gradient-surface: linear-gradient(180deg,
+                       color-mix(in oklab, var(--card) 100%, transparent),
+                       color-mix(in oklab, var(--background) 70%, transparent));
+
+  /* Sidebar — deep emerald with gold accent */
+  --sidebar: oklch(0.32 0.075 165);              /* #064e3b */
+  --sidebar-foreground: oklch(0.965 0.022 92 / 78%);
+  --sidebar-primary: oklch(0.5 0.10 165);        /* emerald active bg */
+  --sidebar-primary-foreground: oklch(0.79 0.14 88);   /* gold text */
+  --sidebar-accent: oklch(0.965 0.022 92 / 8%);
+  --sidebar-accent-foreground: oklch(0.79 0.14 88);
+  --sidebar-border: oklch(0.79 0.14 88 / 22%);
+  --sidebar-ring: oklch(0.79 0.14 88);
+}
+
+/* Gold micro-dot pattern for the emerald sidebar (Royal Estate motif) */
+html.theme-royal [data-sidebar="sidebar"],
+html.theme-royal aside[data-slot="sidebar"] {
+  background-image:
+    radial-gradient(color-mix(in oklab, #c9a84c 45%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: 0 0;
+}
+
+/* Neutralize the holographic gradient edge on cards inside royal theme */
+html.theme-royal :where(:not(.theme-luxe *)) [data-slot="card"]::before {
+  display: none;
+}
+html.theme-royal :where(:not(.theme-luxe *)) [data-slot="card"] {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  border-color: color-mix(in oklab, var(--color-foreground) 8%, transparent);
+  transition: transform .2s ease, box-shadow .25s ease, border-color .2s ease;
+}
+html.theme-royal :where(:not(.theme-luxe *)) [data-slot="card"]:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+  border-color: color-mix(in oklab, #c9a84c 55%, var(--color-border));
+}
+
+/* Primary buttons: deep emerald body, no iridescent sheen, gold hover glow */
+html.theme-royal :where(:not(.theme-luxe *)) button.bg-primary::after,
+html.theme-royal :where(:not(.theme-luxe *)) a.bg-primary::after,
+html.theme-royal :where(:not(.theme-luxe *)) [role="button"].bg-primary::after {
+  display: none;
+}
+html.theme-royal :where(:not(.theme-luxe *)) button.bg-primary,
+html.theme-royal :where(:not(.theme-luxe *)) a.bg-primary,
+html.theme-royal :where(:not(.theme-luxe *)) [role="button"].bg-primary {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  border-radius: calc(var(--radius) - 0.5rem);
+  box-shadow: 0 1px 0 0 oklch(1 0 0 / 12%) inset,
+              0 4px 14px -8px oklch(0.32 0.075 165 / 40%);
+  transition: background-color .2s ease, box-shadow .2s ease, transform .2s ease;
+  transform: none;
+}
+html.theme-royal :where(:not(.theme-luxe *)) button.bg-primary:hover,
+html.theme-royal :where(:not(.theme-luxe *)) a.bg-primary:hover,
+html.theme-royal :where(:not(.theme-luxe *)) [role="button"].bg-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 1px 0 0 oklch(1 0 0 / 18%) inset,
+              0 10px 28px -10px color-mix(in oklab, #c9a84c 55%, transparent);
+}
+
+/* Sidebar active menu item: emerald pill with gold text + inset gold rail */
+html.theme-royal :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"]::before {
+  display: none;
+}
+html.theme-royal :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"] {
+  background: var(--sidebar-primary);
+  color: var(--sidebar-primary-foreground);
+  box-shadow: inset 2px 0 0 0 #c9a84c,
+              0 6px 18px -12px oklch(0 0 0 / 45%);
+  border-radius: calc(var(--radius) - 0.75rem);
+}
+[dir="rtl"] html.theme-royal :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"] {
+  box-shadow: inset -2px 0 0 0 #c9a84c,
+              0 6px 18px -12px oklch(0 0 0 / 45%);
+}
+html.theme-royal :where(:not(.theme-luxe *)) [data-sidebar="menu-button"]:hover {
+  color: #c9a84c;
+  background: color-mix(in oklab, #f5f0e0 8%, transparent);
+}
+
+/* Turn off aurora / holo backdrops inside royal theme */
+html.theme-royal .holo-aurora::before,
+html.theme-royal .holo-bg { display: none; background: var(--color-card) !important; }
+html.theme-royal .holo-text {
+  background: none;
+  color: var(--color-foreground);
+  -webkit-text-fill-color: currentColor;
+  animation: none;
+}
+
+/* Sticky desktop topbar in royal theme — cream glass with gold hairline */
+html.theme-royal header.sticky {
+  background: color-mix(in oklab, var(--color-background) 88%, transparent) !important;
+  border-bottom: 1px solid color-mix(in oklab, #c9a84c 40%, var(--color-border)) !important;
+  box-shadow: 0 1px 0 0 oklch(1 0 0 / 50%) inset !important;
+  backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* Luxe-styled icon buttons/pills already reference gold — keep them,
+   just soften their surface to sit on cream instead of navy. */
+html.theme-royal .luxe-icon-btn,
+html.theme-royal .luxe-pill {
+  color: var(--color-foreground);
+  background: color-mix(in oklab, var(--color-card) 80%, transparent);
+  border-color: color-mix(in oklab, #c9a84c 45%, var(--color-border));
+  backdrop-filter: none;
+}
+html.theme-royal .luxe-icon-btn:hover,
+html.theme-royal .luxe-pill:hover {
+  color: #064e3b;
+  border-color: #c9a84c;
+  background: color-mix(in oklab, #c9a84c 14%, var(--color-card));
+  box-shadow: 0 6px 18px -12px oklch(0.32 0.075 165 / 35%);
+  transform: translateY(-1px);
+}
+
+/* Search input inside topbar — cream well, gold focus */
+html.theme-royal header.sticky input {
+  background-color: color-mix(in oklab, var(--color-muted) 65%, transparent) !important;
+  border-color: color-mix(in oklab, var(--color-foreground) 10%, transparent) !important;
+  color: var(--color-foreground) !important;
+}
+html.theme-royal header.sticky input::placeholder {
+  color: var(--color-muted-foreground) !important;
+}
+html.theme-royal header.sticky input:focus {
+  border-color: #c9a84c !important;
+  box-shadow: 0 0 0 3px color-mix(in oklab, #c9a84c 30%, transparent) !important;
+}
+
+/* Mobile tabbar: cream surface with gold active state */
+html.theme-royal nav[aria-label] > div.mx-2 {
+  background-color: color-mix(in oklab, var(--color-card) 95%, transparent) !important;
+  border-color: color-mix(in oklab, #c9a84c 35%, var(--color-border)) !important;
+  box-shadow: 0 -12px 32px -20px oklch(0.32 0.075 165 / 25%);
+}
+html.theme-royal nav[aria-label] a[aria-current="page"] {
+  background: color-mix(in oklab, #c9a84c 18%, transparent) !important;
+  color: var(--color-foreground) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, #c9a84c 55%, transparent) !important;
+}
+html.theme-royal nav[aria-label] a[aria-current="page"] svg {
+  color: #064e3b !important;
+}
+html.theme-royal nav[aria-label] a[aria-current="page"] > span[aria-hidden="true"]:last-child {
+  background: linear-gradient(90deg, #c9a84c, #f0d78c) !important;
+  box-shadow: 0 0 10px color-mix(in oklab, #c9a84c 55%, transparent) !important;
+}
+
+/* KPI numerals: display font, tabular */
+html.theme-royal .tabular-nums,
+html.theme-royal [class*="font-mono"] {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+}
+
+/* One-off utility: gold text (used sparingly in dashboard chrome) */
+@utility text-royal-gold {
+  color: #c9a84c;
+}
+@utility bg-royal-emerald {
+  background-color: #064e3b;
+  color: #f5f0e0;
+}
+@utility ring-royal-gold {
+  box-shadow: 0 0 0 1px color-mix(in oklab, #c9a84c 55%, transparent),
+              0 8px 24px -12px color-mix(in oklab, #c9a84c 40%, transparent);
+}
+
 /* ------------------------------------------------------------------
  * Smooth theme swap
  * When the dashboard theme toggle flips between Slate & Steel and the
