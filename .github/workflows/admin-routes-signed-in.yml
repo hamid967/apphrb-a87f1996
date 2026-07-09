@@ -118,6 +118,40 @@ jobs:
           eval "$(python scripts/e2e-mint-admin-session.py --print-source)"
           python tests/e2e/admin-routes-signed-in.spec.py
 
+      - name: Run route-map UI smoke
+        env:
+          E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
+          VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          if [ -z "$VITE_SUPABASE_URL" ] && [ -f .env ]; then
+            set -a; . ./.env; set +a
+          fi
+          eval "$(python scripts/e2e-mint-admin-session.py --print-source)"
+          python tests/e2e/admin-route-map.spec.py
+
+      - name: Run admin perf budgets (multi-viewport)
+        env:
+          E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
+          VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          if [ -z "$VITE_SUPABASE_URL" ] && [ -f .env ]; then
+            set -a; . ./.env; set +a
+          fi
+          eval "$(python scripts/e2e-mint-admin-session.py --print-source)"
+          python tests/e2e/admin-perf.spec.py
+
+      - name: Upload perf regression artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-perf-${{ github.run_id }}-${{ github.run_attempt }}
+          path: /tmp/browser/admin-perf/**
+          if-no-files-found: ignore
+
       - name: Stop dev server
         if: always()
         run: kill "$(cat /tmp/dev-server.pid)" 2>/dev/null || true
