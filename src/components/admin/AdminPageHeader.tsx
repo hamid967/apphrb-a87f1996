@@ -1,7 +1,7 @@
 import { Loader2, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import { PageHeader } from "@/components/ui/page-header";
 
 type Props = {
   ar: string;
@@ -14,47 +14,17 @@ type Props = {
 };
 
 /**
- * Shared header for every /admin/* section.
- * Renders h1 + optional subtitle above any data-loading state so the page
- * always shows a text title alongside the sidebar breadcrumb, even while
- * queries are in flight.
+ * Thin adapter over the unified <PageHeader />. Kept for backwards
+ * compatibility across every /admin/* route. Prefer importing
+ * `PageHeader` directly in new code.
  */
-export function AdminPageHeader({
-  ar,
-  en,
-  descriptionAr,
-  descriptionEn,
-  icon: Icon,
-  actions,
-  className,
-}: Props) {
-  const { i18n } = useTranslation();
-  const isAr = i18n.language?.startsWith("ar");
-  const title = isAr ? ar : en;
-  const desc = isAr ? descriptionAr : descriptionEn;
-  return (
-    <header
-      className={cn(
-        "flex flex-wrap items-start justify-between gap-3 border-b border-border/40 pb-3",
-        className,
-      )}
-    >
-      <div className="min-w-0">
-        <h1 className="flex items-center gap-2 text-xl sm:text-2xl font-semibold tracking-tight">
-          {Icon && <Icon className="size-5 sm:size-6 text-primary shrink-0" aria-hidden />}
-          <span className="truncate">{title}</span>
-        </h1>
-        {desc && <p className="mt-1 text-xs sm:text-sm text-muted-foreground">{desc}</p>}
-      </div>
-      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
-    </header>
-  );
+export function AdminPageHeader(props: Props) {
+  return <PageHeader {...props} />;
 }
 
 /**
- * Convenience wrapper that pairs the header with a centered spinner.
- * Use in place of the bare `<Loader2 />` early-return so the h1 is present
- * during the initial data fetch.
+ * Header + centered spinner. Used in place of the bare `<Loader2 />`
+ * early-return so the h1 stays visible during initial data fetch.
  */
 export function AdminPageLoading(props: Omit<Props, "actions">) {
   const { i18n } = useTranslation();
