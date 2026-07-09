@@ -29,14 +29,6 @@ function SecuritySettings() {
       to: "/security/sessions",
     },
     {
-      icon: Smartphone,
-      ar: "الأجهزة الموثوقة",
-      en: "Trusted devices",
-      arSub: "إدارة الجلسات النشطة",
-      enSub: "Manage active sessions",
-      to: "/security/sessions",
-    },
-    {
       icon: KeyRound,
       ar: "مفاتيح API",
       en: "API keys",
