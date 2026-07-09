@@ -71,11 +71,22 @@ export function safeRedirect(target: string | undefined): string | null {
 
 
 export async function routeAfterLogin(nav: ReturnType<typeof useNavigate>, redirect?: string) {
+  // 1) Explicit ?redirect= wins when it points at a safe same-origin path.
   const safe = safeRedirect(redirect);
   if (safe) {
+    clearPendingRedirect();
     nav({ to: safe, replace: true });
     return;
   }
+  // 2) Fall back to the destination we stashed before bouncing to /auth.
+  //    Some WebViews strip query params on OAuth round-trips, so this is
+  //    the only signal left when the query param is gone.
+  const stashed = safeRedirect(consumePendingRedirect() ?? undefined);
+  if (stashed) {
+    nav({ to: stashed, replace: true });
+    return;
+  }
+  // 3) No preserved intent — resolve the user's default home route.
   try {
     const ctx = await getMyAccessContext();
     const target = resolveHomeRoute(ctx);
