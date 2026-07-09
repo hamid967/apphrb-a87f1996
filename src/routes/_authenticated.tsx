@@ -87,7 +87,20 @@ function AuthenticatedShellWithBoundary() {
     };
     const initial = (() => {
       try {
-        return window.localStorage.getItem(KEY) ?? "royal";
+        const raw = window.localStorage.getItem(KEY);
+        const MIGRATED = "aqari.dashboard.theme.royalMigrated";
+        // One-time migration: promote the historical auto-applied "default"
+        // (Visionary Glass) to the new Royal default so returning users see
+        // the redesign. They can switch back via DashboardThemeToggle.
+        if (!window.localStorage.getItem(MIGRATED)) {
+          if (raw === null || raw === "default") {
+            window.localStorage.setItem(KEY, "royal");
+            window.localStorage.setItem(MIGRATED, "1");
+            return "royal";
+          }
+          window.localStorage.setItem(MIGRATED, "1");
+        }
+        return raw ?? "royal";
       } catch {
         return "royal";
       }
