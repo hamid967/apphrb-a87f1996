@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   BellRing,
   Clock,
@@ -13,8 +13,37 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Check,
+  CheckCheck,
 } from "lucide-react";
 import { listMyRecentClaims } from "@/lib/expense-claims.functions";
+
+const READ_STORAGE_KEY = (orgId: string | undefined) =>
+  `aqari:reminders-read:${orgId ?? "anon"}`;
+
+function loadReadIds(orgId: string | undefined): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = window.localStorage.getItem(READ_STORAGE_KEY(orgId));
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw) as string[];
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveReadIds(orgId: string | undefined, ids: Set<string>) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      READ_STORAGE_KEY(orgId),
+      JSON.stringify(Array.from(ids)),
+    );
+  } catch {
+    /* ignore quota errors */
+  }
+}
 
 type Tone = "info" | "warn" | "danger" | "success";
 
