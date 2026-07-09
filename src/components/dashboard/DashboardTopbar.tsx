@@ -35,6 +35,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { HoloIntensityToggle } from "@/components/holo-intensity-toggle";
+import { DashboardThemeToggle } from "@/components/dashboard-theme-toggle";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import type { User } from "@supabase/supabase-js";
