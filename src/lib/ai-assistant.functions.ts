@@ -446,7 +446,8 @@ async function auditRpc(
   }
 }
 
-const ALLOWED_TOOL_NAMES = TOOL_SCHEMAS.map((t) => t.name) as [string, ...string[]];
+export const ALLOWED_TOOL_NAMES = TOOL_SCHEMAS.map((t) => t.name) as [string, ...string[]];
+export { SENSITIVE_TOOLS, ELEVATED_ROLES };
 
 // ------- Recommend an editable dashboard layout from KPIs -------
 
