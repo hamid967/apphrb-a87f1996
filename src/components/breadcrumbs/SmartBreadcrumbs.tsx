@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { AnimatePresence, motion, LayoutGroup } from "motion/react";
-import type { ComponentType, ReactNode } from "react";
+import { useEffect, useRef, type ComponentType, type ReactNode } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
