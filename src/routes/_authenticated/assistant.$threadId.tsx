@@ -190,7 +190,7 @@ function ThreadView() {
       qc.invalidateQueries({ queryKey: ["assistant-thread", threadId] });
       qc.invalidateQueries({ queryKey: ["assistant-threads"] });
     },
-    onError: (e) => toast.error(e.message ?? "فشل الاتصال بالمساعد"),
+    onError: (e) => toast.error(e.message ?? t("assistant.thread.connectFailed")),
   });
 
   // Load persisted history when the thread loads/changes.
@@ -206,8 +206,8 @@ function ThreadView() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const submit = useCallback(async () => {
-    const t = input.trim();
-    if ((!t && files.length === 0) || isPending) return;
+    const text = input.trim();
+    if ((!text && files.length === 0) || isPending) return;
     const fileParts = await Promise.all(
       files.map(async (f) => {
         const url = await new Promise<string>((res, rej) => {
@@ -224,10 +224,10 @@ function ThreadView() {
         };
       }),
     );
-    sendMessage({ text: t || "(مرفق)", files: fileParts.length ? (fileParts as any) : undefined });
+    sendMessage({ text: text || `(${t("assistant.thread.attachment")})`, files: fileParts.length ? (fileParts as any) : undefined });
     setInput("");
     setFiles([]);
-  }, [input, files, isPending, sendMessage]);
+  }, [input, files, isPending, sendMessage, t]);
 
   const flatMessages: AssistantMsg[] = useMemo(
     () =>
