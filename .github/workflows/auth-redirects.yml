@@ -151,3 +151,74 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Upload attempt-1 artifacts
+        if: always()
+        id: upload-attempt-1
+        uses: actions/upload-artifact@v4
+        with:
+          name: webview-auth-redirects-attempt-1
+          path: /tmp/browser/webview-redirects/attempt-1
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload attempt-2 artifacts
+        if: always()
+        id: upload-attempt-2
+        uses: actions/upload-artifact@v4
+        with:
+          name: webview-auth-redirects-attempt-2
+          path: /tmp/browser/webview-redirects/attempt-2
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload attempt-3 artifacts
+        if: always()
+        id: upload-attempt-3
+        uses: actions/upload-artifact@v4
+        with:
+          name: webview-auth-redirects-attempt-3
+          path: /tmp/browser/webview-redirects/attempt-3
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Comment PR with E2E artifact links
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          ATTEMPT_1_URL: ${{ steps.upload-attempt-1.outputs.artifact-url }}
+          ATTEMPT_2_URL: ${{ steps.upload-attempt-2.outputs.artifact-url }}
+          ATTEMPT_3_URL: ${{ steps.upload-attempt-3.outputs.artifact-url }}
+        with:
+          script: |
+            const maxAttempts = parseInt(process.env.E2E_MAX_ATTEMPTS || '3', 10);
+            const rows = [
+              { n: 1, url: process.env.ATTEMPT_1_URL },
+              { n: 2, url: process.env.ATTEMPT_2_URL },
+              { n: 3, url: process.env.ATTEMPT_3_URL },
+            ].slice(0, maxAttempts);
+
+            let table = '| Attempt | Download |\n|---------|----------|\n';
+            for (const { n, url } of rows) {
+              table += `| Attempt ${n} | ${url ? `[artifacts](${url})` : 'not available'} |\n`;
+            }
+
+            const body = [
+              '## ❌ WebView Auth Redirects E2E failed',
+              '',
+              `All ${maxAttempts} attempts failed. Download the forensic evidence per attempt to diagnose the flake:`,
+              '',
+              table,
+              '',
+              'Each artifact contains screenshots, Playwright `trace.zip` (open with `playwright show-trace`), `video/*.webm`, `browser-console.log`, and the attempt’s `run.log`.',
+              '',
+              `Also see the combined artifact bundle: [webview-auth-redirects-artifacts](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}).`,
+            ].join('\n');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+
