@@ -194,6 +194,7 @@ jobs:
           ATTEMPT_3_URL: ${{ steps.upload-attempt-3.outputs.artifact-url }}
         with:
           script: |
+            const marker = '<!-- webview-auth-redirects-e2e -->';
             const maxAttempts = parseInt(process.env.E2E_MAX_ATTEMPTS || '3', 10);
             const rows = [
               { n: 1, url: process.env.ATTEMPT_1_URL },
@@ -207,6 +208,7 @@ jobs:
             }
 
             const body = [
+              marker,
               '## ❌ WebView Auth Redirects E2E failed',
               '',
               `All ${maxAttempts} attempts failed. Download the forensic evidence per attempt to diagnose the flake:`,
@@ -218,11 +220,28 @@ jobs:
               `Also see the combined artifact bundle: [webview-auth-redirects-artifacts](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}).`,
             ].join('\n');
 
-            github.rest.issues.createComment({
+            const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body,
             });
+            const existing = comments.find(c => c.body && c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                comment_id: existing.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            }
+
 
 
