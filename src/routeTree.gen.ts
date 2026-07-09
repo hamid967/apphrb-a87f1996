@@ -133,6 +133,7 @@ import { Route as AuthenticatedAssistantThreadIdRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminTelemetryEmailsRouteImport } from './routes/_authenticated/admin.telemetry-emails'
 import { Route as AuthenticatedAdminTelemetryRouteImport } from './routes/_authenticated/admin.telemetry'
+import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminSubscriptionPaymentsRouteImport } from './routes/_authenticated/admin.subscription-payments'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
@@ -913,6 +914,12 @@ const AuthenticatedAdminTelemetryRoute =
     path: '/telemetry',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminSupportRoute =
+  AuthenticatedAdminSupportRouteImport.update({
+    id: '/support',
+    path: '/support',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSubscriptionsRoute =
   AuthenticatedAdminSubscriptionsRouteImport.update({
     id: '/subscriptions',
@@ -1484,6 +1491,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscription-payments': typeof AuthenticatedAdminSubscriptionPaymentsRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/admin/telemetry': typeof AuthenticatedAdminTelemetryRoute
   '/admin/telemetry-emails': typeof AuthenticatedAdminTelemetryEmailsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -1692,6 +1700,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/subscription-payments': typeof AuthenticatedAdminSubscriptionPaymentsRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/admin/telemetry': typeof AuthenticatedAdminTelemetryRoute
   '/admin/telemetry-emails': typeof AuthenticatedAdminTelemetryEmailsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -1904,6 +1913,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/subscription-payments': typeof AuthenticatedAdminSubscriptionPaymentsRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
   '/_authenticated/admin/telemetry': typeof AuthenticatedAdminTelemetryRoute
   '/_authenticated/admin/telemetry-emails': typeof AuthenticatedAdminTelemetryEmailsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -2119,6 +2129,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/subscription-payments'
     | '/admin/subscriptions'
+    | '/admin/support'
     | '/admin/telemetry'
     | '/admin/telemetry-emails'
     | '/admin/users'
@@ -2327,6 +2338,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/subscription-payments'
     | '/admin/subscriptions'
+    | '/admin/support'
     | '/admin/telemetry'
     | '/admin/telemetry-emails'
     | '/admin/users'
@@ -2538,6 +2550,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/subscription-payments'
     | '/_authenticated/admin/subscriptions'
+    | '/_authenticated/admin/support'
     | '/_authenticated/admin/telemetry'
     | '/_authenticated/admin/telemetry-emails'
     | '/_authenticated/admin/users'
@@ -3618,6 +3631,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTelemetryRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/support': {
+      id: '/_authenticated/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AuthenticatedAdminSupportRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/subscriptions': {
       id: '/_authenticated/admin/subscriptions'
       path: '/subscriptions'
@@ -4276,6 +4296,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSubscriptionPaymentsRoute: typeof AuthenticatedAdminSubscriptionPaymentsRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
+  AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
   AuthenticatedAdminTelemetryRoute: typeof AuthenticatedAdminTelemetryRoute
   AuthenticatedAdminTelemetryEmailsRoute: typeof AuthenticatedAdminTelemetryEmailsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
@@ -4306,6 +4327,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSubscriptionPaymentsRoute:
     AuthenticatedAdminSubscriptionPaymentsRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
+  AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
   AuthenticatedAdminTelemetryRoute: AuthenticatedAdminTelemetryRoute,
   AuthenticatedAdminTelemetryEmailsRoute:
     AuthenticatedAdminTelemetryEmailsRoute,
