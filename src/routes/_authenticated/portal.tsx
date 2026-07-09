@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import { PortalTopbar } from "@/components/portal/PortalTopbar";
+import { PortalBreadcrumbs } from "@/components/portal/PortalBreadcrumbs";
 import { getPortalOverview } from "@/lib/portal.functions";
 import { Button } from "@/components/ui/button";
 
