@@ -36,8 +36,36 @@ export const Route = createFileRoute("/_authenticated/security/sessions")({
   },
   errorComponent: ({ error, reset }) => <ErrorComponent error={error} />,
   notFoundComponent: () => <div className="p-6">غير موجود</div>,
-  component: SessionsPage,
+  component: SessionsPageShell,
 });
+
+function SessionsSkeleton() {
+  return (
+    <div className="space-y-3">
+      <div className="h-24 rounded-lg border bg-muted/40 animate-pulse" />
+      <div className="h-24 rounded-lg border bg-muted/40 animate-pulse" />
+    </div>
+  );
+}
+
+function SessionsPageShell() {
+  return (
+    <div dir="rtl" className="p-6 space-y-6 max-w-6xl mx-auto">
+      <div className="flex items-center gap-3">
+        <Shield className="h-6 w-6 text-primary" />
+        <div>
+          <h1 className="text-2xl font-bold">الجلسات والأجهزة</h1>
+          <p className="text-sm text-muted-foreground">
+            إدارة الأجهزة الموثوقة وسجل الدخول وحماية الحساب
+          </p>
+        </div>
+      </div>
+      <Suspense fallback={<SessionsSkeleton />}>
+        <SessionsPage />
+      </Suspense>
+    </div>
+  );
+}
 
 function SessionsPage() {
   const qc = useQueryClient();
