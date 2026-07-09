@@ -1974,6 +1974,44 @@ const en = {
     commissions: "Commissions",
     deals: "Deals",
   },
+  tenantPortal: {
+    tabs: {
+      overview: "Overview",
+      payments: "Payments",
+      maintenance: "Maintenance",
+    },
+    payments: {
+      title: "My Payments",
+      subtitle: "All the receipts you've submitted and their review status.",
+      totalPaid: "Total paid",
+      pendingReview: "Pending review",
+      history: "Payment history",
+      empty: "No payments yet.",
+      cols: {
+        date: "Date",
+        contract: "Contract",
+        amount: "Amount",
+        reference: "Reference",
+        status: "Status",
+      },
+      status: {
+        verified: "Verified",
+        paid: "Paid",
+        pending: "Pending",
+        rejected: "Rejected",
+      },
+    },
+  },
+  accessDenied: {
+    metaTitle: "Access denied — Aqari",
+    metaDesc: "You don't have permission to view this resource.",
+    title: "Access denied",
+    body: "You don't have the permissions required to view this page. Contact your account admin if you think this is a mistake.",
+    retry: "Retry",
+    notFound: "Not found",
+    home: "Home",
+    goToPortal: "Go to portal",
+  },
 };
 
 const ar: typeof en = {
