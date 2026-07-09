@@ -129,6 +129,11 @@ type ReminderAction = {
   labelEn: string;
   href: string;
   primary?: boolean;
+  /**
+   * When set, the action navigates to the correction wizard with the given
+   * original claim id prefilled instead of the raw `href`.
+   */
+  correctOriginalId?: string;
 };
 
 type ReminderDetail = {
