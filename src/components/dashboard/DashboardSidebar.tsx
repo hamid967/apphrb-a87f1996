@@ -89,7 +89,7 @@ export function DashboardSidebar() {
       items: [
         { url: "/dashboard/properties", icon: Home, ar: "العقارات", en: "Properties" },
         { url: "/dashboard/units", icon: KeyRound, ar: "الوحدات", en: "Units" },
-        { url: "/dashboard/owners", icon: Users2, ar: "الملّاك", en: "Owners" },
+        { url: "/owners", icon: Users2, ar: "الملّاك", en: "Owners" },
         { url: "/dashboard/valuations", icon: Gauge, ar: "التقييمات", en: "Valuations" },
         { url: "/dashboard/viewings", icon: CalendarClock, ar: "المعاينات", en: "Viewings" },
       ],
@@ -111,8 +111,8 @@ export function DashboardSidebar() {
       items: [
         { url: "/dashboard/tenants", icon: Users2, ar: "المستأجرون", en: "Tenants" },
         { url: "/dashboard/applications", icon: ClipboardList, ar: "طلبات السكن", en: "Applications" },
-        { url: "/dashboard/crm/leads", icon: Target, ar: "العملاء المحتملون", en: "Leads" },
-        { url: "/dashboard/crm/deals", icon: Handshake, ar: "الصفقات", en: "Deals" },
+        { url: "/leads", icon: Target, ar: "العملاء المحتملون", en: "Leads" },
+        { url: "/deals", icon: Handshake, ar: "الصفقات", en: "Deals" },
         { url: "/dashboard/crm/meetings", icon: CalendarClock, ar: "الاجتماعات", en: "Meetings" },
       ],
     },
@@ -121,7 +121,7 @@ export function DashboardSidebar() {
       labelEn: "Operations",
       items: [
         { url: "/dashboard/tasks", icon: CheckSquare, ar: "المهام", en: "Tasks" },
-        { url: "/dashboard/documents", icon: FolderOpen, ar: "المستندات", en: "Documents" },
+        { url: "/documents", icon: FolderOpen, ar: "المستندات", en: "Documents" },
         { url: "/dashboard/maintenance", icon: Settings, ar: "الصيانة", en: "Maintenance" },
       ],
     },
