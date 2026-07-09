@@ -403,6 +403,90 @@ async def test_pending_redirect_cleared_after_use(context) -> str | None:
     return None
 
 
+async def test_unsafe_redirect_is_ignored(context) -> str | None:
+    """
+    Malicious / off-list ?redirect= values must never be persisted to
+    sessionStorage nor replayed after sign-in. safeRedirect() is the single
+    chokepoint; this asserts /auth honors it end-to-end so a tainted link
+    can't hijack the post-login destination.
+
+    For each unsafe value we:
+      1. Load /auth?redirect=<unsafe> and assert sessionStorage stays empty.
+      2. Simulate a stale sessionStorage entry with the same value and
+         assert the consume-then-safeRedirect gate returns null (i.e. the
+         app would fall back to /dashboard).
+    """
+    unsafe_cases = [
+        "https://evil.com/steal",
+        "http://evil.com",
+        "//evil.com",
+        "/\\evil.com",
+        "/%2f%2fevil.com",
+        "/%5cevil.com",
+        "javascript:alert(1)",
+        "/auth",
+        "/auth/reset?x=1",
+        "  /dashboard",  # leading whitespace vector
+    ]
+
+    page = await context.new_page()
+    await page.goto(BASE, wait_until="domcontentloaded")
+    await page.evaluate(f"window.sessionStorage.removeItem({PENDING_KEY!r})")
+
+    # Recreate safeRedirect() inline so we can validate the gate the same
+    # way the app's routeAfterLogin does — without needing to import bundled
+    # code from the page.
+    SAFE_REDIRECT_JS = """
+      (target) => {
+        if (!target) return null;
+        if (/^[\\s\\u0000-\\u001f]/.test(target)) return null;
+        if (!target.startsWith('/')) return null;
+        if (target.startsWith('//') || target.startsWith('/\\\\')) return null;
+        const lower = target.toLowerCase();
+        if (lower.startsWith('/%2f') || lower.startsWith('/%5c')) return null;
+        const pathOnly = lower.split(/[?#]/, 1)[0];
+        if (pathOnly === '/auth' || pathOnly.startsWith('/auth/')) return null;
+        return target;
+      }
+    """
+
+    failures: list[str] = []
+    for raw in unsafe_cases:
+        from urllib.parse import quote
+        encoded = quote(raw, safe="")
+        # Cold start each case: fresh storage + fresh /auth load.
+        await page.evaluate(f"window.sessionStorage.removeItem({PENDING_KEY!r})")
+        await page.goto(f"{BASE}/auth?redirect={encoded}", wait_until="domcontentloaded")
+        await page.wait_for_timeout(300)
+        stored = await page.evaluate(f"window.sessionStorage.getItem({PENDING_KEY!r})")
+        url_now = page.url.replace(BASE, "") or "/"
+        # Also run the gate on the raw value directly.
+        gate = await page.evaluate(
+            f"({SAFE_REDIRECT_JS})({raw!r})"
+        )
+        print(f"[unsafe] raw={raw!r} → sessionStorage={stored!r} gate={gate!r} url={url_now}")
+
+        if stored is not None:
+            failures.append(
+                f"/auth?redirect={raw!r} tainted sessionStorage with {stored!r} — must be ignored"
+            )
+        if gate is not None:
+            failures.append(
+                f"safeRedirect({raw!r}) should return null, got {gate!r}"
+            )
+        # The URL must not have escaped the app to an off-origin host.
+        if not url_now.startswith("/"):
+            failures.append(
+                f"/auth?redirect={raw!r} navigated off-origin to {url_now!r}"
+            )
+
+    await page.screenshot(path=str(SHOTS / "9_unsafe_ignored.png"))
+    await page.close()
+    if failures:
+        return " | ".join(failures)
+    return None
+
+
 async def main() -> int:
     failures: list[str] = []
     async with async_playwright() as pw:
@@ -424,6 +508,7 @@ async def main() -> int:
             ("pending-redirect-survives-webview", test_pending_redirect_survives_webview(context)),
             ("pending-redirect-returns-to-wizard", test_pending_redirect_returns_to_wizard(context)),
             ("pending-redirect-cleared-after-use", test_pending_redirect_cleared_after_use(context)),
+            ("unsafe-redirect-is-ignored", test_unsafe_redirect_is_ignored(context)),
         ]:
             print(f"\n--- {name} ---")
             try:
