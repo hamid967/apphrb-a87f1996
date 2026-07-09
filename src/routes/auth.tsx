@@ -154,7 +154,6 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
-          options: captchaToken ? { captchaToken } : undefined,
         });
         if (error) {
           await recordLoginEvent({
