@@ -198,15 +198,26 @@ def main() -> int:
     supabase_url = require_env("VITE_SUPABASE_URL").rstrip("/")
     anon_key = require_env("VITE_SUPABASE_PUBLISHABLE_KEY")
     email = os.environ.get("E2E_ADMIN_EMAIL", "hamid@hrhbs.com")
-    password = require_env("E2E_ADMIN_PASSWORD")
+    password = os.environ.get("E2E_ADMIN_PASSWORD")
+    service_role = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
     base_url = os.environ.get("BASE_URL", "http://localhost:8080").rstrip("/")
 
     ref = project_ref(supabase_url)
     storage_key = f"sb-{ref}-auth-token"
 
-    session = sign_in(supabase_url, anon_key, email, password)
+    if password:
+        source = "password"
+        session = sign_in(supabase_url, anon_key, email, password)
+    elif service_role:
+        source = "admin-magiclink"
+        session = admin_mint_via_magiclink(supabase_url, service_role, anon_key, email)
+    else:
+        sys.exit(
+            "ERROR: need either E2E_ADMIN_PASSWORD (password grant) "
+            "or SUPABASE_SERVICE_ROLE_KEY (admin magiclink fallback)."
+        )
     if "access_token" not in session:
-        sys.exit(f"ERROR: unexpected sign-in response: {session}")
+        sys.exit(f"ERROR: unexpected sign-in response ({source}): {session}")
 
     cookies = build_cookies(session, ref, base_url)
     storage = build_storage_state(session, storage_key, cookies, base_url)
