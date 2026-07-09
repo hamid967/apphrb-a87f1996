@@ -280,7 +280,7 @@ function AuthPage() {
       try {
         await navigator.clipboard.writeText(`${devEmail} / ${devPassword}`);
       } catch {}
-      toast.success(`تم إنشاء حساب مطور: ${devEmail} — بيانات الدخول نُسخت للحافظة`);
+      toast.success(t("auth.devAccountCreated", { email: devEmail, defaultValue: `Developer account created: ${devEmail} — credentials copied to clipboard` }));
       nav({ to: "/onboarding/wizard", replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Developer signup failed");
