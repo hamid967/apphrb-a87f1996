@@ -435,7 +435,7 @@ function AuthPage() {
                       />
                     </div>
                     <p className="text-[10px]" style={{ color: HBS.gray }}>
-                      اتركه فارغاً إذا كنت مستأجراً أو مالكاً على البوابة.
+                      {t("auth.establishmentHint")}
                     </p>
                   </div>
                 )}
