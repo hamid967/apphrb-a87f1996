@@ -74,18 +74,13 @@ ADMIN_PATHS = [
     "/admin/report-branding",
     "/admin/report-intro",
     "/admin/settings",
-    "/admin/seed",
-    "/admin/systest",
+    "/admin/route-map",
 ]
 
-# Paths that are intentionally NOT registered as TanStack routes today.
-# They MUST return 404 (via the root catch-all) AND MUST NOT bounce to
-# /auth, /security/mfa, /access-denied, or /onboarding — a bounce here
-# means the AAL2/session pipeline broke, not a missing page.
-EXPECTED_404 = {
-    "/admin/seed",
-    "/admin/systest",
-}
+# Paths intentionally NOT registered as TanStack routes today. Populate
+# only when a known-missing admin URL still needs a "must 404 without
+# bouncing to /auth or /security/mfa" assertion.
+EXPECTED_404: set[str] = set()
 
 # Any final URL starting with one of these means the route rejected the
 # user rather than rendering.
