@@ -290,6 +290,10 @@ function PaymentSchedulesPage() {
             <Download className="h-4 w-4 me-1" />
             {isAr ? "تصدير CSV" : "Export CSV"}
           </Button>
+          <Button variant="outline" size="sm" onClick={exportXlsx}>
+            <FileSpreadsheet className="h-4 w-4 me-1" />
+            {isAr ? "تصدير XLSX" : "Export XLSX"}
+          </Button>
         </div>
       </header>
 
