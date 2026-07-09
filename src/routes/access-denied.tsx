@@ -25,8 +25,13 @@ export const Route = createFileRoute("/access-denied")({
 });
 
 function AccessDeniedPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const search = useSearch({ from: "/access-denied" });
+
+  useEffect(() => {
+    document.title = t("accessDenied.metaTitle");
+  }, [t, i18n.language]);
+
 
   return (
     <div className="min-h-dvh flex items-center justify-center p-6 bg-background">
