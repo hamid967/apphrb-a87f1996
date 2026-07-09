@@ -7,7 +7,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/valuations")({
   component: ValuationsPage,
 });
 
-type V = { id: string; purpose: string | null; suggested_price: number | null; min_price: number | null; max_price: number | null; currency: string | null; confidence: number | null; ai_notes: string | null; created_at: string };
+type V = { id: string; purpose: string | null; suggested_price: number | null; min_price: number | null; max_price: number | null; currency: string | null; confidence: number | string | null; ai_notes: string | null; created_at: string };
 
 function ValuationsPage() {
   return (
