@@ -109,16 +109,8 @@ function SessionsPage() {
   ).length;
 
   return (
-    <div dir="rtl" className="p-6 space-y-6 max-w-6xl mx-auto">
-      <div className="flex items-center gap-3">
-        <Shield className="h-6 w-6 text-primary" />
-        <div>
-          <h1 className="text-2xl font-bold">الجلسات والأجهزة</h1>
-          <p className="text-sm text-muted-foreground">
-            إدارة الأجهزة الموثوقة وسجل الدخول وحماية الحساب
-          </p>
-        </div>
-      </div>
+    <>
+      {/* header is rendered by the shell above; data-dependent UI starts here */}
 
       {failedLast15 >= 3 && (
         <Card className="border-destructive/40 bg-destructive/5">
