@@ -73,7 +73,7 @@
     0  8px 24px -10px color-mix(in oklab, #c4b5fd 55%, transparent),
     0 14px 40px -14px color-mix(in oklab, #f0abfc 45%, transparent),
     0 20px 60px -18px color-mix(in oklab, #67e8f9 35%, transparent);
-  /* Holographic / Chrome iridescent gradient — for accents, borders, sheen */
+  /* Holographic / Chrome iridescent gradient — decorative borders/sheen. */
   --gradient-holo: linear-gradient(120deg,
                      #c4b5fd 0%,
                      #f0abfc 32%,
@@ -84,6 +84,12 @@
                      color-mix(in oklab, #f0abfc 30%, transparent),
                      color-mix(in oklab, #67e8f9 30%, transparent),
                      color-mix(in oklab, #fde68a 30%, transparent));
+  /* Text-only iridescent gradient — every stop ≥ 4.5:1 on white (WCAG AA). */
+  --gradient-holo-text: linear-gradient(120deg,
+                     #7c3aed 0%,     /* violet-600  */
+                     #c026d3 34%,    /* fuchsia-600 */
+                     #0e7490 68%,    /* cyan-700    */
+                     #b45309 100%);  /* amber-700   */
 }
 
 :root {
@@ -678,13 +684,22 @@ body::-webkit-scrollbar,
 
 /* Iridescent text — for hero words, KPI numbers, headline emphasis. */
 @utility holo-text {
-  background: var(--gradient-holo);
+  /* Uses the WCAG-safe text gradient (every stop ≥ 4.5:1 on white).
+     If background-clip:text is unsupported, the fallback color keeps
+     the text legible instead of showing transparent glyphs. */
+  color: var(--color-primary);
+  background: var(--gradient-holo-text);
   background-size: 200% 200%;
   background-clip: text;
   -webkit-background-clip: text;
-  color: transparent;
   -webkit-text-fill-color: transparent;
   animation: holo-shift 8s ease-in-out infinite;
+}
+@supports not ((background-clip: text) or (-webkit-background-clip: text)) {
+  .holo-text {
+    background: none !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
 }
 
 /* Iridescent border via gradient mask — 1px chrome edge on cards/buttons. */
@@ -822,13 +837,15 @@ body::-webkit-scrollbar,
   position: absolute;
   inset: 0;
   border-radius: inherit;
+  /* Sits BEHIND the button text (isolation is set on the parent) so the
+     iridescent sheen never lowers text contrast. Whiteness capped at 25%. */
+  z-index: -1;
   background: linear-gradient(120deg,
-    transparent 30%,
-    color-mix(in oklab, #ffffff 45%, transparent) 50%,
-    transparent 70%);
+    transparent 35%,
+    color-mix(in oklab, #ffffff 25%, transparent) 50%,
+    transparent 65%);
   background-size: 220% 100%;
   background-position: 100% 0;
-  mix-blend-mode: overlay;
   pointer-events: none;
   transition: background-position .8s ease;
 }
@@ -970,10 +987,12 @@ html[data-holo="intense"] :where(:not(.theme-luxe *)) [role="button"].bg-primary
 html[data-holo="intense"] :where(:not(.theme-luxe *)) button.bg-primary::after,
 html[data-holo="intense"] :where(:not(.theme-luxe *)) a.bg-primary::after,
 html[data-holo="intense"] :where(:not(.theme-luxe *)) [role="button"].bg-primary::after {
+  /* Whiteness capped at 40% (was 70%) so button text stays ≥ 4.5:1 even
+     at the peak of the sheen; ::after is still z-indexed BEHIND text. */
   background: linear-gradient(120deg,
-    transparent 20%,
-    color-mix(in oklab, #ffffff 70%, transparent) 50%,
-    transparent 80%);
+    transparent 25%,
+    color-mix(in oklab, #ffffff 40%, transparent) 50%,
+    transparent 75%);
   background-size: 220% 100%;
   background-position: 100% 0;
   animation: holo-shift 4s ease-in-out infinite;
