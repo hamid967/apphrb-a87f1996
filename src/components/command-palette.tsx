@@ -61,8 +61,8 @@ const PUBLIC_ITEMS: Item[] = [
 const AUTH_ITEMS: Item[] = [
   { id: "dashboard", label: "لوحة التحكم", labelEn: "Dashboard", to: "/dashboard", icon: LayoutDashboard, group: "dashboard" },
   { id: "properties", label: "العقارات", labelEn: "Properties", to: "/properties", icon: Building2, group: "dashboard" },
-  { id: "tenants", label: "المستأجرون", labelEn: "Tenants", to: "/tenants", icon: Users, group: "dashboard" },
-  { id: "contracts", label: "العقود", labelEn: "Contracts", to: "/contracts", icon: FileText, group: "dashboard" },
+  { id: "tenants", label: "المستأجرون", labelEn: "Tenants", to: "/dashboard/tenants", icon: Users, group: "dashboard" },
+  { id: "contracts", label: "العقود", labelEn: "Contracts", to: "/dashboard/contracts", icon: FileText, group: "dashboard" },
   { id: "maintenance", label: "الصيانة", labelEn: "Maintenance", to: "/dashboard/maintenance", icon: Wrench, group: "dashboard" },
   { id: "accounting", label: "المحاسبة", labelEn: "Accounting", to: "/accounting", icon: Wallet, group: "dashboard" },
   { id: "tasks", label: "المهام", labelEn: "Tasks", to: "/tasks", icon: ListChecks, group: "dashboard" },
