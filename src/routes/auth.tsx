@@ -38,6 +38,7 @@ import {
   resetFailedAttempts,
 } from "@/lib/auth-attempts";
 import { getDeviceFingerprint } from "@/lib/device-fingerprint";
+import { getAppOrigin, getAppUrl } from "@/lib/app-url";
 import { SignupAssistant } from "@/components/SignupAssistant";
 import { LoginStage } from "@/components/hbspro/login/LoginStage";
 import { HBS } from "@/components/hbspro/tokens";
@@ -124,7 +125,7 @@ function AuthPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/onboarding/wizard` },
+          options: { emailRedirectTo: getAppUrl("/onboarding/wizard") },
         });
         if (error) throw error;
         toast.success(t("auth.checkEmail"));
@@ -206,7 +207,7 @@ function AuthPage() {
   const onGoogle = async () => {
     setOauthLoading(true);
     try {
-      await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+      await lovable.auth.signInWithOAuth("google", { redirect_uri: getAppOrigin() });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "OAuth error");
       setOauthLoading(false);
@@ -224,7 +225,7 @@ function AuthPage() {
         email: devEmail,
         password: devPassword,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: getAppUrl("/dashboard"),
           data: { full_name: "Developer", account_type: "developer" },
         },
       });
