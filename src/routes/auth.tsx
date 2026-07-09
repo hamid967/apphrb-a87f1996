@@ -39,6 +39,11 @@ import {
 } from "@/lib/auth-attempts";
 import { getDeviceFingerprint } from "@/lib/device-fingerprint";
 import { getAppOrigin, getAppUrl } from "@/lib/app-url";
+import {
+  consumePendingRedirect,
+  clearPendingRedirect,
+  savePendingRedirect,
+} from "@/lib/pending-redirect";
 import { SignupAssistant } from "@/components/SignupAssistant";
 import { LoginStage } from "@/components/hbspro/login/LoginStage";
 import { HBS } from "@/components/hbspro/tokens";
