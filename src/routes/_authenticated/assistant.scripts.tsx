@@ -109,13 +109,13 @@ const SCRIPTS: ScriptDef[] = [
   {
     name: "cash_flow_summary",
     category: "reports",
-    fields: [{ name: "months", type: "number", labelKey: "months", placeholder: "6" }],
+    fields: [{ name: "months", type: "number", labelKey: "months", range: MONTHS_RANGE }],
   },
   { name: "maintenance_backlog", category: "ops", fields: [] },
   {
     name: "vacant_units_list",
     category: "ops",
-    fields: [{ name: "limit", type: "number", labelKey: "limit", placeholder: "25" }],
+    fields: [{ name: "limit", type: "number", labelKey: "limit", range: LIMIT_RANGE }],
   },
 
 ];
