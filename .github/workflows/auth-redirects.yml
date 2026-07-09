@@ -75,18 +75,31 @@ jobs:
           echo "dev server failed to start"; tail -n 200 /tmp/dev-server.log; exit 1
 
       - name: Run WebView redirect spec
-        run: python tests/e2e/webview-auth-redirects.spec.py
+        run: |
+          mkdir -p /tmp/browser/webview-redirects
+          set -o pipefail
+          python tests/e2e/webview-auth-redirects.spec.py \
+            2>&1 | tee /tmp/browser/webview-redirects/run.log
 
       - name: Stop dev server
         if: always()
         run: kill "$(cat /tmp/dev-server.pid)" 2>/dev/null || true
 
-      - name: Upload artifacts on failure
-        if: failure()
+      - name: Collect dev-server log into artifact bundle
+        if: always()
+        run: |
+          mkdir -p /tmp/browser/webview-redirects
+          cp -f /tmp/dev-server.log /tmp/browser/webview-redirects/dev-server.log || true
+
+      - name: Upload WebView E2E artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: webview-auth-redirects-artifacts
-          path: |
-            /tmp/browser/webview-redirects
-            /tmp/dev-server.log
+          # Contains screenshots (1_..10_..png), the full run transcript, and
+          # the dev-server log. Uploaded on both pass and fail so reviewers
+          # can inspect the exact WebView state each PR produced.
+          path: /tmp/browser/webview-redirects
           if-no-files-found: warn
+          retention-days: 14
+
