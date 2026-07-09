@@ -62,6 +62,48 @@ function saveReadIds(orgId: string | undefined, ids: Set<string>) {
   }
 }
 
+const SNOOZE_STORAGE_KEY = (orgId: string | undefined) =>
+  `aqari:reminders-snoozed:${orgId ?? "anon"}`;
+
+type SnoozeMap = Record<string, number>; // id -> epoch ms when snooze ends
+
+function loadSnoozed(orgId: string | undefined): SnoozeMap {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(SNOOZE_STORAGE_KEY(orgId));
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as SnoozeMap;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveSnoozed(orgId: string | undefined, map: SnoozeMap) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(SNOOZE_STORAGE_KEY(orgId), JSON.stringify(map));
+  } catch {
+    /* ignore quota errors */
+  }
+}
+
+const SNOOZE_OPTIONS: { hours: number; ar: string; en: string }[] = [
+  { hours: 4, ar: "٤ ساعات", en: "4 hours" },
+  { hours: 24, ar: "يوم واحد", en: "1 day" },
+  { hours: 72, ar: "٣ أيام", en: "3 days" },
+  { hours: 168, ar: "أسبوع", en: "1 week" },
+];
+
+function formatUntil(untilMs: number, isAr: boolean): string {
+  const diff = untilMs - Date.now();
+  if (diff <= 0) return "";
+  const h = Math.round(diff / 3_600_000);
+  const d = Math.round(h / 24);
+  if (h < 24) return isAr ? `${h} س` : `${h}h`;
+  return isAr ? `${d} يوم` : `${d}d`;
+}
+
 type Tone = "info" | "warn" | "danger" | "success";
 
 type Reminder = {
