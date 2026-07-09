@@ -168,6 +168,7 @@ import { Route as AuthenticatedPortalTenantIndexRouteImport } from './routes/_au
 import { Route as AuthenticatedPortalSettingsIndexRouteImport } from './routes/_authenticated/portal.settings.index'
 import { Route as AuthenticatedOwnerPortalIndexRouteImport } from './routes/_authenticated/owner.portal.index'
 import { Route as AuthenticatedDashboardUnitsIndexRouteImport } from './routes/_authenticated/dashboard.units.index'
+import { Route as AuthenticatedDashboardTicketsIndexRouteImport } from './routes/_authenticated/dashboard.tickets.index'
 import { Route as AuthenticatedDashboardPropertiesIndexRouteImport } from './routes/_authenticated/dashboard.properties.index'
 import { Route as AuthenticatedDashboardCrmIndexRouteImport } from './routes/_authenticated/dashboard.crm.index'
 import { Route as AuthenticatedDashboardContractsIndexRouteImport } from './routes/_authenticated/dashboard.contracts.index'
@@ -197,6 +198,7 @@ import { Route as AuthenticatedPortalSettingsSecurityRouteImport } from './route
 import { Route as AuthenticatedPortalSettingsNotificationsRouteImport } from './routes/_authenticated/portal.settings.notifications'
 import { Route as AuthenticatedOwnersIdLedgerRouteImport } from './routes/_authenticated/owners.$id.ledger'
 import { Route as AuthenticatedDashboardUnitsIdRouteImport } from './routes/_authenticated/dashboard.units.$id'
+import { Route as AuthenticatedDashboardTicketsNewRouteImport } from './routes/_authenticated/dashboard.tickets.new'
 import { Route as AuthenticatedDashboardSettingsZatcaRouteImport } from './routes/_authenticated/dashboard.settings.zatca'
 import { Route as AuthenticatedDashboardSettingsRemindersRouteImport } from './routes/_authenticated/dashboard.settings.reminders'
 import { Route as AuthenticatedDashboardSettingsNotificationsRouteImport } from './routes/_authenticated/dashboard.settings.notifications'
@@ -1136,6 +1138,12 @@ const AuthenticatedDashboardUnitsIndexRoute =
     path: '/units/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardTicketsIndexRoute =
+  AuthenticatedDashboardTicketsIndexRouteImport.update({
+    id: '/tickets/',
+    path: '/tickets/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardPropertiesIndexRoute =
   AuthenticatedDashboardPropertiesIndexRouteImport.update({
     id: '/properties/',
@@ -1298,6 +1306,12 @@ const AuthenticatedDashboardUnitsIdRoute =
   AuthenticatedDashboardUnitsIdRouteImport.update({
     id: '/units/$id',
     path: '/units/$id',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardTicketsNewRoute =
+  AuthenticatedDashboardTicketsNewRouteImport.update({
+    id: '/tickets/new',
+    path: '/tickets/new',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardSettingsZatcaRoute =
@@ -1720,6 +1734,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings/notifications': typeof AuthenticatedDashboardSettingsNotificationsRoute
   '/dashboard/settings/reminders': typeof AuthenticatedDashboardSettingsRemindersRoute
   '/dashboard/settings/zatca': typeof AuthenticatedDashboardSettingsZatcaRoute
+  '/dashboard/tickets/new': typeof AuthenticatedDashboardTicketsNewRoute
   '/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
   '/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
   '/portal/settings/notifications': typeof AuthenticatedPortalSettingsNotificationsRoute
@@ -1749,6 +1764,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/contracts/': typeof AuthenticatedDashboardContractsIndexRoute
   '/dashboard/crm/': typeof AuthenticatedDashboardCrmIndexRoute
   '/dashboard/properties/': typeof AuthenticatedDashboardPropertiesIndexRoute
+  '/dashboard/tickets/': typeof AuthenticatedDashboardTicketsIndexRoute
   '/dashboard/units/': typeof AuthenticatedDashboardUnitsIndexRoute
   '/owner/portal/': typeof AuthenticatedOwnerPortalIndexRoute
   '/portal/settings/': typeof AuthenticatedPortalSettingsIndexRoute
@@ -1942,6 +1958,7 @@ export interface FileRoutesByTo {
   '/dashboard/settings/notifications': typeof AuthenticatedDashboardSettingsNotificationsRoute
   '/dashboard/settings/reminders': typeof AuthenticatedDashboardSettingsRemindersRoute
   '/dashboard/settings/zatca': typeof AuthenticatedDashboardSettingsZatcaRoute
+  '/dashboard/tickets/new': typeof AuthenticatedDashboardTicketsNewRoute
   '/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
   '/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
   '/portal/settings/notifications': typeof AuthenticatedPortalSettingsNotificationsRoute
@@ -1971,6 +1988,7 @@ export interface FileRoutesByTo {
   '/dashboard/contracts': typeof AuthenticatedDashboardContractsIndexRoute
   '/dashboard/crm': typeof AuthenticatedDashboardCrmIndexRoute
   '/dashboard/properties': typeof AuthenticatedDashboardPropertiesIndexRoute
+  '/dashboard/tickets': typeof AuthenticatedDashboardTicketsIndexRoute
   '/dashboard/units': typeof AuthenticatedDashboardUnitsIndexRoute
   '/owner/portal': typeof AuthenticatedOwnerPortalIndexRoute
   '/portal/settings': typeof AuthenticatedPortalSettingsIndexRoute
@@ -2174,6 +2192,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/settings/notifications': typeof AuthenticatedDashboardSettingsNotificationsRoute
   '/_authenticated/dashboard/settings/reminders': typeof AuthenticatedDashboardSettingsRemindersRoute
   '/_authenticated/dashboard/settings/zatca': typeof AuthenticatedDashboardSettingsZatcaRoute
+  '/_authenticated/dashboard/tickets/new': typeof AuthenticatedDashboardTicketsNewRoute
   '/_authenticated/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
   '/_authenticated/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
   '/_authenticated/portal/settings/notifications': typeof AuthenticatedPortalSettingsNotificationsRoute
@@ -2203,6 +2222,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/contracts/': typeof AuthenticatedDashboardContractsIndexRoute
   '/_authenticated/dashboard/crm/': typeof AuthenticatedDashboardCrmIndexRoute
   '/_authenticated/dashboard/properties/': typeof AuthenticatedDashboardPropertiesIndexRoute
+  '/_authenticated/dashboard/tickets/': typeof AuthenticatedDashboardTicketsIndexRoute
   '/_authenticated/dashboard/units/': typeof AuthenticatedDashboardUnitsIndexRoute
   '/_authenticated/owner/portal/': typeof AuthenticatedOwnerPortalIndexRoute
   '/_authenticated/portal/settings/': typeof AuthenticatedPortalSettingsIndexRoute
@@ -2406,6 +2426,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/notifications'
     | '/dashboard/settings/reminders'
     | '/dashboard/settings/zatca'
+    | '/dashboard/tickets/new'
     | '/dashboard/units/$id'
     | '/owners/$id/ledger'
     | '/portal/settings/notifications'
@@ -2435,6 +2456,7 @@ export interface FileRouteTypes {
     | '/dashboard/contracts/'
     | '/dashboard/crm/'
     | '/dashboard/properties/'
+    | '/dashboard/tickets/'
     | '/dashboard/units/'
     | '/owner/portal/'
     | '/portal/settings/'
@@ -2628,6 +2650,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/notifications'
     | '/dashboard/settings/reminders'
     | '/dashboard/settings/zatca'
+    | '/dashboard/tickets/new'
     | '/dashboard/units/$id'
     | '/owners/$id/ledger'
     | '/portal/settings/notifications'
@@ -2657,6 +2680,7 @@ export interface FileRouteTypes {
     | '/dashboard/contracts'
     | '/dashboard/crm'
     | '/dashboard/properties'
+    | '/dashboard/tickets'
     | '/dashboard/units'
     | '/owner/portal'
     | '/portal/settings'
@@ -2859,6 +2883,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/settings/notifications'
     | '/_authenticated/dashboard/settings/reminders'
     | '/_authenticated/dashboard/settings/zatca'
+    | '/_authenticated/dashboard/tickets/new'
     | '/_authenticated/dashboard/units/$id'
     | '/_authenticated/owners/$id/ledger'
     | '/_authenticated/portal/settings/notifications'
@@ -2888,6 +2913,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/contracts/'
     | '/_authenticated/dashboard/crm/'
     | '/_authenticated/dashboard/properties/'
+    | '/_authenticated/dashboard/tickets/'
     | '/_authenticated/dashboard/units/'
     | '/_authenticated/owner/portal/'
     | '/_authenticated/portal/settings/'
@@ -4084,6 +4110,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardUnitsIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/tickets/': {
+      id: '/_authenticated/dashboard/tickets/'
+      path: '/tickets'
+      fullPath: '/dashboard/tickets/'
+      preLoaderRoute: typeof AuthenticatedDashboardTicketsIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/properties/': {
       id: '/_authenticated/dashboard/properties/'
       path: '/properties'
@@ -4285,6 +4318,13 @@ declare module '@tanstack/react-router' {
       path: '/units/$id'
       fullPath: '/dashboard/units/$id'
       preLoaderRoute: typeof AuthenticatedDashboardUnitsIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/tickets/new': {
+      id: '/_authenticated/dashboard/tickets/new'
+      path: '/tickets/new'
+      fullPath: '/dashboard/tickets/new'
+      preLoaderRoute: typeof AuthenticatedDashboardTicketsNewRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/settings/zatca': {
@@ -4948,9 +4988,11 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardInvoicesIdRoute: typeof AuthenticatedDashboardInvoicesIdRoute
   AuthenticatedDashboardPropertiesIdRoute: typeof AuthenticatedDashboardPropertiesIdRoute
   AuthenticatedDashboardPropertiesNewRoute: typeof AuthenticatedDashboardPropertiesNewRoute
+  AuthenticatedDashboardTicketsNewRoute: typeof AuthenticatedDashboardTicketsNewRoute
   AuthenticatedDashboardUnitsIdRoute: typeof AuthenticatedDashboardUnitsIdRoute
   AuthenticatedDashboardContractsIndexRoute: typeof AuthenticatedDashboardContractsIndexRoute
   AuthenticatedDashboardPropertiesIndexRoute: typeof AuthenticatedDashboardPropertiesIndexRoute
+  AuthenticatedDashboardTicketsIndexRoute: typeof AuthenticatedDashboardTicketsIndexRoute
   AuthenticatedDashboardUnitsIndexRoute: typeof AuthenticatedDashboardUnitsIndexRoute
 }
 
@@ -5008,11 +5050,15 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardPropertiesIdRoute,
     AuthenticatedDashboardPropertiesNewRoute:
       AuthenticatedDashboardPropertiesNewRoute,
+    AuthenticatedDashboardTicketsNewRoute:
+      AuthenticatedDashboardTicketsNewRoute,
     AuthenticatedDashboardUnitsIdRoute: AuthenticatedDashboardUnitsIdRoute,
     AuthenticatedDashboardContractsIndexRoute:
       AuthenticatedDashboardContractsIndexRoute,
     AuthenticatedDashboardPropertiesIndexRoute:
       AuthenticatedDashboardPropertiesIndexRoute,
+    AuthenticatedDashboardTicketsIndexRoute:
+      AuthenticatedDashboardTicketsIndexRoute,
     AuthenticatedDashboardUnitsIndexRoute:
       AuthenticatedDashboardUnitsIndexRoute,
   }
