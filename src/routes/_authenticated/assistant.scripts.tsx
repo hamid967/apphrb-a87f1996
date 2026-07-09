@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { runDashboardTool } from "@/lib/ai-assistant.functions";
-import { Loader2, Play, Terminal, ChevronDown } from "lucide-react";
+import { Loader2, Play, Terminal, ChevronDown, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 import { sectionHead } from "@/lib/section-og-head";
