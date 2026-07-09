@@ -440,6 +440,20 @@ export function OpeningExperience() {
                 <Play className="h-4 w-4" />
                 {T.ctaSecondary}
               </Link>
+              <button
+                type="button"
+                onClick={() => setTourOpen(true)}
+                className="group inline-flex items-center gap-2 rounded-2xl px-6 py-4 text-sm font-bold underline-offset-4 transition-all hover:underline"
+                style={{ color: GOLD }}
+              >
+                <span
+                  className="grid h-7 w-7 place-items-center rounded-full"
+                  style={{ background: "rgba(201,168,76,0.15)" }}
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                </span>
+                {ar ? "خذ جولة سريعة (60 ثانية)" : "Take a 60-second tour"}
+              </button>
             </div>
           </div>
 
