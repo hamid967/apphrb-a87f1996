@@ -16,8 +16,10 @@ Verifies the unified SmartBreadcrumbs contract shared by /dashboard,
 
 Runs each check at desktop (1280) and mobile (390) viewports.
 
-Skips (exit 0) when TEST_SEED_TOKEN is not set — CI must configure the
-same seed endpoint used by portal-signed-in.spec.
+When TEST_SEED_TOKEN is set the spec drives real /portal routes as a
+seeded tenant. Otherwise it falls back to the public, auth-free harness
+at /dev/breadcrumbs-test?depth=1|2|3 so CI always exercises the
+SmartBreadcrumbs contract.
 """
 import asyncio
 import json
