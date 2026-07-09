@@ -165,7 +165,7 @@ async def test_google_oauth_redirect_uri(context) -> str | None:
 
     # SocialBtn renders label="Google" as accessible text.
     btn = page.get_by_role("button", name="Google").first
-    await btn.click()
+    await btn.click(force=True, no_wait_after=True)
     # Give the helper time to call window.open / navigate.
     await page.wait_for_timeout(1500)
     captured = await page.evaluate("window.__oauthCaptured")
