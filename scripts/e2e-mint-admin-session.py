@@ -136,6 +136,75 @@ def admin_mint_via_magiclink(
         body = e.read().decode(errors="replace")
         sys.exit(f"ERROR: verify magiclink failed ({e.code}): {body}")
 
+def _pgrst(supabase_url: str, service_role_key: str, method: str, path: str,
+           body: dict | list | None = None, prefer: str | None = None) -> tuple[int, str]:
+    headers = {
+        "apikey": service_role_key,
+        "Authorization": f"Bearer {service_role_key}",
+        "Content-Type": "application/json",
+    }
+    if prefer:
+        headers["Prefer"] = prefer
+    data = json.dumps(body).encode() if body is not None else None
+    req = urllib.request.Request(
+        f"{supabase_url}{path}", method=method, data=data, headers=headers,
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return r.status, r.read().decode(errors="replace")
+    except urllib.error.HTTPError as e:
+        return e.code, e.read().decode(errors="replace")
+
+
+def ensure_test_user(supabase_url: str, service_role_key: str, email: str,
+                     role: str) -> str:
+    """Create the E2E user if missing (email_confirm=true) and grant `role`.
+    Returns the auth user id. Idempotent."""
+    # 1) Look up user
+    from urllib.parse import quote
+    code, body = _pgrst(
+        supabase_url, service_role_key, "GET",
+        f"/auth/v1/admin/users?email={quote(email)}",
+    )
+    user_id = None
+    if code == 200:
+        try:
+            users = json.loads(body).get("users", [])
+            if users:
+                user_id = users[0].get("id")
+        except Exception:
+            pass
+    # 2) Create if missing
+    if not user_id:
+        code, body = _pgrst(
+            supabase_url, service_role_key, "POST",
+            "/auth/v1/admin/users",
+            body={"email": email, "email_confirm": True,
+                  "user_metadata": {"e2e": True, "display_name": "E2E Perf Bot"}},
+        )
+        if code not in (200, 201):
+            sys.exit(f"ERROR: could not create E2E user ({code}): {body}")
+        try:
+            user_id = json.loads(body).get("id")
+        except Exception:
+            user_id = None
+        if not user_id:
+            sys.exit(f"ERROR: unexpected create-user response: {body}")
+    # 3) Grant role (idempotent via ON CONFLICT-like Prefer)
+    code, body = _pgrst(
+        supabase_url, service_role_key, "POST",
+        "/rest/v1/user_roles",
+        body={"user_id": user_id, "role": role},
+        prefer="resolution=merge-duplicates,return=minimal",
+    )
+    # 409 or 200/201 → OK; treat other codes as fatal only if not "already exists"
+    if code not in (200, 201, 204, 409):
+        # Some deployments return 400 with duplicate-key text; tolerate that.
+        if "duplicate" not in body.lower() and "already exists" not in body.lower():
+            sys.exit(f"ERROR: could not grant {role} to E2E user ({code}): {body}")
+    return user_id
+
+
 
 def to_ssr_cookie_value(session: dict) -> str:
     """@supabase/ssr encodes the session as `base64-<b64url(JSON)>`."""
