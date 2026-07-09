@@ -16,6 +16,10 @@ import {
   CheckCircle2,
   ArrowRight,
   Paperclip,
+  XCircle,
+  Clock,
+  Wallet,
+  Layers,
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useRef } from "react";
