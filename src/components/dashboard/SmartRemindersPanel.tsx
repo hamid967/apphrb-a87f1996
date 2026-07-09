@@ -121,7 +121,7 @@ export function SmartRemindersPanel({
     staleTime: 30_000,
   });
 
-  const reminders = useMemo<Reminder[]>(() => {
+  const allReminders = useMemo<Reminder[]>(() => {
     const rows = claimsQ.data ?? [];
     const now = Date.now();
     const out: Reminder[] = [];
