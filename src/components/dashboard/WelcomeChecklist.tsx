@@ -95,8 +95,22 @@ const DISMISS_KEY = "aqary:welcome-checklist:dismissed";
 export function WelcomeChecklist({ isAr }: { isAr: boolean }) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const getProgress = useServerFn(getOnboardingProgress);
   const markStep = useServerFn(setOnboardingStep);
+
+  const openStep = (step: StepDef) => {
+    // Reset the per-step coach completion so the tour re-runs on this visit.
+    try {
+      localStorage.removeItem(`aqary:coach:${step.id}:done`);
+    } catch {
+      /* ignore */
+    }
+    navigate({
+      to: step.to,
+      search: { coach: step.id } as never,
+    });
+  };
 
   const [dismissed, setDismissed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
