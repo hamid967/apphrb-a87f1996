@@ -1,6 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, useSpring, useMotionValueEvent, useReducedMotion } from "motion/react";
-import { useState } from "react";
 
 export type AnimatedNumberProps = {
   value: number;
