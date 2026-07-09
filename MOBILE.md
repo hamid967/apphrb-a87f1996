@@ -1,66 +1,84 @@
 # تطبيقات الجوال — HBSpro (iOS + Android)
 
-المنصة جاهزة الآن للعمل كتطبيق جوال بمسارين:
+المنصة جاهزة كتطبيق جوال بمسارَين، مع أيقونات وشاشات بداية جاهزة للمتاجر.
 
 ## 1) PWA (تثبيت فوري بدون متاجر)
 
-مُفعّل مسبقاً — أي مستخدم يستطيع تثبيت التطبيق مباشرة من المتصفح:
+مُفعّل مسبقاً. أي مستخدم يستطيع تثبيت التطبيق مباشرة من المتصفح:
 
 - **iPhone (Safari):** زر المشاركة ← "إضافة إلى الشاشة الرئيسية".
-- **Android (Chrome):** القائمة ← "تثبيت التطبيق" / "Add to Home screen".
+- **Android (Chrome):** القائمة ← "تثبيت التطبيق".
 
-يظهر بأيقونة مستقلة، شاشة splash، ويعمل بوضع standalone بدون شريط المتصفح.
-لا يحتاج نشر على المتاجر ولا رسوم.
+الأيقونات (`icon-192.png`, `icon-512.png`, `apple-touch-icon.png`) والـ manifest مضبوطة بالعلامة الجديدة تلقائياً.
 
 ## 2) تطبيق أصلي عبر Capacitor (App Store + Google Play)
 
-تم تجهيز مشروع Capacitor يُغلّف نفس الموقع داخل تطبيق أصلي. النشر على المتاجر يتم من جهازك المحلي.
+### المُضمَّن في المشروع
+- `capacitor.config.ts` — إعدادات التطبيق + خطط SplashScreen و StatusBar.
+- `resources/icon.png` (1024×1024) — مصدر أيقونة المتاجر.
+- `resources/splash.png` (1920×1920) — مصدر شاشة البداية.
+- الحزم: `@capacitor/core`, `ios`, `android`, `splash-screen`, `status-bar`, `assets`.
 
 ### المتطلبات
 - **iOS:** جهاز macOS + Xcode 15+ + حساب Apple Developer ($99/سنة).
-- **Android:** Android Studio (يعمل على Windows/macOS/Linux) + حساب Google Play Console ($25 مرة واحدة).
-- Node.js 18+ و Bun أو npm.
+- **Android:** Android Studio + حساب Google Play Console ($25 مرة واحدة).
+- Node.js 18+ و Bun (أو npm).
 
-### الخطوات (على جهازك المحلي)
+### الخطوات على جهازك المحلي
 
 ```bash
-# 1) استنسخ المشروع من GitHub (استخدم زر GitHub في أعلى Lovable لربطه أولاً)
+# 1) استنسخ من GitHub (اربط المشروع بـ GitHub من زر أعلى Lovable أولاً)
 git clone <repo-url> && cd <repo>
 bun install
 
-# 2) أضف المنصّات (مرة واحدة فقط)
+# 2) أضف المنصّتين (مرة واحدة فقط)
 bunx cap add ios
 bunx cap add android
 
-# 3) بناء الأصول (اختياري إذا كنت تستخدم server.url أثناء التطوير)
-bun run build
+# 3) ولّد جميع مقاسات الأيقونة وشاشات البداية تلقائياً من resources/
+bunx capacitor-assets generate \
+  --iconBackgroundColor '#020617' \
+  --iconBackgroundColorDark '#020617' \
+  --splashBackgroundColor '#020617' \
+  --splashBackgroundColorDark '#020617'
 
-# 4) مزامنة أي تغييرات (كوّد أو حزم جديدة) مع المشاريع الأصلية
+# 4) ابنِ الأصول الويب ثم زامنها للمشاريع الأصلية
+bun run build
 bunx cap sync
 
-# 5) فتح المشروع في IDE الأصلي
-bunx cap open ios       # يفتح Xcode
-bunx cap open android   # يفتح Android Studio
+# 5) افتح في IDE الأصلي
+bunx cap open ios       # Xcode
+bunx cap open android   # Android Studio
 ```
 
-من داخل Xcode أو Android Studio: اختر جهازاً (محاكي أو حقيقي) واضغط Run.
+بعد كل تعديل في الحزم أو إعدادات Capacitor: `bunx cap sync` — لا حاجة لإعادة `cap add`.
+
+### ماذا يُولَّد؟
+
+`capacitor-assets generate` ينتج:
+- **iOS:** كامل `AppIcon.appiconset` (كل المقاسات من 20pt إلى 1024pt لـ App Store) + `Splash.imageset` بمقاسات @1x/@2x/@3x فاتحة وداكنة.
+- **Android:** `mipmap-*` (mdpi → xxxhdpi) بأيقونات عادية و adaptive (foreground + background) + `drawable-*` splash + `values/ic_launcher_background.xml` + `styles.xml` splash theme.
+
+### شاشة البداية (Splash) — كيف تظهر
+- خلفية داكنة `#020617` (تطابق ثيم HBSpro) مع شعار HB في المنتصف.
+- تبقى ظاهرة `2000ms` ثم fade-out `300ms` تلقائياً (مضبوطة في `capacitor.config.ts` تحت `plugins.SplashScreen`).
+- StatusBar بلون `#020617` وأيقونات فاتحة.
+- لإخفائها يدوياً من الكود:
+  ```ts
+  import { SplashScreen } from '@capacitor/splash-screen';
+  await SplashScreen.hide();
+  ```
 
 ### وضع التطوير الحالي
-`capacitor.config.ts` يشير حالياً إلى **رابط المعاينة** في Lovable، أي أن التطبيق الأصلي يحمّل الموقع الحيّ داخل الغلاف الأصلي. أي تعديل في Lovable يظهر فوراً في التطبيق بدون إعادة بناء.
+`capacitor.config.ts` يستخدم `server.url` يشير لرابط معاينة Lovable — التطبيق الأصلي يحمّل الموقع الحيّ، وأي تعديل يظهر فوراً بدون إعادة بناء.
 
-### وضع الإنتاج (قبل النشر على المتاجر)
+### وضع الإنتاج (قبل النشر للمتاجر)
 1. انشر الموقع من زر **Publish** في Lovable.
-2. عدّل `capacitor.config.ts`: استبدل `server.url` برابط النشر (مثلاً `https://your-project.lovable.app` أو نطاقك المخصّص)، أو **احذف كتلة `server` بالكامل** لتضمين الأصول محلياً من `dist/`.
-3. شغّل `bun run build && bunx cap sync`.
-4. في Xcode: Product → Archive → Distribute App → App Store Connect.
-5. في Android Studio: Build → Generate Signed Bundle/APK → App Bundle (.aab) → ارفعه إلى Play Console.
+2. في `capacitor.config.ts`: استبدل `server.url` برابط النشر النهائي، أو **احذف كتلة `server` كلياً** ليعمل التطبيق من الأصول المحلية في `dist/`.
+3. `bun run build && bunx cap sync`.
+4. **iOS:** Xcode → Product → Archive → Distribute App → App Store Connect.
+5. **Android:** Android Studio → Build → Generate Signed Bundle → `.aab` → ارفعه إلى Play Console.
 
-### تحديث `appId` و `appName`
-افتراضياً: `app.hbspro.mobile` و `HBSpro`. غيّرهما في `capacitor.config.ts` **قبل** تشغيل `cap add` أول مرة.
-
-### الأيقونات وشاشة البدء
-Capacitor يستخدم `public/icon-512.png` و `public/apple-touch-icon.png` كنقطة بداية. لأيقونات متجرية جاهزة استخدم:
-```bash
-bunx @capacitor/assets generate --iconBackgroundColor '#020617' --splashBackgroundColor '#020617'
-```
-(يتطلّب `bun add -d @capacitor/assets` وصورة مصدر `assets/icon.png` بحجم 1024×1024).
+### تخصيص العلامة
+- لتغيير الشعار: استبدل `resources/icon.png` (1024×1024 PNG مربّع) و `resources/splash.png` (يُفضّل 2732×2732، الشعار في وسط ~25% من المساحة) ثم أعِد `bunx capacitor-assets generate` و `bunx cap sync`.
+- لتغيير `appId` أو `appName`: عدّل `capacitor.config.ts` **قبل** أول `cap add` (وإلا احذف مجلدَي `ios/` و `android/` وأعِد `cap add`).
