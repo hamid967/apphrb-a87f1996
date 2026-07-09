@@ -135,15 +135,8 @@ function AuthPage() {
         const fp = getDeviceFingerprint();
         const ua = navigator.userAgent;
         const estNo = establishmentNo.trim();
-        if (captchaRequired) {
-          if (!captchaToken) throw new Error("يرجى إكمال التحقق (CAPTCHA)");
-          const v = await verifyTurnstile({ data: { token: captchaToken } });
-          if (!v.success) {
-            setCaptchaToken(null);
-            throw new Error("فشل التحقق من CAPTCHA. حاول مجدداً");
-          }
-        }
         const rl = await checkLoginRateLimit({ data: { identifier: email } });
+
         if (rl.blocked) {
           await recordLoginEvent({
             data: {
