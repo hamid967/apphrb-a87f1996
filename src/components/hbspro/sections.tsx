@@ -1846,7 +1846,10 @@ export function Footer() {
     compare: "/compare",
     pricing: "/pricing",
     features: "/services",
+    aboutUs: "/about",
+    contact: "/contact",
   };
+
   return (
     <footer
       className="border-t py-14"
