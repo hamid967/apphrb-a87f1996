@@ -367,17 +367,18 @@ function ExpensesPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-end">
-                        <Button size="icon" variant="ghost" onClick={() => openEdit(r)}>
-                          <Pencil className="size-4" />
+                        <Button size="icon" variant="ghost" aria-label={t("common.edit") || "تعديل"} onClick={() => openEdit(r)}>
+                          <Pencil className="size-4" aria-hidden />
                         </Button>
                         <Button
                           size="icon"
                           variant="ghost"
+                          aria-label={t("common.delete") || "حذف"}
                           onClick={() => {
                             if (confirm(t("expenses.confirmDel"))) del.mutate(r.id);
                           }}
                         >
-                          <Trash2 className="size-4" />
+                          <Trash2 className="size-4" aria-hidden />
                         </Button>
                       </TableCell>
                     </TableRow>

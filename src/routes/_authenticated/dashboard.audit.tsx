@@ -394,16 +394,18 @@ function GlobalAuditPage() {
                 size="sm"
                 disabled={page <= 1}
                 onClick={() => setPage((p) => p - 1)}
+                aria-label={isAr ? "الصفحة السابقة" : "Previous page"}
               >
-                <ChevronRight className="size-4" />
+                <ChevronRight className="size-4" aria-hidden />
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 disabled={!q.data?.hasMore}
                 onClick={() => setPage((p) => p + 1)}
+                aria-label={isAr ? "الصفحة التالية" : "Next page"}
               >
-                <ChevronLeft className="size-4" />
+                <ChevronLeft className="size-4" aria-hidden />
               </Button>
             </div>
           </div>

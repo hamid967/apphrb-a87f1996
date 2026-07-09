@@ -58,7 +58,10 @@ export function PageHeader({
     >
       <div className="flex min-w-0 items-center gap-3">
         {iconNode && (
-          <div className="grid size-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary/15 to-accent/15 text-primary">
+          <div
+            aria-hidden="true"
+            className="grid size-10 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-primary/15 to-accent/15 text-primary"
+          >
             {iconNode}
           </div>
         )}

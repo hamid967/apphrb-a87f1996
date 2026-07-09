@@ -239,12 +239,13 @@ function TechniciansPage() {
                       <Button
                         size="icon"
                         variant="ghost"
+                        aria-label={t("maintenance.technicians.delete") || "حذف الفني"}
                         onClick={() => {
                           if (confirm(t("maintenance.actions.deleteTechnicianConfirm")))
                             del.mutate(r.id);
                         }}
                       >
-                        <Trash2 className="size-4" />
+                        <Trash2 className="size-4" aria-hidden />
                       </Button>
                     </td>
                   </tr>
