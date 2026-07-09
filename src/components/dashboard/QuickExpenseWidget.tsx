@@ -149,13 +149,14 @@ export function QuickExpenseWidget({ orgId }: { orgId: string | undefined }) {
     const fullTitle =
       n > 0 ? `${titleBase} — ${n.toLocaleString()} SAR` : titleBase;
     return {
+      batch: undefined,
       amount: amount || undefined,
       category,
       title: fullTitle || undefined,
       notes: descParts.length ? descParts.join(" • ") : undefined,
       receipt: receiptPath ?? undefined,
       filename: fileName ?? undefined,
-      step: String(targetStep) as "1" | "2",
+      step: targetStep as 1 | 2,
     };
   }
 

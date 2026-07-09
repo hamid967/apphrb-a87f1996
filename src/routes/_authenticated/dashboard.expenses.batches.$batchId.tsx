@@ -185,7 +185,7 @@ function BatchDetailPage() {
           <CardTitle className="text-base">{t("expenseBatches.lineItems")}</CardTitle>
           {isDraft && (
             <Button size="sm" asChild>
-              <Link to="/dashboard/expenses/claim" search={{ batch: batchId }}>
+              <Link to="/dashboard/expenses/claim" search={{ batch: batchId, amount: undefined, category: undefined, title: undefined, notes: undefined, receipt: undefined, filename: undefined, step: undefined }}>
                 <Plus className="me-1 size-4" /> {t("expenseBatches.addItem")}
               </Link>
             </Button>

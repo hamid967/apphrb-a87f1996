@@ -98,9 +98,13 @@ export async function routeAfterLogin(nav: ReturnType<typeof useNavigate>, redir
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
-  validateSearch: (raw): { redirect?: string } => {
+  validateSearch: (raw): { redirect?: string; mode?: "signin" | "signup" } => {
     const r = raw?.redirect;
-    return typeof r === "string" && r.length > 0 && r.length < 2000 ? { redirect: r } : {};
+    const m = raw?.mode;
+    const out: { redirect?: string; mode?: "signin" | "signup" } = {};
+    if (typeof r === "string" && r.length > 0 && r.length < 2000) out.redirect = r;
+    if (m === "signin" || m === "signup") out.mode = m;
+    return out;
   },
   head: () => ({
     meta: [

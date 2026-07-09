@@ -225,7 +225,7 @@ function ExpensesPage() {
 
   const fmt = (n: number) => `${n.toLocaleString(isAr ? "ar" : "en")}`;
 
-  const goToClaim = () => navigate({ to: "/dashboard/expenses/claim" });
+  const goToClaim = () => navigate({ to: "/dashboard/expenses/claim", search: {} });
   const onQuickReceiptPicked = (file: File | null) => {
     if (!file) return;
     // Hand off to the full wizard where OCR + policy checks run.
@@ -239,7 +239,7 @@ function ExpensesPage() {
     } catch {
       /* storage may be unavailable in private mode */
     }
-    navigate({ to: "/dashboard/expenses/claim" });
+    navigate({ to: "/dashboard/expenses/claim", search: {} });
   };
 
   return (
