@@ -587,7 +587,7 @@ function AuthPage() {
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={notImplemented("دخول OTP")}
+                  onClick={notImplemented(t("auth.otpNotImplemented"))}
                   className="flex h-11 items-center justify-center gap-2 rounded-xl border text-sm transition hover:-translate-y-0.5"
                   style={{
                     borderColor: HBS.border,
@@ -595,11 +595,11 @@ function AuthPage() {
                     color: HBS.white,
                   }}
                 >
-                  <KeyRound className="size-4" style={{ color: HBS.gold }} /> OTP
+                  <KeyRound className="size-4" style={{ color: HBS.gold }} /> {t("auth.otp")}
                 </button>
                 <button
                   type="button"
-                  onClick={notImplemented("الدخول البيومتري")}
+                  onClick={notImplemented(t("auth.biometricNotImplemented"))}
                   className="flex h-11 items-center justify-center gap-2 rounded-xl border text-sm transition hover:-translate-y-0.5"
                   style={{
                     borderColor: HBS.border,
@@ -607,7 +607,8 @@ function AuthPage() {
                     color: HBS.white,
                   }}
                 >
-                  <Fingerprint className="size-4" style={{ color: HBS.blueSoft }} /> Biometric
+                  <Fingerprint className="size-4" style={{ color: HBS.blueSoft }} />{" "}
+                  {t("auth.biometric")}
                 </button>
               </div>
 
