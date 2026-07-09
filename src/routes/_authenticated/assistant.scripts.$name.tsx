@@ -117,7 +117,7 @@ function uniqueValues(rows: any[], key: string): string[] {
 function ScriptDetailPage() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.language?.startsWith("ar") ?? true;
-  const router = useRouter();
+  
   const { name } = Route.useParams();
   const search = Route.useSearch();
   const runFn = useServerFn(runDashboardTool);
