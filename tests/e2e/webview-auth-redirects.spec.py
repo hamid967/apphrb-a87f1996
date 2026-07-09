@@ -71,10 +71,11 @@ async def test_reset_password_without_token(context) -> str | None:
 
     # The password submit button must be disabled without a valid recovery session.
     submit = page.locator('button[type="submit"]').first
-    disabled = await submit.get_attribute("disabled") if await submit.count() else None
+    submit_count = await submit.count()
+    disabled = await submit.get_attribute("disabled") if submit_count else None
     print(f"[/reset-password no-token] submit disabled attr={disabled!r}")
     await page.close()
-    if await submit.count() and disabled is None:
+    if submit_count and disabled is None:
         return "/reset-password submit button was enabled without a recovery session"
     return None
 
