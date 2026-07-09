@@ -48,6 +48,7 @@ import {
   ThumbsDown,
 } from "lucide-react";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
@@ -65,14 +66,7 @@ export const Route = createFileRoute("/_authenticated/assistant/$threadId")({
   component: ThreadView,
 });
 
-const SUGGESTIONS = [
-  "لخّص وضع النظام الآن",
-  "ما هي الدفعات المتأخرة؟",
-  "توقّع إيرادات الإيجار للأشهر الثلاثة القادمة",
-  "ما العقود التي ستنتهي خلال 60 يوماً؟",
-  "حلّل المخاطر الحالية",
-  "اكتب رسالة تذكير للمستأجرين المتأخرين",
-];
+const SUGGESTION_KEYS = ["s1", "s2", "s3", "s4", "s5", "s6"] as const;
 
 // Strip emojis / pictographs / decorative markdown symbols from assistant text.
 // Keeps Arabic, Latin, digits, punctuation, and whitespace.
@@ -106,6 +100,8 @@ const FONT_SIZES = { sm: 13, md: 15, lg: 18 } as const;
 type SizeKey = keyof typeof FONT_SIZES;
 
 function ThreadView() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language?.startsWith("ar") ?? true;
   const { threadId } = Route.useParams();
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -138,7 +134,7 @@ function ThreadView() {
 
   const rateMessage = async (messageId: string, next: "up" | "down") => {
     if (!isUuid(messageId)) {
-      toast.error("سيتوفر التقييم بعد تحديث المحادثة");
+      toast.error(t("assistant.thread.feedbackNeedsUpdate"));
       return;
     }
     const current = feedbackMap[messageId] ?? null;
@@ -148,14 +144,14 @@ function ThreadView() {
       await feedbackFn({ data: { messageId, feedback: value } });
       toast.success(
         value === null
-          ? "تم إلغاء التقييم"
+          ? t("assistant.thread.feedbackCleared")
           : value === "up"
-            ? "شكراً لتقييمك 👍"
-            : "شكراً لملاحظتك 👎",
+            ? t("assistant.thread.thanksUp")
+            : t("assistant.thread.thanksDown"),
       );
     } catch (e: any) {
       setFeedbackMap((prev) => ({ ...prev, [messageId]: current }));
-      toast.error(e?.message ?? "تعذّر حفظ التقييم");
+      toast.error(e?.message ?? t("assistant.thread.feedbackFailed"));
     }
   };
 
@@ -194,7 +190,7 @@ function ThreadView() {
       qc.invalidateQueries({ queryKey: ["assistant-thread", threadId] });
       qc.invalidateQueries({ queryKey: ["assistant-threads"] });
     },
-    onError: (e) => toast.error(e.message ?? "فشل الاتصال بالمساعد"),
+    onError: (e) => toast.error(e.message ?? t("assistant.thread.connectFailed")),
   });
 
   // Load persisted history when the thread loads/changes.
@@ -210,8 +206,8 @@ function ThreadView() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const submit = useCallback(async () => {
-    const t = input.trim();
-    if ((!t && files.length === 0) || isPending) return;
+    const text = input.trim();
+    if ((!text && files.length === 0) || isPending) return;
     const fileParts = await Promise.all(
       files.map(async (f) => {
         const url = await new Promise<string>((res, rej) => {
@@ -228,10 +224,10 @@ function ThreadView() {
         };
       }),
     );
-    sendMessage({ text: t || "(مرفق)", files: fileParts.length ? (fileParts as any) : undefined });
+    sendMessage({ text: text || `(${t("assistant.thread.attachment")})`, files: fileParts.length ? (fileParts as any) : undefined });
     setInput("");
     setFiles([]);
-  }, [input, files, isPending, sendMessage]);
+  }, [input, files, isPending, sendMessage, t]);
 
   const flatMessages: AssistantMsg[] = useMemo(
     () =>
@@ -264,7 +260,7 @@ function ThreadView() {
       qc.invalidateQueries({ queryKey: ["assistant-threads"] });
       navigate({ to: "/assistant/$threadId", params: { threadId: row.id } });
     },
-    onError: (e: any) => toast.error(e?.message ?? "تعذّر إنشاء محادثة"),
+    onError: (e: any) => toast.error(e?.message ?? t("assistant.createFailed")),
   });
 
   const renameM = useMutation({
@@ -273,9 +269,9 @@ function ThreadView() {
       qc.invalidateQueries({ queryKey: ["assistant-thread", threadId] });
       qc.invalidateQueries({ queryKey: ["assistant-threads"] });
       setRenameOpen(false);
-      toast.success("تم تحديث العنوان");
+      toast.success(t("assistant.thread.titleUpdated"));
     },
-    onError: (e: any) => toast.error(e?.message ?? "تعذّر إعادة التسمية"),
+    onError: (e: any) => toast.error(e?.message ?? t("assistant.thread.renameFailed")),
   });
 
   const deleteM = useMutation({
@@ -283,10 +279,10 @@ function ThreadView() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["assistant-threads"] });
       qc.removeQueries({ queryKey: ["assistant-thread", threadId] });
-      toast.success("تم حذف المحادثة");
+      toast.success(t("assistant.thread.threadDeleted"));
       navigate({ to: "/assistant" });
     },
-    onError: (e: any) => toast.error(e?.message ?? "تعذّر الحذف"),
+    onError: (e: any) => toast.error(e?.message ?? t("assistant.thread.deleteFailed")),
   });
 
   const openRename = () => {
@@ -326,7 +322,7 @@ function ThreadView() {
     <div className="h-full flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <div className="flex-1 min-w-0">
-          <h2 className="font-semibold truncate">{threadQ.data?.thread?.title ?? "محادثة"}</h2>
+          <h2 className="font-semibold truncate">{threadQ.data?.thread?.title ?? t("assistant.thread.title")}</h2>
         </div>
         <Button
           variant="outline"
@@ -334,7 +330,7 @@ function ThreadView() {
           onClick={() => createM.mutate()}
           disabled={createM.isPending}
         >
-          <Plus className="size-4 ml-1" /> جديد
+          <Plus className="size-4 ml-1" /> {t("assistant.thread.newBtn")}
         </Button>
         <Button
           variant="outline"
@@ -360,25 +356,25 @@ function ThreadView() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={openRename}>
-              <Pencil className="size-4 ml-2" /> إعادة تسمية
+              <Pencil className="size-4 ml-2" /> {t("assistant.thread.renameBtn")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
               onClick={() => setDeleteOpen(true)}
             >
-              <Trash2 className="size-4 ml-2" /> حذف المحادثة
+              <Trash2 className="size-4 ml-2" /> {t("assistant.thread.deleteBtn")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" title="الخط والتنسيق">
+            <Button variant="outline" size="icon" title={t("assistant.thread.fontMenuTitle")}>
               <Type className="size-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 p-2 space-y-2">
-            <div className="text-[11px] font-medium text-muted-foreground px-1">نوع الخط</div>
+            <div className="text-[11px] font-medium text-muted-foreground px-1">{t("assistant.thread.fontFamily")}</div>
             <div className="grid grid-cols-2 gap-1">
               {(Object.keys(FONT_FAMILIES) as FontKey[]).map((k) => (
                 <button
@@ -391,7 +387,7 @@ function ThreadView() {
                 </button>
               ))}
             </div>
-            <div className="text-[11px] font-medium text-muted-foreground px-1 pt-1">حجم الخط</div>
+            <div className="text-[11px] font-medium text-muted-foreground px-1 pt-1">{t("assistant.thread.fontSize")}</div>
             <div className="grid grid-cols-3 gap-1">
               {(Object.keys(FONT_SIZES) as SizeKey[]).map((k) => (
                 <button
@@ -399,7 +395,7 @@ function ThreadView() {
                   onClick={() => setSizeKey(k)}
                   className={`text-xs px-2 py-1.5 rounded border transition ${sizeKey === k ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent"}`}
                 >
-                  {k === "sm" ? "صغير" : k === "md" ? "متوسط" : "كبير"}
+                  {k === "sm" ? t("assistant.thread.sizeSmall") : k === "md" ? t("assistant.thread.sizeMedium") : t("assistant.thread.sizeLarge")}
                 </button>
               ))}
             </div>
@@ -409,14 +405,14 @@ function ThreadView() {
                 checked={cleanSymbols}
                 onChange={(e) => setCleanSymbols(e.target.checked)}
               />
-              إخفاء الرموز والإيموجي
+              {t("assistant.thread.hideSymbols")}
             </label>
             <div className="pt-2">
               <div className="text-[11px] font-medium text-muted-foreground px-1 mb-1">
-                معاينة مباشرة
+                {t("assistant.thread.livePreview")}
               </div>
               <div
-                dir="rtl"
+                dir={isRtl ? "rtl" : "ltr"}
                 className="rounded-md border bg-muted/40 p-2 leading-relaxed whitespace-pre-wrap max-h-28 overflow-auto"
                 style={assistantTextStyle}
               >
@@ -433,7 +429,7 @@ function ThreadView() {
         <CardContent ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
           {threadQ.isLoading && (
             <div className="text-sm text-muted-foreground flex items-center gap-2">
-              <Loader2 className="size-4 animate-spin" /> جاري تحميل المحادثة…
+              <Loader2 className="size-4 animate-spin" /> {t("assistant.thread.loadingThread")}
             </div>
           )}
 
@@ -444,23 +440,26 @@ function ThreadView() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
             >
-              <p className="text-muted-foreground text-sm">جرّب أحد الاقتراحات التالية:</p>
+              <p className="text-muted-foreground text-sm">{t("assistant.thread.trySuggestion")}</p>
               <div className="grid gap-2 sm:grid-cols-2">
-                {SUGGESTIONS.map((s, i) => (
-                  <motion.button
-                    key={s}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.04 * i, duration: 0.22 }}
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => sendMessage({ text: s })}
-                    disabled={isPending}
-                    className="text-right text-sm p-3 rounded-lg border hover:bg-accent hover:border-primary/40 transition disabled:opacity-50"
-                  >
-                    {s}
-                  </motion.button>
-                ))}
+                {SUGGESTION_KEYS.map((key, i) => {
+                  const label = t(`assistant.thread.suggestions.${key}` as const);
+                  return (
+                    <motion.button
+                      key={key}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.04 * i, duration: 0.22 }}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => sendMessage({ text: label })}
+                      disabled={isPending}
+                      className={`${isRtl ? "text-right" : "text-left"} text-sm p-3 rounded-lg border hover:bg-accent hover:border-primary/40 transition disabled:opacity-50`}
+                    >
+                      {label}
+                    </motion.button>
+                  );
+                })}
               </div>
             </motion.div>
           )}
@@ -535,9 +534,9 @@ function ThreadView() {
                         denialCodes.includes(out.code);
                       if (isDenial) {
                         const codeLabel: Record<string, string> = {
-                          forbidden_role: "دورك لا يملك صلاحية هذه الأداة",
-                          field_not_allowed: "حقول غير مسموح بها لدورك",
-                          value_out_of_range: "قيمة خارج النطاق المسموح",
+                          forbidden_role: t("assistant.thread.denials.forbidden_role"),
+                          field_not_allowed: t("assistant.thread.denials.field_not_allowed"),
+                          value_out_of_range: t("assistant.thread.denials.value_out_of_range"),
                         };
                         return (
                           <div
@@ -546,7 +545,7 @@ function ThreadView() {
                           >
                             <div className="flex items-center gap-2 font-medium text-destructive">
                               <Wrench className="size-3" />
-                              <span>تم رفض استدعاء «{name}»</span>
+                              <span>{t("assistant.thread.toolRejected", { name })}</span>
                             </div>
                             <div className="text-[11px] font-medium">
                               {codeLabel[out.code] ?? out.code}
@@ -557,19 +556,19 @@ function ThreadView() {
                             <div className="flex flex-wrap gap-1.5 pt-1">
                               {out.role && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-[10px]">
-                                  دورك: <b>{out.role}</b>
+                                  {t("assistant.thread.role")} <b>{out.role}</b>
                                 </span>
                               )}
                               {Array.isArray(out.allowed_roles) && out.allowed_roles.length > 0 && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px]">
-                                  الأدوار المسموح بها: {out.allowed_roles.join("، ")}
+                                  {t("assistant.thread.allowedRoles")} {out.allowed_roles.join(isRtl ? "، " : ", ")}
                                 </span>
                               )}
                             </div>
                             {Array.isArray(out.allowed_fields) && out.allowed_fields.length > 0 && (
                               <div>
                                 <div className="text-[10px] text-muted-foreground mb-1">
-                                  الحقول المسموح بها لدورك:
+                                  {t("assistant.thread.allowedFields")}
                                 </div>
                                 <div className="flex flex-wrap gap-1">
                                   {out.allowed_fields.map((f: string) => (
@@ -587,7 +586,7 @@ function ThreadView() {
                               out.restricted_fields.length > 0 && (
                                 <div>
                                   <div className="text-[10px] text-muted-foreground mb-1">
-                                    حقول مقيّدة:
+                                    {t("assistant.thread.restrictedFields")}
                                   </div>
                                   <div className="flex flex-wrap gap-1">
                                     {out.restricted_fields.map((f: string) => (
@@ -611,9 +610,9 @@ function ThreadView() {
                             <span>{name}</span>
                             <span className="text-muted-foreground">
                               {state === "output-available"
-                                ? "✓ تم"
+                                ? t("assistant.thread.toolDone")
                                 : state === "input-available"
-                                  ? "⏳ يشغّل…"
+                                  ? t("assistant.thread.toolRunning")
                                   : (state ?? "")}
                             </span>
                           </div>
@@ -644,8 +643,8 @@ function ThreadView() {
                           <button
                             type="button"
                             onClick={() => rateMessage(m.id, "up")}
-                            aria-label="مفيد"
-                            title="مفيد"
+                            aria-label={t("assistant.thread.helpful")}
+                            title={t("assistant.thread.helpful")}
                             className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] transition hover:bg-muted ${
                               fb === "up"
                                 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/40"
@@ -657,8 +656,8 @@ function ThreadView() {
                           <button
                             type="button"
                             onClick={() => rateMessage(m.id, "down")}
-                            aria-label="غير مفيد"
-                            title="غير مفيد"
+                            aria-label={t("assistant.thread.notHelpful")}
+                            title={t("assistant.thread.notHelpful")}
                             className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] transition hover:bg-muted ${
                               fb === "down"
                                 ? "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/40"
@@ -688,7 +687,7 @@ function ThreadView() {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Loader2 className="size-4 animate-spin" />
-                <span>يفكر ويقرأ البيانات</span>
+                <span>{t("assistant.thread.thinking")}</span>
                 <motion.span
                   animate={{ opacity: [0.2, 1, 0.2] }}
                   transition={{ duration: 1.2, repeat: Infinity }}
@@ -699,7 +698,7 @@ function ThreadView() {
             </motion.div>
           )}
 
-          {error && <div className="text-xs text-destructive">خطأ: {error.message}</div>}
+          {error && <div className="text-xs text-destructive">{t("assistant.thread.errorPrefix")} {error.message}</div>}
         </CardContent>
 
         <div className="border-t p-3 space-y-2">
@@ -734,7 +733,7 @@ function ThreadView() {
                   (f) => f.size <= 8 * 1024 * 1024,
                 );
                 if (list.length !== (e.target.files?.length ?? 0))
-                  toast.error("الحد الأقصى للملف 8MB");
+                  toast.error(t("assistant.thread.fileTooLarge"));
                 setFiles((prev) => [...prev, ...list]);
                 if (fileInputRef.current) fileInputRef.current.value = "";
               }}
@@ -757,7 +756,7 @@ function ThreadView() {
                   submit();
                 }
               }}
-              placeholder="اكتب سؤالك… (Shift+Enter لسطر جديد)"
+              placeholder={t("assistant.thread.inputPlaceholder")}
               rows={2}
               disabled={isPending}
             />
@@ -780,13 +779,13 @@ function ThreadView() {
       <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>إعادة تسمية المحادثة</DialogTitle>
-            <DialogDescription>اختر عنواناً وصفياً للمحادثة.</DialogDescription>
+            <DialogTitle>{t("assistant.thread.renameTitle")}</DialogTitle>
+            <DialogDescription>{t("assistant.thread.renameDesc")}</DialogDescription>
           </DialogHeader>
           <Input
             value={renameValue}
             onChange={(e) => setRenameValue(e.target.value)}
-            placeholder="عنوان المحادثة"
+            placeholder={t("assistant.thread.renamePlaceholder")}
             maxLength={120}
             onKeyDown={(e) => {
               if (e.key === "Enter" && renameValue.trim()) renameM.mutate(renameValue.trim());
@@ -794,13 +793,13 @@ function ThreadView() {
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => setRenameOpen(false)}>
-              إلغاء
+              {t("assistant.thread.cancel")}
             </Button>
             <Button
               onClick={() => renameM.mutate(renameValue.trim())}
               disabled={!renameValue.trim() || renameM.isPending}
             >
-              {renameM.isPending ? <Loader2 className="size-4 animate-spin" /> : "حفظ"}
+              {renameM.isPending ? <Loader2 className="size-4 animate-spin" /> : t("assistant.thread.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -809,21 +808,21 @@ function ThreadView() {
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>حذف المحادثة</DialogTitle>
+            <DialogTitle>{t("assistant.thread.deleteTitle")}</DialogTitle>
             <DialogDescription>
-              سيتم حذف هذه المحادثة وجميع رسائلها نهائياً. لا يمكن التراجع.
+              {t("assistant.thread.deleteDesc")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteOpen(false)}>
-              إلغاء
+              {t("assistant.thread.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={() => deleteM.mutate()}
               disabled={deleteM.isPending}
             >
-              {deleteM.isPending ? <Loader2 className="size-4 animate-spin" /> : "حذف"}
+              {deleteM.isPending ? <Loader2 className="size-4 animate-spin" /> : t("assistant.delete")}
             </Button>
           </DialogFooter>
         </DialogContent>

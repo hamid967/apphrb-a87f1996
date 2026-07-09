@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { runDashboardTool } from "@/lib/ai-assistant.functions";
 import { Loader2, Play, Terminal, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
@@ -14,106 +16,73 @@ export const Route = createFileRoute("/_authenticated/assistant/scripts")({
 type ParamField = {
   name: string;
   type: "number" | "string";
-  label: string;
+  labelKey: string;
+  placeholderKey?: string;
   placeholder?: string;
 };
 
+type CategoryKey = "reports" | "analysis" | "forecasts" | "ops";
+
 type ScriptDef = {
   name: string;
-  title: string;
-  description: string;
-  category: "تقارير" | "تحليل" | "توقعات" | "عمليات";
+  category: CategoryKey;
   fields: ParamField[];
 };
 
 const SCRIPTS: ScriptDef[] = [
   {
     name: "revenue_summary",
-    title: "ملخص الإيرادات",
-    description: "الإيرادات المدفوعة مجمّعة حسب الشهر خلال آخر N شهر.",
-    category: "تقارير",
-    fields: [{ name: "months", type: "number", label: "عدد الأشهر", placeholder: "6" }],
+    category: "reports",
+    fields: [{ name: "months", type: "number", labelKey: "months", placeholder: "6" }],
   },
-  {
-    name: "overdue_payments",
-    title: "المدفوعات المتأخرة",
-    description: "قائمة وإجمالي رسوم الإيجار المتأخرة.",
-    category: "تقارير",
-    fields: [],
-  },
+  { name: "overdue_payments", category: "reports", fields: [] },
   {
     name: "expiring_contracts",
-    title: "العقود المنتهية قريباً",
-    description: "العقود النشطة التي ستنتهي خلال N يوم.",
-    category: "تقارير",
-    fields: [{ name: "days", type: "number", label: "عدد الأيام", placeholder: "60" }],
+    category: "reports",
+    fields: [{ name: "days", type: "number", labelKey: "days", placeholder: "60" }],
   },
   {
     name: "expense_summary",
-    title: "ملخص المصروفات",
-    description: "إجمالي المصروفات مجمّعة حسب الفئة خلال آخر N شهر.",
-    category: "تقارير",
-    fields: [{ name: "months", type: "number", label: "عدد الأشهر", placeholder: "6" }],
+    category: "reports",
+    fields: [{ name: "months", type: "number", labelKey: "months", placeholder: "6" }],
   },
-  {
-    name: "occupancy_snapshot",
-    title: "لقطة الإشغال",
-    description: "لقطة حالية لإشغال الوحدات.",
-    category: "تحليل",
-    fields: [],
-  },
+  { name: "occupancy_snapshot", category: "analysis", fields: [] },
   {
     name: "rent_forecast",
-    title: "توقعات الإيجار",
-    description: "توقع إيرادات الإيجار للأشهر القادمة.",
-    category: "توقعات",
-    fields: [{ name: "months", type: "number", label: "أفق الأشهر", placeholder: "3" }],
+    category: "forecasts",
+    fields: [{ name: "months", type: "number", labelKey: "horizonMonths", placeholder: "3" }],
   },
-  {
-    name: "risk_analysis",
-    title: "تحليل المخاطر",
-    description: "تجميع للمخاطر عبر التدفق النقدي والاحتفاظ والإشغال.",
-    category: "تحليل",
-    fields: [],
-  },
+  { name: "risk_analysis", category: "analysis", fields: [] },
   {
     name: "suggest_rent_price",
-    title: "اقتراح سعر إيجار",
-    description: "اقتراح نطاق سعري لوحدة أو مدينة بناءً على المقارنات.",
-    category: "توقعات",
+    category: "forecasts",
     fields: [
-      { name: "unit_id", type: "string", label: "معرّف الوحدة (UUID)", placeholder: "اختياري" },
-      { name: "city", type: "string", label: "المدينة", placeholder: "اختياري" },
+      { name: "unit_id", type: "string", labelKey: "unitId", placeholderKey: "optional" },
+      { name: "city", type: "string", labelKey: "city", placeholderKey: "optional" },
     ],
   },
-  {
-    name: "employee_performance",
-    title: "أداء الموظفين",
-    description: "عدد الصفقات وقيمة المكسب لكل موظف مبيعات.",
-    category: "تحليل",
-    fields: [],
-  },
-  {
-    name: "summarize_system",
-    title: "ملخص النظام",
-    description: "مؤشرات KPIs عالية المستوى للوحة تحكم.",
-    category: "تقارير",
-    fields: [],
-  },
+  { name: "employee_performance", category: "analysis", fields: [] },
+  { name: "summarize_system", category: "reports", fields: [] },
 ];
 
 function ScriptCard({
   script,
   onRun,
+  t,
 }: {
   script: ScriptDef;
   onRun: (name: string, args: Record<string, unknown>) => Promise<any>;
+  t: TFunction;
 }) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+
+  const title = t(`assistant.scripts.items.${script.name}.title` as const);
+  const description = t(`assistant.scripts.items.${script.name}.desc` as const);
+  const category = t(`assistant.scripts.cats.${script.category}` as const);
 
   const handleRun = async () => {
     setRunning(true);
@@ -129,9 +98,9 @@ function ScriptCard({
       const res = await onRun(script.name, args);
       setResult(res);
       setOpen(true);
-      toast.success(`تم تنفيذ ${script.title}`);
+      toast.success(t("assistant.scripts.ran", { title }));
     } catch (e: any) {
-      const msg = e?.message ?? "فشل التنفيذ";
+      const msg = e?.message ?? t("assistant.scripts.runFailed");
       setError(msg);
       toast.error(msg);
     } finally {
@@ -146,27 +115,33 @@ function ScriptCard({
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Terminal className="size-3.5" />
             <span className="font-mono">{script.name}</span>
-            <span className="rounded bg-muted px-1.5 py-0.5 text-xs">{script.category}</span>
+            <span className="rounded bg-muted px-1.5 py-0.5 text-xs">{category}</span>
           </div>
-          <h3 className="mt-1 font-semibold">{script.title}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">{script.description}</p>
+          <h3 className="mt-1 font-semibold">{title}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         </div>
       </div>
 
       {script.fields.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {script.fields.map((f) => (
-            <label key={f.name} className="flex flex-col gap-1 text-sm">
-              <span className="text-muted-foreground">{f.label}</span>
-              <input
-                type={f.type === "number" ? "number" : "text"}
-                placeholder={f.placeholder}
-                value={values[f.name] ?? ""}
-                onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
-                className="rounded-md border bg-background px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
-              />
-            </label>
-          ))}
+          {script.fields.map((f) => {
+            const label = t(`assistant.scripts.fields.${f.labelKey}` as const);
+            const placeholder = f.placeholderKey
+              ? t(`assistant.scripts.fields.${f.placeholderKey}` as const)
+              : f.placeholder;
+            return (
+              <label key={f.name} className="flex flex-col gap-1 text-sm">
+                <span className="text-muted-foreground">{label}</span>
+                <input
+                  type={f.type === "number" ? "number" : "text"}
+                  placeholder={placeholder}
+                  value={values[f.name] ?? ""}
+                  onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
+                  className="rounded-md border bg-background px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </label>
+            );
+          })}
         </div>
       )}
 
@@ -177,7 +152,7 @@ function ScriptCard({
           className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground disabled:opacity-60"
         >
           {running ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
-          تشغيل السكربت
+          {t("assistant.scripts.run")}
         </button>
         {(result || error) && (
           <button
@@ -185,7 +160,7 @@ function ScriptCard({
             className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
           >
             <ChevronDown className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
-            {open ? "إخفاء النتيجة" : "عرض النتيجة"}
+            {open ? t("assistant.scripts.hideResult") : t("assistant.scripts.showResult")}
           </button>
         )}
       </div>
@@ -211,6 +186,8 @@ function ScriptCard({
 }
 
 function AssistantScriptsPage() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language?.startsWith("ar") ?? true;
   const runFn = useServerFn(runDashboardTool);
   const onRun = async (name: string, args: Record<string, unknown>) => {
     const res = await runFn({ data: { name: name as any, args } });
@@ -218,18 +195,15 @@ function AssistantScriptsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl p-4 md:p-6 space-y-6" dir="rtl">
+    <div className="mx-auto max-w-5xl p-4 md:p-6 space-y-6" dir={isRtl ? "rtl" : "ltr"}>
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold">سكربتات حامد</h1>
-        <p className="text-sm text-muted-foreground">
-          شغّل سكربتات المساعد يدوياً، وأدخل المعطيات المطلوبة، واعرض النتائج المهيكلة قبل استخدامها
-          في المحادثة.
-        </p>
+        <h1 className="text-2xl font-bold">{t("assistant.scripts.title")}</h1>
+        <p className="text-sm text-muted-foreground">{t("assistant.scripts.subtitle")}</p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {SCRIPTS.map((s) => (
-          <ScriptCard key={s.name} script={s} onRun={onRun} />
+          <ScriptCard key={s.name} script={s} onRun={onRun} t={t} />
         ))}
       </div>
     </div>
