@@ -131,6 +131,7 @@ import { Route as AuthenticatedAuctionsIdRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAssistantScriptsRouteImport } from './routes/_authenticated/assistant.scripts'
 import { Route as AuthenticatedAssistantAuditRouteImport } from './routes/_authenticated/assistant.audit'
 import { Route as AuthenticatedAssistantThreadIdRouteImport } from './routes/_authenticated/assistant.$threadId'
+import { Route as AuthenticatedAdminZatcaLogRouteImport } from './routes/_authenticated/admin.zatca-log'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminTelemetryEmailsRouteImport } from './routes/_authenticated/admin.telemetry-emails'
 import { Route as AuthenticatedAdminTelemetryRouteImport } from './routes/_authenticated/admin.telemetry'
@@ -917,6 +918,12 @@ const AuthenticatedAssistantThreadIdRoute =
     path: '/$threadId',
     getParentRoute: () => AuthenticatedAssistantRoute,
   } as any)
+const AuthenticatedAdminZatcaLogRoute =
+  AuthenticatedAdminZatcaLogRouteImport.update({
+    id: '/zatca-log',
+    path: '/zatca-log',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -1605,6 +1612,7 @@ export interface FileRoutesByFullPath {
   '/admin/telemetry': typeof AuthenticatedAdminTelemetryRoute
   '/admin/telemetry-emails': typeof AuthenticatedAdminTelemetryEmailsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/admin/zatca-log': typeof AuthenticatedAdminZatcaLogRoute
   '/assistant/$threadId': typeof AuthenticatedAssistantThreadIdRoute
   '/assistant/audit': typeof AuthenticatedAssistantAuditRoute
   '/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
@@ -1829,6 +1837,7 @@ export interface FileRoutesByTo {
   '/admin/telemetry': typeof AuthenticatedAdminTelemetryRoute
   '/admin/telemetry-emails': typeof AuthenticatedAdminTelemetryEmailsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/admin/zatca-log': typeof AuthenticatedAdminZatcaLogRoute
   '/assistant/$threadId': typeof AuthenticatedAssistantThreadIdRoute
   '/assistant/audit': typeof AuthenticatedAssistantAuditRoute
   '/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
@@ -2057,6 +2066,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/telemetry': typeof AuthenticatedAdminTelemetryRoute
   '/_authenticated/admin/telemetry-emails': typeof AuthenticatedAdminTelemetryEmailsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/admin/zatca-log': typeof AuthenticatedAdminZatcaLogRoute
   '/_authenticated/assistant/$threadId': typeof AuthenticatedAssistantThreadIdRoute
   '/_authenticated/assistant/audit': typeof AuthenticatedAssistantAuditRoute
   '/_authenticated/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
@@ -2288,6 +2298,7 @@ export interface FileRouteTypes {
     | '/admin/telemetry'
     | '/admin/telemetry-emails'
     | '/admin/users'
+    | '/admin/zatca-log'
     | '/assistant/$threadId'
     | '/assistant/audit'
     | '/assistant/scripts'
@@ -2512,6 +2523,7 @@ export interface FileRouteTypes {
     | '/admin/telemetry'
     | '/admin/telemetry-emails'
     | '/admin/users'
+    | '/admin/zatca-log'
     | '/assistant/$threadId'
     | '/assistant/audit'
     | '/assistant/scripts'
@@ -2739,6 +2751,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/telemetry'
     | '/_authenticated/admin/telemetry-emails'
     | '/_authenticated/admin/users'
+    | '/_authenticated/admin/zatca-log'
     | '/_authenticated/assistant/$threadId'
     | '/_authenticated/assistant/audit'
     | '/_authenticated/assistant/scripts'
@@ -3812,6 +3825,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAssistantThreadIdRouteImport
       parentRoute: typeof AuthenticatedAssistantRoute
     }
+    '/_authenticated/admin/zatca-log': {
+      id: '/_authenticated/admin/zatca-log'
+      path: '/zatca-log'
+      fullPath: '/admin/zatca-log'
+      preLoaderRoute: typeof AuthenticatedAdminZatcaLogRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/users'
@@ -4606,6 +4626,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminTelemetryRoute: typeof AuthenticatedAdminTelemetryRoute
   AuthenticatedAdminTelemetryEmailsRoute: typeof AuthenticatedAdminTelemetryEmailsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
+  AuthenticatedAdminZatcaLogRoute: typeof AuthenticatedAdminZatcaLogRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
@@ -4644,6 +4665,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminTelemetryEmailsRoute:
     AuthenticatedAdminTelemetryEmailsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+  AuthenticatedAdminZatcaLogRoute: AuthenticatedAdminZatcaLogRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 

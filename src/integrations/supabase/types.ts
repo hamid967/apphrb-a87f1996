@@ -2201,8 +2201,10 @@ export type Database = {
           vat_amount: number
           vat_rate: number
           xml_ubl: string | null
+          zatca_counter: number | null
           zatca_hash: string | null
           zatca_reported_at: string | null
+          zatca_sealed_at: string | null
           zatca_status: Database["public"]["Enums"]["zatca_status"]
           zatca_uuid: string | null
         }
@@ -2231,8 +2233,10 @@ export type Database = {
           vat_amount?: number
           vat_rate?: number
           xml_ubl?: string | null
+          zatca_counter?: number | null
           zatca_hash?: string | null
           zatca_reported_at?: string | null
+          zatca_sealed_at?: string | null
           zatca_status?: Database["public"]["Enums"]["zatca_status"]
           zatca_uuid?: string | null
         }
@@ -2261,8 +2265,10 @@ export type Database = {
           vat_amount?: number
           vat_rate?: number
           xml_ubl?: string | null
+          zatca_counter?: number | null
           zatca_hash?: string | null
           zatca_reported_at?: string | null
+          zatca_sealed_at?: string | null
           zatca_status?: Database["public"]["Enums"]["zatca_status"]
           zatca_uuid?: string | null
         }
@@ -6707,6 +6713,22 @@ export type Database = {
         Returns: string
       }
       verify_my_establishment: { Args: { _est_no: string }; Returns: boolean }
+      zatca_chain_audit: {
+        Args: { _org_id?: string }
+        Returns: {
+          counter_gap: boolean
+          expected_previous_hash: string
+          hash_break: boolean
+          invoice_id: string
+          number: string
+          org_id: string
+          previous_hash: string
+          zatca_counter: number
+          zatca_hash: string
+          zatca_sealed_at: string
+        }[]
+      }
+      zatca_next_counter: { Args: { _org_id: string }; Returns: number }
     }
     Enums: {
       app_role:

@@ -1,122 +1,81 @@
-## Wave 2 — ZATCA Phase-2 + جدولة الأقساط
+## الموجة 3 — النطاق
 
-هدف الموجة الثانية: تجهيز البنية التحتية لفواتير ZATCA (المرحلة الثانية) وربطها بالسندات (Vouchers) والعمولات، مع إنشاء محرك جدولة أقساط قابل لتوليد سندات تلقائياً.
-
----
-
-### 1) بنية قاعدة البيانات (Migration واحدة)
-
-**أ. توسيع `invoices` بأعمدة ZATCA:**
-- `zatca_uuid` (uuid): معرّف فاتورة فريد لكل مستند.
-- `zatca_hash` (text): SHA-256 للـ XML.
-- `previous_hash` (text): ربط تسلسلي بالفاتورة السابقة (chain).
-- `qr_tlv` (text): TLV الأساس (اسم البائع، الرقم الضريبي، الطابع الزمني، الإجمالي، ضريبة القيمة المضافة).
-- `xml_ubl` (text): مسودة UBL 2.1 XML.
-- `zatca_status` (enum: `draft | reported | cleared | rejected`).
-- `zatca_reported_at` (timestamptz).
-- `invoice_type` (enum: `standard | simplified`) للتمييز بين B2B/B2C.
-
-**ب. جدول جديد `payment_schedules`:**
-| العمود | النوع | الوصف |
-|---|---|---|
-| `contract_id` / `deal_id` / `commission_id` | uuid (nullable — مرجع واحد فقط) | المصدر |
-| `installment_no` | int | ترقيم القسط |
-| `due_date` | date | تاريخ الاستحقاق |
-| `amount` / `vat_amount` / `total_amount` | numeric | المبالغ |
-| `status` | enum (`pending | invoiced | paid | overdue | cancelled`) |
-| `voucher_id` | uuid (nullable) | ربط بسند القبض عند الدفع |
-| `invoice_id` | uuid (nullable) | ربط بالفاتورة الصادرة |
-
-**ج. GRANT/RLS/Triggers:**
-- RLS بحسب `org_id` (عبر العلاقة).
-- Trigger لتحديث `status='overdue'` عند تجاوز `due_date` بدون دفع.
-- Trigger لربط `voucher_id` تلقائياً عند إنشاء سند مقابل قسط.
+ثلاث حزم متوازية على مسار واحد، لكل حزمة قاعدة بيانات + خادم + واجهة. كل حزمة قابلة للتنفيذ مستقلة عن الأخرى، والترتيب المقترح أدناه من الأعلى قيمة أعمالًا إلى الأقل.
 
 ---
 
-### 2) مكتبات ZATCA (ملفات جديدة، دون تبعيات جديدة)
+### الحزمة أ — إكمال دمج ZATCA Phase-2 مع السندات والفواتير
 
-- `src/lib/zatca/tlv.ts` — بناء TLV بايت-بايت (Tags 1-5) وتشفيره Base64. **بدون** مكتبات خارجية.
-- `src/lib/zatca/ubl.ts` — قالب UBL 2.1 XML مبسّط (نصّي)، مع placeholders للفاتورة.
-- `src/lib/zatca/hash.ts` — SHA-256 عبر Web Crypto (متوفر في Cloudflare Worker).
-- `src/lib/zatca/qr.ts` — توليد QR Data URI عبر مكتبة `qrcode` (تحقّق قبل الإضافة؛ إن لم تكن مثبتة نستخدم SVG يدوي بسيط).
-- `src/lib/invoices.functions.ts` — Server functions:
-  - `generateZatcaInvoice({ invoiceId })` — يقرأ الفاتورة، يبني UBL + TLV + hash + previous_hash، ثم يحدّث السجل.
-  - `getZatcaQr({ invoiceId })` — يعيد TLV Base64 للعرض.
+**الوضع الحالي:** مكتبات `zatca/` (QR TLV، XML UBL 2.1، hash chain، حساب VAT) موجودة من الموجة 2 لكنها غير مربوطة بأي مسار إصدار فعلي. `invoices` تحوي حقول `zatca_uuid`, `zatca_hash`, `zatca_qr` غير مملوءة، و`payment_vouchers`/`receipt_vouchers` بلا ختم ZATCA.
 
-*ملاحظة:* الاتصال الفعلي بـ ZATCA Fatoora API خارج نطاق هذه الموجة (يتطلب شهادات إنتاج). الأساس فقط: UBL + QR + Hash Chain جاهزة للإرسال لاحقاً.
+**التسليمات:**
+- ترقية `invoices` و`payment_vouchers` و`receipt_vouchers` بحقول `zatca_previous_hash`, `zatca_invoice_counter`, `zatca_signed_xml`, `zatca_signed_at`.
+- Server function `sealInvoiceForZatca(invoiceId)` — يحسب الـ hash المتسلسل، يولّد UBL XML، يبني QR TLV، ويحفظ الكل داخل transaction واحدة. يمنع الإصدار المكرر بـ advisory lock على `company_id`.
+- Trigger على `invoices.status → 'issued'` يستدعي الـ server function عبر `pg_net`.
+- زر يدوي "إعادة ختم ZATCA" في صفحة الفاتورة/السند (للحالات الشاذة).
+- عرض QR في PDF ونسخة الطباعة (نستخدم مكتبة QR الموجودة).
+- تقرير `/admin/zatca-log` يعرض التسلسل الشهري + التنبيه على أي فجوة عدّاد.
 
----
-
-### 3) محرك جدولة الأقساط
-
-- `src/lib/payment-schedules.functions.ts`:
-  - `createSchedule({ sourceType, sourceId, startDate, count, frequency, amount, vatRate })` — يولّد صفوف `payment_schedules`.
-  - `listSchedules({ status?, sourceType? })` — قائمة مع فلترة.
-  - `markInstallmentPaid({ scheduleId, voucherId })` — يحدّث `status='paid'` ويربط السند.
-  - `regenerateFromContract({ contractId })` — يعيد بناء الجدول من العقد.
-
-- **الربط مع Vouchers:** عند إنشاء سند قبض بحقل `payment_schedule_id`، الـ trigger يحدّث القسط تلقائياً.
-- **الربط مع Commissions:** خيار "جدولة العمولة على دفعات" في نموذج العمولة يستدعي `createSchedule` بمصدر `commission_id`.
+**قبول:** إصدار فاتورة يولّد سلسلة hash متصلة، وQR يفكّ التشفير في قارئ ZATCA، ولا فجوات في العدّاد.
 
 ---
 
-### 4) واجهات المستخدم
+### الحزمة ب — نظام تذاكر الدعم الكامل
 
-**أ. صفحة جديدة `/dashboard/payment-schedules`:**
-- جدول للأقساط مع فلاتر (الحالة، المصدر، التاريخ، الشركة).
-- شارة الاستحقاق بالتقويم الهجري (`HijriDateBadge`).
-- إجراءات: إنشاء سند قبض من قسط، إعادة توليد جدول، إلغاء قسط.
-- تصدير CSV.
+**الوضع الحالي:** `tickets` (13 عمود) و`maintenance_tickets` منفصلتان. لا SLA، لا إسناد متعدد، لا محادثات، لا مرفقات.
 
-**ب. توسيع صفحة الفاتورة (`/dashboard/invoices/$id`):**
-- بطاقة ZATCA: QR code، UUID، Hash (مختصر)، الحالة، زر "توليد/إعادة توليد UBL".
-- عرض `previous_hash` للتحقق من التسلسل.
+**التسليمات (قاعدة البيانات):**
+- توسيع `tickets` بحقول: `priority` (enum: low/normal/high/urgent)، `sla_due_at`، `first_response_at`، `resolved_at`، `channel` (portal/email/whatsapp/phone)، `assignee_id`، `watcher_ids uuid[]`، `tags text[]`.
+- جدول جديد `ticket_comments` (author, body, is_internal, attachments).
+- جدول `ticket_attachments` مربوط بـ Storage bucket خاص.
+- جدول `ticket_sla_policies` لكل شركة (زمن الاستجابة والحل حسب priority).
+- Trigger لحساب `sla_due_at` تلقائيًا عند الإنشاء أو تغيير الأولوية.
+- Cron كل 15 دقيقة يرصد التذاكر المتأخرة ويولّد إشعار.
 
-**ج. توسيع نموذج العمولة:**
-- Toggle "جدولة على دفعات" + عدد الدفعات + تاريخ البدء.
-- عند الحفظ: إنشاء العمولة + استدعاء `createSchedule`.
+**التسليمات (الواجهة):**
+- `/support/tickets` — قائمة مع فلاتر (حالة، أولوية، مُسنَد لي، متأخر)، بحث نصي، عدّاد SLA حي.
+- `/support/tickets/$id` — thread محادثات (داخلي/خارجي)، لوحة جانبية بالمعلومات، أزرار حالة، إسناد، تعليق داخلي، رفع مرفقات.
+- بوابة العميل `/portal/support` — إنشاء تذكرة، عرض حالتها، الرد.
+- لوحة `/admin/tickets/analytics` — MTTR، معدل SLA، توزيع حسب المُسنَد إليه.
 
-**د. توسيع نموذج السند (Voucher):**
-- Dropdown اختياري "مرتبط بقسط" يعرض الأقساط `pending` للعقد/العميل المحدّد.
-
-**هـ. تحديث الشريط الجانبي:**
-- إضافة "جداول الأقساط" ضمن مجموعة "العقود والمالية".
+**قبول:** إنشاء تذكرة من البوابة تصل للفريق مع SLA، محادثة داخلية لا تظهر للعميل، مرفقات ترفع/تُنزَّل بأمان، تنبيه SLA يصل قبل الاستحقاق.
 
 ---
 
-### 5) i18n + التوثيق + الاختبارات
+### الحزمة ج — إكمال CRM للإعلانات
 
-- إضافة مفاتيح AR+EN لكل النصوص الجديدة (تدقيق عبر `bun run audit:i18n`).
-- Playwright: سيناريو E2E لإنشاء عقد → توليد جدول → تسجيل دفعة → توليد سند → توليد فاتورة ZATCA → التحقق من QR.
-- Vitest: اختبارات وحدة لـ TLV encoder + hash chain (متوقعات معروفة من مواصفات ZATCA).
-- تحديث `mem://features/wave2-progress.md` وربطه بالفهرس.
-- تحديث `admin.route-map.tsx` بالمسار الجديد.
+**الوضع الحالي:** `listings` (20 عمود)، `leads` (14)، `property_viewings` (15) موجودة كـ shims من الموجة 1 دون منطق ربط.
 
----
+**التسليمات (قاعدة البيانات):**
+- عمود `leads.pipeline_stage` (enum: new/contacted/qualified/viewing_scheduled/negotiating/won/lost) + `lost_reason`.
+- جدول `lead_activities` (call/email/whatsapp/note/status_change) مع timeline.
+- جدول `listing_lead_matches` لربط الـ lead بالإعلانات المناسبة تلقائيًا (السعر، النوع، المدينة).
+- Trigger عند `lead → won` ينشئ contract draft ويحفظ `converted_contract_id` على الـ lead.
+- MV `mv_agent_pipeline` لأداء المندوب (leads count، conversion rate، متوسط زمن الإغلاق).
 
-### 6) الترتيب والتنفيذ
+**التسليمات (الواجهة):**
+- `/crm/pipeline` — Kanban board قابل للسحب بين المراحل، عدّادات لكل عمود، فلترة حسب المندوب.
+- `/crm/leads/$id` — بطاقة تفصيلية: بيانات، اهتمامات، timeline نشاطات، عقارات مقترحة، زر "جدولة معاينة" و"تحويل إلى عقد".
+- `/crm/viewings` — تقويم أسبوعي بجميع المعاينات، إمكانية التسجيل داخل ورقة معاينة (visit sheet).
+- `/crm/analytics` — قمع المبيعات، أداء المندوبين، مصادر الليدز.
 
-يُنفَّذ على **دفعتين متتاليتين** لتقليل حجم أي مراجعة واحدة:
-
-**الدفعة أ (هذه الجولة):**
-1. Migration واحدة: توسيع `invoices` + جدول `payment_schedules` + GRANT/RLS/Triggers.
-2. مكتبات ZATCA (TLV, UBL, Hash) + اختبارات وحدة.
-3. Server functions: `generateZatcaInvoice`, `getZatcaQr`, `createSchedule`, `markInstallmentPaid`.
-4. صفحة `/dashboard/payment-schedules` (قراءة/فلترة/تصدير) + بطاقة ZATCA في صفحة الفاتورة.
-
-**الدفعة ب (جولة تالية بعد الموافقة):**
-5. تكامل نماذج Vouchers/Commissions مع الجدول.
-6. سيناريو Playwright E2E الكامل.
-7. i18n audit + تحديث الذاكرة والخطة.
+**قبول:** Lead جديد يظهر في pipeline، سحبه بين المراحل يُسجَّل نشاطًا، تحويله لعقد ينشئ عقدًا مسودة مربوطًا، والتقارير تعكس البيانات.
 
 ---
 
-### ملاحظات فنية
+## التنفيذ التقني (مشترك بين الحزم)
 
-- كل الحساسيات (QR TLV, XML, Hash) تُبنى داخل `createServerFn` فقط — لا تسريب لأي كود ZATCA للواجهة عدا عرض QR/UUID جاهزَين.
-- الـ hash chain يعتمد على `previous_hash` من آخر فاتورة `reported` لنفس المؤسسة (فهرس مركّب `(org_id, zatca_reported_at DESC)`).
-- الـ GRANT لدوال ZATCA: `authenticated` فقط (مع تحقق دور محاسبي داخلي).
-- لا اتصال شبكي بـ ZATCA في هذه الموجة — فقط توليد الحمولات.
+- كل server function تحت `requireSupabaseAuth` مع فحص `company_id` من `context.claims`.
+- كل ترقية جدول تتضمن: `GRANT` صريح، RLS مفعّل، سياسات `has_role`/`company_id` isolation.
+- الواجهة تستخدم `useSuspenseQuery` + `queryOptions` على نمط باقي المشروع.
+- كل مفاتيح النصوص تمر عبر `t()` بمفتاحين AR/EN — يُدقَّق بـ `bun run audit:i18n` قبل الإغلاق.
+- كل جدول جديد يحصل على triggers `updated_at` + `audit_log` القياسية.
+- اختبارات Playwright: مسار واحد end-to-end لكل حزمة (ختم فاتورة → QR ظاهر / إنشاء تذكرة بوابة → إشعار SLA / lead جديد → تحويل عقد).
 
-هل نبدأ بالدفعة (أ)؟
+## الترتيب المقترح
+
+1. **الحزمة أ** أولًا — التزام تنظيمي حرج، والبنية جاهزة من الموجة 2.
+2. **الحزمة ب** ثانيًا — أعلى قيمة تشغيلية يومية.
+3. **الحزمة ج** ثالثًا — تعتمد على استقرار العقود/الفواتير من (أ).
+
+بعد اعتماد الخطة سأبدأ بالحزمة أ (migration + server functions + UI hook)، ثم أعرض عليك التقدم قبل الانتقال للحزمة ب.
