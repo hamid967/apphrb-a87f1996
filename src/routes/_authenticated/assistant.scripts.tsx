@@ -1,10 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { runDashboardTool } from "@/lib/ai-assistant.functions";
-import { Loader2, Play, Terminal, ChevronDown } from "lucide-react";
+import { Loader2, Play, Terminal, ChevronDown, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 import { sectionHead } from "@/lib/section-og-head";
@@ -260,7 +260,7 @@ function ScriptCard({
         </div>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={handleRun}
           disabled={running}
@@ -269,6 +269,19 @@ function ScriptCard({
           {running ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
           {t("assistant.scripts.run")}
         </button>
+        <Link
+          to="/assistant/scripts/$name"
+          params={{ name: script.name }}
+          search={Object.fromEntries(
+            script.fields
+              .map((f) => [f.name, values[f.name]] as const)
+              .filter(([, v]) => v !== undefined && v !== ""),
+          )}
+          className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted"
+        >
+          <ExternalLink className="size-3.5" />
+          {t("assistant.scripts.viewDetails")}
+        </Link>
         {(result || error) && (
           <button
             onClick={() => setOpen((o) => !o)}
