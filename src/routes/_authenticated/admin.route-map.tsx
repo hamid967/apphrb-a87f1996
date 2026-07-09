@@ -126,14 +126,15 @@ function RouteMapPage() {
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<Scope | "all">("all");
 
+  const deferredQuery = useDeferredValue(query);
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = deferredQuery.trim().toLowerCase();
     return rows.filter((r) => {
       if (scope !== "all" && r.scope !== scope) return false;
       if (q && !r.path.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [rows, query, scope]);
+  }, [rows, deferredQuery, scope]);
 
   const counts = useMemo(() => {
     const c: Record<Scope, number> = { public: 0, authenticated: 0, admin: 0, api: 0 };
