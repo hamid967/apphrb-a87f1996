@@ -231,11 +231,49 @@ def discard_artifacts(artifact_dir: Path) -> None:
         shutil.rmtree(artifact_dir, ignore_errors=True)
 
 
+def try_auto_mint() -> str:
+    """Best-effort: run the mint script (password OR service-role fallback) and
+    load its exports into os.environ. Returns the new auth source."""
+    import subprocess
+    script = Path(__file__).resolve().parent.parent.parent / "scripts" / "e2e-mint-admin-session.py"
+    if not script.exists():
+        return "none"
+    try:
+        out = subprocess.run(
+            ["python3", str(script), "--print-source"],
+            capture_output=True, text=True, timeout=30,
+        )
+    except Exception as e:
+        print(f"auto-mint failed to run: {e}")
+        return "none"
+    if out.returncode != 0:
+        print(f"auto-mint skipped ({out.returncode}): {out.stderr.strip() or out.stdout.strip()}")
+        return "none"
+    # Parse `export KEY='value'` lines into os.environ.
+    import shlex
+    for line in out.stdout.splitlines():
+        line = line.strip()
+        if not line.startswith("export "):
+            continue
+        kv = line[len("export "):]
+        if "=" not in kv:
+            continue
+        k, v = kv.split("=", 1)
+        try:
+            os.environ[k] = shlex.split(v)[0] if v else ""
+        except Exception:
+            os.environ[k] = v.strip("'\"")
+    return resolve_auth_source()
+
+
 async def main() -> int:
     source = resolve_auth_source()
     if source == "none":
-        print("SKIP: no admin session available.")
-        print("      Sign in via the preview or run scripts/e2e-mint-admin-session.py")
+        print("No admin session — attempting auto-mint via scripts/e2e-mint-admin-session.py")
+        source = try_auto_mint()
+    if source == "none":
+        print("SKIP: no admin session available and auto-mint could not produce one.")
+        print("      Set E2E_ADMIN_PASSWORD or ensure SUPABASE_SERVICE_ROLE_KEY is present.")
         return 0
     print(f"Using auth source: {source}")
 
