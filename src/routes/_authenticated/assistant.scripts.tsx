@@ -19,6 +19,16 @@ type ParamField = {
   labelKey: string;
   placeholderKey?: string;
   placeholder?: string;
+  /** Interactive range settings (for numeric time/limit inputs). */
+  range?: {
+    min: number;
+    max: number;
+    step?: number;
+    default: number;
+    /** Unit shown next to the value (e.g. "شهر", "يوم"). */
+    unitKey?: "unitMonths" | "unitDays" | "unitItems";
+    presets: number[];
+  };
 };
 
 type CategoryKey = "reports" | "analysis" | "forecasts" | "ops";
@@ -29,28 +39,61 @@ type ScriptDef = {
   fields: ParamField[];
 };
 
+const MONTHS_RANGE = {
+  min: 1,
+  max: 24,
+  step: 1,
+  default: 6,
+  unitKey: "unitMonths" as const,
+  presets: [1, 3, 6, 12, 24],
+};
+const HORIZON_RANGE = {
+  min: 1,
+  max: 12,
+  step: 1,
+  default: 3,
+  unitKey: "unitMonths" as const,
+  presets: [1, 3, 6, 12],
+};
+const DAYS_RANGE = {
+  min: 7,
+  max: 365,
+  step: 1,
+  default: 60,
+  unitKey: "unitDays" as const,
+  presets: [7, 30, 60, 90, 180, 365],
+};
+const LIMIT_RANGE = {
+  min: 5,
+  max: 200,
+  step: 5,
+  default: 25,
+  unitKey: "unitItems" as const,
+  presets: [10, 25, 50, 100],
+};
+
 const SCRIPTS: ScriptDef[] = [
   {
     name: "revenue_summary",
     category: "reports",
-    fields: [{ name: "months", type: "number", labelKey: "months", placeholder: "6" }],
+    fields: [{ name: "months", type: "number", labelKey: "months", range: MONTHS_RANGE }],
   },
   { name: "overdue_payments", category: "reports", fields: [] },
   {
     name: "expiring_contracts",
     category: "reports",
-    fields: [{ name: "days", type: "number", labelKey: "days", placeholder: "60" }],
+    fields: [{ name: "days", type: "number", labelKey: "days", range: DAYS_RANGE }],
   },
   {
     name: "expense_summary",
     category: "reports",
-    fields: [{ name: "months", type: "number", labelKey: "months", placeholder: "6" }],
+    fields: [{ name: "months", type: "number", labelKey: "months", range: MONTHS_RANGE }],
   },
   { name: "occupancy_snapshot", category: "analysis", fields: [] },
   {
     name: "rent_forecast",
     category: "forecasts",
-    fields: [{ name: "months", type: "number", labelKey: "horizonMonths", placeholder: "3" }],
+    fields: [{ name: "months", type: "number", labelKey: "horizonMonths", range: HORIZON_RANGE }],
   },
   { name: "risk_analysis", category: "analysis", fields: [] },
   {
