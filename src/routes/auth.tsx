@@ -495,17 +495,13 @@ function AuthPage() {
                     background: `linear-gradient(120deg, ${HBS.blue}, ${HBS.gold})`,
                     boxShadow: `0 20px 50px -15px ${HBS.gold}`,
                   }}
-                  disabled={submitting || (mode === "signin" && captchaRequired && !captchaToken)}
+                  disabled={submitting}
                 >
                   {submitting && <Loader2 className="me-2 size-4 animate-spin" />}
                   {mode === "signup" ? t("auth.signUp") : "تسجيل الدخول"}
                 </Button>
-                {mode === "signin" && captchaRequired && (
-                  <div className="pt-2">
-                    <TurnstileWidget onToken={setCaptchaToken} />
-                  </div>
-                )}
               </form>
+
 
               {/* Divider */}
               <div
