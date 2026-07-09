@@ -4332,6 +4332,9 @@ const ar: typeof en = {
         city: "المدينة",
         limit: "الحد الأقصى للنتائج",
         optional: "اختياري",
+        unitMonths: "شهر",
+        unitDays: "يوم",
+        unitItems: "عنصر",
       },
     },
 
