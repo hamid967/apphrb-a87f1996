@@ -48,17 +48,17 @@ export const generateZatcaInvoice = createServerFn({ method: "POST" })
       .eq("id", inv.org_id)
       .single();
 
-    const { data: settings } = await supabase
+    const { data: settingsRows } = await supabase
       .from("org_settings")
-      .select("vat_number, legal_name")
+      .select("key, value")
       .eq("org_id", inv.org_id)
-      .maybeSingle();
-
-    const sellerName =
-      (settings as { legal_name?: string | null } | null)?.legal_name ??
-      org?.name ?? "Seller";
-    const sellerVat =
-      (settings as { vat_number?: string | null } | null)?.vat_number ?? "300000000000003";
+      .in("key", ["vat_number", "legal_name"]);
+    const settingsMap = new Map<string, string>();
+    for (const r of settingsRows ?? []) {
+      if (r?.key) settingsMap.set(r.key, String(r.value ?? ""));
+    }
+    const sellerName = settingsMap.get("legal_name") || org?.name || "Seller";
+    const sellerVat = settingsMap.get("vat_number") || "300000000000003";
 
     // Buyer (contact)
     let buyerName: string | null = null;
