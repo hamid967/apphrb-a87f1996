@@ -663,20 +663,23 @@ function AuthPage() {
                     className="text-xs font-semibold uppercase tracking-[0.2em]"
                     style={{ color: HBS.goldSoft }}
                   >
-                    Enterprise Security
+                    {t("auth.enterpriseSecurity")}
                   </div>
                 </div>
                 <div
                   className="mt-3 grid grid-cols-2 gap-2 text-[11px]"
                   style={{ color: HBS.gray }}
                 >
-                  {["Encrypted Login", "JWT Ready", "Two-Factor Auth", "SOC2 · ISO27001"].map(
-                    (s) => (
-                      <div key={s} className="flex items-center gap-1.5">
-                        <BadgeCheck className="size-3" style={{ color: HBS.blueSoft }} /> {s}
-                      </div>
-                    ),
-                  )}
+                  {[
+                    t("auth.encryptedLogin"),
+                    t("auth.jwtReady"),
+                    t("auth.twoFactorAuth"),
+                    t("auth.socCert"),
+                  ].map((s) => (
+                    <div key={s} className="flex items-center gap-1.5">
+                      <BadgeCheck className="size-3" style={{ color: HBS.blueSoft }} /> {s}
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -685,17 +688,19 @@ function AuthPage() {
                 className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[10px] uppercase tracking-[0.2em]"
                 style={{ color: HBS.gray }}
               >
-                <FooterChip icon={Sparkles}>AI Powered</FooterChip>
-                <FooterChip icon={BadgeCheck}>Saudi Ready</FooterChip>
-                <FooterChip icon={Cloud}>Cloud</FooterChip>
-                <FooterChip icon={Headphones}>24/7</FooterChip>
-                <FooterChip icon={ShieldCheck}>Secure</FooterChip>
-                <FooterChip icon={Users}>Multi-Tenant</FooterChip>
+                <FooterChip icon={Sparkles}>{t("auth.aiPowered")}</FooterChip>
+                <FooterChip icon={BadgeCheck}>{t("auth.saudiReady")}</FooterChip>
+                <FooterChip icon={Cloud}>{t("auth.cloud")}</FooterChip>
+                <FooterChip icon={Headphones}>{t("auth.support247")}</FooterChip>
+                <FooterChip icon={ShieldCheck}>{t("auth.secure")}</FooterChip>
+                <FooterChip icon={Users}>{t("auth.multiTenant")}</FooterChip>
               </div>
 
               <p className="mt-5 text-center text-[11px]" style={{ color: HBS.gray }}>
-                © {new Date().getFullYear()} HBSpro — بالمتابعة أنت توافق على الشروط وسياسة
-                الخصوصية.
+                {t("auth.footerCopyright", {
+                  year: new Date().getFullYear(),
+                  legal: t("auth.footerLegal"),
+                })}
               </p>
             </motion.div>
           </motion.div>
