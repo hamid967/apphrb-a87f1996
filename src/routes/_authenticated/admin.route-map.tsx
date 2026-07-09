@@ -317,9 +317,13 @@ function useAllRoutes(): RouteRow[] {
       }
       const m = metaFor(fullPath);
       const auth = AUTH_META[scope];
+      const category = categorize(fullPath, scope);
+      const role = roleFor(fullPath, category, scope);
       const row: RouteRow = {
         path: fullPath,
         scope,
+        category,
+        role,
         dynamic: fullPath.includes("$"),
         segments: fullPath.split("/").filter(Boolean).length,
         descriptionAr: m.descriptionAr,
