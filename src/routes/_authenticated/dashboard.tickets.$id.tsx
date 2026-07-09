@@ -63,8 +63,16 @@ function TicketDetailPage() {
   const [reply, setReply] = useState("");
   const [isInternal, setIsInternal] = useState(false);
 
+  type PatchInput = {
+    id: string;
+    status?: "open" | "pending" | "in_progress" | "resolved" | "closed";
+    priority?: "low" | "normal" | "high" | "urgent";
+    category?: string | null;
+    assigneeId?: string | null;
+    tags?: string[];
+  };
   const patchMut = useMutation({
-    mutationFn: (patch: Parameters<typeof updateStaffTicket>[0]["data"]) =>
+    mutationFn: (patch: PatchInput) =>
       updateStaffTicket({ data: patch }),
     onSuccess: () => {
       toast.success(isAr ? "تم التحديث" : "Updated");

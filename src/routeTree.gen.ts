@@ -199,6 +199,7 @@ import { Route as AuthenticatedPortalSettingsNotificationsRouteImport } from './
 import { Route as AuthenticatedOwnersIdLedgerRouteImport } from './routes/_authenticated/owners.$id.ledger'
 import { Route as AuthenticatedDashboardUnitsIdRouteImport } from './routes/_authenticated/dashboard.units.$id'
 import { Route as AuthenticatedDashboardTicketsNewRouteImport } from './routes/_authenticated/dashboard.tickets.new'
+import { Route as AuthenticatedDashboardTicketsIdRouteImport } from './routes/_authenticated/dashboard.tickets.$id'
 import { Route as AuthenticatedDashboardSettingsZatcaRouteImport } from './routes/_authenticated/dashboard.settings.zatca'
 import { Route as AuthenticatedDashboardSettingsRemindersRouteImport } from './routes/_authenticated/dashboard.settings.reminders'
 import { Route as AuthenticatedDashboardSettingsNotificationsRouteImport } from './routes/_authenticated/dashboard.settings.notifications'
@@ -1314,6 +1315,12 @@ const AuthenticatedDashboardTicketsNewRoute =
     path: '/tickets/new',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardTicketsIdRoute =
+  AuthenticatedDashboardTicketsIdRouteImport.update({
+    id: '/tickets/$id',
+    path: '/tickets/$id',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardSettingsZatcaRoute =
   AuthenticatedDashboardSettingsZatcaRouteImport.update({
     id: '/zatca',
@@ -1734,6 +1741,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/settings/notifications': typeof AuthenticatedDashboardSettingsNotificationsRoute
   '/dashboard/settings/reminders': typeof AuthenticatedDashboardSettingsRemindersRoute
   '/dashboard/settings/zatca': typeof AuthenticatedDashboardSettingsZatcaRoute
+  '/dashboard/tickets/$id': typeof AuthenticatedDashboardTicketsIdRoute
   '/dashboard/tickets/new': typeof AuthenticatedDashboardTicketsNewRoute
   '/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
   '/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
@@ -1958,6 +1966,7 @@ export interface FileRoutesByTo {
   '/dashboard/settings/notifications': typeof AuthenticatedDashboardSettingsNotificationsRoute
   '/dashboard/settings/reminders': typeof AuthenticatedDashboardSettingsRemindersRoute
   '/dashboard/settings/zatca': typeof AuthenticatedDashboardSettingsZatcaRoute
+  '/dashboard/tickets/$id': typeof AuthenticatedDashboardTicketsIdRoute
   '/dashboard/tickets/new': typeof AuthenticatedDashboardTicketsNewRoute
   '/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
   '/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
@@ -2192,6 +2201,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/settings/notifications': typeof AuthenticatedDashboardSettingsNotificationsRoute
   '/_authenticated/dashboard/settings/reminders': typeof AuthenticatedDashboardSettingsRemindersRoute
   '/_authenticated/dashboard/settings/zatca': typeof AuthenticatedDashboardSettingsZatcaRoute
+  '/_authenticated/dashboard/tickets/$id': typeof AuthenticatedDashboardTicketsIdRoute
   '/_authenticated/dashboard/tickets/new': typeof AuthenticatedDashboardTicketsNewRoute
   '/_authenticated/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
   '/_authenticated/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
@@ -2426,6 +2436,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/notifications'
     | '/dashboard/settings/reminders'
     | '/dashboard/settings/zatca'
+    | '/dashboard/tickets/$id'
     | '/dashboard/tickets/new'
     | '/dashboard/units/$id'
     | '/owners/$id/ledger'
@@ -2650,6 +2661,7 @@ export interface FileRouteTypes {
     | '/dashboard/settings/notifications'
     | '/dashboard/settings/reminders'
     | '/dashboard/settings/zatca'
+    | '/dashboard/tickets/$id'
     | '/dashboard/tickets/new'
     | '/dashboard/units/$id'
     | '/owners/$id/ledger'
@@ -2883,6 +2895,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/settings/notifications'
     | '/_authenticated/dashboard/settings/reminders'
     | '/_authenticated/dashboard/settings/zatca'
+    | '/_authenticated/dashboard/tickets/$id'
     | '/_authenticated/dashboard/tickets/new'
     | '/_authenticated/dashboard/units/$id'
     | '/_authenticated/owners/$id/ledger'
@@ -4327,6 +4340,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardTicketsNewRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/tickets/$id': {
+      id: '/_authenticated/dashboard/tickets/$id'
+      path: '/tickets/$id'
+      fullPath: '/dashboard/tickets/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardTicketsIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/settings/zatca': {
       id: '/_authenticated/dashboard/settings/zatca'
       path: '/zatca'
@@ -4988,6 +5008,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardInvoicesIdRoute: typeof AuthenticatedDashboardInvoicesIdRoute
   AuthenticatedDashboardPropertiesIdRoute: typeof AuthenticatedDashboardPropertiesIdRoute
   AuthenticatedDashboardPropertiesNewRoute: typeof AuthenticatedDashboardPropertiesNewRoute
+  AuthenticatedDashboardTicketsIdRoute: typeof AuthenticatedDashboardTicketsIdRoute
   AuthenticatedDashboardTicketsNewRoute: typeof AuthenticatedDashboardTicketsNewRoute
   AuthenticatedDashboardUnitsIdRoute: typeof AuthenticatedDashboardUnitsIdRoute
   AuthenticatedDashboardContractsIndexRoute: typeof AuthenticatedDashboardContractsIndexRoute
@@ -5050,6 +5071,7 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardPropertiesIdRoute,
     AuthenticatedDashboardPropertiesNewRoute:
       AuthenticatedDashboardPropertiesNewRoute,
+    AuthenticatedDashboardTicketsIdRoute: AuthenticatedDashboardTicketsIdRoute,
     AuthenticatedDashboardTicketsNewRoute:
       AuthenticatedDashboardTicketsNewRoute,
     AuthenticatedDashboardUnitsIdRoute: AuthenticatedDashboardUnitsIdRoute,
