@@ -104,8 +104,8 @@ export const Route = createFileRoute("/auth")({
   },
   head: () => ({
     meta: [
-      { title: "تسجيل الدخول — HBSpro" },
-      { name: "description", content: "سجّل الدخول إلى حسابك في HBSpro أو أنشئ حساباً جديداً." },
+      { title: i18n.t("auth.metaTitle") },
+      { name: "description", content: i18n.t("auth.metaDesc") },
       { name: "robots", content: "noindex" },
     ],
   }),
