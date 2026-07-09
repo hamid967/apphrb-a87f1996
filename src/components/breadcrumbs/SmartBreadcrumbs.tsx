@@ -12,24 +12,29 @@ import {
 
 export type SmartLabelMap = Record<string, { ar: string; en: string }>;
 
+export type SmartCrumb = { href: string; label: string; isLast?: boolean };
+
 export function SmartBreadcrumbs({
   rootSegment,
   labels,
+  crumbs: crumbsProp,
   layoutId,
   rootIcon: RootIcon,
   rootLabel,
   ariaHome,
   className,
 }: {
-  /** URL segment that starts the breadcrumb trail (e.g. "dashboard", "portal", "admin"). */
-  rootSegment: string;
-  /** Segment → label dictionary. Unknown segments fall back to a slug/hash. */
-  labels: SmartLabelMap;
+  /** URL segment that starts the trail. Required unless `crumbs` is provided. */
+  rootSegment?: string;
+  /** Segment → label dictionary used when deriving from the URL. */
+  labels?: SmartLabelMap;
+  /** Explicit crumb list. Overrides URL derivation (use for section-aware trails). */
+  crumbs?: SmartCrumb[];
   /** Unique layoutId prefix so multiple breadcrumbs animate independently. */
   layoutId: string;
   /** Optional icon rendered inside the root pill/link. */
   rootIcon?: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
-  /** Root text label { ar, en }. */
+  /** Root text label { ar, en } — used as fallback for the first crumb. */
   rootLabel: { ar: string; en: string };
   /** aria-label for the root link { ar, en }. */
   ariaHome: { ar: string; en: string };
@@ -38,23 +43,36 @@ export function SmartBreadcrumbs({
   const { i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const clean = pathname.split("?")[0].split("#")[0].replace(/\/$/, "");
-  const parts = clean.split("/").filter(Boolean);
-  const rootIdx = parts.indexOf(rootSegment);
-  if (rootIdx === -1) return null;
-  const segs = parts.slice(rootIdx);
 
-  const labelFor = (seg: string): string => {
-    const l = labels[seg];
-    if (l) return isAr ? l.ar : l.en;
-    if (/^[0-9a-f-]{8,}$/i.test(seg)) return "#" + seg.slice(0, 6);
-    return decodeURIComponent(seg);
-  };
+  const derived = (() => {
+    if (crumbsProp && crumbsProp.length > 0) return null;
+    if (!rootSegment) return [];
+    const clean = pathname.split("?")[0].split("#")[0].replace(/\/$/, "");
+    const parts = clean.split("/").filter(Boolean);
+    const rootIdx = parts.indexOf(rootSegment);
+    if (rootIdx === -1) return null;
+    const segs = parts.slice(rootIdx);
+    const labelFor = (seg: string): string => {
+      const l = labels?.[seg];
+      if (l) return isAr ? l.ar : l.en;
+      if (/^[0-9a-f-]{8,}$/i.test(seg)) return "#" + seg.slice(0, 6);
+      return decodeURIComponent(seg);
+    };
+    return segs.map((seg, i) => ({
+      href: "/" + parts.slice(0, rootIdx + i + 1).join("/"),
+      label: seg === rootSegment ? (isAr ? rootLabel.ar : rootLabel.en) : labelFor(seg),
+      isLast: i === segs.length - 1,
+    }));
+  })();
 
-  const crumbs = segs.map((seg, i) => ({
-    href: "/" + parts.slice(0, rootIdx + i + 1).join("/"),
-    label: seg === rootSegment ? (isAr ? rootLabel.ar : rootLabel.en) : labelFor(seg),
-    isLast: i === segs.length - 1,
+  if (derived === null && !crumbsProp) return null;
+
+  const raw = crumbsProp ?? derived ?? [];
+  if (raw.length === 0) return null;
+  const crumbs = raw.map((c, i) => ({
+    href: c.href,
+    label: c.label,
+    isLast: i === raw.length - 1,
   }));
 
   const Sep = isAr ? ChevronLeft : ChevronRight;
@@ -68,6 +86,7 @@ export function SmartBreadcrumbs({
 
   const renderRootIcon = (): ReactNode =>
     RootIcon ? <RootIcon className="inline size-3.5 me-1 opacity-80" aria-hidden /> : null;
+
 
   return (
     <nav
