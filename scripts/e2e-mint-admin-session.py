@@ -136,6 +136,97 @@ def admin_mint_via_magiclink(
         body = e.read().decode(errors="replace")
         sys.exit(f"ERROR: verify magiclink failed ({e.code}): {body}")
 
+def _pgrst(supabase_url: str, service_role_key: str, method: str, path: str,
+           body: dict | list | None = None, prefer: str | None = None) -> tuple[int, str]:
+    headers = {
+        "apikey": service_role_key,
+        "Authorization": f"Bearer {service_role_key}",
+        "Content-Type": "application/json",
+    }
+    if prefer:
+        headers["Prefer"] = prefer
+    data = json.dumps(body).encode() if body is not None else None
+    req = urllib.request.Request(
+        f"{supabase_url}{path}", method=method, data=data, headers=headers,
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return r.status, r.read().decode(errors="replace")
+    except urllib.error.HTTPError as e:
+        return e.code, e.read().decode(errors="replace")
+
+
+def ensure_test_user(supabase_url: str, service_role_key: str, email: str,
+                     role: str) -> str:
+    """Create the E2E user if missing (email_confirm=true) and grant `role`.
+    Returns the auth user id. Idempotent."""
+    # 1) Look up user
+    from urllib.parse import quote
+    code, body = _pgrst(
+        supabase_url, service_role_key, "GET",
+        f"/auth/v1/admin/users?email={quote(email)}",
+    )
+    user_id = None
+    email_confirmed = False
+    if code == 200:
+        try:
+            users = json.loads(body).get("users", [])
+            match = next((u for u in users if (u.get("email") or "").lower() == email.lower()), None)
+            if match:
+                user_id = match.get("id")
+                email_confirmed = bool(match.get("email_confirmed_at"))
+        except Exception:
+            pass
+    # 2) Create if missing
+    if not user_id:
+        code, body = _pgrst(
+            supabase_url, service_role_key, "POST",
+            "/auth/v1/admin/users",
+            body={"email": email, "email_confirm": True,
+                  "user_metadata": {"e2e": True, "display_name": "E2E Perf Bot"}},
+        )
+        if code not in (200, 201):
+            sys.exit(f"ERROR: could not create E2E user ({code}): {body}")
+        try:
+            parsed = json.loads(body)
+            user_id = parsed.get("id")
+            email_confirmed = bool(parsed.get("email_confirmed_at"))
+        except Exception:
+            user_id = None
+        if not user_id:
+            sys.exit(f"ERROR: unexpected create-user response: {body}")
+    # 2b) Force-confirm the email so magiclink verify accepts the token.
+    if not email_confirmed:
+        code, body = _pgrst(
+            supabase_url, service_role_key, "PUT",
+            f"/auth/v1/admin/users/{user_id}",
+            body={"email_confirm": True},
+        )
+        if code not in (200, 201):
+            sys.exit(f"ERROR: could not confirm E2E user email ({code}): {body}")
+    # 3) Grant role (idempotent via ON CONFLICT-like Prefer)
+    # 3) Reset roles for this user, then grant the requested role.
+    #    DELETE + INSERT so we tolerate legacy rows (e.g. an old 'admin' entry
+    #    when the requested role is now 'super_admin'). The natural key
+    #    (user_id, role) isn't the PRIMARY KEY, so `merge-duplicates` wouldn't
+    #    replace by user_id alone.
+    _pgrst(
+        supabase_url, service_role_key, "DELETE",
+        f"/rest/v1/user_roles?user_id=eq.{user_id}",
+        prefer="return=minimal",
+    )
+    code, body = _pgrst(
+        supabase_url, service_role_key, "POST",
+        "/rest/v1/user_roles",
+        body={"user_id": user_id, "role": role},
+        prefer="return=minimal",
+    )
+    if code not in (200, 201, 204):
+        if "duplicate" not in body.lower() and "already exists" not in body.lower():
+            sys.exit(f"ERROR: could not grant {role} to E2E user ({code}): {body}")
+    return user_id
+
+
 
 def to_ssr_cookie_value(session: dict) -> str:
     """@supabase/ssr encodes the session as `base64-<b64url(JSON)>`."""
@@ -197,9 +288,11 @@ def main() -> int:
 
     supabase_url = require_env("VITE_SUPABASE_URL").rstrip("/")
     anon_key = require_env("VITE_SUPABASE_PUBLISHABLE_KEY")
-    email = os.environ.get("E2E_ADMIN_EMAIL", "hamid@hrhbs.com")
+    default_email = "e2e-perf@aqari.test" if os.environ.get("SUPABASE_SERVICE_ROLE_KEY") else "hamid@hrhbs.com"
+    email = os.environ.get("E2E_TEST_EMAIL") or os.environ.get("E2E_ADMIN_EMAIL", default_email)
     password = os.environ.get("E2E_ADMIN_PASSWORD")
     service_role = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+    role = os.environ.get("E2E_TEST_ROLE", "super_admin")
     base_url = os.environ.get("BASE_URL", "http://localhost:8080").rstrip("/")
 
     ref = project_ref(supabase_url)
@@ -209,7 +302,10 @@ def main() -> int:
         source = "password"
         session = sign_in(supabase_url, anon_key, email, password)
     elif service_role:
-        source = "admin-magiclink"
+        # Ensure a dedicated test user with the requested role exists — no
+        # real super-admin credentials needed.
+        ensure_test_user(supabase_url, service_role, email, role)
+        source = f"admin-magiclink ({email}, role={role})"
         session = admin_mint_via_magiclink(supabase_url, service_role, anon_key, email)
     else:
         sys.exit(
