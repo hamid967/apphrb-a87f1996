@@ -145,3 +145,132 @@ export function SmartBreadcrumbs({
     </nav>
   );
 }
+
+type Crumb = { href: string; label: string; isLast: boolean };
+
+function MobileScrollStrip({
+  crumbs,
+  Sep,
+  RootIcon,
+  isAr,
+  ariaHome,
+  middle,
+  showEllipsis,
+}: {
+  crumbs: Crumb[];
+  Sep: ComponentType<{ className?: string }>;
+  RootIcon?: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  isAr: boolean;
+  ariaHome: { ar: string; en: string };
+  middle: Crumb[];
+  showEllipsis: boolean;
+}) {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const currentHref = crumbs[crumbs.length - 1]?.href;
+
+  // Auto-scroll so the current crumb is visible whenever the path changes.
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    // On RTL, "end" is the visual left; on LTR it's the visual right.
+    if (isAr) el.scrollLeft = -el.scrollWidth;
+    else el.scrollLeft = el.scrollWidth;
+  }, [currentHref, isAr]);
+
+  const first = crumbs[0];
+  const last = crumbs[crumbs.length - 1];
+
+  return (
+    <div
+      ref={scrollerRef}
+      className="relative -mx-1 flex min-w-0 items-center overflow-x-auto px-1 sm:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [mask-image:linear-gradient(to_right,transparent,black_20px,black_calc(100%-20px),transparent)] rtl:[mask-image:linear-gradient(to_left,transparent,black_20px,black_calc(100%-20px),transparent)]"
+      role="presentation"
+    >
+      <ol className="flex shrink-0 items-center gap-1 py-0.5 text-xs">
+        {/* Root */}
+        <li className="flex shrink-0 items-center">
+          {crumbs.length === 1 ? (
+            <span
+              aria-current="page"
+              tabIndex={0}
+              className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 font-semibold text-primary ring-1 ring-primary/20 outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+            >
+              {RootIcon ? <RootIcon className="inline size-3.5 me-1 opacity-80" aria-hidden /> : null}
+              {first.label}
+            </span>
+          ) : (
+            <Link
+              to={first.href}
+              aria-label={isAr ? ariaHome.ar : ariaHome.en}
+              className="inline-flex items-center rounded-md px-1.5 py-1 text-muted-foreground outline-none transition-colors hover:bg-primary/10 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50"
+            >
+              {RootIcon ? <RootIcon className="size-3.5" /> : <span className="max-w-[6rem] truncate">{first.label}</span>}
+            </Link>
+          )}
+        </li>
+
+        {/* Optional ellipsis dropdown (kept as a shortcut jump) */}
+        {showEllipsis && (
+          <>
+            <li aria-hidden="true" className="inline-flex shrink-0 text-muted-foreground/60">
+              <Sep className="size-3" />
+            </li>
+            <li className="flex shrink-0 items-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  aria-label={isAr ? "قفزة سريعة" : "Quick jump"}
+                  className="inline-flex items-center rounded-md px-1 py-0.5 text-muted-foreground outline-none transition-colors hover:bg-primary/10 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50"
+                >
+                  <MoreHorizontal className="size-3.5" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align={isAr ? "end" : "start"} className="min-w-[10rem]">
+                  {middle.map((c) => (
+                    <DropdownMenuItem key={c.href} asChild>
+                      <Link to={c.href} className="cursor-pointer">
+                        {c.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </li>
+          </>
+        )}
+
+        {/* Middle crumbs — inline, scrollable */}
+        {crumbs.slice(1, -1).map((c) => (
+          <li key={c.href} className="flex shrink-0 items-center gap-1">
+            <span aria-hidden="true" className="inline-flex text-muted-foreground/60">
+              <Sep className="size-3" />
+            </span>
+            <Link
+              to={c.href}
+              className="inline-flex max-w-[8rem] items-center truncate rounded-md px-1.5 py-0.5 font-medium text-muted-foreground outline-none transition-colors hover:bg-primary/10 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50"
+            >
+              {c.label}
+            </Link>
+          </li>
+        ))}
+
+        {/* Current */}
+        {crumbs.length > 1 && (
+          <>
+            <li aria-hidden="true" className="inline-flex shrink-0 text-muted-foreground/60">
+              <Sep className="size-3" />
+            </li>
+            <li className="flex shrink-0 items-center">
+              <span
+                aria-current="page"
+                tabIndex={0}
+                className="max-w-[10rem] truncate rounded-md bg-primary/10 px-2 py-0.5 font-semibold text-primary ring-1 ring-primary/20 outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
+              >
+                {last.label}
+              </span>
+            </li>
+          </>
+        )}
+      </ol>
+    </div>
+  );
+}
+
