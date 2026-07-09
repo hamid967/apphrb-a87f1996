@@ -26,17 +26,23 @@ function walk(dir: string, out: string[] = []): string[] {
 
 function extractRoutePaths(): string[] {
   const gen = readFileSync(path.join(ROOT, "src/routeTree.gen.ts"), "utf8");
-  const start = gen.indexOf("interface FileRoutesByFullPath");
-  const block = gen.slice(start, gen.indexOf("}", start));
-  const paths = new Set<string>();
-  for (const m of block.matchAll(/'([^']+)':/g)) {
-    let p = m[1];
-    if (p.length > 1 && p.endsWith("/")) p = p.slice(0, -1);
-    paths.add(p);
+  // Collect keys from every FileRoutesBy* interface — these are the exact
+  // strings the router accepts as `to`. Skips the internal id map ("__root__",
+  // "/_authenticated/..."). We accept both trailing-slash and no-slash forms.
+  const paths = new Set<string>(["/"]);
+  const interfaceRe = /interface FileRoutes(?:ByFullPath|ByTo|ById)\s*\{([^}]+)\}/g;
+  for (const block of gen.matchAll(interfaceRe)) {
+    for (const m of block[1].matchAll(/'([^']+)':/g)) {
+      let p = m[1];
+      if (p.startsWith("__")) continue;
+      if (p.startsWith("/_")) continue; // pathless layout ids
+      if (p.length > 1 && p.endsWith("/")) p = p.slice(0, -1);
+      paths.add(p);
+    }
   }
-  paths.add("/"); // root
   return [...paths];
 }
+
 
 function matchesRoute(target: string, routes: string[]): boolean {
   // Strip query/hash
