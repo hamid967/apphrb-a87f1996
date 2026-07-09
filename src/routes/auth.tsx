@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import "@/lib/i18n";
+import i18n from "@/lib/i18n";
 import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -104,8 +104,8 @@ export const Route = createFileRoute("/auth")({
   },
   head: () => ({
     meta: [
-      { title: "تسجيل الدخول — HBSpro" },
-      { name: "description", content: "سجّل الدخول إلى حسابك في HBSpro أو أنشئ حساباً جديداً." },
+      { title: i18n.t("auth.metaTitle") },
+      { name: "description", content: i18n.t("auth.metaDesc") },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -146,9 +146,8 @@ function AuthPage() {
     }
   }, [ready, user, nav, redirectTarget]);
   useEffect(() => {
-    const isAr = (i18n.language || "").startsWith("ar");
-    document.title = isAr ? "تسجيل الدخول — HBSpro" : "Sign in — HBSpro";
-  }, [i18n.language]);
+    document.title = t("auth.metaTitle");
+  }, [t, i18n.language]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -182,7 +181,7 @@ function AuthPage() {
             },
           }).catch(() => {});
           throw new Error(
-            `تم حظر الدخول مؤقتاً بسبب محاولات فاشلة متكررة. حاول بعد ${Math.ceil(rl.retry_after_seconds / 60)} دقيقة.`,
+            t("auth.rateLimited", { minutes: Math.ceil(rl.retry_after_seconds / 60) }),
           );
         }
         const { error } = await supabase.auth.signInWithPassword({
@@ -221,7 +220,7 @@ function AuthPage() {
               },
             }).catch(() => {});
             setFailedAttempts(incFailedAttempts(email));
-            throw new Error("رقم المنشأة غير صحيح أو لا ينتمي لهذا الحساب");
+            throw new Error(t("auth.establishmentMismatch"));
           }
         }
         await recordLoginEvent({
@@ -247,7 +246,7 @@ function AuthPage() {
     }
   };
 
-  const notImplemented = (label: string) => () => toast(`${label} — قريباً`);
+  const notImplemented = (label: string) => () => toast(t("auth.comingSoonLabel", { label }));
 
   const onDeveloperAccount = async () => {
     setDevLoading(true);
@@ -281,7 +280,7 @@ function AuthPage() {
       try {
         await navigator.clipboard.writeText(`${devEmail} / ${devPassword}`);
       } catch {}
-      toast.success(`تم إنشاء حساب مطور: ${devEmail} — بيانات الدخول نُسخت للحافظة`);
+      toast.success(t("auth.devAccountCreated", { email: devEmail }));
       nav({ to: "/onboarding/wizard", replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Developer signup failed");
@@ -367,19 +366,19 @@ function AuthPage() {
                   className="ms-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.2em]"
                   style={{ borderColor: HBS.border, color: HBS.goldSoft }}
                 >
-                  <BadgeCheck className="size-3" /> Enterprise
+                  <BadgeCheck className="size-3" /> {t("auth.enterpriseBadge")}
                 </div>
               </div>
 
-              <div dir="rtl" className="mt-6">
+              <div className="mt-6">
                 <h1
                   className="text-3xl font-bold leading-tight tracking-tight"
                   style={{ color: HBS.white }}
                 >
-                  مرحبًا بك في <span style={{ color: HBS.gold }}>HBSpro</span>
+                  {t("auth.welcome")} <span style={{ color: HBS.gold }}>HBSpro</span>
                 </h1>
                 <p className="mt-2 text-sm" style={{ color: HBS.gray }}>
-                  قم بتسجيل الدخول للوصول إلى منصة إدارة الأملاك الذكية.
+                  {t("auth.welcomeSubtitle")}
                 </p>
               </div>
 
@@ -416,7 +415,8 @@ function AuthPage() {
                       className="text-xs uppercase tracking-[0.18em]"
                       style={{ color: HBS.gray }}
                     >
-                      رقم المنشأة <span className="opacity-60">(اختياري)</span>
+                      {t("auth.establishmentNo")}{" "}
+                      <span className="opacity-60">{t("auth.establishmentOptional")}</span>
                     </Label>
                     <div className="relative">
                       <Building
@@ -435,7 +435,7 @@ function AuthPage() {
                       />
                     </div>
                     <p className="text-[10px]" style={{ color: HBS.gray }}>
-                      اتركه فارغاً إذا كنت مستأجراً أو مالكاً على البوابة.
+                      {t("auth.establishmentHint")}
                     </p>
                   </div>
                 )}
@@ -495,7 +495,7 @@ function AuthPage() {
                       onClick={() => setShowPassword((v) => !v)}
                       className="absolute end-2 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-md hover:bg-white/10"
                       style={{ color: HBS.gray }}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                     >
                       {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                     </button>
@@ -509,14 +509,14 @@ function AuthPage() {
                         onCheckedChange={(v) => setRemember(v === true)}
                         className="border-white/30"
                       />
-                      تذكرني على هذا الجهاز
+                      {t("auth.rememberMe")}
                     </label>
                     <Link
                       to="/forgot-password"
                       className="text-xs hover:underline"
                       style={{ color: HBS.goldSoft }}
                     >
-                      نسيت كلمة المرور؟
+                      {t("auth.forgotPassword")}
                     </Link>
                   </div>
                 )}
@@ -530,7 +530,7 @@ function AuthPage() {
                   disabled={submitting}
                 >
                   {submitting && <Loader2 className="me-2 size-4 animate-spin" />}
-                  {mode === "signup" ? t("auth.signUp") : "تسجيل الدخول"}
+                  {mode === "signup" ? t("auth.signUp") : t("auth.signIn")}
                 </Button>
               </form>
 
@@ -541,7 +541,7 @@ function AuthPage() {
                 style={{ color: HBS.gray }}
               >
                 <div className="h-px flex-1" style={{ background: HBS.border }} />
-                <span>OR</span>
+                <span>{t("auth.orDivider")}</span>
                 <div className="h-px flex-1" style={{ background: HBS.border }} />
               </div>
 
@@ -587,7 +587,7 @@ function AuthPage() {
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={notImplemented("دخول OTP")}
+                  onClick={notImplemented(t("auth.otpNotImplemented"))}
                   className="flex h-11 items-center justify-center gap-2 rounded-xl border text-sm transition hover:-translate-y-0.5"
                   style={{
                     borderColor: HBS.border,
@@ -595,11 +595,11 @@ function AuthPage() {
                     color: HBS.white,
                   }}
                 >
-                  <KeyRound className="size-4" style={{ color: HBS.gold }} /> OTP
+                  <KeyRound className="size-4" style={{ color: HBS.gold }} /> {t("auth.otp")}
                 </button>
                 <button
                   type="button"
-                  onClick={notImplemented("الدخول البيومتري")}
+                  onClick={notImplemented(t("auth.biometricNotImplemented"))}
                   className="flex h-11 items-center justify-center gap-2 rounded-xl border text-sm transition hover:-translate-y-0.5"
                   style={{
                     borderColor: HBS.border,
@@ -607,7 +607,8 @@ function AuthPage() {
                     color: HBS.white,
                   }}
                 >
-                  <Fingerprint className="size-4" style={{ color: HBS.blueSoft }} /> Biometric
+                  <Fingerprint className="size-4" style={{ color: HBS.blueSoft }} />{" "}
+                  {t("auth.biometric")}
                 </button>
               </div>
 
@@ -628,10 +629,10 @@ function AuthPage() {
                   </span>
                   <div className="flex-1">
                     <div className="text-sm font-semibold" style={{ color: HBS.white }}>
-                      حساب مطوّر (Demo)
+                      {t("auth.devAccountTitle")}
                     </div>
                     <p className="mt-0.5 text-xs" style={{ color: HBS.gray }}>
-                      ينشئ حساباً تلقائياً بصلاحيات كاملة لتجربة النظام فوراً — يُنسخ للحافظة.
+                      {t("auth.devAccountDesc")}
                     </p>
                     <Button
                       type="button"
@@ -645,7 +646,7 @@ function AuthPage() {
                       disabled={devLoading}
                     >
                       {devLoading && <Loader2 className="me-2 size-4 animate-spin" />}
-                      إنشاء حساب مطوّر ودخول فوري
+                      {t("auth.devAccountBtn")}
                     </Button>
                   </div>
                 </div>
@@ -662,20 +663,23 @@ function AuthPage() {
                     className="text-xs font-semibold uppercase tracking-[0.2em]"
                     style={{ color: HBS.goldSoft }}
                   >
-                    Enterprise Security
+                    {t("auth.enterpriseSecurity")}
                   </div>
                 </div>
                 <div
                   className="mt-3 grid grid-cols-2 gap-2 text-[11px]"
                   style={{ color: HBS.gray }}
                 >
-                  {["Encrypted Login", "JWT Ready", "Two-Factor Auth", "SOC2 · ISO27001"].map(
-                    (s) => (
-                      <div key={s} className="flex items-center gap-1.5">
-                        <BadgeCheck className="size-3" style={{ color: HBS.blueSoft }} /> {s}
-                      </div>
-                    ),
-                  )}
+                  {[
+                    t("auth.encryptedLogin"),
+                    t("auth.jwtReady"),
+                    t("auth.twoFactorAuth"),
+                    t("auth.socCert"),
+                  ].map((s) => (
+                    <div key={s} className="flex items-center gap-1.5">
+                      <BadgeCheck className="size-3" style={{ color: HBS.blueSoft }} /> {s}
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -684,17 +688,19 @@ function AuthPage() {
                 className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-[10px] uppercase tracking-[0.2em]"
                 style={{ color: HBS.gray }}
               >
-                <FooterChip icon={Sparkles}>AI Powered</FooterChip>
-                <FooterChip icon={BadgeCheck}>Saudi Ready</FooterChip>
-                <FooterChip icon={Cloud}>Cloud</FooterChip>
-                <FooterChip icon={Headphones}>24/7</FooterChip>
-                <FooterChip icon={ShieldCheck}>Secure</FooterChip>
-                <FooterChip icon={Users}>Multi-Tenant</FooterChip>
+                <FooterChip icon={Sparkles}>{t("auth.aiPowered")}</FooterChip>
+                <FooterChip icon={BadgeCheck}>{t("auth.saudiReady")}</FooterChip>
+                <FooterChip icon={Cloud}>{t("auth.cloud")}</FooterChip>
+                <FooterChip icon={Headphones}>{t("auth.support247")}</FooterChip>
+                <FooterChip icon={ShieldCheck}>{t("auth.secure")}</FooterChip>
+                <FooterChip icon={Users}>{t("auth.multiTenant")}</FooterChip>
               </div>
 
               <p className="mt-5 text-center text-[11px]" style={{ color: HBS.gray }}>
-                © {new Date().getFullYear()} HBSpro — بالمتابعة أنت توافق على الشروط وسياسة
-                الخصوصية.
+                {t("auth.footerCopyright", {
+                  year: new Date().getFullYear(),
+                  legal: t("auth.footerLegal"),
+                })}
               </p>
             </motion.div>
           </motion.div>
