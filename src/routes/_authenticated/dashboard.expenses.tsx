@@ -61,7 +61,27 @@ import {
 } from "@/components/ui/table";
 
 import { sectionHead } from "@/lib/section-og-head";
+import { redirect } from "@tanstack/react-router";
+import { fallback, zodValidator } from "@tanstack/zod-adapter";
+import { z } from "zod";
+
+const expensesSearchSchema = z.object({
+  correct: fallback(z.string(), "").default(""),
+});
+
 export const Route = createFileRoute("/_authenticated/dashboard/expenses")({
+  validateSearch: zodValidator(expensesSearchSchema),
+  // When linked from a reminder with `?correct=<claim_id>`, forward to the
+  // correction wizard so the user lands on the prefilled claim form under
+  // /dashboard/expenses without a flash of the list page.
+  beforeLoad: ({ search }) => {
+    if (search.correct && /^[0-9a-f-]{36}$/i.test(search.correct)) {
+      throw redirect({
+        to: "/dashboard/expenses/claim/correct",
+        search: { original: search.correct },
+      });
+    }
+  },
   head: () => sectionHead({ section: "dashboard", entityAr: "المصروفات", entityEn: "Expenses", path: "/dashboard/expenses" }),
   component: ExpensesPage,
 });
