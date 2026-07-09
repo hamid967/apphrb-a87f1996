@@ -77,6 +77,7 @@ import { AutoDashboardPanel } from "@/components/dashboard/AutoDashboardPanel";
 import { QuickExpenseWidget } from "@/components/dashboard/QuickExpenseWidget";
 import { ServicesGrid } from "@/components/dashboard/ServicesGrid";
 import { PendingApprovalsPanel } from "@/components/dashboard/PendingApprovalsPanel";
+import { SmartRemindersPanel } from "@/components/dashboard/SmartRemindersPanel";
 import {
   SortableDashboard,
   type DashboardSection,
