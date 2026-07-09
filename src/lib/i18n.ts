@@ -1974,6 +1974,44 @@ const en = {
     commissions: "Commissions",
     deals: "Deals",
   },
+  tenantPortal: {
+    tabs: {
+      overview: "Overview",
+      payments: "Payments",
+      maintenance: "Maintenance",
+    },
+    payments: {
+      title: "My Payments",
+      subtitle: "All the receipts you've submitted and their review status.",
+      totalPaid: "Total paid",
+      pendingReview: "Pending review",
+      history: "Payment history",
+      empty: "No payments yet.",
+      cols: {
+        date: "Date",
+        contract: "Contract",
+        amount: "Amount",
+        reference: "Reference",
+        status: "Status",
+      },
+      status: {
+        verified: "Verified",
+        paid: "Paid",
+        pending: "Pending",
+        rejected: "Rejected",
+      },
+    },
+  },
+  accessDenied: {
+    metaTitle: "Access denied — Aqari",
+    metaDesc: "You don't have permission to view this resource.",
+    title: "Access denied",
+    body: "You don't have the permissions required to view this page. Contact your account admin if you think this is a mistake.",
+    retry: "Retry",
+    notFound: "Not found",
+    home: "Home",
+    goToPortal: "Go to portal",
+  },
 };
 
 const ar: typeof en = {
@@ -3922,6 +3960,44 @@ const ar: typeof en = {
     dealValue: "قيمة الصفقات",
     commissions: "العمولات",
     deals: "الصفقات",
+  },
+  tenantPortal: {
+    tabs: {
+      overview: "نظرة عامة",
+      payments: "المدفوعات",
+      maintenance: "الصيانة",
+    },
+    payments: {
+      title: "مدفوعاتي",
+      subtitle: "جميع الإيصالات التي أرسلتها وحالتها لدى الإدارة.",
+      totalPaid: "إجمالي مدفوع",
+      pendingReview: "قيد المراجعة",
+      history: "سجل المدفوعات",
+      empty: "لا توجد مدفوعات بعد.",
+      cols: {
+        date: "التاريخ",
+        contract: "العقد",
+        amount: "المبلغ",
+        reference: "المرجع",
+        status: "الحالة",
+      },
+      status: {
+        verified: "موثقة",
+        paid: "مدفوعة",
+        pending: "قيد المراجعة",
+        rejected: "مرفوضة",
+      },
+    },
+  },
+  accessDenied: {
+    metaTitle: "غير مصرح بالوصول — عقاري",
+    metaDesc: "ليست لديك صلاحية عرض هذا المورد.",
+    title: "غير مصرح لك بالوصول",
+    body: "ليست لديك الصلاحية المطلوبة لعرض هذه الصفحة. تواصل مع مدير الحساب إذا كنت تظن أنه خطأ.",
+    retry: "إعادة المحاولة",
+    notFound: "غير موجود",
+    home: "الرئيسية",
+    goToPortal: "الذهاب إلى البوابة",
   },
 };
 
