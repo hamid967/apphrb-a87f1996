@@ -122,9 +122,41 @@ function LeadsPage() {
   const move = useMutation({
     mutationFn: ({ id, stage }: { id: string; stage: Stage }) =>
       updateLead({ data: { id, stage } }),
-    onSuccess: invalidate,
-    onError: (e: any) => toast.error(e.message ?? "Failed"),
+    onMutate: async ({ id, stage }) => {
+      await qc.cancelQueries({ queryKey: ["leads", org?.id] });
+      const prev = qc.getQueryData<Lead[]>(["leads", org?.id]);
+      if (prev) {
+        qc.setQueryData<Lead[]>(
+          ["leads", org?.id],
+          prev.map((l) => (l.id === id ? { ...l, stage } : l)),
+        );
+      }
+      return { prev };
+    },
+    onError: (e: any, _v, ctx) => {
+      if (ctx?.prev) qc.setQueryData(["leads", org?.id], ctx.prev);
+      toast.error(e.message ?? "Failed");
+    },
+    onSettled: invalidate,
   });
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const activeLead = useMemo(
+    () => (leadsQ.data ?? []).find((l: Lead) => l.id === activeId) ?? null,
+    [activeId, leadsQ.data],
+  );
+  const onDragStart = (e: DragStartEvent) => setActiveId(String(e.active.id));
+  const onDragEnd = (e: DragEndEvent) => {
+    setActiveId(null);
+    const overId = e.over?.id ? String(e.over.id) : null;
+    const leadId = String(e.active.id);
+    if (!overId || !overId.startsWith("col:")) return;
+    const stage = overId.slice(4) as Stage;
+    const lead = (leadsQ.data ?? []).find((l: Lead) => l.id === leadId);
+    if (!lead || lead.stage === stage) return;
+    move.mutate({ id: leadId, stage });
+  };
 
   const del = useMutation({
     mutationFn: (id: string) => deleteLead({ data: { id } }),
