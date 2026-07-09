@@ -239,8 +239,58 @@ export function SmartRemindersPanel({
     out.sort(
       (a, b) => rank[a.tone] - rank[b.tone] || (a.timeAgoMs ?? 0) - (b.timeAgoMs ?? 0),
     );
-    return out.slice(0, 6);
+    return out;
   }, [claimsQ.data]);
+
+  const [readIds, setReadIds] = useState<Set<string>>(() => new Set());
+  // Load persisted read state client-side (avoids SSR hydration mismatch).
+  useEffect(() => {
+    setReadIds(loadReadIds(orgId));
+  }, [orgId]);
+
+  // Prune read IDs that no longer correspond to any current reminder so
+  // storage stays small over time.
+  useEffect(() => {
+    if (!allReminders.length || readIds.size === 0) return;
+    const live = new Set(allReminders.map((r) => r.id));
+    let changed = false;
+    const next = new Set<string>();
+    readIds.forEach((id) => {
+      if (live.has(id)) next.add(id);
+      else changed = true;
+    });
+    if (changed) {
+      setReadIds(next);
+      saveReadIds(orgId, next);
+    }
+  }, [allReminders, readIds, orgId]);
+
+  const markRead = useCallback(
+    (id: string) => {
+      setReadIds((prev) => {
+        if (prev.has(id)) return prev;
+        const next = new Set(prev);
+        next.add(id);
+        saveReadIds(orgId, next);
+        return next;
+      });
+    },
+    [orgId],
+  );
+
+  const markAllRead = useCallback(() => {
+    setReadIds((prev) => {
+      const next = new Set(prev);
+      allReminders.forEach((r) => next.add(r.id));
+      saveReadIds(orgId, next);
+      return next;
+    });
+  }, [allReminders, orgId]);
+
+  const visibleReminders = useMemo(
+    () => allReminders.filter((r) => !readIds.has(r.id)).slice(0, 6),
+    [allReminders, readIds],
+  );
 
   const Chevron = isAr ? ChevronLeft : ChevronRight;
 
@@ -265,12 +315,25 @@ export function SmartRemindersPanel({
             </p>
           </div>
         </div>
-        {reminders.length > 0 && (
-          <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
-            <Sparkles className="size-3" />
-            {reminders.length}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {visibleReminders.length > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+              <Sparkles className="size-3" />
+              {visibleReminders.length}
+            </span>
+          )}
+          {visibleReminders.length > 1 && (
+            <button
+              type="button"
+              onClick={markAllRead}
+              className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-background/60 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              title={isAr ? "تمييز الكل كمقروء" : "Mark all as read"}
+            >
+              <CheckCheck className="size-3" />
+              {isAr ? "تمييز الكل" : "Mark all"}
+            </button>
+          )}
+        </div>
       </header>
 
       {claimsQ.isLoading ? (
@@ -279,7 +342,7 @@ export function SmartRemindersPanel({
             <div key={i} className="h-14 animate-pulse rounded-xl bg-muted/40" />
           ))}
         </div>
-      ) : reminders.length === 0 ? (
+      ) : visibleReminders.length === 0 ? (
         <div className="grid place-items-center rounded-xl border border-dashed py-8 text-center">
           <CheckCircle2 className="size-6 text-emerald-500" />
           <p className="mt-2 text-sm font-semibold">
@@ -291,66 +354,85 @@ export function SmartRemindersPanel({
         </div>
       ) : (
         <ul className="space-y-2">
-          {reminders.map((r, idx) => {
-            const s = toneStyles[r.tone];
-            const Icon = r.icon;
-            const time = relativeTime(r.timeAgoMs, isAr);
-            const inner = (
-              <motion.div
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.04, duration: 0.25, ease: "easeOut" }}
-                className={`group relative flex items-start gap-3 rounded-xl border ${s.border} ${s.bg} p-3 transition hover:shadow-sm`}
-              >
-                <span
-                  aria-hidden
-                  className={`absolute top-3 ${isAr ? "left-3" : "right-3"} size-2 rounded-full ${s.dot}`}
-                />
-                <span
-                  className={`grid size-9 shrink-0 place-items-center rounded-lg bg-background/70 ring-1 ring-inset ring-border ${s.icon}`}
+          <AnimatePresence initial={false}>
+            {visibleReminders.map((r, idx) => {
+              const s = toneStyles[r.tone];
+              const Icon = r.icon;
+              const time = relativeTime(r.timeAgoMs, isAr);
+              const body = (
+                <div
+                  className={`group relative flex items-start gap-3 rounded-xl border ${s.border} ${s.bg} p-3 transition hover:shadow-sm`}
                 >
-                  <Icon className="size-4" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <p className="text-sm font-semibold leading-tight">
-                      {isAr ? r.titleAr : r.titleEn}
+                  <span
+                    aria-hidden
+                    className={`absolute top-3 ${isAr ? "left-9" : "right-9"} size-2 rounded-full ${s.dot}`}
+                  />
+                  <span
+                    className={`grid size-9 shrink-0 place-items-center rounded-lg bg-background/70 ring-1 ring-inset ring-border ${s.icon}`}
+                  >
+                    <Icon className="size-4" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pe-6">
+                      <p className="text-sm font-semibold leading-tight">
+                        {isAr ? r.titleAr : r.titleEn}
+                      </p>
+                      <span
+                        className={`inline-flex items-center rounded-full border ${s.border} ${s.bg} ${s.icon} px-1.5 py-0.5 text-[10px] font-bold`}
+                      >
+                        {isAr ? s.label.ar : s.label.en}
+                      </span>
+                      {time && (
+                        <span className="text-[11px] text-muted-foreground">· {time}</span>
+                      )}
+                    </div>
+                    <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+                      {isAr ? r.bodyAr : r.bodyEn}
                     </p>
-                    <span
-                      className={`inline-flex items-center rounded-full border ${s.border} ${s.bg} ${s.icon} px-1.5 py-0.5 text-[10px] font-bold`}
-                    >
-                      {isAr ? s.label.ar : s.label.en}
-                    </span>
-                    {time && (
-                      <span className="text-[11px] text-muted-foreground">· {time}</span>
+                    {r.href && (
+                      <div
+                        className={`mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold ${s.icon} opacity-90 group-hover:opacity-100`}
+                      >
+                        {isAr ? r.ctaAr : r.ctaEn}
+                        <Chevron className="size-3.5" />
+                      </div>
                     )}
                   </div>
-                  <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
-                    {isAr ? r.bodyAr : r.bodyEn}
-                  </p>
-                  {r.href && (
-                    <div
-                      className={`mt-1.5 inline-flex items-center gap-1 text-[11px] font-semibold ${s.icon} opacity-90 group-hover:opacity-100`}
-                    >
-                      {isAr ? r.ctaAr : r.ctaEn}
-                      <Chevron className="size-3.5" />
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      markRead(r.id);
+                    }}
+                    aria-label={isAr ? "تمييز كمقروء" : "Mark as read"}
+                    title={isAr ? "تمييز كمقروء" : "Mark as read"}
+                    className={`absolute top-2 ${isAr ? "left-2" : "right-2"} grid size-6 place-items-center rounded-md border border-transparent bg-background/60 text-muted-foreground opacity-0 transition hover:border-border hover:bg-background hover:text-foreground focus:opacity-100 group-hover:opacity-100`}
+                  >
+                    <Check className="size-3.5" />
+                  </button>
                 </div>
-              </motion.div>
-            );
-            return (
-              <li key={r.id}>
-                {r.href ? (
-                  <Link to={r.href} className="block">
-                    {inner}
-                  </Link>
-                ) : (
-                  inner
-                )}
-              </li>
-            );
-          })}
+              );
+              return (
+                <motion.li
+                  key={r.id}
+                  layout
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: isAr ? -24 : 24, height: 0, marginTop: 0 }}
+                  transition={{ delay: idx * 0.03, duration: 0.22, ease: "easeOut" }}
+                >
+                  {r.href ? (
+                    <Link to={r.href} className="block">
+                      {body}
+                    </Link>
+                  ) : (
+                    body
+                  )}
+                </motion.li>
+              );
+            })}
+          </AnimatePresence>
         </ul>
       )}
     </section>
