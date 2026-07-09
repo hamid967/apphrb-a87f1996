@@ -115,7 +115,8 @@ export const listOwnerPayments = createServerFn({ method: "GET" })
         .select(
           "id, amount, currency_code, paid_at, status, reference, contract_id, tenant_id, tenants(full_name), contracts(contract_number)",
         )
-        .eq("id", "00000000-0000-0000-0000-000000000000");
+        .eq("id", "00000000-0000-0000-0000-000000000000")
+        .is("deleted_at", null);
       return data ?? [];
     }
 
@@ -131,7 +132,8 @@ export const listOwnerPayments = createServerFn({ method: "GET" })
         .select(
           "id, amount, currency_code, paid_at, status, reference, contract_id, tenant_id, tenants(full_name), contracts(contract_number)",
         )
-        .eq("id", "00000000-0000-0000-0000-000000000000");
+        .eq("id", "00000000-0000-0000-0000-000000000000")
+        .is("deleted_at", null);
       return data ?? [];
     }
 
@@ -183,6 +185,7 @@ export const reviewSubmittedPayment = createServerFn({ method: "POST" })
       .from("payments")
       .select("id, org_id, contract_id, tenant_id, amount, paid_at, status")
       .eq("id", data.payment_id)
+      .is("deleted_at", null)
       .maybeSingle();
     if (pErr) throw pErr;
     if (!payment) throw new Error("الدفعة غير موجودة");
