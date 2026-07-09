@@ -15,7 +15,9 @@ export const Route = createFileRoute("/api/public/hooks/run-scheduled-scripts")(
 
         const { data: due, error } = await supabaseAdmin
           .from("scripts_schedules")
-          .select("id, org_id, name, args, interval_minutes")
+          .select(
+            "id, org_id, name, args, interval_minutes, max_retries, retry_delay_minutes, current_retry, run_count",
+          )
           .eq("enabled", true)
           .lte("next_run_at", nowIso)
           .order("next_run_at", { ascending: true })
@@ -25,20 +27,18 @@ export const Route = createFileRoute("/api/public/hooks/run-scheduled-scripts")(
         }
 
         const summary: any[] = [];
-        for (const s of due ?? []) {
+        for (const s of (due as any[]) ?? []) {
           const started = Date.now();
           const startedIso = new Date(started).toISOString();
           const impl = (TOOLS as any)[s.name];
+          const attempt = (s.current_retry ?? 0) + 1;
           let status = "success";
           let result: any = null;
           let errText: string | null = null;
           try {
             if (!impl) throw new Error(`unknown tool: ${s.name}`);
             if (SENSITIVE_TOOLS.has(s.name)) {
-              // sensitive tools were originally gated by elevated role;
-              // schedules were created by an authenticated org member so
-              // we log but still run — RLS is bypassed by service_role,
-              // however we still scope by org_id in the tool queries.
+              // sensitive tools run via service_role but tool queries still scope by org_id
             }
             result = await impl(
               { supabase: supabaseAdmin as any, orgId: s.org_id },
@@ -56,11 +56,19 @@ export const Route = createFileRoute("/api/public/hooks/run-scheduled-scripts")(
             started_at: startedIso,
             duration_ms: durationMs,
             status,
+            attempt,
             result: status === "success" ? (result as any) : null,
             error: errText,
           });
 
-          const next = new Date(Date.now() + s.interval_minutes * 60_000).toISOString();
+          // Retry vs. reschedule decision
+          const maxRetries = s.max_retries ?? 0;
+          const retryDelay = s.retry_delay_minutes ?? 5;
+          const willRetry = status === "error" && attempt <= maxRetries;
+          const nextMinutes = willRetry ? retryDelay : s.interval_minutes;
+          const next = new Date(Date.now() + nextMinutes * 60_000).toISOString();
+          const nextRetry = willRetry ? attempt : 0; // reset counter after success or exhaustion
+
           await supabaseAdmin
             .from("scripts_schedules")
             .update({
@@ -69,11 +77,19 @@ export const Route = createFileRoute("/api/public/hooks/run-scheduled-scripts")(
               last_error: errText,
               last_duration_ms: durationMs,
               next_run_at: next,
-              run_count: ((s as any).run_count ?? 0) + 1,
+              current_retry: nextRetry,
+              run_count: (s.run_count ?? 0) + 1,
             })
             .eq("id", s.id);
 
-          summary.push({ id: s.id, name: s.name, status, durationMs });
+          summary.push({
+            id: s.id,
+            name: s.name,
+            status,
+            attempt,
+            willRetry,
+            durationMs,
+          });
         }
 
         return Response.json({ ok: true, processed: summary.length, runs: summary });
