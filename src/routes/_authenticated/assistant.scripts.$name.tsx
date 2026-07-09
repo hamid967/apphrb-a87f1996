@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { runDashboardTool } from "@/lib/ai-assistant.functions";
+import { recordRun } from "@/lib/scripts-history";
 import { sectionHead } from "@/lib/section-og-head";
 import {
   ArrowLeft,
@@ -149,8 +150,29 @@ function ScriptDetailPage() {
         args[k] = Number.isFinite(asNum as number) && String(asNum) === String(v) ? asNum : v;
       }
       startedAtRef.current = performance.now();
-      const res = await runFn({ data: { name: name as any, args } });
-      return res.result;
+      const startedAtMs = Date.now();
+      try {
+        const res = await runFn({ data: { name: name as any, args } });
+        recordRun({
+          name,
+          args: args as Record<string, string | number>,
+          startedAt: startedAtMs,
+          durationMs: Math.round(performance.now() - startedAtRef.current),
+          status: "success",
+          result: res.result,
+        });
+        return res.result;
+      } catch (e: any) {
+        recordRun({
+          name,
+          args: args as Record<string, string | number>,
+          startedAt: startedAtMs,
+          durationMs: Math.round(performance.now() - startedAtRef.current),
+          status: "error",
+          errorMessage: e?.message ?? String(e),
+        });
+        throw e;
+      }
     },
     onSuccess: () => {
       const dur = Math.round(performance.now() - startedAtRef.current);

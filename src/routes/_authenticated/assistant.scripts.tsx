@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { runDashboardTool } from "@/lib/ai-assistant.functions";
-import { Loader2, Play, Terminal, ChevronDown, ExternalLink } from "lucide-react";
+import { recordRun } from "@/lib/scripts-history";
+import { Loader2, Play, Terminal, ChevronDown, ExternalLink, History } from "lucide-react";
 import { toast } from "sonner";
 
 import { sectionHead } from "@/lib/section-og-head";
@@ -149,20 +150,38 @@ function ScriptCard({
     setRunning(true);
     setError(null);
     setResult(null);
+    const args: Record<string, unknown> = {};
+    for (const f of script.fields) {
+      const v = values[f.name]?.trim();
+      if (!v) continue;
+      args[f.name] = f.type === "number" ? Number(v) : v;
+    }
+    const startedAt = Date.now();
+    const perfStart = performance.now();
     try {
-      const args: Record<string, unknown> = {};
-      for (const f of script.fields) {
-        const v = values[f.name]?.trim();
-        if (!v) continue;
-        args[f.name] = f.type === "number" ? Number(v) : v;
-      }
       const res = await onRun(script.name, args);
       setResult(res);
       setOpen(true);
+      recordRun({
+        name: script.name,
+        args: args as Record<string, string | number>,
+        startedAt,
+        durationMs: Math.round(performance.now() - perfStart),
+        status: "success",
+        result: res,
+      });
       toast.success(t("assistant.scripts.ran", { title }));
     } catch (e: any) {
       const msg = e?.message ?? t("assistant.scripts.runFailed");
       setError(msg);
+      recordRun({
+        name: script.name,
+        args: args as Record<string, string | number>,
+        startedAt,
+        durationMs: Math.round(performance.now() - perfStart),
+        status: "error",
+        errorMessage: msg,
+      });
       toast.error(msg);
     } finally {
       setRunning(false);
@@ -340,9 +359,18 @@ function AssistantScriptsPage() {
 
   return (
     <div className="mx-auto max-w-5xl p-4 md:p-6 space-y-6" dir={isRtl ? "rtl" : "ltr"}>
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold">{t("assistant.scripts.title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("assistant.scripts.subtitle")}</p>
+      <header className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold">{t("assistant.scripts.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("assistant.scripts.subtitle")}</p>
+        </div>
+        <Link
+          to="/assistant/scripts/history"
+          className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted"
+        >
+          <History className="size-4" />
+          {t("assistant.scripts.history")}
+        </Link>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
