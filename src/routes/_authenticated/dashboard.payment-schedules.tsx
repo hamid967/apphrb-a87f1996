@@ -141,25 +141,92 @@ function PaymentSchedulesPage() {
     return { due, paid, overdue };
   }, [rows]);
 
-  const exportCsv = () => {
+  const csvCell = (v: unknown): string => {
+    if (v === null || v === undefined) return "";
+    const s = String(v);
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+
+  const exportCsv = async () => {
+    if (rows.length === 0) {
+      toast.info(isAr ? "لا توجد بيانات للتصدير" : "Nothing to export");
+      return;
+    }
+    // Batch-fetch linked vouchers (payments) and commissions to enrich the
+    // CSV. RLS on the browser client scopes results to the caller's orgs.
+    const voucherIds = Array.from(
+      new Set(rows.map((r) => r.voucher_id).filter((v): v is string => !!v)),
+    );
+    const commissionIds = Array.from(
+      new Set(rows.map((r) => r.commission_id).filter((v): v is string => !!v)),
+    );
+
+    const [vRes, cRes] = await Promise.all([
+      voucherIds.length
+        ? supabase
+            .from("payments")
+            .select("id, reference, status, paid_at, amount, currency_code")
+            .in("id", voucherIds)
+        : Promise.resolve({ data: [] as never[], error: null }),
+      commissionIds.length
+        ? supabase
+            .from("commissions")
+            .select("id, deal_id, agent_id, percent, amount, status, paid_at, currency")
+            .in("id", commissionIds)
+        : Promise.resolve({ data: [] as never[], error: null }),
+    ]);
+
+    if (vRes.error) toast.warning(vRes.error.message);
+    if (cRes.error) toast.warning(cRes.error.message);
+
+    const vMap = new Map<string, any>((vRes.data ?? []).map((v: any) => [v.id, v]));
+    const cMap = new Map<string, any>((cRes.data ?? []).map((c: any) => [c.id, c]));
+
     const headers = [
-      "installment_no", "due_date", "amount", "vat_amount", "total_amount",
-      "status", "source_type", "notes",
+      "installment_no", "due_date", "source_type",
+      "amount", "vat_amount", "total_amount", "status", "notes",
+      "contract_id", "deal_id", "commission_id",
+      "voucher_id", "voucher_reference", "voucher_status",
+      "voucher_paid_at", "voucher_amount", "voucher_currency",
+      "invoice_id",
+      "commission_percent", "commission_amount",
+      "commission_status", "commission_paid_at", "commission_currency",
+      "commission_agent_id",
     ];
     const lines = [headers.join(",")];
     for (const r of rows) {
+      const v = r.voucher_id ? vMap.get(r.voucher_id) : null;
+      const c = r.commission_id ? cMap.get(r.commission_id) : null;
       lines.push([
-        r.installment_no, r.due_date, r.amount, r.vat_amount, r.total_amount,
-        r.status, r.source_type, JSON.stringify(r.notes ?? ""),
-      ].join(","));
+        r.installment_no, r.due_date, r.source_type,
+        r.amount, r.vat_amount, r.total_amount, r.status, r.notes,
+        r.contract_id, r.deal_id, r.commission_id,
+        r.voucher_id, v?.reference, v?.status,
+        v?.paid_at, v?.amount, v?.currency_code,
+        r.invoice_id,
+        c?.percent, c?.amount,
+        c?.status, c?.paid_at, c?.currency,
+        c?.agent_id,
+      ].map(csvCell).join(","));
     }
-    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+
+    // BOM so Excel opens Arabic notes/references in UTF-8 correctly.
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], {
+      type: "text/csv;charset=utf-8",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `payment-schedules-${new Date().toISOString().slice(0,10)}.csv`;
+    const scope = [
+      source !== "all" ? source : null,
+      status !== "all" ? status : null,
+    ].filter(Boolean).join("-");
+    a.download = `payment-schedules${scope ? `-${scope}` : ""}-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+    toast.success(
+      isAr ? `تم تصدير ${rows.length} صفاً` : `Exported ${rows.length} rows`,
+    );
   };
 
   return (
