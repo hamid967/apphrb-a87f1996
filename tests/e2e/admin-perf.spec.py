@@ -37,16 +37,27 @@ STORAGE_STATE_FILE = Path(__file__).resolve().parent.parent / ".auth" / "admin.s
 SESSION_FILE = Path(__file__).resolve().parent.parent / ".auth" / "admin.session.json"
 COOKIES_FILE = Path(__file__).resolve().parent.parent / ".auth" / "admin.cookies.json"
 
-# Per-path budgets in milliseconds for "time until key selector is visible".
-# Dev-server + first-hit compile is slow; keep budgets generous but low enough
-# to catch real regressions (e.g. a synchronous 2 MB import).
-BUDGETS_MS: dict[str, int] = {
-    "/admin/route-map": 8000,
-    "/security/sessions": 8000,
+# Viewport presets that mirror the device switcher in the editor preview.
+# Widths/heights match Chrome DevTools' defaults so results stay comparable
+# with what a developer sees when they toggle the preview manually.
+VIEWPORTS: dict[str, dict[str, int]] = {
+    "mobile":  {"width": 390,  "height": 844},   # iPhone 14 class
+    "tablet":  {"width": 820,  "height": 1180},  # iPad Air class
+    "desktop": {"width": 1280, "height": 1800},
 }
 
-# How many times to load each path. First hit warms Vite; we report the
-# median of the remaining runs.
+# Per-(path, viewport) budgets in milliseconds for "time until key selector
+# is visible". Smaller screens usually cost more due to layout/reflow, so
+# their budgets are looser. Dev-server + first-hit compile is slow; tune
+# these when a page grows legitimately and treat unexpected jumps as
+# regressions.
+BUDGETS_MS: dict[str, dict[str, int]] = {
+    "/admin/route-map":   {"desktop": 8000, "tablet": 9000, "mobile": 10000},
+    "/security/sessions": {"desktop": 8000, "tablet": 9000, "mobile": 10000},
+}
+
+# How many times to load each (path, viewport). First hit warms Vite; we
+# report the median of the remaining runs.
 RUNS_PER_PATH = 3
 
 # Key selectors that signal each page is usable.
@@ -54,6 +65,7 @@ READY_SELECTORS: dict[str, str] = {
     "/admin/route-map": "table tbody tr",
     "/security/sessions": "h1, h2",
 }
+
 
 
 def resolve_auth_source() -> str:
