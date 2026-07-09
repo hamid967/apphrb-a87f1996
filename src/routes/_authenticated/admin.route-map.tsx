@@ -74,6 +74,61 @@ function classify(path: string): Scope {
   return "public";
 }
 
+function categorize(path: string, scope: Scope): Category {
+  if (scope === "api") return "api";
+  const seg = path.split("/").filter(Boolean);
+  const head = seg[0] ?? "";
+  if (head === "admin") return "admin";
+  if (head === "assistant") return "assistant";
+  if (head === "accounting") return "accounting";
+  if (head === "onboarding") return "onboarding";
+  if (["auth", "forgot-password", "reset-password", "invite", "portal-invite", "unsubscribe", "access-denied"].includes(head)) return "auth";
+  // Reports: anything explicitly under a reports/ segment or ending with -report(s)
+  if (seg.includes("reports") || /reports?$/.test(path) || /report$/.test(seg[seg.length - 1] ?? "")) return "reports";
+  if (scope === "authenticated") return "employee";
+  return "public";
+}
+
+function roleFor(path: string, category: Category, scope: Scope): Role {
+  if (scope === "api") return "server";
+  if (scope === "public") return "guest";
+  if (category === "admin") return "super_admin";
+  // Heuristics: settings / roles / billing require manager-level company admin.
+  const seg = path.split("/").filter(Boolean);
+  if (
+    seg.includes("settings") ||
+    seg.includes("roles") ||
+    seg.includes("billing") ||
+    seg.includes("subscription") ||
+    seg.includes("subscriptions") ||
+    seg.includes("plans") ||
+    seg.includes("company")
+  ) return "manager";
+  if (category === "reports" || category === "accounting") return "manager";
+  return "staff";
+}
+
+const CATEGORY_META: Record<Category, { ar: string; en: string; tone: string }> = {
+  admin:       { ar: "إدارة النظام", en: "Admin",       tone: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
+  employee:    { ar: "الموظفون",     en: "Employee",    tone: "bg-sky-500/15 text-sky-300 border-sky-500/30" },
+  reports:     { ar: "التقارير",     en: "Reports",     tone: "bg-teal-500/15 text-teal-300 border-teal-500/30" },
+  accounting:  { ar: "المحاسبة",     en: "Accounting",  tone: "bg-cyan-500/15 text-cyan-300 border-cyan-500/30" },
+  assistant:   { ar: "المساعد",      en: "Assistant",   tone: "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30" },
+  onboarding:  { ar: "تهيئة الحساب", en: "Onboarding",  tone: "bg-lime-500/15 text-lime-300 border-lime-500/30" },
+  auth:        { ar: "المصادقة",     en: "Auth",        tone: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
+  public:      { ar: "عام / تسويق",  en: "Public",      tone: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
+  api:         { ar: "خادم / API",   en: "API",         tone: "bg-violet-500/15 text-violet-300 border-violet-500/30" },
+};
+
+const ROLE_META: Record<Role, { ar: string; en: string }> = {
+  guest:              { ar: "زائر (بدون تسجيل)",         en: "Guest (no login)" },
+  any_authenticated:  { ar: "أي مستخدم مسجَّل",           en: "Any signed-in user" },
+  staff:              { ar: "موظف الشركة",                en: "Company staff" },
+  manager:            { ar: "مدير الشركة",                en: "Company manager" },
+  super_admin:        { ar: "سوبر أدمن + 2FA",            en: "super_admin + 2FA" },
+  server:             { ar: "خادم / نظام",                en: "Server / system" },
+};
+
 /** Top-level section descriptions used when a specific path isn't in PATH_META. */
 const SECTION_META: Record<
   string,
