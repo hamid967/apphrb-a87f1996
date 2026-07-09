@@ -472,15 +472,15 @@ body::-webkit-scrollbar,
   --card-foreground: oklch(0.96 0.008 250);
   --popover: oklch(0.22 0.06 265 / 96%);
   --popover-foreground: oklch(0.96 0.008 250);
-  --primary: oklch(0.62 0.13 250);              /* #3b6fa0 signal blue */
-  --primary-foreground: oklch(0.98 0.005 250);
+  --primary: oklch(0.74 0.14 250);              /* lightened signal blue → 4.5:1 text on primary + 3:1 UI */
+  --primary-foreground: oklch(0.16 0.04 265);   /* deep navy text on light blue button */
   --secondary: oklch(0.44 0.09 260);            /* deep navy accent */
   --secondary-foreground: oklch(0.96 0.008 250);
   --muted: oklch(1 0 0 / 5%);
   --muted-foreground: oklch(0.78 0.02 250);
-  --accent: oklch(0.62 0.13 250);
-  --accent-foreground: oklch(0.98 0.005 250);
-  --border: oklch(0.96 0.008 250 / 14%);
+  --accent: oklch(0.74 0.14 250);
+  --accent-foreground: oklch(0.16 0.04 265);
+  --border: oklch(0.96 0.008 250 / 40%);        /* WCAG 1.4.11 — 3.5:1 vs bg */
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.62 0.13 250);
   --paper: oklch(1 0 0 / 5%);
@@ -643,8 +643,8 @@ body::-webkit-scrollbar,
   --card: oklch(1 0 0 / 96%);
   --card-foreground: oklch(0.19 0.06 265);
   --muted-foreground: oklch(0.42 0.03 260);
-  --border: oklch(0.19 0.06 265 / 12%);
-  --input: oklch(0.19 0.06 265 / 10%);
+  --border: oklch(0.19 0.06 265 / 50%);         /* WCAG 1.4.11 — 3.5:1 vs bg */
+  --input: oklch(0.19 0.06 265 / 50%);          /* form control border ≥3:1 */
   --primary: oklch(0.44 0.09 260);              /* darker navy for AA on white */
   --primary-foreground: oklch(0.98 0.005 250);
   --ring: oklch(0.44 0.09 260);
