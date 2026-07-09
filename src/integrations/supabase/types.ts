@@ -4930,6 +4930,7 @@ export type Database = {
       }
       scripts_schedule_runs: {
         Row: {
+          attempt: number
           duration_ms: number | null
           error: string | null
           id: string
@@ -4940,6 +4941,7 @@ export type Database = {
           status: string
         }
         Insert: {
+          attempt?: number
           duration_ms?: number | null
           error?: string | null
           id?: string
@@ -4950,6 +4952,7 @@ export type Database = {
           status: string
         }
         Update: {
+          attempt?: number
           duration_ms?: number | null
           error?: string | null
           id?: string
@@ -4974,6 +4977,7 @@ export type Database = {
           args: Json
           created_at: string
           created_by: string
+          current_retry: number
           enabled: boolean
           id: string
           interval_minutes: number
@@ -4982,9 +4986,11 @@ export type Database = {
           last_error: string | null
           last_run_at: string | null
           last_status: string | null
+          max_retries: number
           name: string
           next_run_at: string
           org_id: string
+          retry_delay_minutes: number
           run_count: number
           updated_at: string
         }
@@ -4992,6 +4998,7 @@ export type Database = {
           args?: Json
           created_at?: string
           created_by: string
+          current_retry?: number
           enabled?: boolean
           id?: string
           interval_minutes: number
@@ -5000,9 +5007,11 @@ export type Database = {
           last_error?: string | null
           last_run_at?: string | null
           last_status?: string | null
+          max_retries?: number
           name: string
           next_run_at?: string
           org_id: string
+          retry_delay_minutes?: number
           run_count?: number
           updated_at?: string
         }
@@ -5010,6 +5019,7 @@ export type Database = {
           args?: Json
           created_at?: string
           created_by?: string
+          current_retry?: number
           enabled?: boolean
           id?: string
           interval_minutes?: number
@@ -5018,9 +5028,11 @@ export type Database = {
           last_error?: string | null
           last_run_at?: string | null
           last_status?: string | null
+          max_retries?: number
           name?: string
           next_run_at?: string
           org_id?: string
+          retry_delay_minutes?: number
           run_count?: number
           updated_at?: string
         }
