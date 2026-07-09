@@ -380,8 +380,9 @@ export function SmartRemindersPanel({
             {
               labelAr: "تصحيح وإعادة إرسال",
               labelEn: "Correct & resubmit",
-              href: "/dashboard/expenses",
+              href: "/dashboard/expenses/claim/correct",
               primary: true,
+              correctOriginalId: c.id,
             },
             viewAction,
           ],
