@@ -20,7 +20,12 @@ import {
   Settings2,
   Undo2,
 } from "lucide-react";
-import { listMyRecentClaims } from "@/lib/expense-claims.functions";
+import {
+  listMyRecentClaims,
+  createReceiptUploadUrl,
+  attachReceiptToClaim,
+} from "@/lib/expense-claims.functions";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
