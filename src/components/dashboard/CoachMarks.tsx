@@ -307,6 +307,13 @@ export function CoachMarks() {
       } catch {
         /* ignore */
       }
+      // Mirror completion to the user's profile so the "done" state follows
+      // them across devices. Fire-and-forget — never block the UI.
+      void markStep({ data: { step: `__coach_${tour.id}`, done: true } }).catch(
+        () => {
+          /* ignore — local flag is enough */
+        },
+      );
     }
     stripCoachParam();
   }
