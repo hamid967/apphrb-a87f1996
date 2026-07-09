@@ -11,11 +11,15 @@ import { AnimatePresence, motion } from "motion/react";
  */
 export function OfflineIndicator() {
   const qc = useQueryClient();
-  const [online, setOnline] = useState(() =>
-    typeof navigator === "undefined" ? true : navigator.onLine,
-  );
+  // Always start as "online" so SSR and the initial client render agree.
+  // Real status is read from navigator.onLine after hydration in useEffect.
+  const [online, setOnline] = useState(true);
 
   useEffect(() => {
+    // Sync initial state on the client after hydration.
+    if (typeof navigator !== "undefined" && typeof navigator.onLine === "boolean") {
+      setOnline(navigator.onLine);
+    }
     const handleOnline = () => {
       setOnline(true);
       onlineManager.setOnline(true);

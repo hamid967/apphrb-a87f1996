@@ -4510,19 +4510,24 @@ if (!i18n.isInitialized) {
 export const LANG_STORAGE_KEY = "aqary-lang";
 
 /**
- * Load the persisted language on the client only. Called from a useEffect in
- * __root.tsx so it runs AFTER hydration — SSR and the initial client render
- * both use the i18n init default ("ar"). Any switch to a persisted language
- * happens after commit, so React never sees a hydration mismatch.
- * Persist changes on languageChanged.
+ * Load the persisted language on the client only. SSR and the initial client
+ * render both use the i18n init default ("ar" — the site's default locale),
+ * so browser locale is NEVER auto-detected: doing so would flip the language
+ * mid-hydration when lazy route chunks hydrate after RootComponent commits,
+ * causing a "server text didn't match client" error.
+ *
+ * Called from a useEffect in __root.tsx so it runs AFTER hydration. A change
+ * only happens if the user previously chose a non-default language via
+ * LanguageSwitcher (persisted in localStorage). Persist changes on
+ * languageChanged.
  */
 export function hydrateClientLanguage() {
   if (typeof window === "undefined") return;
   try {
     const saved = window.localStorage.getItem(LANG_STORAGE_KEY);
-    const nav = window.navigator?.language?.slice(0, 2);
-    const target = saved || (nav === "en" ? "en" : "ar");
-    if (target && target !== i18n.language) void i18n.changeLanguage(target);
+    if (!saved || saved === i18n.language) return;
+    if (saved !== "ar" && saved !== "en") return;
+    void i18n.changeLanguage(saved);
   } catch {
     /* ignore */
   }
