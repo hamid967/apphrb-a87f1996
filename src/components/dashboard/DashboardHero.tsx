@@ -115,7 +115,7 @@ export function DashboardHero({ orgName, userName, canCreate, isAr }: Props) {
           >
             <Link
               to="/dashboard/expenses/batches"
-              search={{ compose: 1 }}
+              hash="new"
               aria-label={isAr ? "بدء تقرير مصروفات جماعي" : "Start a batch expense report"}
             >
               <Layers className="size-4" aria-hidden />
