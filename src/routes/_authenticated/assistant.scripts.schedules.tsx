@@ -90,7 +90,11 @@ type Row = {
   last_error: string | null;
   last_duration_ms: number | null;
   run_count: number;
+  max_retries: number;
+  retry_delay_minutes: number;
+  current_retry: number;
 };
+
 
 function SchedulesPage() {
   const { t, i18n } = useTranslation();
@@ -165,8 +169,11 @@ function SchedulesPage() {
               label: "",
               interval_minutes: 60 * 24,
               enabled: true,
+              max_retries: 0,
+              retry_delay_minutes: 5,
             })
           }
+
           className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
         >
           <Plus className="size-4" />
@@ -246,8 +253,14 @@ function SchedulesPage() {
                               title={r.last_error ?? ""}
                             >
                               <AlertTriangle className="size-3" /> error
+                              {r.current_retry > 0 && (
+                                <span className="text-muted-foreground">
+                                  · {t("assistant.scripts.scheduleAttempt")} {r.current_retry}/{r.max_retries}
+                                </span>
+                              )}
                             </span>
                           ) : null}
+
                         </div>
                       ) : (
                         <span className="text-muted-foreground">{t("assistant.scripts.never")}</span>
@@ -292,8 +305,11 @@ function SchedulesPage() {
                               label: r.label ?? "",
                               interval_minutes: r.interval_minutes,
                               enabled: r.enabled,
+                              max_retries: r.max_retries ?? 0,
+                              retry_delay_minutes: r.retry_delay_minutes ?? 5,
                             })
                           }
+
                           className="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-xs hover:bg-muted"
                         >
                           <Pencil className="size-3" />
@@ -348,9 +364,12 @@ function ScheduleEditor({
   const [label, setLabel] = useState(initial.label ?? "");
   const [interval, setInterval] = useState<number>(initial.interval_minutes ?? 60 * 24);
   const [enabled, setEnabled] = useState<boolean>(initial.enabled ?? true);
+  const [maxRetries, setMaxRetries] = useState<number>(initial.max_retries ?? 0);
+  const [retryDelay, setRetryDelay] = useState<number>(initial.retry_delay_minutes ?? 5);
   const [argsText, setArgsText] = useState<string>(
     JSON.stringify(initial.args ?? {}, null, 2),
   );
+
 
   const parsedArgs = useMemo(() => {
     try {
@@ -458,6 +477,40 @@ function ScheduleEditor({
             <span className="text-xs text-destructive">{parsedArgs.err}</span>
           )}
         </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-muted-foreground">{t("assistant.scripts.scheduleMaxRetries")}</span>
+          <input
+            type="number"
+            min={0}
+            max={10}
+            step={1}
+            value={maxRetries}
+            onChange={(e) => {
+              const n = Number(e.target.value);
+              if (Number.isFinite(n)) setMaxRetries(Math.min(10, Math.max(0, Math.round(n))));
+            }}
+            className="rounded-md border bg-background px-3 py-1.5 font-mono"
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-muted-foreground">{t("assistant.scripts.scheduleRetryDelay")}</span>
+          <input
+            type="number"
+            min={1}
+            max={1440}
+            step={1}
+            value={retryDelay}
+            onChange={(e) => {
+              const n = Number(e.target.value);
+              if (Number.isFinite(n)) setRetryDelay(Math.min(1440, Math.max(1, Math.round(n))));
+            }}
+            disabled={maxRetries === 0}
+            className="rounded-md border bg-background px-3 py-1.5 font-mono disabled:opacity-50"
+          />
+        </label>
+        <p className="md:col-span-2 text-[11px] text-muted-foreground">
+          {t("assistant.scripts.scheduleRetriesHint")}
+        </p>
         <label className="inline-flex items-center gap-2">
           <input
             type="checkbox"
@@ -488,8 +541,11 @@ function ScheduleEditor({
               label: label || undefined,
               interval_minutes: interval,
               enabled,
+              max_retries: maxRetries,
+              retry_delay_minutes: retryDelay,
             });
           }}
+
           disabled={busy || !parsedArgs.ok}
           className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground disabled:opacity-60"
         >

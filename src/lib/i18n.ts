@@ -2195,6 +2195,11 @@ const en = {
       intervalDays: "{{n}} d",
       never: "Never",
       viewRuns: "View runs",
+      scheduleMaxRetries: "Max retries on failure",
+      scheduleRetryDelay: "Retry delay (minutes)",
+      scheduleRetriesHint: "0 = don't retry. On failure, the schedule waits the retry delay before trying again, up to the max.",
+      scheduleAttempt: "Attempt",
+
       cats: {
         reports: "Reports",
         analysis: "Analysis",
@@ -4425,6 +4430,11 @@ const ar: typeof en = {
       intervalDays: "{{n}} يوم",
       never: "—",
       viewRuns: "عرض التنفيذات",
+      scheduleMaxRetries: "عدد المحاولات عند الفشل",
+      scheduleRetryDelay: "الفاصل بين المحاولات (بالدقائق)",
+      scheduleRetriesHint: "0 = بدون إعادة محاولة. عند الفشل، ينتظر الجدول الفاصل الزمني قبل المحاولة مجدداً حتى الحد الأقصى.",
+      scheduleAttempt: "المحاولة",
+
       cats: {
         reports: "تقارير",
         analysis: "تحليل",

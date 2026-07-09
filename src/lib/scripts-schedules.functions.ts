@@ -21,7 +21,10 @@ const UpsertSchema = z.object({
   label: z.string().max(120).optional(),
   interval_minutes: z.number().int().min(5).max(43200),
   enabled: z.boolean().optional(),
+  max_retries: z.number().int().min(0).max(10).optional(),
+  retry_delay_minutes: z.number().int().min(1).max(1440).optional(),
 });
+
 
 export const listScriptSchedules = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -47,7 +50,10 @@ export const upsertScriptSchedule = createServerFn({ method: "POST" })
       label: data.label ?? null,
       interval_minutes: data.interval_minutes,
       enabled: data.enabled ?? true,
+      max_retries: data.max_retries ?? 0,
+      retry_delay_minutes: data.retry_delay_minutes ?? 5,
     };
+
     if (data.id) {
       const { data: row, error } = await context.supabase
         .from("scripts_schedules")
@@ -107,11 +113,12 @@ export const listScheduleRuns = createServerFn({ method: "GET" })
     const { orgId } = await resolveOrg(context.supabase, context.userId);
     const { data: runs, error } = await context.supabase
       .from("scripts_schedule_runs")
-      .select("id, started_at, duration_ms, status, error, result")
+      .select("id, started_at, duration_ms, status, error, result, attempt")
       .eq("schedule_id", data.scheduleId)
       .eq("org_id", orgId)
       .order("started_at", { ascending: false })
       .limit(data.limit ?? 20);
+
     if (error) throw new Error(error.message);
     return { runs: runs ?? [] };
   });
