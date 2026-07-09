@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAdminBreadcrumb } from "@/components/admin/AdminSidebar";
+import { DashboardThemeToggle } from "@/components/dashboard-theme-toggle";
 
 /**
  * Sticky top bar for /admin/* with sidebar trigger + breadcrumb.
