@@ -144,41 +144,72 @@ async def main():
         await page.screenshot(path=str(SHOTS / "1_loaded.png"))
         assert "/dashboard/payment-schedules" in page.url, f"unexpected url: {page.url}"
 
-        # --- Unfiltered CSV -------------------------------------------------
-        csv_name, csv_path = await download_via(page, r"تصدير\s*CSV", "csv")
-        # No active filter → filename must NOT include a scope suffix like -pending
-        assert not re.search(r"-(pending|invoiced|paid|overdue|cancelled|contract|deal|commission)-\d",
-                             csv_name), f"unexpected filter scope in unfiltered CSV: {csv_name}"
-        assert_csv(csv_path, must_contain_in_name=None)
+        # Empty-state guard: if the tenant has zero installments, export
+        # handlers early-return with a toast instead of producing a file.
+        empty_locator = page.get_by_text(re.compile("لا توجد أقساط"))
+        is_empty = await empty_locator.count() > 0
 
-        # --- Unfiltered XLSX ------------------------------------------------
-        xlsx_name, xlsx_path = await download_via(page, r"تصدير\s*XLSX", "xlsx")
-        assert xlsx_name.endswith(".xlsx"), xlsx_name
-        assert_xlsx(xlsx_path, must_contain_in_name=None)
-
-        # --- Filtered by status = pending ----------------------------------
-        picked = await apply_status_filter(page, "معلّق")
-        if not picked:
-            print("SKIP filtered exports: status filter unavailable in this tenant")
+        if is_empty:
+            print("Tenant has no installments — verifying empty-state toasts instead of files")
+            await page.get_by_role("button", name=re.compile(r"تصدير\s*CSV")).first.click()
+            toast_csv = page.get_by_text("لا توجد بيانات للتصدير", exact=False)
+            await toast_csv.first.wait_for(state="visible", timeout=5000)
+            print("CSV empty-state toast ok")
+            # Wait for toast to dismiss before next click so locators don't collide
+            await page.wait_for_timeout(500)
+            await page.get_by_role("button", name=re.compile(r"تصدير\s*XLSX")).first.click()
+            toast_xlsx = page.get_by_text("لا توجد بيانات للتصدير", exact=False)
+            await toast_xlsx.first.wait_for(state="visible", timeout=5000)
+            print("XLSX empty-state toast ok")
+            await page.screenshot(path=str(SHOTS / "2_empty_state.png"))
         else:
-            await page.wait_for_load_state("networkidle")
-            await page.screenshot(path=str(SHOTS / "2_pending_filter.png"))
+            # --- Unfiltered CSV --------------------------------------------
+            csv_name, csv_path = await download_via(page, r"تصدير\s*CSV", "csv")
+            assert csv_name and csv_path, "no CSV downloaded despite non-empty table"
+            assert not re.search(
+                r"-(pending|invoiced|paid|overdue|cancelled|contract|deal|commission)-\d",
+                csv_name,
+            ), f"unexpected filter scope in unfiltered CSV: {csv_name}"
+            assert_csv(csv_path, must_contain_in_name=None)
 
-            # Active-filter chip should appear
-            chip = page.get_by_text("فلاتر نشطة:", exact=False)
-            assert await chip.count() > 0, "active-filter chip strip did not render"
+            # --- Unfiltered XLSX -------------------------------------------
+            xlsx_name, xlsx_path = await download_via(page, r"تصدير\s*XLSX", "xlsx")
+            assert xlsx_name and xlsx_path, "no XLSX downloaded despite non-empty table"
+            assert xlsx_name.endswith(".xlsx"), xlsx_name
+            assert_xlsx(xlsx_path, must_contain_in_name=None)
 
-            f_csv_name, f_csv_path = await download_via(page, r"تصدير\s*CSV", "csv")
-            assert "pending" in f_csv_name, f"filtered CSV missing 'pending' in name: {f_csv_name}"
-            assert_csv(f_csv_path, must_contain_in_name="pending")
+            # --- Filtered by status = pending ------------------------------
+            picked = await apply_status_filter(page, "معلّق")
+            if not picked:
+                print("SKIP filtered exports: status filter unavailable in this tenant")
+            else:
+                await page.wait_for_load_state("networkidle")
+                await page.screenshot(path=str(SHOTS / "2_pending_filter.png"))
+                chip = page.get_by_text("فلاتر نشطة:", exact=False)
+                assert await chip.count() > 0, "active-filter chip strip did not render"
 
-            f_xlsx_name, f_xlsx_path = await download_via(page, r"تصدير\s*XLSX", "xlsx")
-            assert "pending" in f_xlsx_name, f"filtered XLSX missing 'pending' in name: {f_xlsx_name}"
-            assert_xlsx(f_xlsx_path, must_contain_in_name="pending")
+                # If filter yields zero rows the export toasts — accept either outcome
+                # but require the filename scope on real downloads.
+                empty_now = await page.get_by_text(re.compile("لا توجد أقساط")).count() > 0
+                if empty_now:
+                    print("Filtered result is empty — skipping filtered-file assertions")
+                else:
+                    f_csv_name, f_csv_path = await download_via(page, r"تصدير\s*CSV", "csv")
+                    assert f_csv_name and "pending" in f_csv_name, (
+                        f"filtered CSV missing 'pending' in name: {f_csv_name}"
+                    )
+                    assert_csv(f_csv_path, must_contain_in_name="pending")
+
+                    f_xlsx_name, f_xlsx_path = await download_via(page, r"تصدير\s*XLSX", "xlsx")
+                    assert f_xlsx_name and "pending" in f_xlsx_name, (
+                        f"filtered XLSX missing 'pending' in name: {f_xlsx_name}"
+                    )
+                    assert_xlsx(f_xlsx_path, must_contain_in_name="pending")
 
         await page.screenshot(path=str(SHOTS / "3_done.png"))
         await browser.close()
         print("all export assertions passed")
+
 
 
 asyncio.run(main())
