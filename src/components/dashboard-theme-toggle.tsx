@@ -1,20 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Moon, Sun } from "lucide-react";
+import { Crown, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const STORAGE_KEY = "aqari.dashboard.theme"; // "tech" | "default"
-export type DashboardThemeMode = "tech" | "default";
+const STORAGE_KEY = "aqari.dashboard.theme"; // "royal" | "tech" | "default"
+export type DashboardThemeMode = "royal" | "tech" | "default";
+
+const ALL_MODE_CLASSES = ["theme-tech", "theme-lux", "theme-royal", "dark"] as const;
+const CYCLE: DashboardThemeMode[] = ["royal", "tech", "default"];
 
 export function readDashboardTheme(): DashboardThemeMode {
-  if (typeof window === "undefined") return "default";
+  if (typeof window === "undefined") return "royal";
   const v = window.localStorage.getItem(STORAGE_KEY);
-  return v === "tech" ? "tech" : "default";
+  if (v === "tech" || v === "default" || v === "royal") return v;
+  return "royal";
 }
 
-// Track the pending "end of transition" timer so rapid toggles don't
-// leave the html.theme-transitioning class stuck on.
 let __themeTransitionTimer: number | null = null;
 
 export function applyDashboardTheme(mode: DashboardThemeMode, animate = true) {
@@ -25,22 +27,17 @@ export function applyDashboardTheme(mode: DashboardThemeMode, animate = true) {
 
   if (animate && !prefersReducedMotion) {
     el.classList.add("theme-transitioning");
-    if (__themeTransitionTimer !== null) {
-      window.clearTimeout(__themeTransitionTimer);
-    }
+    if (__themeTransitionTimer !== null) window.clearTimeout(__themeTransitionTimer);
     __themeTransitionTimer = window.setTimeout(() => {
       el.classList.remove("theme-transitioning");
       __themeTransitionTimer = null;
     }, 360);
   }
 
-  if (mode === "tech") {
-    el.classList.remove("theme-lux");
-    el.classList.add("theme-tech", "dark");
-  } else {
-    el.classList.remove("theme-tech", "dark");
-    el.classList.add("theme-lux");
-  }
+  el.classList.remove(...ALL_MODE_CLASSES);
+  if (mode === "tech") el.classList.add("theme-tech", "dark");
+  else if (mode === "default") el.classList.add("theme-lux");
+  else el.classList.add("theme-royal");
 }
 
 export function DashboardThemeToggle({ className }: { className?: string }) {
@@ -49,32 +46,28 @@ export function DashboardThemeToggle({ className }: { className?: string }) {
   const firstRun = useRef(true);
 
   useEffect(() => {
-    // Skip the fade on the very first mount so we don't animate from the
-    // default palette into tech on page load — only user-triggered swaps
-    // should tween.
     applyDashboardTheme(mode, !firstRun.current);
     firstRun.current = false;
     try {
       window.localStorage.setItem(STORAGE_KEY, mode);
     } catch {
-      // ignore quota / privacy mode
+      /* ignore */
     }
     window.dispatchEvent(new CustomEvent("aqari:dashboard-theme", { detail: mode }));
   }, [mode]);
 
-  // Keep this button's icon/label in sync when the theme is changed elsewhere:
-  // another DashboardThemeToggle instance (e.g. Admin header vs Dashboard topbar),
-  // another browser tab writing to localStorage, or programmatic dispatch.
   useEffect(() => {
     const onEvent = (e: Event) => {
       const detail = (e as CustomEvent<DashboardThemeMode>).detail;
-      if (detail === "tech" || detail === "default") {
+      if (detail === "tech" || detail === "default" || detail === "royal") {
         setMode((prev) => (prev === detail ? prev : detail));
       }
     };
     const onStorage = (e: StorageEvent) => {
       if (e.key !== STORAGE_KEY) return;
-      const next: DashboardThemeMode = e.newValue === "default" ? "default" : "tech";
+      const v = e.newValue;
+      const next: DashboardThemeMode =
+        v === "tech" || v === "default" || v === "royal" ? v : "royal";
       setMode((prev) => (prev === next ? prev : next));
     };
     window.addEventListener("aqari:dashboard-theme", onEvent);
@@ -85,10 +78,15 @@ export function DashboardThemeToggle({ className }: { className?: string }) {
     };
   }, []);
 
-  const isTech = mode === "tech";
-  const label = isTech
-    ? t("theme.dashboard.switchToLux", "التبديل إلى الثيم الفاتح")
-    : t("theme.dashboard.switchToTech", "التبديل إلى الثيم الداكن");
+  const next = CYCLE[(CYCLE.indexOf(mode) + 1) % CYCLE.length];
+  const nextLabel: Record<DashboardThemeMode, string> = {
+    royal: t("theme.dashboard.switchToRoyal", "التبديل إلى الثيم الملكي"),
+    tech: t("theme.dashboard.switchToTech", "التبديل إلى الثيم الداكن"),
+    default: t("theme.dashboard.switchToLux", "التبديل إلى الثيم الفاتح"),
+  };
+  const label = nextLabel[next];
+
+  const Icon = mode === "royal" ? Crown : mode === "tech" ? Moon : Sun;
 
   return (
     <Button
@@ -97,10 +95,10 @@ export function DashboardThemeToggle({ className }: { className?: string }) {
       size="icon"
       aria-label={label}
       title={label}
-      onClick={() => setMode(isTech ? "default" : "tech")}
+      onClick={() => setMode(next)}
       className={cn("rounded-xl", className)}
     >
-      {isTech ? <Sun className="size-4" /> : <Moon className="size-4" />}
+      <Icon className="size-4" />
     </Button>
   );
 }
