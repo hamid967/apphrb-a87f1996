@@ -90,7 +90,11 @@ type Row = {
   last_error: string | null;
   last_duration_ms: number | null;
   run_count: number;
+  max_retries: number;
+  retry_delay_minutes: number;
+  current_retry: number;
 };
+
 
 function SchedulesPage() {
   const { t, i18n } = useTranslation();
@@ -165,8 +169,11 @@ function SchedulesPage() {
               label: "",
               interval_minutes: 60 * 24,
               enabled: true,
+              max_retries: 0,
+              retry_delay_minutes: 5,
             })
           }
+
           className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
         >
           <Plus className="size-4" />
