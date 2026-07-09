@@ -167,11 +167,14 @@ def ensure_test_user(supabase_url: str, service_role_key: str, email: str,
         f"/auth/v1/admin/users?email={quote(email)}",
     )
     user_id = None
+    email_confirmed = False
     if code == 200:
         try:
             users = json.loads(body).get("users", [])
-            if users:
-                user_id = users[0].get("id")
+            match = next((u for u in users if (u.get("email") or "").lower() == email.lower()), None)
+            if match:
+                user_id = match.get("id")
+                email_confirmed = bool(match.get("email_confirmed_at"))
         except Exception:
             pass
     # 2) Create if missing
@@ -182,6 +185,25 @@ def ensure_test_user(supabase_url: str, service_role_key: str, email: str,
             body={"email": email, "email_confirm": True,
                   "user_metadata": {"e2e": True, "display_name": "E2E Perf Bot"}},
         )
+        if code not in (200, 201):
+            sys.exit(f"ERROR: could not create E2E user ({code}): {body}")
+        try:
+            parsed = json.loads(body)
+            user_id = parsed.get("id")
+            email_confirmed = bool(parsed.get("email_confirmed_at"))
+        except Exception:
+            user_id = None
+        if not user_id:
+            sys.exit(f"ERROR: unexpected create-user response: {body}")
+    # 2b) Force-confirm the email so magiclink verify accepts the token.
+    if not email_confirmed:
+        code, body = _pgrst(
+            supabase_url, service_role_key, "PUT",
+            f"/auth/v1/admin/users/{user_id}",
+            body={"email_confirm": True},
+        )
+        if code not in (200, 201):
+            sys.exit(f"ERROR: could not confirm E2E user email ({code}): {body}")
         if code not in (200, 201):
             sys.exit(f"ERROR: could not create E2E user ({code}): {body}")
         try:
