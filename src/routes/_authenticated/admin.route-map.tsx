@@ -429,7 +429,7 @@ function RouteMapPage() {
               />
             </div>
             <Select value={scope} onValueChange={(v) => setScope(v as Scope | "all")}>
-              <SelectTrigger className="md:w-56">
+              <SelectTrigger className="md:w-48">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -444,7 +444,47 @@ function RouteMapPage() {
                 ))}
               </SelectContent>
             </Select>
+            <Select value={category} onValueChange={(v) => setCategory(v as Category | "all")}>
+              <SelectTrigger className="md:w-48">
+                <SelectValue placeholder={isAr ? "النوع" : "Type"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  {isAr ? "كل الأنواع" : "All types"} ({rows.length})
+                </SelectItem>
+                {(Object.keys(CATEGORY_META) as Category[]).map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {isAr ? CATEGORY_META[c].ar : CATEGORY_META[c].en} ({catCounts[c]})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={role} onValueChange={(v) => setRole(v as Role | "all")}>
+              <SelectTrigger className="md:w-52">
+                <SelectValue placeholder={isAr ? "الدور" : "Role"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  {isAr ? "كل الأدوار" : "All roles"} ({rows.length})
+                </SelectItem>
+                {(Object.keys(ROLE_META) as Role[]).map((r) => (
+                  <SelectItem key={r} value={r}>
+                    {isAr ? ROLE_META[r].ar : ROLE_META[r].en} ({roleCounts[r]})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
+          {(scope !== "all" || category !== "all" || role !== "all" || query) && (
+            <button
+              type="button"
+              onClick={() => { setQuery(""); setScope("all"); setCategory("all"); setRole("all"); }}
+              className="text-xs text-primary hover:underline self-start"
+            >
+              {isAr ? "مسح المرشحات" : "Clear filters"}
+            </button>
+          )}
 
           <div className="text-xs text-muted-foreground">
             {isAr
