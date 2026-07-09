@@ -305,8 +305,11 @@ function SchedulesPage() {
                               label: r.label ?? "",
                               interval_minutes: r.interval_minutes,
                               enabled: r.enabled,
+                              max_retries: r.max_retries ?? 0,
+                              retry_delay_minutes: r.retry_delay_minutes ?? 5,
                             })
                           }
+
                           className="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-xs hover:bg-muted"
                         >
                           <Pencil className="size-3" />
