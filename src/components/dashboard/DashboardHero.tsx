@@ -91,11 +91,46 @@ export function DashboardHero({ orgName, userName, canCreate, isAr }: Props) {
           narrow screens, wraps naturally from sm: upward. */}
       <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:overflow-visible sm:px-0">
         <div className="flex min-w-max items-center gap-2 sm:min-w-0 sm:flex-wrap">
+          <Button
+            asChild
+            size="sm"
+            className="h-9 shrink-0 gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-[0_6px_20px_-6px_hsl(var(--primary)/0.45)] hover:from-amber-400 hover:to-amber-500"
+          >
+            <Link
+              to="/dashboard/expenses/claim"
+              aria-label={isAr ? "رفع إيصال جديد في خطوتين" : "Upload a new receipt in two steps"}
+            >
+              <Receipt className="size-4" aria-hidden />
+              {isAr ? "رفع إيصال" : "Upload receipt"}
+              <span className="ms-1 hidden rounded-full bg-white/25 px-1.5 py-0.5 text-[10px] font-semibold sm:inline">
+                {isAr ? "خطوتان" : "2 steps"}
+              </span>
+            </Link>
+          </Button>
+          <Button
+            asChild
+            size="sm"
+            variant="outline"
+            className="h-9 shrink-0 gap-2 border-amber-500/40 text-amber-700 hover:bg-amber-500/10 dark:text-amber-300"
+          >
+            <Link
+              to="/dashboard/expenses/batches"
+              search={{ compose: 1 }}
+              aria-label={isAr ? "بدء تقرير مصروفات جماعي" : "Start a batch expense report"}
+            >
+              <Layers className="size-4" aria-hidden />
+              {isAr ? "تقرير جماعي" : "Batch report"}
+              <span className="ms-1 hidden rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold sm:inline">
+                {isAr ? "خطوتان" : "2 steps"}
+              </span>
+            </Link>
+          </Button>
           {canCreate && (
             <Button
               asChild
               size="sm"
-              className="h-9 shrink-0 gap-2 shadow-[0_6px_20px_-6px_hsl(var(--primary)/0.45)]"
+              variant="outline"
+              className="h-9 shrink-0 gap-2"
             >
               <Link to="/dashboard/properties/new">
                 <Plus className="size-4" aria-hidden />
