@@ -187,6 +187,7 @@ import { Route as ApiPublicHooksDispatchNotificationsRouteImport } from './route
 import { Route as ApiPublicHooksAuctionsTickRouteImport } from './routes/api/public/hooks/auctions-tick'
 import { Route as AuthenticatedTenantPortalMaintenanceRouteImport } from './routes/_authenticated/tenant.portal.maintenance'
 import { Route as AuthenticatedReportsTemplatesManageRouteImport } from './routes/_authenticated/reports.templates.manage'
+import { Route as AuthenticatedPortalTenantPaymentsRouteImport } from './routes/_authenticated/portal.tenant.payments'
 import { Route as AuthenticatedPortalTenantMaintenanceRouteImport } from './routes/_authenticated/portal.tenant.maintenance'
 import { Route as AuthenticatedPortalSettingsSecurityRouteImport } from './routes/_authenticated/portal.settings.security'
 import { Route as AuthenticatedPortalSettingsNotificationsRouteImport } from './routes/_authenticated/portal.settings.notifications'
@@ -1230,6 +1231,12 @@ const AuthenticatedReportsTemplatesManageRoute =
     path: '/manage',
     getParentRoute: () => AuthenticatedReportsTemplatesRoute,
   } as any)
+const AuthenticatedPortalTenantPaymentsRoute =
+  AuthenticatedPortalTenantPaymentsRouteImport.update({
+    id: '/payments',
+    path: '/payments',
+    getParentRoute: () => AuthenticatedPortalTenantRoute,
+  } as any)
 const AuthenticatedPortalTenantMaintenanceRoute =
   AuthenticatedPortalTenantMaintenanceRouteImport.update({
     id: '/maintenance',
@@ -1641,6 +1648,7 @@ export interface FileRoutesByFullPath {
   '/portal/settings/notifications': typeof AuthenticatedPortalSettingsNotificationsRoute
   '/portal/settings/security': typeof AuthenticatedPortalSettingsSecurityRoute
   '/portal/tenant/maintenance': typeof AuthenticatedPortalTenantMaintenanceRoute
+  '/portal/tenant/payments': typeof AuthenticatedPortalTenantPaymentsRoute
   '/reports/templates/manage': typeof AuthenticatedReportsTemplatesManageRoute
   '/tenant/portal/maintenance': typeof AuthenticatedTenantPortalMaintenanceRoute
   '/api/public/hooks/auctions-tick': typeof ApiPublicHooksAuctionsTickRoute
@@ -1852,6 +1860,7 @@ export interface FileRoutesByTo {
   '/portal/settings/notifications': typeof AuthenticatedPortalSettingsNotificationsRoute
   '/portal/settings/security': typeof AuthenticatedPortalSettingsSecurityRoute
   '/portal/tenant/maintenance': typeof AuthenticatedPortalTenantMaintenanceRoute
+  '/portal/tenant/payments': typeof AuthenticatedPortalTenantPaymentsRoute
   '/reports/templates/manage': typeof AuthenticatedReportsTemplatesManageRoute
   '/tenant/portal/maintenance': typeof AuthenticatedTenantPortalMaintenanceRoute
   '/api/public/hooks/auctions-tick': typeof ApiPublicHooksAuctionsTickRoute
@@ -2073,6 +2082,7 @@ export interface FileRoutesById {
   '/_authenticated/portal/settings/notifications': typeof AuthenticatedPortalSettingsNotificationsRoute
   '/_authenticated/portal/settings/security': typeof AuthenticatedPortalSettingsSecurityRoute
   '/_authenticated/portal/tenant/maintenance': typeof AuthenticatedPortalTenantMaintenanceRoute
+  '/_authenticated/portal/tenant/payments': typeof AuthenticatedPortalTenantPaymentsRoute
   '/_authenticated/reports/templates/manage': typeof AuthenticatedReportsTemplatesManageRoute
   '/_authenticated/tenant/portal/maintenance': typeof AuthenticatedTenantPortalMaintenanceRoute
   '/api/public/hooks/auctions-tick': typeof ApiPublicHooksAuctionsTickRoute
@@ -2294,6 +2304,7 @@ export interface FileRouteTypes {
     | '/portal/settings/notifications'
     | '/portal/settings/security'
     | '/portal/tenant/maintenance'
+    | '/portal/tenant/payments'
     | '/reports/templates/manage'
     | '/tenant/portal/maintenance'
     | '/api/public/hooks/auctions-tick'
@@ -2505,6 +2516,7 @@ export interface FileRouteTypes {
     | '/portal/settings/notifications'
     | '/portal/settings/security'
     | '/portal/tenant/maintenance'
+    | '/portal/tenant/payments'
     | '/reports/templates/manage'
     | '/tenant/portal/maintenance'
     | '/api/public/hooks/auctions-tick'
@@ -2725,6 +2737,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portal/settings/notifications'
     | '/_authenticated/portal/settings/security'
     | '/_authenticated/portal/tenant/maintenance'
+    | '/_authenticated/portal/tenant/payments'
     | '/_authenticated/reports/templates/manage'
     | '/_authenticated/tenant/portal/maintenance'
     | '/api/public/hooks/auctions-tick'
@@ -4073,6 +4086,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportsTemplatesManageRouteImport
       parentRoute: typeof AuthenticatedReportsTemplatesRoute
     }
+    '/_authenticated/portal/tenant/payments': {
+      id: '/_authenticated/portal/tenant/payments'
+      path: '/payments'
+      fullPath: '/portal/tenant/payments'
+      preLoaderRoute: typeof AuthenticatedPortalTenantPaymentsRouteImport
+      parentRoute: typeof AuthenticatedPortalTenantRoute
+    }
     '/_authenticated/portal/tenant/maintenance': {
       id: '/_authenticated/portal/tenant/maintenance'
       path: '/maintenance'
@@ -4789,6 +4809,7 @@ const AuthenticatedPortalSettingsRouteWithChildren =
 
 interface AuthenticatedPortalTenantRouteChildren {
   AuthenticatedPortalTenantMaintenanceRoute: typeof AuthenticatedPortalTenantMaintenanceRoute
+  AuthenticatedPortalTenantPaymentsRoute: typeof AuthenticatedPortalTenantPaymentsRoute
   AuthenticatedPortalTenantIndexRoute: typeof AuthenticatedPortalTenantIndexRoute
 }
 
@@ -4796,6 +4817,8 @@ const AuthenticatedPortalTenantRouteChildren: AuthenticatedPortalTenantRouteChil
   {
     AuthenticatedPortalTenantMaintenanceRoute:
       AuthenticatedPortalTenantMaintenanceRoute,
+    AuthenticatedPortalTenantPaymentsRoute:
+      AuthenticatedPortalTenantPaymentsRoute,
     AuthenticatedPortalTenantIndexRoute: AuthenticatedPortalTenantIndexRoute,
   }
 
@@ -5120,13 +5143,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
