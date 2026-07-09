@@ -136,6 +136,7 @@ export async function enqueuePaymentStatusUpdate(input: {
       .from("tenants")
       .select("full_name, phone")
       .eq("id", input.tenant_id)
+      .is("deleted_at", null)
       .maybeSingle();
     const phone = toE164((tenant as { phone: string | null } | null)?.phone ?? null);
     if (!phone) return;
