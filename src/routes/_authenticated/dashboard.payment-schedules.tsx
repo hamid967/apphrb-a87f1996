@@ -3,12 +3,13 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Download, Ban, Check, RefreshCw, Receipt, Zap, FileSpreadsheet } from "lucide-react";
+import { Download, Ban, Check, RefreshCw, Receipt, Zap, FileSpreadsheet, X, Loader2 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { HijriDateBadge } from "@/components/ui/hijri-date-badge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -17,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import {
   listPaymentSchedules,
   markInstallmentPaid,
