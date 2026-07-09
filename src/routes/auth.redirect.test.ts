@@ -67,5 +67,77 @@ describe("safeRedirect (post-login destination)", () => {
     expect(safeRedirect("/auth")).toBeNull();
     expect(safeRedirect("/auth?redirect=/dashboard")).toBeNull();
     expect(safeRedirect("/auth/callback")).toBeNull();
+});
+
+/**
+ * Simulates the Google OAuth entry point (`lovable.auth.signInWithOAuth`)
+ * from a WebView-style origin. The redirect_uri MUST be an http(s) URL —
+ * Lovable's OAuth broker and Supabase reject `capacitor://`, so a
+ * regression here silently breaks Google sign-in inside the native shell.
+ */
+describe("Google OAuth redirect_uri contract (WebView)", () => {
+  const CASES: Array<[string, string | undefined]> = [
+    ["preview host", "https://id-preview--x.lovable.app"],
+    ["published host", "https://project--a9ead090-32b6-464c-a919-22a1f97a0364.lovable.app"],
+    ["WebView with https scheme", "https://project--a9ead090-32b6-464c-a919-22a1f97a0364.lovable.app"],
+    ["WebView with capacitor scheme (fallback kicks in)", "capacitor://localhost"],
+    ["SSR (no window)", undefined],
+  ];
+
+  for (const [name, origin] of CASES) {
+    it(`produces an https redirect_uri: ${name}`, () => {
+      if (origin === undefined) vi.stubGlobal("window", undefined);
+      else vi.stubGlobal("window", { location: { origin } });
+
+      const redirectUri = getAppOrigin();
+      // The value passed to lovable.auth.signInWithOAuth("google", { redirect_uri })
+      expect(redirectUri.startsWith("http://") || redirectUri.startsWith("https://")).toBe(true);
+      expect(redirectUri.startsWith("capacitor://")).toBe(false);
+      expect(redirectUri.startsWith("file://")).toBe(false);
+      // Must NOT point into a protected route — broker requires a public origin.
+      expect(redirectUri.includes("/dashboard")).toBe(false);
+      expect(redirectUri.includes("/_authenticated")).toBe(false);
+      expect(redirectUri.includes("/onboarding")).toBe(false);
+
+      vi.unstubAllGlobals();
+    });
+  }
+});
+
+/**
+ * Verifies the sign-in destination logic — the second half of "OAuth completes
+ * into the correct path". After Supabase hydrates the session, `routeAfterLogin`
+ * decides where to land the user.
+ */
+describe("routeAfterLogin (post-sign-in destination)", () => {
+  it("honors a safe ?redirect= target (e.g. /onboarding/wizard)", async () => {
+    const calls: unknown[] = [];
+    const nav = ((arg: unknown) => calls.push(arg)) as never;
+    await routeAfterLogin(nav, "/onboarding/wizard");
+    expect(calls).toEqual([{ to: "/onboarding/wizard", replace: true }]);
   });
+
+  it("falls back to /dashboard when no redirect is provided", async () => {
+    const calls: Array<{ to: string; replace?: boolean }> = [];
+    const nav = ((arg: { to: string; replace?: boolean }) => calls.push(arg)) as never;
+    await routeAfterLogin(nav, undefined);
+    // getMyAccessContext is mocked to return {} → resolveHomeRoute() → null → /dashboard fallback.
+    expect(calls[0]).toEqual({ to: "/dashboard", replace: true });
+  });
+
+  it("ignores an unsafe ?redirect= (open-redirect attempt) and falls back", async () => {
+    const calls: Array<{ to: string; replace?: boolean }> = [];
+    const nav = ((arg: { to: string; replace?: boolean }) => calls.push(arg)) as never;
+    await routeAfterLogin(nav, "https://evil.com/steal");
+    expect(calls[0]).toEqual({ to: "/dashboard", replace: true });
+  });
+
+  it("does not loop back to /auth even if redirect asks for it", async () => {
+    const calls: Array<{ to: string; replace?: boolean }> = [];
+    const nav = ((arg: { to: string; replace?: boolean }) => calls.push(arg)) as never;
+    await routeAfterLogin(nav, "/auth?redirect=/dashboard");
+    expect(calls[0]).toEqual({ to: "/dashboard", replace: true });
+  });
+});
+
 });
