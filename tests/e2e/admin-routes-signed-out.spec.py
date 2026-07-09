@@ -30,13 +30,11 @@ ADMIN_PATHS = [
     "/admin/report-branding",
     "/admin/report-intro",
     "/admin/settings",
-    "/admin/seed",
-    "/admin/systest",
+    "/admin/route-map",
 ]
 
 OTHER_PATHS = [
     "/security/sessions",
-    "/security/mfa",
     "/reports/templates",
     "/reports/templates/manage",
 ]
