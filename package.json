@@ -24,6 +24,8 @@
     "i18n:ci:update": "node scripts/i18n-ci-check.mjs --update",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:redirects": "vitest run --coverage src/lib/app-url.test.ts src/routes/auth.redirect.test.ts",
     "build:analyze": "ANALYZE=true NODE_OPTIONS=--max-old-space-size=6144 vite build"
   },
   "dependencies": {
