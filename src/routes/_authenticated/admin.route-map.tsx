@@ -35,9 +35,30 @@ export const Route = createFileRoute("/_authenticated/admin/route-map")({
 
 type Scope = "public" | "authenticated" | "admin" | "api";
 
+type Category =
+  | "admin"
+  | "employee"
+  | "reports"
+  | "accounting"
+  | "assistant"
+  | "public"
+  | "auth"
+  | "onboarding"
+  | "api";
+
+type Role =
+  | "guest"
+  | "any_authenticated"
+  | "staff"
+  | "manager"
+  | "super_admin"
+  | "server";
+
 type RouteRow = {
   path: string;
   scope: Scope;
+  category: Category;
+  role: Role;
   dynamic: boolean;
   segments: number;
   descriptionAr: string;
@@ -52,6 +73,61 @@ function classify(path: string): Scope {
   if (path.startsWith("/api/")) return "api";
   return "public";
 }
+
+function categorize(path: string, scope: Scope): Category {
+  if (scope === "api") return "api";
+  const seg = path.split("/").filter(Boolean);
+  const head = seg[0] ?? "";
+  if (head === "admin") return "admin";
+  if (head === "assistant") return "assistant";
+  if (head === "accounting") return "accounting";
+  if (head === "onboarding") return "onboarding";
+  if (["auth", "forgot-password", "reset-password", "invite", "portal-invite", "unsubscribe", "access-denied"].includes(head)) return "auth";
+  // Reports: anything explicitly under a reports/ segment or ending with -report(s)
+  if (seg.includes("reports") || /reports?$/.test(path) || /report$/.test(seg[seg.length - 1] ?? "")) return "reports";
+  if (scope === "authenticated") return "employee";
+  return "public";
+}
+
+function roleFor(path: string, category: Category, scope: Scope): Role {
+  if (scope === "api") return "server";
+  if (scope === "public") return "guest";
+  if (category === "admin") return "super_admin";
+  // Heuristics: settings / roles / billing require manager-level company admin.
+  const seg = path.split("/").filter(Boolean);
+  if (
+    seg.includes("settings") ||
+    seg.includes("roles") ||
+    seg.includes("billing") ||
+    seg.includes("subscription") ||
+    seg.includes("subscriptions") ||
+    seg.includes("plans") ||
+    seg.includes("company")
+  ) return "manager";
+  if (category === "reports" || category === "accounting") return "manager";
+  return "staff";
+}
+
+const CATEGORY_META: Record<Category, { ar: string; en: string; tone: string }> = {
+  admin:       { ar: "إدارة النظام", en: "Admin",       tone: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
+  employee:    { ar: "الموظفون",     en: "Employee",    tone: "bg-sky-500/15 text-sky-300 border-sky-500/30" },
+  reports:     { ar: "التقارير",     en: "Reports",     tone: "bg-teal-500/15 text-teal-300 border-teal-500/30" },
+  accounting:  { ar: "المحاسبة",     en: "Accounting",  tone: "bg-cyan-500/15 text-cyan-300 border-cyan-500/30" },
+  assistant:   { ar: "المساعد",      en: "Assistant",   tone: "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30" },
+  onboarding:  { ar: "تهيئة الحساب", en: "Onboarding",  tone: "bg-lime-500/15 text-lime-300 border-lime-500/30" },
+  auth:        { ar: "المصادقة",     en: "Auth",        tone: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
+  public:      { ar: "عام / تسويق",  en: "Public",      tone: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
+  api:         { ar: "خادم / API",   en: "API",         tone: "bg-violet-500/15 text-violet-300 border-violet-500/30" },
+};
+
+const ROLE_META: Record<Role, { ar: string; en: string }> = {
+  guest:              { ar: "زائر (بدون تسجيل)",         en: "Guest (no login)" },
+  any_authenticated:  { ar: "أي مستخدم مسجَّل",           en: "Any signed-in user" },
+  staff:              { ar: "موظف الشركة",                en: "Company staff" },
+  manager:            { ar: "مدير الشركة",                en: "Company manager" },
+  super_admin:        { ar: "سوبر أدمن + 2FA",            en: "super_admin + 2FA" },
+  server:             { ar: "خادم / نظام",                en: "Server / system" },
+};
 
 /** Top-level section descriptions used when a specific path isn't in PATH_META. */
 const SECTION_META: Record<
@@ -241,9 +317,13 @@ function useAllRoutes(): RouteRow[] {
       }
       const m = metaFor(fullPath);
       const auth = AUTH_META[scope];
+      const category = categorize(fullPath, scope);
+      const role = roleFor(fullPath, category, scope);
       const row: RouteRow = {
         path: fullPath,
         scope,
+        category,
+        role,
         dynamic: fullPath.includes("$"),
         segments: fullPath.split("/").filter(Boolean).length,
         descriptionAr: m.descriptionAr,
@@ -266,21 +346,39 @@ function RouteMapPage() {
   const rows = useAllRoutes();
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<Scope | "all">("all");
+  const [category, setCategory] = useState<Category | "all">("all");
+  const [role, setRole] = useState<Role | "all">("all");
 
   const deferredQuery = useDeferredValue(query);
   const filtered = useMemo(() => {
     const q = deferredQuery.trim().toLowerCase();
     return rows.filter((r) => {
       if (scope !== "all" && r.scope !== scope) return false;
+      if (category !== "all" && r.category !== category) return false;
+      if (role !== "all" && r.role !== role) return false;
       if (!q) return true;
       const hay = `${r.path} ${r.descriptionAr} ${r.descriptionEn} ${r.usageAr} ${r.usageEn}`.toLowerCase();
       return hay.includes(q);
     });
-  }, [rows, deferredQuery, scope]);
+  }, [rows, deferredQuery, scope, category, role]);
 
   const counts = useMemo(() => {
     const c: Record<Scope, number> = { public: 0, authenticated: 0, admin: 0, api: 0 };
     for (const r of rows) c[r.scope]++;
+    return c;
+  }, [rows]);
+
+  const catCounts = useMemo(() => {
+    const c = {} as Record<Category, number>;
+    (Object.keys(CATEGORY_META) as Category[]).forEach((k) => (c[k] = 0));
+    for (const r of rows) c[r.category]++;
+    return c;
+  }, [rows]);
+
+  const roleCounts = useMemo(() => {
+    const c = {} as Record<Role, number>;
+    (Object.keys(ROLE_META) as Role[]).forEach((k) => (c[k] = 0));
+    for (const r of rows) c[r.role]++;
     return c;
   }, [rows]);
 
@@ -331,7 +429,7 @@ function RouteMapPage() {
               />
             </div>
             <Select value={scope} onValueChange={(v) => setScope(v as Scope | "all")}>
-              <SelectTrigger className="md:w-56">
+              <SelectTrigger className="md:w-48">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -346,7 +444,47 @@ function RouteMapPage() {
                 ))}
               </SelectContent>
             </Select>
+            <Select value={category} onValueChange={(v) => setCategory(v as Category | "all")}>
+              <SelectTrigger className="md:w-48">
+                <SelectValue placeholder={isAr ? "النوع" : "Type"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  {isAr ? "كل الأنواع" : "All types"} ({rows.length})
+                </SelectItem>
+                {(Object.keys(CATEGORY_META) as Category[]).map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {isAr ? CATEGORY_META[c].ar : CATEGORY_META[c].en} ({catCounts[c]})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={role} onValueChange={(v) => setRole(v as Role | "all")}>
+              <SelectTrigger className="md:w-52">
+                <SelectValue placeholder={isAr ? "الدور" : "Role"} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  {isAr ? "كل الأدوار" : "All roles"} ({rows.length})
+                </SelectItem>
+                {(Object.keys(ROLE_META) as Role[]).map((r) => (
+                  <SelectItem key={r} value={r}>
+                    {isAr ? ROLE_META[r].ar : ROLE_META[r].en} ({roleCounts[r]})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
+          {(scope !== "all" || category !== "all" || role !== "all" || query) && (
+            <button
+              type="button"
+              onClick={() => { setQuery(""); setScope("all"); setCategory("all"); setRole("all"); }}
+              className="text-xs text-primary hover:underline self-start"
+            >
+              {isAr ? "مسح المرشحات" : "Clear filters"}
+            </button>
+          )}
 
           <div className="text-xs text-muted-foreground">
             {isAr
@@ -378,11 +516,17 @@ function RouteMapPage() {
               <TableBody>
                 {filtered.map((r) => {
                   const meta = SCOPE_META[r.scope];
+                  const cat = CATEGORY_META[r.category];
                   return (
                     <TableRow key={r.path} className="align-top">
                       <TableCell>
-                        <div className="font-mono text-xs md:text-sm break-all">
-                          {r.path}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <div className="font-mono text-xs md:text-sm break-all">
+                            {r.path}
+                          </div>
+                          <Badge variant="outline" className={`${cat.tone} whitespace-nowrap text-[10px]`}>
+                            {isAr ? cat.ar : cat.en}
+                          </Badge>
                         </div>
                         <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
                           {isAr ? r.descriptionAr : r.descriptionEn}
@@ -392,9 +536,14 @@ function RouteMapPage() {
                         {isAr ? r.usageAr : r.usageEn}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={`${meta.tone} whitespace-nowrap`}>
-                          {isAr ? meta.labelAr : meta.labelEn}
-                        </Badge>
+                        <div className="flex flex-wrap gap-1">
+                          <Badge variant="outline" className={`${meta.tone} whitespace-nowrap`}>
+                            {isAr ? meta.labelAr : meta.labelEn}
+                          </Badge>
+                          <Badge variant="outline" className="whitespace-nowrap text-[10px]">
+                            {isAr ? ROLE_META[r.role].ar : ROLE_META[r.role].en}
+                          </Badge>
+                        </div>
                         <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
                           {isAr ? r.authAr : r.authEn}
                         </div>
