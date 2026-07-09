@@ -73,7 +73,7 @@
     0  8px 24px -10px color-mix(in oklab, #c4b5fd 55%, transparent),
     0 14px 40px -14px color-mix(in oklab, #f0abfc 45%, transparent),
     0 20px 60px -18px color-mix(in oklab, #67e8f9 35%, transparent);
-  /* Holographic / Chrome iridescent gradient — for accents, borders, sheen */
+  /* Holographic / Chrome iridescent gradient — decorative borders/sheen. */
   --gradient-holo: linear-gradient(120deg,
                      #c4b5fd 0%,
                      #f0abfc 32%,
@@ -84,6 +84,12 @@
                      color-mix(in oklab, #f0abfc 30%, transparent),
                      color-mix(in oklab, #67e8f9 30%, transparent),
                      color-mix(in oklab, #fde68a 30%, transparent));
+  /* Text-only iridescent gradient — every stop ≥ 4.5:1 on white (WCAG AA). */
+  --gradient-holo-text: linear-gradient(120deg,
+                     #7c3aed 0%,     /* violet-600  */
+                     #c026d3 34%,    /* fuchsia-600 */
+                     #0e7490 68%,    /* cyan-700    */
+                     #b45309 100%);  /* amber-700   */
 }
 
 :root {
