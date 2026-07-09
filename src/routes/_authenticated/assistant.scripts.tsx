@@ -150,20 +150,38 @@ function ScriptCard({
     setRunning(true);
     setError(null);
     setResult(null);
+    const args: Record<string, unknown> = {};
+    for (const f of script.fields) {
+      const v = values[f.name]?.trim();
+      if (!v) continue;
+      args[f.name] = f.type === "number" ? Number(v) : v;
+    }
+    const startedAt = Date.now();
+    const perfStart = performance.now();
     try {
-      const args: Record<string, unknown> = {};
-      for (const f of script.fields) {
-        const v = values[f.name]?.trim();
-        if (!v) continue;
-        args[f.name] = f.type === "number" ? Number(v) : v;
-      }
       const res = await onRun(script.name, args);
       setResult(res);
       setOpen(true);
+      recordRun({
+        name: script.name,
+        args: args as Record<string, string | number>,
+        startedAt,
+        durationMs: Math.round(performance.now() - perfStart),
+        status: "success",
+        result: res,
+      });
       toast.success(t("assistant.scripts.ran", { title }));
     } catch (e: any) {
       const msg = e?.message ?? t("assistant.scripts.runFailed");
       setError(msg);
+      recordRun({
+        name: script.name,
+        args: args as Record<string, string | number>,
+        startedAt,
+        durationMs: Math.round(performance.now() - perfStart),
+        status: "error",
+        errorMessage: msg,
+      });
       toast.error(msg);
     } finally {
       setRunning(false);
