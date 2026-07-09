@@ -122,11 +122,17 @@ export function SmartRemindersPanel({
   orgId: string | undefined;
   isAr: boolean;
 }) {
+  const { user } = useAuth();
+  const prefs = useReminderPreferences(user?.id);
+  const refetchMs = frequencyToMs(prefs.frequency);
+
   const claimsQ = useQuery({
     queryKey: ["my-recent-claims-reminders", orgId],
     queryFn: () => listMyRecentClaims({ data: { org_id: orgId!, limit: 25 } }),
     enabled: !!orgId,
-    staleTime: 30_000,
+    staleTime: refetchMs ?? 5 * 60_000,
+    refetchInterval: refetchMs ?? false,
+    refetchOnWindowFocus: prefs.frequency !== "off",
   });
 
   const allReminders = useMemo<Reminder[]>(() => {
