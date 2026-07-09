@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { ReceiptCameraButton } from "@/components/receipt-camera-button";
 
 import { sectionHead } from "@/lib/section-og-head";
 const searchSchema = z.object({
@@ -290,6 +291,7 @@ function CorrectionWizard() {
                   fileName={fileName}
                   onPick={() => fileInput.current?.click()}
                   onDrop={(f) => handleFile(f)}
+                  onCapture={(f) => handleFile(f)}
                   hint={t("expenseClaimCorrection.replaceReceiptHint")}
                 />
               </div>
