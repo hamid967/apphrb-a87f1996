@@ -97,13 +97,15 @@ export type StaffTicketDetail = StaffTicketRow & {
   watcher_ids: string[];
 };
 
+export type StaffTicketAttachment = { name: string; url: string; size?: number };
+
 export type StaffTicketComment = {
   id: string;
   ticket_id: string;
   author_id: string | null;
   body: string;
   is_internal: boolean;
-  attachments: unknown[];
+  attachments: StaffTicketAttachment[];
   created_at: string;
 };
 
