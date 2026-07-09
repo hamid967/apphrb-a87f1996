@@ -103,6 +103,7 @@ export function DashboardSidebar() {
         { url: "/dashboard/vouchers", icon: Wallet, ar: "السندات", en: "Vouchers" },
         { url: "/dashboard/expenses", icon: Receipt, ar: "المصروفات", en: "Expenses" },
         { url: "/dashboard/commissions", icon: Target, ar: "العمولات", en: "Commissions" },
+        { url: "/dashboard/payment-schedules", icon: CalendarClock, ar: "جداول الأقساط", en: "Payment Schedules" },
       ],
     },
     {
