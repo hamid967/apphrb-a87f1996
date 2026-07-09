@@ -2,12 +2,10 @@ import {
   createFileRoute,
   Outlet,
   redirect,
-  isRedirect,
   useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { checkAdminAccess } from "@/lib/admin-guard.functions";
-import { supabase } from "@/integrations/supabase/client";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminErrorBoundary } from "@/components/admin/AdminErrorBoundary";
