@@ -1,6 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight, Home } from "lucide-react";
+import { AnimatePresence, motion, LayoutGroup } from "motion/react";
+
 
 const LABELS: Record<string, { ar: string; en: string }> = {
   dashboard: { ar: "الرئيسية", en: "Dashboard" },
