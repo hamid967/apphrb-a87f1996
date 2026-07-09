@@ -693,3 +693,196 @@ function StatCard({ label, value, suffix }: { label: string; value: string; suff
     </Card>
   );
 }
+
+function MonthlySummaryPanel({
+  isAr,
+  rows,
+  claims,
+  loading,
+}: {
+  isAr: boolean;
+  rows: Row[];
+  claims: Array<{ status: string; amount: number | string }>;
+  loading: boolean;
+}) {
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const monthLabel = new Date().toLocaleDateString(isAr ? "ar" : "en", {
+    month: "long",
+    year: "numeric",
+  });
+  const fmt = (n: number) =>
+    n.toLocaleString(isAr ? "ar" : "en", { maximumFractionDigits: 2 });
+
+  const monthRows = rows.filter((r) => monthKey(r.spent_at) === currentMonth);
+  const total = monthRows.reduce((s, r) => s + Number(r.amount ?? 0), 0);
+  const byCat: Record<string, number> = {};
+  monthRows.forEach((r) => {
+    byCat[r.category] = (byCat[r.category] ?? 0) + Number(r.amount ?? 0);
+  });
+  const sortedCats = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
+  const maxCat = sortedCats[0]?.[1] ?? 0;
+
+  const statusCounts = { approved: 0, rejected: 0, pending: 0 };
+  claims.forEach((c) => {
+    if (c.status === "approved") statusCounts.approved += 1;
+    else if (c.status === "rejected") statusCounts.rejected += 1;
+    else if (c.status === "submitted" || c.status === "in_review") statusCounts.pending += 1;
+  });
+
+  const t = (ar: string, en: string) => (isAr ? ar : en);
+
+  return (
+    <Card className="mt-6 overflow-hidden border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-background to-amber-500/5">
+      <CardHeader className="flex flex-row items-center justify-between gap-3 pb-3">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+            <Wallet className="size-3.5" />
+            {t("ملخص الشهر الحالي", "Current month summary")}
+          </div>
+          <CardTitle className="mt-2 text-lg sm:text-xl">{monthLabel}</CardTitle>
+        </div>
+        <div className="text-end">
+          <div className="text-xs text-muted-foreground">
+            {t("إجمالي الإنفاق", "Total spending")}
+          </div>
+          <div className="text-2xl font-semibold tabular-nums sm:text-3xl">
+            {loading ? "—" : fmt(total)}{" "}
+            <span className="text-sm text-muted-foreground">SAR</span>
+          </div>
+          <div className="mt-0.5 text-xs text-muted-foreground">
+            {monthRows.length} {t("عملية", "entries")}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="grid gap-4 md:grid-cols-[1.3fr_1fr]">
+        <div className="rounded-2xl border border-border/50 bg-card/60 p-4 backdrop-blur">
+          <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+            <Layers className="size-4 text-emerald-600 dark:text-emerald-400" />
+            {t("الإنفاق حسب الفئة", "Spending by category")}
+          </div>
+          {loading ? (
+            <div className="grid place-items-center py-6">
+              <Loader2 className="size-4 animate-spin text-muted-foreground" />
+            </div>
+          ) : sortedCats.length === 0 ? (
+            <div className="py-6 text-center text-sm text-muted-foreground">
+              {t("لا توجد مصاريف هذا الشهر", "No expenses yet this month")}
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {sortedCats.slice(0, 6).map(([cat, amt]) => {
+                const pct = maxCat > 0 ? Math.round((amt / maxCat) * 100) : 0;
+                const shareOfTotal =
+                  total > 0 ? Math.round((amt / total) * 100) : 0;
+                return (
+                  <div key={cat}>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium">
+                        {CAT_KEY[cat as Cat]
+                          ? isAr
+                            ? {
+                                marketing: "تسويق",
+                                rent: "إيجار",
+                                utilities: "خدمات",
+                                salaries: "رواتب",
+                                maintenance: "صيانة",
+                                commissions: "عمولات",
+                                office: "مكتب",
+                                travel: "سفر",
+                                software: "برامج",
+                                other: "أخرى",
+                              }[cat as Cat]
+                            : cat.charAt(0).toUpperCase() + cat.slice(1)
+                          : cat}
+                      </span>
+                      <span className="tabular-nums text-muted-foreground">
+                        {fmt(amt)} SAR · {shareOfTotal}%
+                      </span>
+                    </div>
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div className="grid gap-3">
+          <div className="text-sm font-semibold">
+            {t("حالة طلباتي", "My claims status")}
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <StatusCard
+              icon={CheckCircle2}
+              tone="pos"
+              label={t("مقبولة", "Approved")}
+              value={statusCounts.approved}
+              loading={loading}
+            />
+            <StatusCard
+              icon={Clock}
+              tone="warn"
+              label={t("بانتظار الموافقة", "Pending")}
+              value={statusCounts.pending}
+              loading={loading}
+            />
+            <StatusCard
+              icon={XCircle}
+              tone="neg"
+              label={t("مرفوضة", "Rejected")}
+              value={statusCounts.rejected}
+              loading={loading}
+            />
+          </div>
+          <p className="text-[11px] leading-relaxed text-muted-foreground">
+            {t(
+              "يعرض حالة آخر 50 مطالبة قدمتها.",
+              "Showing your last 50 submitted claims.",
+            )}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function StatusCard({
+  icon: Icon,
+  tone,
+  label,
+  value,
+  loading,
+}: {
+  icon: typeof CheckCircle2;
+  tone: "pos" | "warn" | "neg";
+  label: string;
+  value: number;
+  loading: boolean;
+}) {
+  const toneCls =
+    tone === "pos"
+      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+      : tone === "warn"
+        ? "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300"
+        : "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300";
+  return (
+    <div
+      className={`rounded-2xl border p-3 backdrop-blur ${toneCls}`}
+      role="status"
+    >
+      <div className="flex items-center gap-1.5 text-[11px] font-medium opacity-90">
+        <Icon className="size-3.5" aria-hidden />
+        {label}
+      </div>
+      <div className="mt-1 text-2xl font-semibold tabular-nums">
+        {loading ? "—" : value}
+      </div>
+    </div>
+  );
+}
+
