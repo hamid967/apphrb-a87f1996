@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
-  ShieldCheck, RefreshCw, Copy, Download, FileCode, QrCode, ChevronLeft,
+  ShieldCheck, RefreshCw, Copy, Download, FileCode, QrCode, ChevronLeft, Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,9 +13,11 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from "@/components/ui/dialog";
 import { HijriDateBadge } from "@/components/ui/hijri-date-badge";
+import { QrImage } from "@/components/zatca/QrImage";
 import {
   generateZatcaInvoice,
   getZatcaBundle,
+  sealZatcaInvoice,
 } from "@/lib/invoices-zatca.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invoices/$id")({
