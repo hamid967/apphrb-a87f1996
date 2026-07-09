@@ -214,6 +214,7 @@ import { Route as AuthenticatedDashboardAuditIdRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardAuctionsReportsRouteImport } from './routes/_authenticated/dashboard.auctions.reports'
 import { Route as AuthenticatedDashboardAuctionsNewRouteImport } from './routes/_authenticated/dashboard.auctions.new'
 import { Route as AuthenticatedDashboardAuctionsAuditRouteImport } from './routes/_authenticated/dashboard.auctions.audit'
+import { Route as AuthenticatedAssistantScriptsNameRouteImport } from './routes/_authenticated/assistant.scripts.$name'
 import { Route as ApiPublicV1UnitsIdRouteImport } from './routes/api/public/v1/units.$id'
 import { Route as ApiPublicV1PropertiesIdRouteImport } from './routes/api/public/v1/properties.$id'
 import { Route as ApiPublicV1PaymentsIdRouteImport } from './routes/api/public/v1/payments.$id'
@@ -1393,6 +1394,12 @@ const AuthenticatedDashboardAuctionsAuditRoute =
     path: '/audit',
     getParentRoute: () => AuthenticatedDashboardAuctionsRoute,
   } as any)
+const AuthenticatedAssistantScriptsNameRoute =
+  AuthenticatedAssistantScriptsNameRouteImport.update({
+    id: '/$name',
+    path: '/$name',
+    getParentRoute: () => AuthenticatedAssistantScriptsRoute,
+  } as any)
 const ApiPublicV1UnitsIdRoute = ApiPublicV1UnitsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -1550,7 +1557,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/assistant/$threadId': typeof AuthenticatedAssistantThreadIdRoute
   '/assistant/audit': typeof AuthenticatedAssistantAuditRoute
-  '/assistant/scripts': typeof AuthenticatedAssistantScriptsRoute
+  '/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
   '/auctions/$id': typeof AuthenticatedAuctionsIdRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
@@ -1629,6 +1636,7 @@ export interface FileRoutesByFullPath {
   '/reports/': typeof AuthenticatedReportsIndexRoute
   '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/team/': typeof AuthenticatedTeamIndexRoute
+  '/assistant/scripts/$name': typeof AuthenticatedAssistantScriptsNameRoute
   '/dashboard/auctions/audit': typeof AuthenticatedDashboardAuctionsAuditRouteWithChildren
   '/dashboard/auctions/new': typeof AuthenticatedDashboardAuctionsNewRoute
   '/dashboard/auctions/reports': typeof AuthenticatedDashboardAuctionsReportsRouteWithChildren
@@ -1766,7 +1774,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/assistant/$threadId': typeof AuthenticatedAssistantThreadIdRoute
   '/assistant/audit': typeof AuthenticatedAssistantAuditRoute
-  '/assistant/scripts': typeof AuthenticatedAssistantScriptsRoute
+  '/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
   '/auctions/$id': typeof AuthenticatedAuctionsIdRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
@@ -1842,6 +1850,7 @@ export interface FileRoutesByTo {
   '/reports': typeof AuthenticatedReportsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/team': typeof AuthenticatedTeamIndexRoute
+  '/assistant/scripts/$name': typeof AuthenticatedAssistantScriptsNameRoute
   '/dashboard/auctions/audit': typeof AuthenticatedDashboardAuctionsAuditRouteWithChildren
   '/dashboard/auctions/new': typeof AuthenticatedDashboardAuctionsNewRoute
   '/dashboard/auctions/reports': typeof AuthenticatedDashboardAuctionsReportsRouteWithChildren
@@ -1986,7 +1995,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/assistant/$threadId': typeof AuthenticatedAssistantThreadIdRoute
   '/_authenticated/assistant/audit': typeof AuthenticatedAssistantAuditRoute
-  '/_authenticated/assistant/scripts': typeof AuthenticatedAssistantScriptsRoute
+  '/_authenticated/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
   '/_authenticated/auctions/$id': typeof AuthenticatedAuctionsIdRoute
   '/_authenticated/contracts/$id': typeof AuthenticatedContractsIdRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
@@ -2065,6 +2074,7 @@ export interface FileRoutesById {
   '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/team/': typeof AuthenticatedTeamIndexRoute
+  '/_authenticated/assistant/scripts/$name': typeof AuthenticatedAssistantScriptsNameRoute
   '/_authenticated/dashboard/auctions/audit': typeof AuthenticatedDashboardAuctionsAuditRouteWithChildren
   '/_authenticated/dashboard/auctions/new': typeof AuthenticatedDashboardAuctionsNewRoute
   '/_authenticated/dashboard/auctions/reports': typeof AuthenticatedDashboardAuctionsReportsRouteWithChildren
@@ -2288,6 +2298,7 @@ export interface FileRouteTypes {
     | '/reports/'
     | '/tasks/'
     | '/team/'
+    | '/assistant/scripts/$name'
     | '/dashboard/auctions/audit'
     | '/dashboard/auctions/new'
     | '/dashboard/auctions/reports'
@@ -2501,6 +2512,7 @@ export interface FileRouteTypes {
     | '/reports'
     | '/tasks'
     | '/team'
+    | '/assistant/scripts/$name'
     | '/dashboard/auctions/audit'
     | '/dashboard/auctions/new'
     | '/dashboard/auctions/reports'
@@ -2723,6 +2735,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reports/'
     | '/_authenticated/tasks/'
     | '/_authenticated/team/'
+    | '/_authenticated/assistant/scripts/$name'
     | '/_authenticated/dashboard/auctions/audit'
     | '/_authenticated/dashboard/auctions/new'
     | '/_authenticated/dashboard/auctions/reports'
@@ -4288,6 +4301,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAuctionsAuditRouteImport
       parentRoute: typeof AuthenticatedDashboardAuctionsRoute
     }
+    '/_authenticated/assistant/scripts/$name': {
+      id: '/_authenticated/assistant/scripts/$name'
+      path: '/$name'
+      fullPath: '/assistant/scripts/$name'
+      preLoaderRoute: typeof AuthenticatedAssistantScriptsNameRouteImport
+      parentRoute: typeof AuthenticatedAssistantScriptsRoute
+    }
     '/api/public/v1/units/$id': {
       id: '/api/public/v1/units/$id'
       path: '/$id'
@@ -4487,10 +4507,25 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
 const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
+interface AuthenticatedAssistantScriptsRouteChildren {
+  AuthenticatedAssistantScriptsNameRoute: typeof AuthenticatedAssistantScriptsNameRoute
+}
+
+const AuthenticatedAssistantScriptsRouteChildren: AuthenticatedAssistantScriptsRouteChildren =
+  {
+    AuthenticatedAssistantScriptsNameRoute:
+      AuthenticatedAssistantScriptsNameRoute,
+  }
+
+const AuthenticatedAssistantScriptsRouteWithChildren =
+  AuthenticatedAssistantScriptsRoute._addFileChildren(
+    AuthenticatedAssistantScriptsRouteChildren,
+  )
+
 interface AuthenticatedAssistantRouteChildren {
   AuthenticatedAssistantThreadIdRoute: typeof AuthenticatedAssistantThreadIdRoute
   AuthenticatedAssistantAuditRoute: typeof AuthenticatedAssistantAuditRoute
-  AuthenticatedAssistantScriptsRoute: typeof AuthenticatedAssistantScriptsRoute
+  AuthenticatedAssistantScriptsRoute: typeof AuthenticatedAssistantScriptsRouteWithChildren
   AuthenticatedAssistantIndexRoute: typeof AuthenticatedAssistantIndexRoute
 }
 
@@ -4498,7 +4533,8 @@ const AuthenticatedAssistantRouteChildren: AuthenticatedAssistantRouteChildren =
   {
     AuthenticatedAssistantThreadIdRoute: AuthenticatedAssistantThreadIdRoute,
     AuthenticatedAssistantAuditRoute: AuthenticatedAssistantAuditRoute,
-    AuthenticatedAssistantScriptsRoute: AuthenticatedAssistantScriptsRoute,
+    AuthenticatedAssistantScriptsRoute:
+      AuthenticatedAssistantScriptsRouteWithChildren,
     AuthenticatedAssistantIndexRoute: AuthenticatedAssistantIndexRoute,
   }
 
