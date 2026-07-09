@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Sparkles, Square } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -8,9 +8,9 @@ const STORAGE_KEY = "aqari.dashboard.theme"; // "tech" | "default"
 export type DashboardThemeMode = "tech" | "default";
 
 export function readDashboardTheme(): DashboardThemeMode {
-  if (typeof window === "undefined") return "tech";
+  if (typeof window === "undefined") return "default";
   const v = window.localStorage.getItem(STORAGE_KEY);
-  return v === "default" ? "default" : "tech";
+  return v === "tech" ? "tech" : "default";
 }
 
 // Track the pending "end of transition" timer so rapid toggles don't
