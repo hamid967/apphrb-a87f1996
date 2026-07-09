@@ -124,6 +124,13 @@ function ExpensesPage() {
     enabled: !!orgId,
   });
 
+  const claimsQ = useQuery({
+    queryKey: ["my-recent-claims", orgId],
+    queryFn: () => listMyRecentClaims({ data: { org_id: orgId!, limit: 50 } }),
+    enabled: !!orgId,
+    staleTime: 30_000,
+  });
+
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Row | null>(null);
   const [form, setForm] = useState(emptyForm());
