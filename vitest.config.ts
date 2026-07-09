@@ -8,6 +8,29 @@ export default defineConfig({
     environmentMatchGlobs: [
       ["**/*.test.tsx", "jsdom"],
     ],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html", "json-summary", "lcov"],
+      reportsDirectory: "coverage",
+      // Focused coverage on the redirect + URL-building surface. These files
+      // guard email links, OAuth callbacks, and post-login navigation inside
+      // the WebView, so we hold them to 100% and fail CI on regressions.
+      include: ["src/lib/app-url.ts", "src/routes/auth.tsx"],
+      thresholds: {
+        "src/lib/app-url.ts": {
+          statements: 100,
+          branches: 100,
+          functions: 100,
+          lines: 100,
+        },
+        "src/routes/auth.tsx": {
+          // The route file is mostly JSX we don't unit-test; only safeRedirect
+          // and routeAfterLogin are asserted. Function-level threshold locks in
+          // that BOTH stay exercised.
+          functions: 20,
+        },
+      },
+    },
   },
   resolve: {
     alias: { "@": path.resolve(__dirname, "src") },
