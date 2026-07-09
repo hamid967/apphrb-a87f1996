@@ -151,6 +151,7 @@ import { Route as AuthenticatedAdminFilterAnalyticsRouteImport } from './routes/
 import { Route as AuthenticatedAdminDecisionLogRouteImport } from './routes/_authenticated/admin.decision-log'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 import { Route as AuthenticatedAdminBillingMetricsRouteImport } from './routes/_authenticated/admin.billing-metrics'
+import { Route as AuthenticatedAdminBackupsRouteImport } from './routes/_authenticated/admin.backups'
 import { Route as AuthenticatedAdminAuditLogRouteImport } from './routes/_authenticated/admin.audit-log'
 import { Route as AuthenticatedAccountingVatRouteImport } from './routes/_authenticated/accounting.vat'
 import { Route as AuthenticatedAccountingPnlRouteImport } from './routes/_authenticated/accounting.pnl'
@@ -1020,6 +1021,12 @@ const AuthenticatedAdminBillingMetricsRoute =
     path: '/billing-metrics',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminBackupsRoute =
+  AuthenticatedAdminBackupsRouteImport.update({
+    id: '/backups',
+    path: '/backups',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminAuditLogRoute =
   AuthenticatedAdminAuditLogRouteImport.update({
     id: '/audit-log',
@@ -1474,6 +1481,7 @@ export interface FileRoutesByFullPath {
   '/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
   '/accounting/vat': typeof AuthenticatedAccountingVatRoute
   '/admin/audit-log': typeof AuthenticatedAdminAuditLogRoute
+  '/admin/backups': typeof AuthenticatedAdminBackupsRoute
   '/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
@@ -1683,6 +1691,7 @@ export interface FileRoutesByTo {
   '/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
   '/accounting/vat': typeof AuthenticatedAccountingVatRoute
   '/admin/audit-log': typeof AuthenticatedAdminAuditLogRoute
+  '/admin/backups': typeof AuthenticatedAdminBackupsRoute
   '/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
@@ -1896,6 +1905,7 @@ export interface FileRoutesById {
   '/_authenticated/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
   '/_authenticated/accounting/vat': typeof AuthenticatedAccountingVatRoute
   '/_authenticated/admin/audit-log': typeof AuthenticatedAdminAuditLogRoute
+  '/_authenticated/admin/backups': typeof AuthenticatedAdminBackupsRoute
   '/_authenticated/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
@@ -2112,6 +2122,7 @@ export interface FileRouteTypes {
     | '/accounting/pnl'
     | '/accounting/vat'
     | '/admin/audit-log'
+    | '/admin/backups'
     | '/admin/billing-metrics'
     | '/admin/companies'
     | '/admin/decision-log'
@@ -2321,6 +2332,7 @@ export interface FileRouteTypes {
     | '/accounting/pnl'
     | '/accounting/vat'
     | '/admin/audit-log'
+    | '/admin/backups'
     | '/admin/billing-metrics'
     | '/admin/companies'
     | '/admin/decision-log'
@@ -2533,6 +2545,7 @@ export interface FileRouteTypes {
     | '/_authenticated/accounting/pnl'
     | '/_authenticated/accounting/vat'
     | '/_authenticated/admin/audit-log'
+    | '/_authenticated/admin/backups'
     | '/_authenticated/admin/billing-metrics'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/decision-log'
@@ -3757,6 +3770,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBillingMetricsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/backups': {
+      id: '/_authenticated/admin/backups'
+      path: '/backups'
+      fullPath: '/admin/backups'
+      preLoaderRoute: typeof AuthenticatedAdminBackupsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/audit-log': {
       id: '/_authenticated/admin/audit-log'
       path: '/audit-log'
@@ -4279,6 +4299,7 @@ const AuthenticatedAccountingRouteWithChildren =
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAuditLogRoute: typeof AuthenticatedAdminAuditLogRoute
+  AuthenticatedAdminBackupsRoute: typeof AuthenticatedAdminBackupsRoute
   AuthenticatedAdminBillingMetricsRoute: typeof AuthenticatedAdminBillingMetricsRoute
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
   AuthenticatedAdminDecisionLogRoute: typeof AuthenticatedAdminDecisionLogRoute
@@ -4305,6 +4326,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAuditLogRoute: AuthenticatedAdminAuditLogRoute,
+  AuthenticatedAdminBackupsRoute: AuthenticatedAdminBackupsRoute,
   AuthenticatedAdminBillingMetricsRoute: AuthenticatedAdminBillingMetricsRoute,
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
   AuthenticatedAdminDecisionLogRoute: AuthenticatedAdminDecisionLogRoute,
