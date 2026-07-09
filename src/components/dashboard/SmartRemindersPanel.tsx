@@ -1139,8 +1139,8 @@ export function SmartRemindersPanel({
                     >
                       {a.correctOriginalId ? (
                         <Link
-                          to="/dashboard/expenses/claim/correct"
-                          search={{ original: a.correctOriginalId }}
+                          to="/dashboard/expenses"
+                          search={{ correct: a.correctOriginalId }}
                           onClick={() => setOpenReminder(null)}
                         >
                           {isAr ? a.labelAr : a.labelEn}
