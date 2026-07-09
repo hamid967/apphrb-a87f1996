@@ -433,6 +433,7 @@ function ClaimWizard() {
                   </Label>
                   <Input
                     id="claim-amount"
+                    data-coach="receipt-amount"
                     inputMode="decimal"
                     autoFocus
                     placeholder="0.00"
