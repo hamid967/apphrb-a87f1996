@@ -2185,18 +2185,26 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          invoice_type: Database["public"]["Enums"]["zatca_invoice_type"]
           issue_date: string
           notes: string | null
           number: string
           org_id: string
           paid_at: string | null
+          previous_hash: string | null
           property_id: string | null
+          qr_tlv: string | null
           status: Database["public"]["Enums"]["invoice_status"]
           subtotal: number
           total: number
           updated_at: string
           vat_amount: number
           vat_rate: number
+          xml_ubl: string | null
+          zatca_hash: string | null
+          zatca_reported_at: string | null
+          zatca_status: Database["public"]["Enums"]["zatca_status"]
+          zatca_uuid: string | null
         }
         Insert: {
           contact_id?: string | null
@@ -2207,18 +2215,26 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          invoice_type?: Database["public"]["Enums"]["zatca_invoice_type"]
           issue_date?: string
           notes?: string | null
           number: string
           org_id: string
           paid_at?: string | null
+          previous_hash?: string | null
           property_id?: string | null
+          qr_tlv?: string | null
           status?: Database["public"]["Enums"]["invoice_status"]
           subtotal?: number
           total?: number
           updated_at?: string
           vat_amount?: number
           vat_rate?: number
+          xml_ubl?: string | null
+          zatca_hash?: string | null
+          zatca_reported_at?: string | null
+          zatca_status?: Database["public"]["Enums"]["zatca_status"]
+          zatca_uuid?: string | null
         }
         Update: {
           contact_id?: string | null
@@ -2229,18 +2245,26 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          invoice_type?: Database["public"]["Enums"]["zatca_invoice_type"]
           issue_date?: string
           notes?: string | null
           number?: string
           org_id?: string
           paid_at?: string | null
+          previous_hash?: string | null
           property_id?: string | null
+          qr_tlv?: string | null
           status?: Database["public"]["Enums"]["invoice_status"]
           subtotal?: number
           total?: number
           updated_at?: string
           vat_amount?: number
           vat_rate?: number
+          xml_ubl?: string | null
+          zatca_hash?: string | null
+          zatca_reported_at?: string | null
+          zatca_status?: Database["public"]["Enums"]["zatca_status"]
+          zatca_uuid?: string | null
         }
         Relationships: [
           {
@@ -3621,6 +3645,129 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_schedules: {
+        Row: {
+          amount: number
+          commission_id: string | null
+          contract_id: string | null
+          created_at: string
+          created_by: string | null
+          deal_id: string | null
+          due_date: string
+          id: string
+          installment_no: number
+          invoice_id: string | null
+          notes: string | null
+          org_id: string
+          source_type: Database["public"]["Enums"]["payment_schedule_source"]
+          status: Database["public"]["Enums"]["payment_schedule_status"]
+          total_amount: number
+          updated_at: string
+          vat_amount: number
+          vat_rate: number
+          voucher_id: string | null
+        }
+        Insert: {
+          amount: number
+          commission_id?: string | null
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deal_id?: string | null
+          due_date: string
+          id?: string
+          installment_no: number
+          invoice_id?: string | null
+          notes?: string | null
+          org_id: string
+          source_type: Database["public"]["Enums"]["payment_schedule_source"]
+          status?: Database["public"]["Enums"]["payment_schedule_status"]
+          total_amount: number
+          updated_at?: string
+          vat_amount?: number
+          vat_rate?: number
+          voucher_id?: string | null
+        }
+        Update: {
+          amount?: number
+          commission_id?: string | null
+          contract_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deal_id?: string | null
+          due_date?: string
+          id?: string
+          installment_no?: number
+          invoice_id?: string | null
+          notes?: string | null
+          org_id?: string
+          source_type?: Database["public"]["Enums"]["payment_schedule_source"]
+          status?: Database["public"]["Enums"]["payment_schedule_status"]
+          total_amount?: number
+          updated_at?: string
+          vat_amount?: number
+          vat_rate?: number
+          voucher_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_schedules_commission_id_fkey"
+            columns: ["commission_id"]
+            isOneToOne: false
+            referencedRelation: "commissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_schedules_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_schedules_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "v_contract_balance"
+            referencedColumns: ["contract_id"]
+          },
+          {
+            foreignKeyName: "payment_schedules_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "v_occupancy"
+            referencedColumns: ["active_contract_id"]
+          },
+          {
+            foreignKeyName: "payment_schedules_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "v_unit_occupancy"
+            referencedColumns: ["active_contract_id"]
+          },
+          {
+            foreignKeyName: "payment_schedules_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_schedules_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_schedules_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "v_ar_aging"
+            referencedColumns: ["invoice_id"]
           },
         ]
       }
@@ -6614,6 +6761,13 @@ export type Database = {
       listing_type: "sale" | "rent"
       org_role: "owner" | "admin" | "agent" | "viewer" | "property_owner"
       owner_statement_status: "draft" | "issued"
+      payment_schedule_source: "contract" | "deal" | "commission"
+      payment_schedule_status:
+        | "pending"
+        | "invoiced"
+        | "paid"
+        | "overdue"
+        | "cancelled"
       payment_txn_status: "pending" | "succeeded" | "failed" | "refunded"
       permission_level:
         | "company"
@@ -6660,6 +6814,8 @@ export type Database = {
         | "on_hold"
         | "completed"
         | "cancelled"
+      zatca_invoice_type: "standard" | "simplified"
+      zatca_status: "draft" | "reported" | "cleared" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -6844,6 +7000,14 @@ export const Constants = {
       listing_type: ["sale", "rent"],
       org_role: ["owner", "admin", "agent", "viewer", "property_owner"],
       owner_statement_status: ["draft", "issued"],
+      payment_schedule_source: ["contract", "deal", "commission"],
+      payment_schedule_status: [
+        "pending",
+        "invoiced",
+        "paid",
+        "overdue",
+        "cancelled",
+      ],
       payment_txn_status: ["pending", "succeeded", "failed", "refunded"],
       permission_level: [
         "company",
@@ -6894,6 +7058,8 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      zatca_invoice_type: ["standard", "simplified"],
+      zatca_status: ["draft", "reported", "cleared", "rejected"],
     },
   },
 } as const
