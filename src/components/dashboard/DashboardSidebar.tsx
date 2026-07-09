@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { motion, LayoutGroup } from "motion/react";
 import {
   LayoutDashboard,
   KeyRound,
@@ -174,54 +175,71 @@ export function DashboardSidebar() {
         aria-label={isAr ? "أقسام لوحة التحكم" : "Dashboard sections"}
         className="relative z-10 px-1.5"
       >
-        {groups.map((group) => (
-          <SidebarGroup key={group.labelEn}>
-            {!collapsed && (
-              <SidebarGroupLabel className="px-3 pt-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                {isAr ? group.labelAr : group.labelEn}
-              </SidebarGroupLabel>
-            )}
-            <SidebarGroupContent>
-              <SidebarMenu className="gap-0.5">
-                {group.items.map((item) => {
-                  const label = isAr ? item.ar : item.en;
-                  const active = isActive(item);
-                  return (
-                    <SidebarMenuItem
-                      key={item.url + (item.search?.view ?? "")}
-                    >
-                      <SidebarMenuButton
-                        asChild
-                        isActive={active}
-                        tooltip={label}
-                        className={[
-                          "group relative h-10 rounded-xl px-3 text-sidebar-foreground/80 transition-colors duration-200",
-                          "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                          "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:font-semibold",
-                        ].join(" ")}
-                      >
-                        <Link
-                          to={item.url}
-                          search={item.search as any}
-                          aria-label={label}
-                          aria-current={active ? "page" : undefined}
-                          className="flex items-center gap-3 focus-visible:outline-none min-w-0"
+        <LayoutGroup id="dashboard-nav">
+          {groups.map((group) => (
+            <SidebarGroup key={group.labelEn}>
+              {!collapsed && (
+                <SidebarGroupLabel className="px-3 pt-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  {isAr ? group.labelAr : group.labelEn}
+                </SidebarGroupLabel>
+              )}
+              <SidebarGroupContent>
+                <SidebarMenu className="gap-0.5">
+                  {group.items.map((item) => {
+                    const label = isAr ? item.ar : item.en;
+                    const active = isActive(item);
+                    return (
+                      <SidebarMenuItem key={item.url + (item.search?.view ?? "")}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={active}
+                          tooltip={label}
+                          className={[
+                            "group relative h-10 rounded-xl px-3 text-sidebar-foreground/80 transition-colors duration-200",
+                            "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                            "data-[active=true]:bg-transparent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:font-semibold",
+                          ].join(" ")}
                         >
-                          <item.icon
-                            className={`size-[18px] shrink-0 transition ${active ? "text-primary" : "text-sidebar-foreground/60 group-hover:text-primary"}`}
-                            aria-hidden="true"
-                            focusable="false"
-                          />
-                          <span className="truncate text-[13px]">{label}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+                          <Link
+                            to={item.url}
+                            search={item.search as any}
+                            aria-label={label}
+                            aria-current={active ? "page" : undefined}
+                            className="relative flex items-center gap-3 focus-visible:outline-none min-w-0"
+                          >
+                            {active && (
+                              <motion.span
+                                layoutId="dashboard-nav-active"
+                                className="absolute inset-0 -mx-0.5 rounded-xl bg-sidebar-accent"
+                                transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                                aria-hidden="true"
+                              />
+                            )}
+                            {active && (
+                              <motion.span
+                                layoutId="dashboard-nav-bar"
+                                className="absolute inset-y-1.5 start-0 w-[3px] rounded-full bg-primary"
+                                transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                                aria-hidden="true"
+                              />
+                            )}
+                            <item.icon
+                              className={`relative z-10 size-[18px] shrink-0 transition ${active ? "text-primary" : "text-sidebar-foreground/60 group-hover:text-primary"}`}
+                              aria-hidden="true"
+                              focusable="false"
+                            />
+                            <span className="relative z-10 truncate text-[13px]">{label}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
+        </LayoutGroup>
+
 
       </SidebarContent>
 

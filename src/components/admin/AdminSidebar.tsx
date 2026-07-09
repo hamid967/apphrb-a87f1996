@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { motion, LayoutGroup } from "motion/react";
 import {
   LayoutDashboard,
   Users2,
@@ -176,40 +177,68 @@ export function AdminSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        {GROUPS.map((g) => {
-          const groupActive = g.items.some((it) => isActive(it.to, it.exact));
-          return (
-            <SidebarGroup key={g.id}>
-              {!collapsed && (
-                <SidebarGroupLabel className={groupActive ? "text-primary" : undefined}>
-                  {isAr ? g.ar : g.en}
-                </SidebarGroupLabel>
-              )}
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {g.items.map((it) => {
-                    const active = isActive(it.to, it.exact);
-                    const Icon = it.icon;
-                    return (
-                      <SidebarMenuItem key={it.to}>
-                        <SidebarMenuButton asChild isActive={active} tooltip={isAr ? it.ar : it.en}>
-                          <Link to={it.to} className="flex items-center gap-2">
-                            <Icon className="size-4 shrink-0" />
-                            {!collapsed && <span className="truncate">{isAr ? it.ar : it.en}</span>}
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          );
-        })}
+        <LayoutGroup id="admin-nav">
+          {GROUPS.map((g) => {
+            const groupActive = g.items.some((it) => isActive(it.to, it.exact));
+            return (
+              <SidebarGroup key={g.id}>
+                {!collapsed && (
+                  <SidebarGroupLabel className={groupActive ? "text-primary" : undefined}>
+                    {isAr ? g.ar : g.en}
+                  </SidebarGroupLabel>
+                )}
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {g.items.map((it) => {
+                      const active = isActive(it.to, it.exact);
+                      const Icon = it.icon;
+                      return (
+                        <SidebarMenuItem key={it.to}>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={active}
+                            tooltip={isAr ? it.ar : it.en}
+                            className="relative data-[active=true]:bg-transparent"
+                          >
+                            <Link to={it.to} className="relative flex items-center gap-2">
+                              {active && (
+                                <motion.span
+                                  layoutId="admin-nav-active"
+                                  className="absolute inset-0 rounded-md bg-sidebar-accent"
+                                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                                  aria-hidden="true"
+                                />
+                              )}
+                              {active && (
+                                <motion.span
+                                  layoutId="admin-nav-bar"
+                                  className="absolute inset-y-1 start-0 w-[3px] rounded-full bg-primary"
+                                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                                  aria-hidden="true"
+                                />
+                              )}
+                              <span className="relative z-10 flex items-center gap-2">
+                                <Icon className="size-4 shrink-0" />
+                                {!collapsed && (
+                                  <span className="truncate">{isAr ? it.ar : it.en}</span>
+                                )}
+                              </span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
+          })}
+        </LayoutGroup>
       </SidebarContent>
     </Sidebar>
   );
 }
+
 
 /** Breadcrumb helper: resolves the current group + item labels from pathname. */
 export function useAdminBreadcrumb() {
