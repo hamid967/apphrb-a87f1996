@@ -1,8 +1,10 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { X, ChevronRight, ChevronLeft, CheckCircle2, Sparkles } from "lucide-react";
+import { setOnboardingStep } from "@/lib/onboarding.functions";
 
 /**
  * Coach Marks — auto-launching, step-by-step guided hints.
@@ -170,6 +172,7 @@ const DONE_KEY = (id: string) => `aqari:coach:${id}:done`;
 export function CoachMarks() {
   const navigate = useNavigate();
   const reduce = useReducedMotion();
+  const markStep = useServerFn(setOnboardingStep);
   const search = useRouterState({ select: (s) => s.location.searchStr ?? "" });
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -304,6 +307,13 @@ export function CoachMarks() {
       } catch {
         /* ignore */
       }
+      // Mirror completion to the user's profile so the "done" state follows
+      // them across devices. Fire-and-forget — never block the UI.
+      void markStep({ data: { step: `__coach_${tour.id}`, done: true } }).catch(
+        () => {
+          /* ignore — local flag is enough */
+        },
+      );
     }
     stripCoachParam();
   }
