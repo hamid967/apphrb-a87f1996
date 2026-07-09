@@ -17,6 +17,14 @@ import {
   CheckCheck,
 } from "lucide-react";
 import { listMyRecentClaims } from "@/lib/expense-claims.functions";
+import { Link as RouterLink } from "@tanstack/react-router";
+import { Settings2 } from "lucide-react";
+import {
+  useReminderPreferences,
+  categoryFromReminderId,
+  frequencyToMs,
+} from "@/lib/reminder-preferences";
+import { useAuth } from "@/hooks/use-auth";
 
 const READ_STORAGE_KEY = (orgId: string | undefined) =>
   `aqari:reminders-read:${orgId ?? "anon"}`;
