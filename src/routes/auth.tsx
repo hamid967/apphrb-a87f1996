@@ -181,7 +181,7 @@ function AuthPage() {
             },
           }).catch(() => {});
           throw new Error(
-            `تم حظر الدخول مؤقتاً بسبب محاولات فاشلة متكررة. حاول بعد ${Math.ceil(rl.retry_after_seconds / 60)} دقيقة.`,
+            t("auth.rateLimited", { minutes: Math.ceil(rl.retry_after_seconds / 60) }),
           );
         }
         const { error } = await supabase.auth.signInWithPassword({
