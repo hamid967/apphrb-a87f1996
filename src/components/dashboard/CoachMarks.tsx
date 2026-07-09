@@ -172,6 +172,7 @@ const DONE_KEY = (id: string) => `aqari:coach:${id}:done`;
 export function CoachMarks() {
   const navigate = useNavigate();
   const reduce = useReducedMotion();
+  const markStep = useServerFn(setOnboardingStep);
   const search = useRouterState({ select: (s) => s.location.searchStr ?? "" });
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
