@@ -1018,13 +1018,17 @@ function KpiCard({
   icon,
   label,
   value,
+  format,
+  suffix,
   sub,
   delta,
   tone,
 }: {
   icon: React.ReactNode;
   label: string;
-  value: string;
+  value: number;
+  format?: (n: number) => string;
+  suffix?: string;
   sub?: string;
   delta?: string;
   tone?: "primary" | "sky" | "emerald" | "amber";
@@ -1048,7 +1052,10 @@ function KpiCard({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="text-[11px] sm:text-xs text-muted-foreground truncate">{label}</div>
-          <div className="mt-1.5 text-xl sm:text-display text-2xl tabular-nums">{value}</div>
+          <div className="mt-1.5 text-xl sm:text-display text-2xl tabular-nums">
+            <AnimatedNumber value={value} format={format} suffix={suffix} />
+          </div>
+
           {sub && <div className="mt-1 truncate text-[11px] text-muted-foreground">{sub}</div>}
           {delta && (
             <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">
