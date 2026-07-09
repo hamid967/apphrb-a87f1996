@@ -66,14 +66,7 @@ export const Route = createFileRoute("/_authenticated/assistant/$threadId")({
   component: ThreadView,
 });
 
-const SUGGESTIONS = [
-  "لخّص وضع النظام الآن",
-  "ما هي الدفعات المتأخرة؟",
-  "توقّع إيرادات الإيجار للأشهر الثلاثة القادمة",
-  "ما العقود التي ستنتهي خلال 60 يوماً؟",
-  "حلّل المخاطر الحالية",
-  "اكتب رسالة تذكير للمستأجرين المتأخرين",
-];
+const SUGGESTION_KEYS = ["s1", "s2", "s3", "s4", "s5", "s6"] as const;
 
 // Strip emojis / pictographs / decorative markdown symbols from assistant text.
 // Keeps Arabic, Latin, digits, punctuation, and whitespace.
