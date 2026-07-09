@@ -272,8 +272,9 @@ function RouteMapPage() {
     const q = deferredQuery.trim().toLowerCase();
     return rows.filter((r) => {
       if (scope !== "all" && r.scope !== scope) return false;
-      if (q && !r.path.toLowerCase().includes(q)) return false;
-      return true;
+      if (!q) return true;
+      const hay = `${r.path} ${r.descriptionAr} ${r.descriptionEn} ${r.usageAr} ${r.usageEn}`.toLowerCase();
+      return hay.includes(q);
     });
   }, [rows, deferredQuery, scope]);
 
