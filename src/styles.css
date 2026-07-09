@@ -1303,3 +1303,25 @@ html.theme-tech nav[aria-label] a[aria-current="page"] > span[aria-hidden="true"
   background: var(--color-primary) !important;
   box-shadow: 0 0 8px color-mix(in oklab, var(--color-primary) 60%, transparent) !important;
 }
+
+/* ------------------------------------------------------------------
+ * Smooth theme swap
+ * When the dashboard theme toggle flips between Slate & Steel and the
+ * default theme, add `html.theme-transitioning` for ~350ms so color-
+ * related properties tween instead of snapping. We scope this to a
+ * transient class so hover/focus transitions on individual elements
+ * are not affected outside the swap.
+ * ---------------------------------------------------------------- */
+html.theme-transitioning,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition:
+    background-color 320ms ease,
+    color 320ms ease,
+    border-color 320ms ease,
+    fill 320ms ease,
+    stroke 320ms ease,
+    box-shadow 320ms ease,
+    opacity 320ms ease !important;
+}
