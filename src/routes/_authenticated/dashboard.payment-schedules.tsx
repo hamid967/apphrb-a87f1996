@@ -266,6 +266,67 @@ function PaymentSchedulesPage() {
     );
   };
 
+  const exportPdf = async () => {
+    if (rows.length === 0) {
+      toast.info(isAr ? "لا توجد بيانات للتصدير" : "Nothing to export");
+      return;
+    }
+    const { headers, dataRows } = await buildExportData();
+    const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a3" });
+    const title = isAr ? "جداول الأقساط" : "Payment Schedules";
+    const scopeBits = [
+      orgId !== "all" &&
+        `${isAr ? "المؤسسة" : "Org"}: ${
+          (orgsQ.data ?? []).find((o) => o.org.id === orgId)?.org.name ?? orgId
+        }`,
+      status !== "all" && `${isAr ? "الحالة" : "Status"}: ${status}`,
+      source !== "all" && `${isAr ? "المصدر" : "Source"}: ${source}`,
+    ].filter(Boolean).join("   |   ") || (isAr ? "بدون فلاتر" : "No filters");
+
+    doc.setFontSize(14);
+    doc.text(title, 40, 32);
+    doc.setFontSize(9);
+    doc.text(scopeBits, 40, 48);
+    doc.text(
+      `${isAr ? "أُنشئ في" : "Generated"}: ${new Date().toLocaleString()}   ` +
+      `|   ${isAr ? "إجمالي مستحق" : "Total due"}: ${summary.due.toFixed(2)}   ` +
+      `|   ${isAr ? "مدفوع" : "Paid"}: ${summary.paid.toFixed(2)}   ` +
+      `|   ${isAr ? "متأخر" : "Overdue"}: ${summary.overdue.toFixed(2)}`,
+      40,
+      62,
+    );
+
+    // Note: jsPDF's default fonts are Latin-only. All exported column values
+    // (keys, IDs, ISO dates, numbers) are ASCII, so they render cleanly.
+    // Free-form Arabic in `notes` may fall back to boxes — CSV/XLSX cover
+    // that use case.
+    const body = dataRows.map((r) => r.map((v) => (v == null ? "" : String(v))));
+    autoTable(doc, {
+      startY: 78,
+      head: [headers],
+      body,
+      styles: { fontSize: 6, cellPadding: 2, overflow: "linebreak" },
+      headStyles: { fillColor: [30, 41, 59], textColor: 255, fontSize: 6 },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      margin: { left: 24, right: 24 },
+      didDrawPage: (data) => {
+        const page = doc.getNumberOfPages();
+        doc.setFontSize(8);
+        doc.text(
+          `${isAr ? "صفحة" : "Page"} ${data.pageNumber} / ${page}`,
+          doc.internal.pageSize.getWidth() - 80,
+          doc.internal.pageSize.getHeight() - 16,
+        );
+      },
+    });
+
+    doc.save(scopedFilename("pdf"));
+    toast.success(
+      isAr ? `تم تصدير ${rows.length} صفاً` : `Exported ${rows.length} rows`,
+    );
+  };
+
+
 
   const activeFilters = [
     orgId !== "all" && {
