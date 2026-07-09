@@ -366,19 +366,19 @@ function AuthPage() {
                   className="ms-auto inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.2em]"
                   style={{ borderColor: HBS.border, color: HBS.goldSoft }}
                 >
-                  <BadgeCheck className="size-3" /> Enterprise
+                  <BadgeCheck className="size-3" /> {t("auth.enterpriseBadge")}
                 </div>
               </div>
 
-              <div dir="rtl" className="mt-6">
+              <div className="mt-6">
                 <h1
                   className="text-3xl font-bold leading-tight tracking-tight"
                   style={{ color: HBS.white }}
                 >
-                  مرحبًا بك في <span style={{ color: HBS.gold }}>HBSpro</span>
+                  {t("auth.welcome")} <span style={{ color: HBS.gold }}>HBSpro</span>
                 </h1>
                 <p className="mt-2 text-sm" style={{ color: HBS.gray }}>
-                  قم بتسجيل الدخول للوصول إلى منصة إدارة الأملاك الذكية.
+                  {t("auth.welcomeSubtitle")}
                 </p>
               </div>
 
