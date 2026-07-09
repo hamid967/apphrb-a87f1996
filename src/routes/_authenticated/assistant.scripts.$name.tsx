@@ -272,19 +272,75 @@ function ScriptDetailPage() {
           <h1 className="text-2xl font-bold">{title}</h1>
           {description && <p className="text-sm text-muted-foreground">{description}</p>}
         </div>
-        <button
-          onClick={() => mutation.mutate()}
-          disabled={mutation.isPending}
-          className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground disabled:opacity-60"
-        >
-          {mutation.isPending ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Play className="size-4" />
-          )}
-          {t("assistant.scripts.rerun")}
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <label className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs text-muted-foreground cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={autoRefresh}
+              onChange={(e) => setAutoRefresh(e.target.checked)}
+              className="accent-primary"
+            />
+            <RefreshCw className={`size-3.5 ${autoRefresh ? "text-primary" : ""}`} />
+            {t("assistant.scripts.autoRefresh")}
+          </label>
+          <button
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending}
+            className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground disabled:opacity-60"
+          >
+            {mutation.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Play className="size-4" />
+            )}
+            {t("assistant.scripts.rerun")}
+          </button>
+        </div>
       </header>
+
+      {/* Progress bar (visible while running; briefly on completion). */}
+      <div className="relative h-1 rounded-full bg-muted overflow-hidden" aria-hidden={progress === 0}>
+        <div
+          className={`absolute inset-y-0 start-0 transition-[width] duration-200 ease-out ${
+            mutation.isError ? "bg-destructive" : "bg-primary"
+          }`}
+          style={{ width: `${progress}%` }}
+          role="progressbar"
+          aria-valuenow={Math.round(progress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        />
+      </div>
+
+      {/* Status line: last updated / duration / auto-refresh. */}
+      <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
+        {mutation.isPending ? (
+          <span className="inline-flex items-center gap-1.5 text-primary">
+            <Loader2 className="size-3.5 animate-spin" />
+            {t("assistant.scripts.running")}
+          </span>
+        ) : mutation.isSuccess && lastUpdatedAt ? (
+          <>
+            <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="size-3.5" />
+              {t("assistant.scripts.completed")}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="size-3.5" />
+              {new Date(lastUpdatedAt).toLocaleTimeString(i18n.language)}
+              {lastDurationMs !== null && (
+                <span className="text-muted-foreground/80">· {lastDurationMs} ms</span>
+              )}
+            </span>
+          </>
+        ) : null}
+        {autoRefresh && !mutation.isError && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5">
+            <RefreshCw className="size-3" />
+            {t("assistant.scripts.autoRefreshOn")}
+          </span>
+        )}
+      </div>
 
       {/* Summary chips (non-array scalar fields from result). */}
       {summaryEntries.length > 0 && (
@@ -304,9 +360,22 @@ function ScriptDetailPage() {
 
       {/* Errors */}
       {mutation.isError && (
-        <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive flex items-start gap-2">
-          <AlertTriangle className="size-4 mt-0.5 shrink-0" />
-          <div>{(mutation.error as Error)?.message ?? t("assistant.scripts.runFailed")}</div>
+        <div className="rounded-md border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive flex items-start gap-3">
+          <AlertTriangle className="size-5 mt-0.5 shrink-0" />
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="font-semibold">{t("assistant.scripts.runFailed")}</div>
+            <pre className="whitespace-pre-wrap break-words font-mono text-xs opacity-90" dir="ltr">
+              {(mutation.error as Error)?.message ?? String(mutation.error)}
+            </pre>
+            <button
+              onClick={() => mutation.mutate()}
+              disabled={mutation.isPending}
+              className="inline-flex items-center gap-1.5 rounded-md border border-destructive/40 bg-destructive/10 px-2.5 py-1 text-xs font-medium hover:bg-destructive/20 disabled:opacity-60"
+            >
+              <RefreshCw className="size-3.5" />
+              {t("assistant.scripts.retry")}
+            </button>
+          </div>
         </div>
       )}
 
