@@ -16,14 +16,7 @@ import {
   hbsPrimaryBtnStyle,
 } from "@/components/hbspro/AuthShell";
 import { HBS } from "@/components/hbspro/tokens";
-import { TurnstileWidget } from "@/components/security/TurnstileWidget";
-import { verifyTurnstile } from "@/lib/turnstile.functions";
-import {
-  CAPTCHA_THRESHOLD,
-  getFailedAttempts,
-  incFailedAttempts,
-  resetFailedAttempts,
-} from "@/lib/auth-attempts";
+import { incFailedAttempts, resetFailedAttempts } from "@/lib/auth-attempts";
 
 export const Route = createFileRoute("/forgot-password")({
   ssr: false,
