@@ -1137,13 +1137,24 @@ export function SmartRemindersPanel({
                       size="sm"
                       variant={a.primary ? "default" : "outline"}
                     >
-                      <Link
-                        to={a.href}
-                        onClick={() => setOpenReminder(null)}
-                      >
-                        {isAr ? a.labelAr : a.labelEn}
-                        <Chevron className="ms-1 size-3.5" />
-                      </Link>
+                      {a.correctOriginalId ? (
+                        <Link
+                          to="/dashboard/expenses/claim/correct"
+                          search={{ original: a.correctOriginalId }}
+                          onClick={() => setOpenReminder(null)}
+                        >
+                          {isAr ? a.labelAr : a.labelEn}
+                          <Chevron className="ms-1 size-3.5" />
+                        </Link>
+                      ) : (
+                        <Link
+                          to={a.href}
+                          onClick={() => setOpenReminder(null)}
+                        >
+                          {isAr ? a.labelAr : a.labelEn}
+                          <Chevron className="ms-1 size-3.5" />
+                        </Link>
+                      )}
                     </Button>
                   ))}
                 </DialogFooter>
