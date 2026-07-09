@@ -77,6 +77,11 @@ import { AutoDashboardPanel } from "@/components/dashboard/AutoDashboardPanel";
 import { QuickExpenseWidget } from "@/components/dashboard/QuickExpenseWidget";
 import { ServicesGrid } from "@/components/dashboard/ServicesGrid";
 import { PendingApprovalsPanel } from "@/components/dashboard/PendingApprovalsPanel";
+import {
+  SortableDashboard,
+  type DashboardSection,
+} from "@/components/dashboard/SortableDashboard";
+import { useAuth } from "@/hooks/use-auth";
 
 const FILTERS = ["all", "sale", "rent"] as const;
 type Filter = (typeof FILTERS)[number];
@@ -185,6 +190,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 function Dashboard() {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
+  const { user } = useAuth();
   const { q, filter, sort, type, status, minBeds, minBaths, page, scrollY, view } =
     Route.useSearch();
   const navigate = Route.useNavigate();
@@ -451,47 +457,76 @@ function Dashboard() {
           <AutoDashboardPanel />
         </div>
       ) : (
-        <>
-          <div className="mt-6">
-            <KpiGrid orgId={org?.id} isAr={isAr} />
-          </div>
-
-          <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_320px]">
-            <div className="space-y-4">
-              <AnalyticsPanels orgId={org?.id} isAr={isAr} />
-              <SaudiMap orgId={org?.id} isAr={isAr} />
-            </div>
-            <aside className="lg:sticky lg:top-4 lg:self-start">
-              <div className="space-y-4">
-                <RightPanel orgId={org?.id} isAr={isAr} />
-                <QuickExpenseWidget orgId={org?.id} />
-                <AIRecommendations orgId={org?.id} isAr={isAr} />
-                <AssistantDock orgId={org?.id} isAr={isAr} />
-              </div>
-            </aside>
-          </div>
-        </>
+        <div className="mt-6">
+          <SortableDashboard
+            userId={user?.id}
+            isAr={isAr}
+            sections={(
+              [
+                {
+                  id: "kpi",
+                  labelAr: "المؤشرات الرئيسية",
+                  labelEn: "Key metrics",
+                  node: <KpiGrid orgId={org?.id} isAr={isAr} />,
+                },
+                {
+                  id: "analytics",
+                  labelAr: "التحليلات والخريطة",
+                  labelEn: "Analytics & map",
+                  node: (
+                    <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+                      <div className="space-y-4">
+                        <AnalyticsPanels orgId={org?.id} isAr={isAr} />
+                        <SaudiMap orgId={org?.id} isAr={isAr} />
+                      </div>
+                      <aside className="lg:sticky lg:top-4 lg:self-start">
+                        <div className="space-y-4">
+                          <RightPanel orgId={org?.id} isAr={isAr} />
+                          <QuickExpenseWidget orgId={org?.id} />
+                          <AIRecommendations orgId={org?.id} isAr={isAr} />
+                          <AssistantDock orgId={org?.id} isAr={isAr} />
+                        </div>
+                      </aside>
+                    </div>
+                  ),
+                },
+                {
+                  id: "summary",
+                  labelAr: "الإيرادات والعقود المنتهية",
+                  labelEn: "Revenue & expiring contracts",
+                  node: (
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      <RevenueChartCard isAr={isAr} />
+                      <ExpiringContractsCard isAr={isAr} />
+                    </div>
+                  ),
+                },
+                {
+                  id: "approvals",
+                  labelAr: "الموافقات المعلقة",
+                  labelEn: "Pending approvals",
+                  node: <PendingApprovalsPanel />,
+                },
+                {
+                  id: "payments-notifications",
+                  labelAr: "المدفوعات والإشعارات",
+                  labelEn: "Payments & notifications",
+                  node: (
+                    <div className="grid gap-4 lg:grid-cols-2">
+                      <RecentPaymentsCard isAr={isAr} />
+                      <NotificationsCard isAr={isAr} />
+                    </div>
+                  ),
+                },
+              ] as DashboardSection[]
+            )}
+          />
+        </div>
       )}
 
       {view === "smart" ? null : (
         <>
-          {/* Executive summary: revenue chart + expiring contracts */}
-          <div className="mt-6 grid gap-4 lg:grid-cols-2">
-            <RevenueChartCard isAr={isAr} />
-            <ExpiringContractsCard isAr={isAr} />
-          </div>
 
-          {/* Pending approvals — visible to owner/admin */}
-          <div className="mt-4">
-            <PendingApprovalsPanel />
-          </div>
-
-
-          {/* Recent payments + Notifications */}
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            <RecentPaymentsCard isAr={isAr} />
-            <NotificationsCard isAr={isAr} />
-          </div>
 
           <div className="mt-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
