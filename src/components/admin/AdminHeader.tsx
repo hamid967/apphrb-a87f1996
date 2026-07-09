@@ -34,6 +34,9 @@ export function AdminHeader() {
           </>
         )}
       </nav>
+      <div className="ms-auto flex items-center gap-1">
+        <DashboardThemeToggle />
+      </div>
     </header>
   );
 }
