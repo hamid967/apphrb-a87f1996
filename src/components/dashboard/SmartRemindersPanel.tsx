@@ -30,6 +30,15 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
   useReminderPreferences,
   categoryFromReminderId,
   frequencyToMs,
@@ -107,6 +116,21 @@ function formatUntil(untilMs: number, isAr: boolean): string {
 
 type Tone = "info" | "warn" | "danger" | "success";
 
+type ReminderAction = {
+  labelAr: string;
+  labelEn: string;
+  href: string;
+  primary?: boolean;
+};
+
+type ReminderDetail = {
+  labelAr: string;
+  labelEn: string;
+  valueAr: string;
+  valueEn: string;
+  tone?: Tone;
+};
+
 type Reminder = {
   id: string;
   tone: Tone;
@@ -119,6 +143,11 @@ type Reminder = {
   ctaAr?: string;
   ctaEn?: string;
   timeAgoMs?: number;
+  claimNumber?: string;
+  reasonAr?: string;
+  reasonEn?: string;
+  missing?: ReminderDetail[];
+  actions?: ReminderAction[];
 };
 
 const toneStyles: Record<
@@ -198,6 +227,63 @@ export function SmartRemindersPanel({
       const age = created ? now - new Date(created).getTime() : undefined;
       const shortId = c.claim_number ?? c.id.slice(0, 6);
       const title = c.title ?? "";
+      const correctionReason = (c as { correction_reason?: string | null })
+        .correction_reason;
+      const description = (c as { description?: string | null }).description;
+      const amount = (c as { amount?: number | string | null }).amount;
+      const currency = (c as { currency?: string | null }).currency ?? "SAR";
+      const category = (c as { category?: string | null }).category;
+
+      const missingCommon: ReminderDetail[] = [];
+      if (!c.receipt_url) {
+        missingCommon.push({
+          labelAr: "إيصال",
+          labelEn: "Receipt",
+          valueAr: "لم يُرفَق",
+          valueEn: "Not attached",
+          tone: "warn",
+        });
+      }
+      if (!description || String(description).trim() === "") {
+        missingCommon.push({
+          labelAr: "وصف",
+          labelEn: "Description",
+          valueAr: "ناقص",
+          valueEn: "Missing",
+          tone: "info",
+        });
+      }
+      if (!category) {
+        missingCommon.push({
+          labelAr: "فئة",
+          labelEn: "Category",
+          valueAr: "غير محددة",
+          valueEn: "Unset",
+          tone: "info",
+        });
+      }
+      if (amount === null || amount === undefined || Number(amount) <= 0) {
+        missingCommon.push({
+          labelAr: "المبلغ",
+          labelEn: "Amount",
+          valueAr: "غير صالح",
+          valueEn: "Invalid",
+          tone: "danger",
+        });
+      }
+
+      const viewAction: ReminderAction = {
+        labelAr: "عرض المطالبة",
+        labelEn: "View claim",
+        href: "/dashboard/expenses",
+        primary: false,
+      };
+      const uploadReceiptAction: ReminderAction = {
+        labelAr: "رفع إيصال",
+        labelEn: "Upload receipt",
+        href: "/dashboard/expenses",
+        primary: true,
+      };
 
       if (status === "submitted" || status === "in_review" || status === "pending") {
         out.push({
@@ -212,6 +298,11 @@ export function SmartRemindersPanel({
           ctaAr: "عرض المطالبة",
           ctaEn: "View claim",
           timeAgoMs: age,
+          claimNumber: shortId,
+          reasonAr: "بانتظار قرار المراجع.",
+          reasonEn: "Awaiting the reviewer's decision.",
+          missing: missingCommon,
+          actions: [viewAction],
         });
       }
 
@@ -228,6 +319,19 @@ export function SmartRemindersPanel({
           ctaAr: "رفع إيصال",
           ctaEn: "Upload receipt",
           timeAgoMs: age,
+          claimNumber: shortId,
+          reasonAr: "لا يمكن اعتماد المطالبة بدون إيصال داعم.",
+          reasonEn: "The claim can't be approved without a supporting receipt.",
+          missing: [
+            {
+              labelAr: "إيصال",
+              labelEn: "Receipt",
+              valueAr: "لم يُرفَق",
+              valueEn: "Not attached",
+              tone: "warn",
+            },
+          ],
+          actions: [uploadReceiptAction, viewAction],
         });
       }
 
@@ -244,6 +348,23 @@ export function SmartRemindersPanel({
           ctaAr: "تصحيح وإعادة إرسال",
           ctaEn: "Correct & resubmit",
           timeAgoMs: age,
+          claimNumber: shortId,
+          reasonAr: correctionReason
+            ? `سبب الرفض: ${correctionReason}`
+            : "رُفضت المطالبة دون سبب مذكور — راجع بياناتها.",
+          reasonEn: correctionReason
+            ? `Rejection reason: ${correctionReason}`
+            : "The claim was rejected without a stated reason — review its details.",
+          missing: missingCommon,
+          actions: [
+            {
+              labelAr: "تصحيح وإعادة إرسال",
+              labelEn: "Correct & resubmit",
+              href: "/dashboard/expenses",
+              primary: true,
+            },
+            viewAction,
+          ],
         });
       }
 
@@ -260,6 +381,19 @@ export function SmartRemindersPanel({
           ctaAr: "إكمال الإرسال",
           ctaEn: "Finish & submit",
           timeAgoMs: age,
+          claimNumber: shortId,
+          reasonAr: "لن تُراجَع هذه المطالبة قبل إرسالها.",
+          reasonEn: "This claim won't be reviewed until you submit it.",
+          missing: missingCommon,
+          actions: [
+            {
+              labelAr: "إكمال الإرسال",
+              labelEn: "Finish & submit",
+              href: "/dashboard/expenses",
+              primary: true,
+            },
+            viewAction,
+          ],
         });
       }
 
@@ -276,6 +410,10 @@ export function SmartRemindersPanel({
           ctaAr: "عرض التفاصيل",
           ctaEn: "View details",
           timeAgoMs: age,
+          claimNumber: shortId,
+          reasonAr: `اعتُمدت مطالبة ${shortId}${amount ? ` بمبلغ ${amount} ${currency}` : ""}.`,
+          reasonEn: `Claim ${shortId}${amount ? ` for ${amount} ${currency}` : ""} was approved.`,
+          actions: [viewAction],
         });
       }
 
@@ -284,6 +422,7 @@ export function SmartRemindersPanel({
         age !== undefined &&
         age > 5 * 24 * 60 * 60 * 1000
       ) {
+        const days = Math.floor(age / (24 * 60 * 60 * 1000));
         out.push({
           id: `slow-${c.id}`,
           tone: "danger",
@@ -296,9 +435,16 @@ export function SmartRemindersPanel({
           ctaAr: "متابعة",
           ctaEn: "Follow up",
           timeAgoMs: age,
+          claimNumber: shortId,
+          reasonAr: `مضى على الإرسال ${days} يوماً دون قرار.`,
+          reasonEn: `${days} days have passed without a decision.`,
+          missing: missingCommon,
+          actions: [viewAction],
         });
       }
     }
+
+
 
     // Priority: danger > warn > info > success, then most recent first.
     const rank: Record<Tone, number> = { danger: 0, warn: 1, info: 2, success: 3 };
@@ -489,6 +635,7 @@ export function SmartRemindersPanel({
     }
   }, [visibleReminders, claimsQ.isLoading, isAr, navigate]);
 
+  const [openReminder, setOpenReminder] = useState<Reminder | null>(null);
   const Chevron = isAr ? ChevronLeft : ChevronRight;
 
   return (
@@ -667,13 +814,14 @@ export function SmartRemindersPanel({
                   exit={{ opacity: 0, x: isAr ? -24 : 24, height: 0, marginTop: 0 }}
                   transition={{ delay: idx * 0.03, duration: 0.22, ease: "easeOut" }}
                 >
-                  {r.href ? (
-                    <Link to={r.href} className="block">
-                      {body}
-                    </Link>
-                  ) : (
-                    body
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => setOpenReminder(r)}
+                    className="block w-full text-start"
+                    aria-label={isAr ? "عرض تفاصيل التذكير" : "View reminder details"}
+                  >
+                    {body}
+                  </button>
                 </motion.li>
               );
             })}
@@ -720,6 +868,121 @@ export function SmartRemindersPanel({
           </ul>
         </div>
       )}
+
+      <Dialog
+        open={!!openReminder}
+        onOpenChange={(o) => !o && setOpenReminder(null)}
+      >
+        <DialogContent dir={isAr ? "rtl" : "ltr"} className="max-w-md">
+          {openReminder && (() => {
+            const r = openReminder;
+            const s = toneStyles[r.tone];
+            const Icon = r.icon;
+            return (
+              <>
+                <DialogHeader>
+                  <div className="mb-2 flex items-center gap-2">
+                    <span
+                      className={`grid size-9 place-items-center rounded-lg bg-background/70 ring-1 ring-inset ring-border ${s.icon}`}
+                    >
+                      <Icon className="size-4" />
+                    </span>
+                    <span
+                      className={`inline-flex items-center rounded-full border ${s.border} ${s.bg} ${s.icon} px-1.5 py-0.5 text-[10px] font-bold`}
+                    >
+                      {isAr ? s.label.ar : s.label.en}
+                    </span>
+                    {r.claimNumber && (
+                      <span className="text-[11px] font-mono text-muted-foreground">
+                        #{r.claimNumber}
+                      </span>
+                    )}
+                  </div>
+                  <DialogTitle className="text-base">
+                    {isAr ? r.titleAr : r.titleEn}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {isAr ? r.bodyAr : r.bodyEn}
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-3">
+                  {(r.reasonAr || r.reasonEn) && (
+                    <div
+                      className={`rounded-lg border ${s.border} ${s.bg} p-3 text-sm`}
+                    >
+                      <p className={`text-[11px] font-bold ${s.icon}`}>
+                        {isAr ? "السبب" : "Reason"}
+                      </p>
+                      <p className="mt-1 text-foreground/90">
+                        {isAr ? r.reasonAr : r.reasonEn}
+                      </p>
+                    </div>
+                  )}
+
+                  {r.missing && r.missing.length > 0 && (
+                    <div className="rounded-lg border p-3">
+                      <p className="mb-2 text-[11px] font-bold text-muted-foreground">
+                        {isAr ? "الحقول الناقصة أو التي تحتاج مراجعة" : "Missing or invalid fields"}
+                      </p>
+                      <ul className="space-y-1.5">
+                        {r.missing.map((d, i) => {
+                          const dt = toneStyles[d.tone ?? "warn"];
+                          return (
+                            <li
+                              key={i}
+                              className="flex items-center justify-between gap-3 text-xs"
+                            >
+                              <span className="font-medium">
+                                {isAr ? d.labelAr : d.labelEn}
+                              </span>
+                              <span
+                                className={`inline-flex items-center rounded-full border ${dt.border} ${dt.bg} ${dt.icon} px-1.5 py-0.5 text-[10px] font-bold`}
+                              >
+                                {isAr ? d.valueAr : d.valueEn}
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      markRead(r.id);
+                      setOpenReminder(null);
+                    }}
+                  >
+                    <Check className="me-1 size-3.5" />
+                    {isAr ? "تمييز كمقروء" : "Mark as read"}
+                  </Button>
+                  {(r.actions ?? []).map((a, i) => (
+                    <Button
+                      key={i}
+                      asChild
+                      size="sm"
+                      variant={a.primary ? "default" : "outline"}
+                    >
+                      <Link
+                        to={a.href}
+                        onClick={() => setOpenReminder(null)}
+                      >
+                        {isAr ? a.labelAr : a.labelEn}
+                        <Chevron className="ms-1 size-3.5" />
+                      </Link>
+                    </Button>
+                  ))}
+                </DialogFooter>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
