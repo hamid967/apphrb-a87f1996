@@ -123,6 +123,7 @@ function AuthenticatedShellWithBoundary() {
     <ErrorBoundary>
       <IdleLogout />
       <AuthenticatedShell />
+      <CoachMarks />
     </ErrorBoundary>
   );
 }
