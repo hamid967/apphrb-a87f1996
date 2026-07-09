@@ -30,6 +30,9 @@ import {
   MessageSquare,
   Landmark,
   Inbox,
+  Filter,
+  Map,
+  MailCheck,
 } from "lucide-react";
 import {
   Sidebar,
@@ -119,6 +122,7 @@ const GROUPS: Group[] = [
         en: "Intro Analytics",
       },
       { to: "/admin/search-insights", icon: TrendingUp, ar: "مصادر البحث", en: "Search Insights" },
+      { to: "/admin/filter-analytics", icon: Filter, ar: "تحليلات الفلاتر", en: "Filter Analytics" },
     ],
   },
   {
@@ -142,6 +146,8 @@ const GROUPS: Group[] = [
         ar: "تشخيص الاتصال المباشر",
         en: "Realtime Diagnostics",
       },
+      { to: "/admin/telemetry-emails", icon: MailCheck, ar: "تليمتري البريد", en: "Email Telemetry" },
+      { to: "/admin/route-map", icon: Map, ar: "خريطة المسارات", en: "Route Map" },
       { to: "/admin/settings", icon: Cog, ar: "الإعدادات", en: "Settings" },
     ],
   },
