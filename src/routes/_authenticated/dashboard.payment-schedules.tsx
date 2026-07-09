@@ -24,6 +24,7 @@ import {
   generateDueVouchers,
 } from "@/lib/payment-schedules.functions";
 import { listMyOrganizations } from "@/lib/organizations.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/dashboard/payment-schedules")({
   head: () => ({
