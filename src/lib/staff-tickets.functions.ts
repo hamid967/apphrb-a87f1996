@@ -189,7 +189,16 @@ export const updateStaffTicket = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: unknown) => updateInput.parse(i))
   .handler(async ({ data, context }) => {
-    const patch: Record<string, unknown> = {};
+    type TicketPatch = {
+      status?: string;
+      priority?: string;
+      category?: string | null;
+      assignee_id?: string | null;
+      tags?: string[];
+      resolved_at?: string | null;
+      closed_at?: string | null;
+    };
+    const patch: TicketPatch = {};
     if (data.status !== undefined) {
       patch.status = data.status;
       if (data.status === "resolved") patch.resolved_at = new Date().toISOString();
