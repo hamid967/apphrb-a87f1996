@@ -38,8 +38,12 @@
     "cap:run:android": "cap run android",
     "cap:update": "cap update",
     "cap:doctor": "cap doctor",
-    "mobile:release:ios": "cap sync ios && cap open ios",
-    "mobile:release:android": "cap sync android && cap open android"
+    "signing:restore:ios": "bash scripts/signing/restore-ios.sh",
+    "signing:restore:android": "bash scripts/signing/restore-android.sh",
+    "signing:restore": "bash scripts/signing/restore-all.sh",
+    "mobile:release:ios": "bash scripts/signing/restore-ios.sh && cap sync ios && cap open ios",
+    "mobile:release:android": "bash scripts/signing/restore-android.sh && cap sync android && cap open android",
+    "mobile:ci:android": "bash scripts/signing/restore-android.sh && cap sync android && cd android && ./gradlew bundleRelease"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^3.0.2",

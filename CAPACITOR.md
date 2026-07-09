@@ -212,26 +212,45 @@ cd android
 
 ارفع `.aab` إلى Google Play Console → Production → Create new release.
 
-### 4) استخدام المتغيرات في GitHub Actions (اختياري)
+### 4) الأتمتة عبر سكربتات جاهزة
 
-في `Repository → Settings → Secrets and variables → Actions` أضف كل المتغيرات أعلاه، ثم في workflow:
+المشروع يتضمّن سكربتات في `scripts/signing/` تفكّ تشفير المتغيرات وتضع الملفات في مكانها الصحيح تلقائياً:
+
+| السكربت | الأمر المختصر | ما يفعله |
+|---|---|---|
+| `scripts/signing/restore-ios.sh` | `bun run signing:restore:ios` | يفك `IOS_P12_BASE64` و`IOS_PROVISIONING_PROFILE_BASE64` إلى `signing/ios/`، ويستورد الشهادة في keychain مؤقّت على macOS |
+| `scripts/signing/restore-android.sh` | `bun run signing:restore:android` | يفك `ANDROID_KEYSTORE_BASE64` إلى `signing/android/aqari-release.keystore` ويُنشئ `keystore.properties` تلقائياً + التحقق عبر `keytool` |
+| `scripts/signing/restore-all.sh` | `bun run signing:restore` | يستدعي الاثنين (يتخطّى iOS خارج macOS إلا مع `FORCE_IOS=1`) |
+
+سكربتات البناء الجاهزة أصبحت تستدعيها تلقائياً قبل `cap sync`:
+
+```bash
+bun run mobile:release:ios      # signing:restore:ios → cap sync ios → cap open ios
+bun run mobile:release:android  # signing:restore:android → cap sync android → cap open android
+bun run mobile:ci:android       # للـCI: restore → cap sync → gradlew bundleRelease
+```
+
+#### مثال GitHub Actions
 
 ```yaml
-- name: Restore iOS signing
-  run: |
-    echo "$IOS_P12_BASE64" | base64 -d > /tmp/dist.p12
-    echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 -d > /tmp/profile.mobileprovision
-    security import /tmp/dist.p12 -P "$IOS_P12_PASSWORD" -A
+- name: Restore signing artifacts
+  run: bun run signing:restore
   env:
-    IOS_P12_BASE64: ${{ secrets.IOS_P12_BASE64 }}
-    IOS_P12_PASSWORD: ${{ secrets.IOS_P12_PASSWORD }}
+    IOS_P12_BASE64:                  ${{ secrets.IOS_P12_BASE64 }}
+    IOS_P12_PASSWORD:                ${{ secrets.IOS_P12_PASSWORD }}
     IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+    ANDROID_KEYSTORE_BASE64:         ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+    ANDROID_KEYSTORE_PASSWORD:       ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+    ANDROID_KEY_ALIAS:               ${{ secrets.ANDROID_KEY_ALIAS }}
+    ANDROID_KEY_PASSWORD:            ${{ secrets.ANDROID_KEY_PASSWORD }}
+    GOOGLE_PLAY_JSON_KEY_BASE64:     ${{ secrets.GOOGLE_PLAY_JSON_KEY_BASE64 }}
 
-- name: Restore Android keystore
-  run: echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > signing/android/aqari-release.keystore
-  env:
-    ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+- name: Build Android release bundle
+  run: bun run mobile:ci:android
 ```
+
+السكربتات ترفض العمل إن كان أي متغير مطلوب مفقوداً، وتضبط أذونات الملفات على `600` تلقائياً، وتتحقق من صحة الـkeystore عبر `keytool` قبل المتابعة.
+
 
 ### 5) قائمة تحقق قبل أول نشر
 
