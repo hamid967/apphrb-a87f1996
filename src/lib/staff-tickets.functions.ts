@@ -103,7 +103,7 @@ export type StaffTicketComment = {
   author_id: string | null;
   body: string;
   is_internal: boolean;
-  attachments: unknown;
+  attachments: unknown[];
   created_at: string;
 };
 
