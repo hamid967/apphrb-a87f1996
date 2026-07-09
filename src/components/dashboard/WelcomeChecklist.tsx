@@ -56,11 +56,11 @@ const STEPS: StepDef[] = [
   {
     id: "first_receipt",
     required: true,
-    labelAr: "أصدر أول إيصال",
-    labelEn: "Issue your first receipt",
-    descAr: "لتأكيد جاهزية الفوترة مع ZATCA.",
-    descEn: "Confirms ZATCA-ready billing.",
-    to: "/dashboard/payments",
+    labelAr: "ارفع أول إيصال",
+    labelEn: "Upload your first receipt",
+    descAr: "افتح شاشة المطالبة وارفق صورة الإيصال.",
+    descEn: "Open the claim screen and attach a receipt.",
+    to: "/dashboard/expenses/claim",
     icon: Receipt,
   },
   {
@@ -70,7 +70,7 @@ const STEPS: StepDef[] = [
     labelEn: "Invite your team",
     descAr: "أضف الموظفين وحدد صلاحياتهم.",
     descEn: "Add employees & assign roles.",
-    to: "/dashboard/settings",
+    to: "/team",
     icon: Users2,
   },
   {
