@@ -534,9 +534,9 @@ function ThreadView() {
                         denialCodes.includes(out.code);
                       if (isDenial) {
                         const codeLabel: Record<string, string> = {
-                          forbidden_role: "دورك لا يملك صلاحية هذه الأداة",
-                          field_not_allowed: "حقول غير مسموح بها لدورك",
-                          value_out_of_range: "قيمة خارج النطاق المسموح",
+                          forbidden_role: t("assistant.thread.denials.forbidden_role"),
+                          field_not_allowed: t("assistant.thread.denials.field_not_allowed"),
+                          value_out_of_range: t("assistant.thread.denials.value_out_of_range"),
                         };
                         return (
                           <div
@@ -545,7 +545,7 @@ function ThreadView() {
                           >
                             <div className="flex items-center gap-2 font-medium text-destructive">
                               <Wrench className="size-3" />
-                              <span>تم رفض استدعاء «{name}»</span>
+                              <span>{t("assistant.thread.toolRejected", { name })}</span>
                             </div>
                             <div className="text-[11px] font-medium">
                               {codeLabel[out.code] ?? out.code}
@@ -556,19 +556,19 @@ function ThreadView() {
                             <div className="flex flex-wrap gap-1.5 pt-1">
                               {out.role && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted text-[10px]">
-                                  دورك: <b>{out.role}</b>
+                                  {t("assistant.thread.role")} <b>{out.role}</b>
                                 </span>
                               )}
                               {Array.isArray(out.allowed_roles) && out.allowed_roles.length > 0 && (
                                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px]">
-                                  الأدوار المسموح بها: {out.allowed_roles.join("، ")}
+                                  {t("assistant.thread.allowedRoles")} {out.allowed_roles.join(isRtl ? "، " : ", ")}
                                 </span>
                               )}
                             </div>
                             {Array.isArray(out.allowed_fields) && out.allowed_fields.length > 0 && (
                               <div>
                                 <div className="text-[10px] text-muted-foreground mb-1">
-                                  الحقول المسموح بها لدورك:
+                                  {t("assistant.thread.allowedFields")}
                                 </div>
                                 <div className="flex flex-wrap gap-1">
                                   {out.allowed_fields.map((f: string) => (
@@ -586,7 +586,7 @@ function ThreadView() {
                               out.restricted_fields.length > 0 && (
                                 <div>
                                   <div className="text-[10px] text-muted-foreground mb-1">
-                                    حقول مقيّدة:
+                                    {t("assistant.thread.restrictedFields")}
                                   </div>
                                   <div className="flex flex-wrap gap-1">
                                     {out.restricted_fields.map((f: string) => (
@@ -610,9 +610,9 @@ function ThreadView() {
                             <span>{name}</span>
                             <span className="text-muted-foreground">
                               {state === "output-available"
-                                ? "✓ تم"
+                                ? t("assistant.thread.toolDone")
                                 : state === "input-available"
-                                  ? "⏳ يشغّل…"
+                                  ? t("assistant.thread.toolRunning")
                                   : (state ?? "")}
                             </span>
                           </div>
@@ -643,8 +643,8 @@ function ThreadView() {
                           <button
                             type="button"
                             onClick={() => rateMessage(m.id, "up")}
-                            aria-label="مفيد"
-                            title="مفيد"
+                            aria-label={t("assistant.thread.helpful")}
+                            title={t("assistant.thread.helpful")}
                             className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] transition hover:bg-muted ${
                               fb === "up"
                                 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/40"
@@ -656,8 +656,8 @@ function ThreadView() {
                           <button
                             type="button"
                             onClick={() => rateMessage(m.id, "down")}
-                            aria-label="غير مفيد"
-                            title="غير مفيد"
+                            aria-label={t("assistant.thread.notHelpful")}
+                            title={t("assistant.thread.notHelpful")}
                             className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] transition hover:bg-muted ${
                               fb === "down"
                                 ? "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/40"
@@ -687,7 +687,7 @@ function ThreadView() {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Loader2 className="size-4 animate-spin" />
-                <span>يفكر ويقرأ البيانات</span>
+                <span>{t("assistant.thread.thinking")}</span>
                 <motion.span
                   animate={{ opacity: [0.2, 1, 0.2] }}
                   transition={{ duration: 1.2, repeat: Infinity }}
@@ -698,7 +698,7 @@ function ThreadView() {
             </motion.div>
           )}
 
-          {error && <div className="text-xs text-destructive">خطأ: {error.message}</div>}
+          {error && <div className="text-xs text-destructive">{t("assistant.thread.errorPrefix")} {error.message}</div>}
         </CardContent>
 
         <div className="border-t p-3 space-y-2">
