@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { runDashboardTool } from "@/lib/ai-assistant.functions";
+import { recordRun } from "@/lib/scripts-history";
 import { sectionHead } from "@/lib/section-og-head";
 import {
   ArrowLeft,
