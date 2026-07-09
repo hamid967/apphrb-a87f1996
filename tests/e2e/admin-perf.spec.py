@@ -149,6 +149,68 @@ def summarize(runs: list[dict]) -> dict:
     }
 
 
+def slug(path: str) -> str:
+    return path.strip("/").replace("/", "_") or "root"
+
+
+async def run_path(browser, path: str, budget: int) -> tuple[dict, list[str], Path]:
+    """Load a path RUNS_PER_PATH times inside a dedicated context that records
+    video + HAR + Playwright trace. Returns (summary, failures, artifact_dir).
+    Caller decides whether to keep or delete the artifact dir based on pass/fail."""
+    artifact_dir = SCREENSHOTS / slug(path)
+    video_dir = artifact_dir / "video"
+    video_dir.mkdir(parents=True, exist_ok=True)
+    har_path = artifact_dir / "network.har"
+    trace_path = artifact_dir / "trace.zip"
+
+    context = await browser.new_context(
+        viewport={"width": 1280, "height": 1800},
+        record_video_dir=str(video_dir),
+        record_video_size={"width": 1280, "height": 900},
+        record_har_path=str(har_path),
+        record_har_content="omit",
+    )
+    await context.tracing.start(screenshots=True, snapshots=True, sources=True)
+    page = await context.new_page()
+
+    runs: list[dict] = []
+    failures: list[str] = []
+    try:
+        await restore_session(context, page)
+        for i in range(RUNS_PER_PATH):
+            r = await measure(page, path)
+            print(
+                f"  {path:22s} run {i + 1}: nav={r['navigation_ms']:>5}ms "
+                f"interactive={r['interactive_ms']:>5}ms "
+                f"transfer={r['transfer_kb']:>6.1f}KB "
+                f"status={r['status']} ready={r['ready']}"
+            )
+            runs.append(r)
+        await page.screenshot(path=str(artifact_dir / "final.png"))
+    finally:
+        # tracing.stop + context.close MUST run before video/HAR files are
+        # flushed to disk. Order matters: stop trace → close context.
+        await context.tracing.stop(path=str(trace_path))
+        await context.close()
+
+    summary = summarize(runs)
+    med = summary["interactive_ms_median"]
+    if not summary["all_ready"]:
+        failures.append(f"{path}: never rendered ready selector")
+    if med > budget:
+        failures.append(f"{path}: interactive_ms median {med} > budget {budget}")
+
+    return summary, failures, artifact_dir
+
+
+def discard_artifacts(artifact_dir: Path) -> None:
+    """Passing runs leave nothing behind — video/HAR/trace exist only when
+    a regression needs diagnosis."""
+    import shutil
+    if artifact_dir.exists():
+        shutil.rmtree(artifact_dir, ignore_errors=True)
+
+
 async def main() -> int:
     source = resolve_auth_source()
     if source == "none":
@@ -158,53 +220,52 @@ async def main() -> int:
     print(f"Using auth source: {source}")
 
     report: dict = {"budgets_ms": BUDGETS_MS, "runs_per_path": RUNS_PER_PATH, "results": {}}
-    failures: list[str] = []
+    all_failures: list[str] = []
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
-        context = await browser.new_context(viewport={"width": 1280, "height": 1800})
-        page = await context.new_page()
         try:
-            await restore_session(context, page)
-
             for path, budget in BUDGETS_MS.items():
-                runs: list[dict] = []
-                for i in range(RUNS_PER_PATH):
-                    r = await measure(page, path)
-                    print(
-                        f"  {path:22s} run {i + 1}: nav={r['navigation_ms']:>5}ms "
-                        f"interactive={r['interactive_ms']:>5}ms "
-                        f"transfer={r['transfer_kb']:>6.1f}KB "
-                        f"status={r['status']} ready={r['ready']}"
-                    )
-                    runs.append(r)
-                summary = summarize(runs)
+                summary, failures, artifact_dir = await run_path(browser, path, budget)
                 report["results"][path] = {"budget_ms": budget, **summary}
-
                 med = summary["interactive_ms_median"]
-                if not summary["all_ready"]:
-                    failures.append(f"{path}: never rendered ready selector")
-                if med > budget:
-                    failures.append(
-                        f"{path}: interactive_ms median {med} > budget {budget}"
+                if failures:
+                    all_failures.extend(failures)
+                    marker = "FAIL"
+                    print(
+                        f"{marker} {path:22s} median interactive={med}ms "
+                        f"(budget {budget}ms) — artifacts kept at {artifact_dir}"
                     )
-                marker = "OK  " if (summary["all_ready"] and med <= budget) else "FAIL"
-                print(
-                    f"{marker} {path:22s} median interactive={med}ms "
-                    f"(budget {budget}ms) transfer={summary['transfer_kb_median']}KB"
-                )
-
-            await page.screenshot(path=str(SCREENSHOTS / "final.png"))
+                    # Attach artifact locations into the JSON report for CI.
+                    report["results"][path]["artifacts"] = {
+                        "dir": str(artifact_dir),
+                        "video_dir": str(artifact_dir / "video"),
+                        "har": str(artifact_dir / "network.har"),
+                        "trace": str(artifact_dir / "trace.zip"),
+                        "screenshot": str(artifact_dir / "final.png"),
+                    }
+                else:
+                    discard_artifacts(artifact_dir)
+                    print(
+                        f"OK   {path:22s} median interactive={med}ms "
+                        f"(budget {budget}ms) transfer={summary['transfer_kb_median']}KB"
+                    )
         finally:
             await browser.close()
 
     REPORT.write_text(json.dumps(report, indent=2))
     print(f"\nReport → {REPORT}")
 
-    if failures:
-        print(f"\n{len(failures)} regression(s):")
-        for f in failures:
+    if all_failures:
+        print(f"\n{len(all_failures)} regression(s):")
+        for f in all_failures:
             print(" -", f)
+        print(
+            "\nDiagnose with:\n"
+            "  - open the video under <artifacts>/video/*.webm\n"
+            "  - inspect requests: cat <artifacts>/network.har | jq\n"
+            "  - replay UI:  bunx playwright show-trace <artifacts>/trace.zip"
+        )
         return 1
     print("\nAll pages within budget.")
     return 0
@@ -212,3 +273,4 @@ async def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(asyncio.run(main()))
+
