@@ -239,11 +239,19 @@ function useAllRoutes(): RouteRow[] {
         if (id.includes("/_authenticated/admin")) scope = "admin";
         else if (id.includes("/_authenticated")) scope = "authenticated";
       }
+      const m = metaFor(fullPath);
+      const auth = AUTH_META[scope];
       const row: RouteRow = {
         path: fullPath,
         scope,
         dynamic: fullPath.includes("$"),
         segments: fullPath.split("/").filter(Boolean).length,
+        descriptionAr: m.descriptionAr,
+        descriptionEn: m.descriptionEn,
+        usageAr: m.usageAr,
+        usageEn: m.usageEn,
+        authAr: auth.ar,
+        authEn: auth.en,
       };
       // Deduplicate: FileRoutesByFullPath/ByTo produce two ids for the same URL.
       if (!seen.has(row.path)) seen.set(row.path, row);
