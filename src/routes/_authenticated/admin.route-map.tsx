@@ -346,21 +346,39 @@ function RouteMapPage() {
   const rows = useAllRoutes();
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<Scope | "all">("all");
+  const [category, setCategory] = useState<Category | "all">("all");
+  const [role, setRole] = useState<Role | "all">("all");
 
   const deferredQuery = useDeferredValue(query);
   const filtered = useMemo(() => {
     const q = deferredQuery.trim().toLowerCase();
     return rows.filter((r) => {
       if (scope !== "all" && r.scope !== scope) return false;
+      if (category !== "all" && r.category !== category) return false;
+      if (role !== "all" && r.role !== role) return false;
       if (!q) return true;
       const hay = `${r.path} ${r.descriptionAr} ${r.descriptionEn} ${r.usageAr} ${r.usageEn}`.toLowerCase();
       return hay.includes(q);
     });
-  }, [rows, deferredQuery, scope]);
+  }, [rows, deferredQuery, scope, category, role]);
 
   const counts = useMemo(() => {
     const c: Record<Scope, number> = { public: 0, authenticated: 0, admin: 0, api: 0 };
     for (const r of rows) c[r.scope]++;
+    return c;
+  }, [rows]);
+
+  const catCounts = useMemo(() => {
+    const c = {} as Record<Category, number>;
+    (Object.keys(CATEGORY_META) as Category[]).forEach((k) => (c[k] = 0));
+    for (const r of rows) c[r.category]++;
+    return c;
+  }, [rows]);
+
+  const roleCounts = useMemo(() => {
+    const c = {} as Record<Role, number>;
+    (Object.keys(ROLE_META) as Role[]).forEach((k) => (c[k] = 0));
+    for (const r of rows) c[r.role]++;
     return c;
   }, [rows]);
 
