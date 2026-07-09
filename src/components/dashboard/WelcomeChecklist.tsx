@@ -86,11 +86,15 @@ const STEPS: StepDef[] = [
 ];
 
 const DISMISS_KEY = "aqary:welcome-checklist:dismissed";
+const DISMISS_STEP = "__welcome_dismissed"; // reserved key on profiles.onboarding_progress
+const COACH_STEP_PREFIX = "__coach_";
 
 /**
  * Post-login welcome checklist. Shows a friendly hello + a short list of
  * setup steps with progress and quick links. Dismissible; auto-hides once
- * every required step is done, and stays hidden after user dismissal.
+ * every required step is done. Dismiss state is persisted on the user's
+ * profile so it follows them across devices, with a localStorage cache for
+ * instant UI before the server responds.
  */
 export function WelcomeChecklist({ isAr }: { isAr: boolean }) {
   const { user } = useAuth();
@@ -100,19 +104,21 @@ export function WelcomeChecklist({ isAr }: { isAr: boolean }) {
   const markStep = useServerFn(setOnboardingStep);
 
   const openStep = (step: StepDef) => {
-    // Reset the per-step coach completion so the tour re-runs on this visit.
+    // Reset the per-step coach completion (local cache + server flag) so the
+    // tour re-runs on this visit even from another device.
     try {
-      localStorage.removeItem(`aqary:coach:${step.id}:done`);
+      localStorage.removeItem(`aqari:coach:${step.id}:done`);
     } catch {
       /* ignore */
     }
+    markMut.mutate({ step: `${COACH_STEP_PREFIX}${step.id}`, done: false });
     navigate({
       to: step.to,
       search: { coach: step.id } as never,
     });
   };
 
-  const [dismissed, setDismissed] = useState<boolean>(() => {
+  const [dismissedLocal, setDismissedLocal] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
     return localStorage.getItem(DISMISS_KEY) === "1";
   });
@@ -125,12 +131,32 @@ export function WelcomeChecklist({ isAr }: { isAr: boolean }) {
   });
 
   const markMut = useMutation({
-    mutationFn: (step: string) => markStep({ data: { step, done: true } }),
+    mutationFn: (input: { step: string; done?: boolean }) =>
+      markStep({ data: { step: input.step, done: input.done ?? true } }),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ["onboarding-progress", user?.id] }),
   });
 
   const progress = progressQ.data?.progress ?? {};
+  // Server dismiss flag is the source of truth once loaded; localStorage is
+  // just the pre-hydration cache so the card doesn't flash for returning
+  // users on the same device.
+  const dismissedServer = progress[DISMISS_STEP]?.done === true;
+  const dismissed = dismissedServer || dismissedLocal;
+
+  // Mirror server state into the local cache so a first-time visit on a new
+  // device won't re-show the card after the server confirms it's dismissed.
+  useEffect(() => {
+    if (dismissedServer) {
+      try {
+        localStorage.setItem(DISMISS_KEY, "1");
+      } catch {
+        /* ignore */
+      }
+      if (!dismissedLocal) setDismissedLocal(true);
+    }
+  }, [dismissedServer, dismissedLocal]);
+
   const requiredDone = useMemo(
     () => REQUIRED_ONBOARDING_STEPS.every((s) => progress[s]?.done === true),
     [progress],
@@ -139,16 +165,17 @@ export function WelcomeChecklist({ isAr }: { isAr: boolean }) {
   const pct = Math.round((doneCount / STEPS.length) * 100);
 
   const handleDismiss = () => {
-    setDismissed(true);
+    setDismissedLocal(true);
     try {
       localStorage.setItem(DISMISS_KEY, "1");
     } catch {
       /* ignore */
     }
+    // Persist to the profile so the card stays hidden on other devices too.
+    markMut.mutate({ step: DISMISS_STEP, done: true });
   };
 
-  // Hide entirely if dismissed, or once all required steps are complete
-  // AND the user has opened optional steps at least once.
+  // Hide entirely if dismissed, or once every step is complete.
   if (dismissed) return null;
   if (progressQ.isLoading || !user) return null;
   if (requiredDone && doneCount === STEPS.length) return null;
