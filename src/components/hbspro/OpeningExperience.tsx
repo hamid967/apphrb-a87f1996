@@ -807,6 +807,8 @@ export function OpeningExperience() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <WelcomeTour open={tourOpen} onClose={() => setTourOpen(false)} />
     </section>
   );
 }
