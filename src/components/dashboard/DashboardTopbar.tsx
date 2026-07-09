@@ -374,7 +374,9 @@ export function DashboardTopbar({
 
         <LanguageSwitcher />
         <ThemeToggle />
+        <DashboardThemeToggle />
         <HoloIntensityToggle />
+
 
 
         <div className="mx-1 h-6 w-px bg-[rgba(212,175,55,0.25)]" />
