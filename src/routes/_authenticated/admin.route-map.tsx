@@ -35,9 +35,30 @@ export const Route = createFileRoute("/_authenticated/admin/route-map")({
 
 type Scope = "public" | "authenticated" | "admin" | "api";
 
+type Category =
+  | "admin"
+  | "employee"
+  | "reports"
+  | "accounting"
+  | "assistant"
+  | "public"
+  | "auth"
+  | "onboarding"
+  | "api";
+
+type Role =
+  | "guest"
+  | "any_authenticated"
+  | "staff"
+  | "manager"
+  | "super_admin"
+  | "server";
+
 type RouteRow = {
   path: string;
   scope: Scope;
+  category: Category;
+  role: Role;
   dynamic: boolean;
   segments: number;
   descriptionAr: string;
