@@ -74,73 +74,17 @@ export function SmartBreadcrumbs({
       aria-label={isAr ? "مسار التنقّل" : "Breadcrumb"}
       className={"min-w-0 flex-1 " + (className ?? "")}
     >
-      {/* Mobile compact view */}
-      <ol className="flex min-w-0 items-center gap-1 text-sm sm:hidden">
-        <li className="flex shrink-0 items-center">
-          {crumbs.length === 1 ? (
-            <span
-              aria-current="page"
-              tabIndex={0}
-              className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 font-semibold text-primary ring-1 ring-primary/20 outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-            >
-              {renderRootIcon()}
-              {first.label}
-            </span>
-          ) : (
-            <Link
-              to={first.href}
-              aria-label={isAr ? ariaHome.ar : ariaHome.en}
-              className="inline-flex items-center rounded-md px-2 py-1 text-muted-foreground outline-none transition-colors hover:bg-primary/10 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50"
-            >
-              {RootIcon ? <RootIcon className="size-4" aria-hidden /> : first.label}
-            </Link>
-          )}
-        </li>
+      {/* Mobile compact view — scrollable mini strip with fade edges */}
+      <MobileScrollStrip
+        crumbs={crumbs}
+        Sep={Sep}
+        RootIcon={RootIcon}
+        isAr={!!isAr}
+        ariaHome={ariaHome}
+        middle={middle}
+        showEllipsis={showEllipsis}
+      />
 
-        {showEllipsis && (
-          <>
-            <li aria-hidden="true" className="inline-flex shrink-0 text-muted-foreground/60">
-              <Sep className="size-3.5" />
-            </li>
-            <li className="flex shrink-0 items-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  aria-label={isAr ? "عرض المسارات الوسيطة" : "Show intermediate pages"}
-                  className="inline-flex items-center rounded-md px-1.5 py-1 text-muted-foreground outline-none transition-colors hover:bg-primary/10 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50"
-                >
-                  <MoreHorizontal className="size-4" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align={isAr ? "end" : "start"} className="min-w-[10rem]">
-                  {middle.map((c) => (
-                    <DropdownMenuItem key={c.href} asChild>
-                      <Link to={c.href} className="cursor-pointer">
-                        {c.label}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </li>
-          </>
-        )}
-
-        {crumbs.length > 1 && (
-          <>
-            <li aria-hidden="true" className="inline-flex shrink-0 text-muted-foreground/60">
-              <Sep className="size-3.5" />
-            </li>
-            <li className="flex min-w-0 items-center">
-              <span
-                aria-current="page"
-                tabIndex={0}
-                className="truncate rounded-md bg-primary/10 px-2 py-0.5 font-semibold text-primary ring-1 ring-primary/20 outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-              >
-                {last.label}
-              </span>
-            </li>
-          </>
-        )}
-      </ol>
 
       {/* Desktop full view */}
       <LayoutGroup id={layoutId}>
