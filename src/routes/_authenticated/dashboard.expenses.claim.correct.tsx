@@ -527,57 +527,62 @@ function ReceiptDrop({
   fileName,
   onPick,
   onDrop,
+  onCapture,
   hint,
 }: {
   uploading: boolean;
   fileName: string | null;
   onPick: () => void;
   onDrop: (f: File | undefined | null) => void;
+  onCapture: (f: File | undefined | null) => void;
   hint: string;
 }) {
   const { t } = useTranslation();
   const [dragOver, setDragOver] = useState(false);
   return (
-    <button
-      type="button"
-      onClick={onPick}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDragOver(true);
-      }}
-      onDragLeave={() => setDragOver(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setDragOver(false);
-        onDrop(e.dataTransfer.files?.[0]);
-      }}
-      className={cn(
-        "flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 transition",
-        dragOver
-          ? "border-primary bg-primary/5"
-          : "border-border hover:border-primary/50 hover:bg-muted/30",
-      )}
-      disabled={uploading}
-    >
-      {uploading ? (
-        <>
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          <span className="text-sm">{t("expenseClaim.uploading")}</span>
-        </>
-      ) : fileName ? (
-        <>
-          <FileText className="h-6 w-6 text-primary" />
-          <span className="text-sm font-medium">{fileName}</span>
-          <span className="text-xs text-muted-foreground">{t("expenseClaim.replace")}</span>
-        </>
-      ) : (
-        <>
-          <Upload className="h-6 w-6 text-muted-foreground" />
-          <span className="text-sm font-medium">{t("expenseClaim.dropReceipt")}</span>
-          <span className="text-xs text-muted-foreground">{hint}</span>
-        </>
-      )}
-    </button>
+    <div className="space-y-2">
+      <button
+        type="button"
+        onClick={onPick}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          onDrop(e.dataTransfer.files?.[0]);
+        }}
+        className={cn(
+          "flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 transition",
+          dragOver
+            ? "border-primary bg-primary/5"
+            : "border-border hover:border-primary/50 hover:bg-muted/30",
+        )}
+        disabled={uploading}
+      >
+        {uploading ? (
+          <>
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <span className="text-sm">{t("expenseClaim.uploading")}</span>
+          </>
+        ) : fileName ? (
+          <>
+            <FileText className="h-6 w-6 text-primary" />
+            <span className="text-sm font-medium">{fileName}</span>
+            <span className="text-xs text-muted-foreground">{t("expenseClaim.replace")}</span>
+          </>
+        ) : (
+          <>
+            <Upload className="h-6 w-6 text-muted-foreground" />
+            <span className="text-sm font-medium">{t("expenseClaim.dropReceipt")}</span>
+            <span className="text-xs text-muted-foreground">{hint}</span>
+          </>
+        )}
+      </button>
+      <ReceiptCameraButton onCapture={onCapture} disabled={uploading} />
+    </div>
   );
 }
 
