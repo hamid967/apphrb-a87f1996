@@ -43,6 +43,9 @@ jobs:
     name: E2E (WebView-simulated redirects)
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      E2E_MAX_ATTEMPTS: "3"
+      E2E_RETRY_BACKOFF_SECONDS: "5"
     steps:
       - uses: actions/checkout@v4
 
@@ -80,9 +83,6 @@ jobs:
         # transient timeouts). Each attempt's log is preserved separately and
         # run.log points at the successful (or last) attempt. Fails the job
         # only after every attempt exhausts.
-        env:
-          E2E_MAX_ATTEMPTS: "3"
-          E2E_RETRY_BACKOFF_SECONDS: "5"
         run: |
           mkdir -p /tmp/browser/webview-redirects
           attempt=1
