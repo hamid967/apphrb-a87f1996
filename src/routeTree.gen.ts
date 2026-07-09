@@ -39,6 +39,7 @@ import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DocsApiRouteImport } from './routes/docs.api'
 import { Route as DevVerifyRouteImport } from './routes/dev.verify'
+import { Route as DevBreadcrumbsTestRouteImport } from './routes/dev.breadcrumbs-test'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedRegisterCompanyRouteImport } from './routes/_authenticated/register-company'
 import { Route as AuthenticatedPortalRouteImport } from './routes/_authenticated/portal'
@@ -375,6 +376,11 @@ const DocsApiRoute = DocsApiRouteImport.update({
 const DevVerifyRoute = DevVerifyRouteImport.update({
   id: '/dev/verify',
   path: '/dev/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevBreadcrumbsTestRoute = DevBreadcrumbsTestRouteImport.update({
+  id: '/dev/breadcrumbs-test',
+  path: '/dev/breadcrumbs-test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BlogSlugRoute = BlogSlugRouteImport.update({
@@ -1488,6 +1494,7 @@ export interface FileRoutesByFullPath {
   '/portal': typeof AuthenticatedPortalRouteWithChildren
   '/register-company': typeof AuthenticatedRegisterCompanyRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/dev/breadcrumbs-test': typeof DevBreadcrumbsTestRoute
   '/dev/verify': typeof DevVerifyRoute
   '/docs/api': typeof DocsApiRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -1702,6 +1709,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/register-company': typeof AuthenticatedRegisterCompanyRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/dev/breadcrumbs-test': typeof DevBreadcrumbsTestRoute
   '/dev/verify': typeof DevVerifyRoute
   '/docs/api': typeof DocsApiRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -1920,6 +1928,7 @@ export interface FileRoutesById {
   '/_authenticated/portal': typeof AuthenticatedPortalRouteWithChildren
   '/_authenticated/register-company': typeof AuthenticatedRegisterCompanyRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/dev/breadcrumbs-test': typeof DevBreadcrumbsTestRoute
   '/dev/verify': typeof DevVerifyRoute
   '/docs/api': typeof DocsApiRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -2141,6 +2150,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/register-company'
     | '/blog/$slug'
+    | '/dev/breadcrumbs-test'
     | '/dev/verify'
     | '/docs/api'
     | '/email/unsubscribe'
@@ -2355,6 +2365,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/register-company'
     | '/blog/$slug'
+    | '/dev/breadcrumbs-test'
     | '/dev/verify'
     | '/docs/api'
     | '/email/unsubscribe'
@@ -2572,6 +2583,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portal'
     | '/_authenticated/register-company'
     | '/blog/$slug'
+    | '/dev/breadcrumbs-test'
     | '/dev/verify'
     | '/docs/api'
     | '/email/unsubscribe'
@@ -2785,6 +2797,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  DevBreadcrumbsTestRoute: typeof DevBreadcrumbsTestRoute
   DevVerifyRoute: typeof DevVerifyRoute
   DocsApiRoute: typeof DocsApiRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
@@ -3035,6 +3048,13 @@ declare module '@tanstack/react-router' {
       path: '/dev/verify'
       fullPath: '/dev/verify'
       preLoaderRoute: typeof DevVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev/breadcrumbs-test': {
+      id: '/dev/breadcrumbs-test'
+      path: '/dev/breadcrumbs-test'
+      fullPath: '/dev/breadcrumbs-test'
+      preLoaderRoute: typeof DevBreadcrumbsTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/blog/$slug': {
@@ -5078,6 +5098,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   BlogSlugRoute: BlogSlugRoute,
+  DevBreadcrumbsTestRoute: DevBreadcrumbsTestRoute,
   DevVerifyRoute: DevVerifyRoute,
   DocsApiRoute: DocsApiRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
