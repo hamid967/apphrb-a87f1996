@@ -68,7 +68,22 @@
                  0 4px 12px -6px color-mix(in oklab, var(--ink) 10%, transparent);
   --shadow-elevated: 0 4px 10px -4px color-mix(in oklab, var(--ink) 12%, transparent),
                      0 18px 40px -18px color-mix(in oklab, var(--ink) 20%, transparent);
-  --shadow-glow: 0 10px 40px -12px color-mix(in oklab, var(--primary) 45%, transparent);
+  /* Holographic multi-color glow — violet → pink → cyan → gold */
+  --shadow-glow:
+    0  8px 24px -10px color-mix(in oklab, #c4b5fd 55%, transparent),
+    0 14px 40px -14px color-mix(in oklab, #f0abfc 45%, transparent),
+    0 20px 60px -18px color-mix(in oklab, #67e8f9 35%, transparent);
+  /* Holographic / Chrome iridescent gradient — for accents, borders, sheen */
+  --gradient-holo: linear-gradient(120deg,
+                     #c4b5fd 0%,
+                     #f0abfc 32%,
+                     #67e8f9 66%,
+                     #fde68a 100%);
+  --gradient-holo-soft: linear-gradient(120deg,
+                     color-mix(in oklab, #c4b5fd 30%, transparent),
+                     color-mix(in oklab, #f0abfc 30%, transparent),
+                     color-mix(in oklab, #67e8f9 30%, transparent),
+                     color-mix(in oklab, #fde68a 30%, transparent));
 }
 
 :root {
