@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { WelcomeTour } from "./WelcomeTour";
@@ -309,6 +309,11 @@ export function OpeningExperience() {
   const Arrow = ar ? ArrowLeft : ArrowRight;
   const [active, setActive] = useState<Service | null>(null);
   const [tourOpen, setTourOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
+  // Motion tokens tuned for cards — respect prefers-reduced-motion.
+  const cardHover = reduceMotion ? {} : { y: -6, scale: 1.015 };
+  const cardTap = reduceMotion ? {} : { scale: 0.98 };
+  const cardSpring = { type: "spring" as const, stiffness: 320, damping: 24 };
 
   // Close on ESC
   useEffect(() => {
@@ -552,27 +557,46 @@ export function OpeningExperience() {
             <motion.button
               type="button"
               onClick={() => setActive(FEATURED_SERVICE)}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.5 }}
-              whileHover={{ y: -4 }}
-              className="group relative col-span-2 overflow-hidden rounded-[2.5rem] p-8 text-start shadow-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-              style={{ background: SURFACE }}
-              aria-label={ar ? FEATURED_SERVICE.titleAr : FEATURED_SERVICE.titleEn}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={cardHover}
+              whileTap={cardTap}
+              whileFocus={cardHover}
+              className="group relative col-span-2 flex min-h-[11rem] touch-manipulation flex-col overflow-hidden rounded-[2.5rem] p-8 text-start shadow-lg outline-none transition-shadow duration-300 hover:shadow-2xl focus-visible:ring-4 focus-visible:ring-offset-2 motion-reduce:transition-none"
+              style={{
+                background: SURFACE,
+                WebkitTapHighlightColor: "transparent",
+                // @ts-expect-error CSS custom property for ring color
+                "--tw-ring-color": `${GOLD}cc`,
+              }}
+              aria-label={`${ar ? FEATURED_SERVICE.titleAr : FEATURED_SERVICE.titleEn} — ${
+                ar ? "اضغط لعرض التفاصيل" : "press to view details"
+              }`}
             >
-              <div className="absolute top-6 end-6">
+              {/* Sheen sweep on hover */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-all duration-700 ease-out group-hover:translate-x-full group-hover:opacity-100 motion-reduce:hidden"
+              />
+              <motion.div
+                className="absolute top-6 end-6"
+                whileHover={reduceMotion ? undefined : { rotate: [0, -8, 8, 0] }}
+                transition={{ duration: 0.6 }}
+              >
                 <div
-                  className="grid h-14 w-14 place-items-center rounded-2xl shadow-inner"
+                  className="grid h-14 w-14 place-items-center rounded-2xl shadow-inner transition-transform duration-300 group-hover:scale-110 motion-reduce:transform-none"
                   style={{ background: GOLD }}
                 >
                   <Zap className="h-8 w-8" style={{ color: INK }} />
                 </div>
-              </div>
-              <div className="mt-12">
+              </motion.div>
+              <div className="relative mt-12">
                 <h3 className="mb-2 text-xl font-bold text-white">
                   {ar ? FEATURED_SERVICE.titleAr : FEATURED_SERVICE.titleEn}
                 </h3>
-                <p className="text-sm leading-relaxed text-white/75">
+                <p className="text-sm leading-relaxed text-white/80">
                   {ar ? FEATURED_SERVICE.descAr : FEATURED_SERVICE.descEn}
                 </p>
               </div>
@@ -585,32 +609,63 @@ export function OpeningExperience() {
                   type="button"
                   key={s.id}
                   onClick={() => setActive(s)}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + idx * 0.05, duration: 0.45 }}
-                  whileHover={{ y: -4 }}
-                  className="group rounded-[2rem] border bg-white p-6 text-start shadow-sm transition-all hover:shadow-xl focus-visible:outline-none focus-visible:ring-2"
-                  style={{ borderColor: "rgba(6,78,59,0.08)" }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = GOLD;
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.25 }}
+                  transition={{
+                    delay: reduceMotion ? 0 : Math.min(idx * 0.05, 0.4),
+                    ...cardSpring,
                   }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(6,78,59,0.08)";
+                  whileHover={cardHover}
+                  whileTap={cardTap}
+                  whileFocus={cardHover}
+                  className="group relative flex min-h-[10.5rem] touch-manipulation flex-col rounded-[2rem] border bg-white p-6 text-start shadow-sm outline-none transition-[border-color,box-shadow,background] duration-300 hover:border-transparent hover:shadow-xl focus-visible:ring-4 focus-visible:ring-offset-2 motion-reduce:transition-none"
+                  style={{
+                    borderColor: "rgba(6,78,59,0.08)",
+                    WebkitTapHighlightColor: "transparent",
+                    // @ts-expect-error CSS custom property for ring color
+                    "--tw-ring-color": `${GOLD}cc`,
                   }}
-                  aria-label={ar ? s.titleAr : s.titleEn}
+                  aria-label={`${ar ? s.titleAr : s.titleEn} — ${
+                    ar ? "اضغط لعرض التفاصيل" : "press to view details"
+                  }`}
                 >
-                  <div
-                    className="mb-5 grid h-12 w-12 place-items-center rounded-xl transition-colors"
+                  {/* Gold glow that fades in on hover/focus */}
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 rounded-[2rem] opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+                    style={{
+                      boxShadow: `inset 0 0 0 1px ${GOLD}`,
+                    }}
+                  />
+                  <motion.div
+                    className="mb-5 grid h-12 w-12 place-items-center rounded-xl transition-colors duration-300 group-hover:bg-[rgba(201,168,76,0.18)] group-focus-visible:bg-[rgba(201,168,76,0.18)]"
                     style={{ background: "rgba(6,78,59,0.06)" }}
+                    whileHover={
+                      reduceMotion ? undefined : { rotate: [0, -6, 6, 0] }
+                    }
+                    transition={{ duration: 0.5 }}
                   >
                     <Icon className="h-6 w-6" style={{ color: INK }} />
-                  </div>
-                  <h3 className="mb-1 text-sm font-bold" style={{ color: INK }}>
+                  </motion.div>
+                  <h3
+                    className="mb-1 text-sm font-bold"
+                    style={{ color: INK }}
+                  >
                     {ar ? s.titleAr : s.titleEn}
                   </h3>
-                  <p className="text-[11px] text-stone-500">
+                  <p className="text-[11px] leading-relaxed text-stone-500">
                     {ar ? s.descAr : s.descEn}
                   </p>
+                  {/* Chevron cue — appears on hover/focus */}
+                  <span
+                    aria-hidden
+                    className="mt-auto inline-flex items-center gap-1 pt-3 text-[10px] font-bold uppercase tracking-widest opacity-0 transition-all duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none"
+                    style={{ color: SURFACE }}
+                  >
+                    {ar ? "التفاصيل" : "Details"}
+                    <Arrow className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+                  </span>
                 </motion.button>
               );
             })}
