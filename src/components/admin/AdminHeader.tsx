@@ -1,36 +1,45 @@
 import { useTranslation } from "react-i18next";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { Link } from "@tanstack/react-router";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAdminBreadcrumb } from "@/components/admin/AdminSidebar";
 import { DashboardThemeToggle } from "@/components/dashboard-theme-toggle";
 
 /**
  * Sticky top bar for /admin/* with sidebar trigger + animated breadcrumb.
- * The chevron gently loops toward the next segment and each segment
- * fades/slides in when the path changes.
+ * Each segment is a clickable link back to that level; the current page
+ * (leaf) is highlighted with a filled violet pill and aria-current="page".
  */
 export function AdminHeader() {
   const { i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const { group, item } = useAdminBreadcrumb();
   const Chevron = isAr ? ChevronLeft : ChevronRight;
-  const dir = isAr ? -1 : 1; // arrow drift + segment slide direction
+  const dir = isAr ? -1 : 1;
+
+  const rootLabel = isAr ? "الإدارة" : "Admin";
 
   return (
     <header className="sticky top-0 z-30 flex h-12 items-center gap-2 border-b bg-background/85 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <SidebarTrigger />
       <nav
         aria-label={isAr ? "مسار التنقّل" : "Breadcrumb"}
-        className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-0"
+        className="flex items-center gap-1.5 text-xs min-w-0"
       >
-        <span className="font-medium">{isAr ? "الإدارة" : "Admin"}</span>
+        {/* Root: always clickable → /admin */}
+        <Link
+          to="/admin"
+          className="rounded-md px-2 py-0.5 font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+        >
+          {rootLabel}
+        </Link>
 
         <AnimatePresence mode="popLayout" initial={false}>
           {group && (
             <motion.span
               key={`sep-group-${group}`}
-              className="inline-flex"
+              className="inline-flex text-muted-foreground/60"
               initial={{ opacity: 0, x: -6 * dir }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 6 * dir }}
@@ -38,9 +47,9 @@ export function AdminHeader() {
               aria-hidden="true"
             >
               <motion.span
-                animate={{ x: [0, 3 * dir, 0], opacity: [0.6, 1, 0.6] }}
+                animate={{ x: [0, 3 * dir, 0], opacity: [0.5, 1, 0.5] }}
                 transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                className="inline-flex text-primary/70"
+                className="inline-flex"
               >
                 <Chevron className="size-3.5 shrink-0" />
               </motion.span>
@@ -54,7 +63,7 @@ export function AdminHeader() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 8 * dir }}
               transition={{ type: "spring", stiffness: 320, damping: 26 }}
-              className="truncate"
+              className="truncate rounded-md px-2 py-0.5 text-muted-foreground"
             >
               {group}
             </motion.span>
@@ -62,7 +71,7 @@ export function AdminHeader() {
           {item && (
             <motion.span
               key={`sep-item-${item}`}
-              className="inline-flex"
+              className="inline-flex text-primary/70"
               initial={{ opacity: 0, x: -6 * dir }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 6 * dir }}
@@ -77,7 +86,7 @@ export function AdminHeader() {
                   ease: "easeInOut",
                   delay: 0.4,
                 }}
-                className="inline-flex text-primary"
+                className="inline-flex"
               >
                 <Chevron className="size-3.5 shrink-0" />
               </motion.span>
@@ -91,7 +100,8 @@ export function AdminHeader() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 * dir }}
               transition={{ type: "spring", stiffness: 320, damping: 26, delay: 0.05 }}
-              className="truncate text-foreground font-medium"
+              aria-current="page"
+              className="truncate rounded-md bg-primary/10 px-2 py-0.5 font-semibold text-primary ring-1 ring-primary/20"
             >
               {item}
             </motion.span>
@@ -104,3 +114,4 @@ export function AdminHeader() {
     </header>
   );
 }
+
