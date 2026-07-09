@@ -330,7 +330,7 @@ function ClaimsReviewPage() {
                         </TableCell>
                       </TableRow>
                     )}
-                    </>
+                    </Fragment>
                   );
                 })}
               </TableBody>
