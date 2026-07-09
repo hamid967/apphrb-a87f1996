@@ -19,8 +19,16 @@ import {
   BellOff,
   Settings2,
   Undo2,
+  Upload,
+  Loader2,
+  Paperclip,
 } from "lucide-react";
-import { listMyRecentClaims } from "@/lib/expense-claims.functions";
+import {
+  listMyRecentClaims,
+  createReceiptUploadUrl,
+  attachReceiptToClaim,
+} from "@/lib/expense-claims.functions";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -144,6 +152,9 @@ type Reminder = {
   ctaEn?: string;
   timeAgoMs?: number;
   claimNumber?: string;
+  claimId?: string;
+  claimIsDraft?: boolean;
+  canAttachReceipt?: boolean;
   reasonAr?: string;
   reasonEn?: string;
   missing?: ReminderDetail[];
@@ -299,6 +310,8 @@ export function SmartRemindersPanel({
           ctaEn: "View claim",
           timeAgoMs: age,
           claimNumber: shortId,
+          claimId: c.id,
+          canAttachReceipt: !c.receipt_url,
           reasonAr: "بانتظار قرار المراجع.",
           reasonEn: "Awaiting the reviewer's decision.",
           missing: missingCommon,
@@ -320,6 +333,8 @@ export function SmartRemindersPanel({
           ctaEn: "Upload receipt",
           timeAgoMs: age,
           claimNumber: shortId,
+          claimId: c.id,
+          canAttachReceipt: true,
           reasonAr: "لا يمكن اعتماد المطالبة بدون إيصال داعم.",
           reasonEn: "The claim can't be approved without a supporting receipt.",
           missing: [
@@ -382,6 +397,9 @@ export function SmartRemindersPanel({
           ctaEn: "Finish & submit",
           timeAgoMs: age,
           claimNumber: shortId,
+          claimId: c.id,
+          claimIsDraft: true,
+          canAttachReceipt: !c.receipt_url,
           reasonAr: "لن تُراجَع هذه المطالبة قبل إرسالها.",
           reasonEn: "This claim won't be reviewed until you submit it.",
           missing: missingCommon,
@@ -636,6 +654,95 @@ export function SmartRemindersPanel({
   }, [visibleReminders, claimsQ.isLoading, isAr, navigate]);
 
   const [openReminder, setOpenReminder] = useState<Reminder | null>(null);
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
+  const [uploadPct, setUploadPct] = useState(0);
+  const receiptInputRef = useRef<HTMLInputElement | null>(null);
+  const queryClient = useQueryClient();
+
+  const handleReceiptUpload = useCallback(
+    async (file: File, reminder: Reminder) => {
+      if (!reminder.claimId) return;
+      const type = file.type || "application/octet-stream";
+      const isImage = type.startsWith("image/");
+      const isPdf = type === "application/pdf";
+      if (!isImage && !isPdf) {
+        toast.error(
+          isAr ? "الملف يجب أن يكون صورة أو PDF" : "File must be an image or PDF",
+        );
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(isAr ? "الحد الأقصى 10 ميجابايت" : "Maximum 10MB");
+        return;
+      }
+      const toastId = toast.loading(
+        isAr ? "جارٍ رفع الإيصال..." : "Uploading receipt...",
+        { description: `${file.name} · 0%` },
+      );
+      try {
+        setUploadingReceipt(true);
+        setUploadPct(0);
+        const { path, signedUrl } = await createReceiptUploadUrl({
+          data: { filename: file.name, content_type: type },
+        });
+        // Upload via XHR to track progress.
+        await new Promise<void>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("PUT", signedUrl);
+          xhr.setRequestHeader("Content-Type", type);
+          xhr.upload.onprogress = (e) => {
+            if (!e.lengthComputable) return;
+            const pct = Math.round((e.loaded / e.total) * 100);
+            setUploadPct(pct);
+            toast.loading(
+              isAr ? "جارٍ رفع الإيصال..." : "Uploading receipt...",
+              { id: toastId, description: `${file.name} · ${pct}%` },
+            );
+          };
+          xhr.onload = () =>
+            xhr.status >= 200 && xhr.status < 300
+              ? resolve()
+              : reject(new Error(`upload_failed_${xhr.status}`));
+          xhr.onerror = () => reject(new Error("upload_failed"));
+          xhr.send(file);
+        });
+
+        await attachReceiptToClaim({
+          data: {
+            claim_id: reminder.claimId,
+            receipt_url: path,
+            submit: !!reminder.claimIsDraft,
+          },
+        });
+
+        toast.success(
+          reminder.claimIsDraft
+            ? isAr
+              ? "تم رفع الإيصال وإرسال المطالبة"
+              : "Receipt uploaded and claim submitted"
+            : isAr
+              ? "تم رفع الإيصال ومرفقته بالمطالبة"
+              : "Receipt uploaded and attached to the claim",
+          { id: toastId },
+        );
+        // Refresh claims and close.
+        await queryClient.invalidateQueries({ queryKey: ["my-recent-claims-reminders"] });
+        setOpenReminder(null);
+      } catch (err) {
+        console.error("[reminder receipt upload]", err);
+        toast.error(
+          isAr ? "فشل رفع الإيصال" : "Receipt upload failed",
+          { id: toastId },
+        );
+      } finally {
+        setUploadingReceipt(false);
+        setUploadPct(0);
+        if (receiptInputRef.current) receiptInputRef.current.value = "";
+      }
+    },
+    [isAr, queryClient],
+  );
+
   const Chevron = isAr ? ChevronLeft : ChevronRight;
 
   return (
@@ -948,6 +1055,62 @@ export function SmartRemindersPanel({
                     </div>
                   )}
                 </div>
+
+                {r.canAttachReceipt && r.claimId && (
+                  <div className="mt-3 rounded-lg border border-dashed p-3">
+                    <div className="mb-2 flex items-center gap-2">
+                      <Paperclip className="size-3.5 text-muted-foreground" />
+                      <p className="text-[11px] font-bold text-muted-foreground">
+                        {isAr ? "رفع الإيصال المفقود" : "Upload missing receipt"}
+                      </p>
+                    </div>
+                    <p className="mb-2 text-xs text-muted-foreground">
+                      {r.claimIsDraft
+                        ? isAr
+                          ? "سيتم إرفاق الإيصال وإرسال المطالبة تلقائياً."
+                          : "The receipt will be attached and the claim submitted automatically."
+                        : isAr
+                          ? "سيتم إرفاق الإيصال بالمطالبة الحالية فوراً."
+                          : "The receipt will be attached to this claim immediately."}
+                    </p>
+                    <input
+                      ref={receiptInputRef}
+                      type="file"
+                      accept="image/*,application/pdf"
+                      className="hidden"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) void handleReceiptUpload(f, r);
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      className="w-full"
+                      disabled={uploadingReceipt}
+                      onClick={() => receiptInputRef.current?.click()}
+                    >
+                      {uploadingReceipt ? (
+                        <>
+                          <Loader2 className="me-1.5 size-3.5 animate-spin" />
+                          {isAr ? `جارٍ الرفع... ${uploadPct}%` : `Uploading... ${uploadPct}%`}
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="me-1.5 size-3.5" />
+                          {isAr ? "اختيار ملف الإيصال" : "Choose receipt file"}
+                        </>
+                      )}
+                    </Button>
+                    <p className="mt-1.5 text-[10px] text-muted-foreground">
+                      {isAr
+                        ? "صورة أو PDF · الحد الأقصى 10 ميجابايت"
+                        : "Image or PDF · Max 10MB"}
+                    </p>
+                  </div>
+                )}
+
 
                 <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                   <Button

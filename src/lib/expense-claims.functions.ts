@@ -342,3 +342,79 @@ export const submitCorrectedExpenseClaim = createServerFn({ method: "POST" })
     }
     return row;
   });
+
+const attachSchema = z.object({
+  claim_id: z.string().uuid(),
+  receipt_url: z.string().trim().min(1).max(500),
+  submit: z.boolean().optional().default(false),
+});
+
+/**
+ * Attaches an uploaded receipt path to an existing claim owned by the caller.
+ * When `submit` is true and the claim is currently a draft, transitions it
+ * to `submitted` and stamps `submitted_at`. Never mutates other users' claims
+ * (both RLS and an explicit submitted_by check enforce ownership).
+ */
+export const attachReceiptToClaim = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: z.infer<typeof attachSchema>) => attachSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: existing, error: findErr } = await supabase
+      .from("expense_claims")
+      .select("id, org_id, status, submitted_by, claim_number, title, amount, currency")
+      .eq("id", data.claim_id)
+      .maybeSingle();
+    if (findErr) throw findErr;
+    if (!existing) throw new Error("claim_not_found");
+    if (existing.submitted_by && existing.submitted_by !== userId) {
+      throw new Error("not_owner");
+    }
+
+    const shouldSubmit = data.submit && existing.status === "draft";
+    const patch: {
+      receipt_url: string;
+      status?: "submitted";
+      submitted_at?: string;
+    } = { receipt_url: data.receipt_url };
+    if (shouldSubmit) {
+      patch.status = "submitted";
+      patch.submitted_at = new Date().toISOString();
+    }
+
+    const { data: row, error } = await supabase
+      .from("expense_claims")
+      .update(patch)
+      .eq("id", data.claim_id)
+      .select("id, claim_number, status, submitted_at, receipt_url")
+      .single();
+    if (error) throw error;
+
+    if (shouldSubmit && row) {
+      try {
+        await enqueueNotification({
+          data: {
+            org_id: existing.org_id,
+            channel: "email",
+            template: "expense_claim_submitted",
+            event_key: "expense_claim_submitted",
+            recipient_user_id: userId,
+            idempotency_key: `expense_claim_submitted:${row.id}`,
+            variables: {
+              claim_number: row.claim_number ?? existing.claim_number ?? "",
+              title: existing.title ?? "",
+              amount: existing.amount ?? 0,
+              currency: existing.currency ?? "SAR",
+              status: row.status ?? "submitted",
+              reference_type: "expense_claim",
+              reference_id: row.id,
+            },
+            dispatch_now: false,
+          },
+        });
+      } catch {
+        /* notification failures must not block attach */
+      }
+    }
+    return row;
+  });
