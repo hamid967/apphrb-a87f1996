@@ -19,6 +19,16 @@ type ParamField = {
   labelKey: string;
   placeholderKey?: string;
   placeholder?: string;
+  /** Interactive range settings (for numeric time/limit inputs). */
+  range?: {
+    min: number;
+    max: number;
+    step?: number;
+    default: number;
+    /** Unit shown next to the value (e.g. "شهر", "يوم"). */
+    unitKey?: "unitMonths" | "unitDays" | "unitItems";
+    presets: number[];
+  };
 };
 
 type CategoryKey = "reports" | "analysis" | "forecasts" | "ops";
@@ -29,28 +39,61 @@ type ScriptDef = {
   fields: ParamField[];
 };
 
+const MONTHS_RANGE = {
+  min: 1,
+  max: 24,
+  step: 1,
+  default: 6,
+  unitKey: "unitMonths" as const,
+  presets: [1, 3, 6, 12, 24],
+};
+const HORIZON_RANGE = {
+  min: 1,
+  max: 12,
+  step: 1,
+  default: 3,
+  unitKey: "unitMonths" as const,
+  presets: [1, 3, 6, 12],
+};
+const DAYS_RANGE = {
+  min: 7,
+  max: 365,
+  step: 1,
+  default: 60,
+  unitKey: "unitDays" as const,
+  presets: [7, 30, 60, 90, 180, 365],
+};
+const LIMIT_RANGE = {
+  min: 5,
+  max: 200,
+  step: 5,
+  default: 25,
+  unitKey: "unitItems" as const,
+  presets: [10, 25, 50, 100],
+};
+
 const SCRIPTS: ScriptDef[] = [
   {
     name: "revenue_summary",
     category: "reports",
-    fields: [{ name: "months", type: "number", labelKey: "months", placeholder: "6" }],
+    fields: [{ name: "months", type: "number", labelKey: "months", range: MONTHS_RANGE }],
   },
   { name: "overdue_payments", category: "reports", fields: [] },
   {
     name: "expiring_contracts",
     category: "reports",
-    fields: [{ name: "days", type: "number", labelKey: "days", placeholder: "60" }],
+    fields: [{ name: "days", type: "number", labelKey: "days", range: DAYS_RANGE }],
   },
   {
     name: "expense_summary",
     category: "reports",
-    fields: [{ name: "months", type: "number", labelKey: "months", placeholder: "6" }],
+    fields: [{ name: "months", type: "number", labelKey: "months", range: MONTHS_RANGE }],
   },
   { name: "occupancy_snapshot", category: "analysis", fields: [] },
   {
     name: "rent_forecast",
     category: "forecasts",
-    fields: [{ name: "months", type: "number", labelKey: "horizonMonths", placeholder: "3" }],
+    fields: [{ name: "months", type: "number", labelKey: "horizonMonths", range: HORIZON_RANGE }],
   },
   { name: "risk_analysis", category: "analysis", fields: [] },
   {
@@ -66,13 +109,13 @@ const SCRIPTS: ScriptDef[] = [
   {
     name: "cash_flow_summary",
     category: "reports",
-    fields: [{ name: "months", type: "number", labelKey: "months", placeholder: "6" }],
+    fields: [{ name: "months", type: "number", labelKey: "months", range: MONTHS_RANGE }],
   },
   { name: "maintenance_backlog", category: "ops", fields: [] },
   {
     name: "vacant_units_list",
     category: "ops",
-    fields: [{ name: "limit", type: "number", labelKey: "limit", placeholder: "25" }],
+    fields: [{ name: "limit", type: "number", labelKey: "limit", range: LIMIT_RANGE }],
   },
 
 ];
@@ -86,7 +129,13 @@ function ScriptCard({
   onRun: (name: string, args: Record<string, unknown>) => Promise<any>;
   t: TFunction;
 }) {
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+    for (const f of script.fields) {
+      if (f.range) initial[f.name] = String(f.range.default);
+    }
+    return initial;
+  });
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -135,12 +184,66 @@ function ScriptCard({
       </div>
 
       {script.fields.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {script.fields.map((f) => {
             const label = t(`assistant.scripts.fields.${f.labelKey}` as const);
             const placeholder = f.placeholderKey
               ? t(`assistant.scripts.fields.${f.placeholderKey}` as const)
               : f.placeholder;
+
+            if (f.range) {
+              const r = f.range;
+              const raw = values[f.name];
+              const num = raw !== undefined && raw !== "" ? Number(raw) : r.default;
+              const val = Number.isFinite(num) ? num : r.default;
+              const unit = r.unitKey ? t(`assistant.scripts.fields.${r.unitKey}` as const) : "";
+              const setVal = (n: number) => {
+                const clamped = Math.min(r.max, Math.max(r.min, n));
+                setValues((v) => ({ ...v, [f.name]: String(clamped) }));
+              };
+              return (
+                <div key={f.name} className="sm:col-span-2 flex flex-col gap-2 text-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-muted-foreground">{label}</span>
+                    <div className="inline-flex items-baseline gap-1 rounded-md bg-muted px-2 py-0.5">
+                      <span className="font-mono text-sm font-semibold text-foreground">{val}</span>
+                      {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
+                    </div>
+                  </div>
+                  <input
+                    type="range"
+                    min={r.min}
+                    max={r.max}
+                    step={r.step ?? 1}
+                    value={val}
+                    onChange={(e) => setVal(Number(e.target.value))}
+                    className="w-full accent-primary"
+                    aria-label={label}
+                  />
+                  <div className="flex flex-wrap gap-1.5">
+                    {r.presets.map((p) => {
+                      const active = val === p;
+                      return (
+                        <button
+                          type="button"
+                          key={p}
+                          onClick={() => setVal(p)}
+                          className={`rounded-full border px-2.5 py-0.5 text-xs transition ${
+                            active
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "text-muted-foreground hover:bg-muted"
+                          }`}
+                        >
+                          {p}
+                          {unit ? ` ${unit}` : ""}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <label key={f.name} className="flex flex-col gap-1 text-sm">
                 <span className="text-muted-foreground">{label}</span>
