@@ -987,10 +987,12 @@ html[data-holo="intense"] :where(:not(.theme-luxe *)) [role="button"].bg-primary
 html[data-holo="intense"] :where(:not(.theme-luxe *)) button.bg-primary::after,
 html[data-holo="intense"] :where(:not(.theme-luxe *)) a.bg-primary::after,
 html[data-holo="intense"] :where(:not(.theme-luxe *)) [role="button"].bg-primary::after {
+  /* Whiteness capped at 40% (was 70%) so button text stays ≥ 4.5:1 even
+     at the peak of the sheen; ::after is still z-indexed BEHIND text. */
   background: linear-gradient(120deg,
-    transparent 20%,
-    color-mix(in oklab, #ffffff 70%, transparent) 50%,
-    transparent 80%);
+    transparent 25%,
+    color-mix(in oklab, #ffffff 40%, transparent) 50%,
+    transparent 75%);
   background-size: 220% 100%;
   background-position: 100% 0;
   animation: holo-shift 4s ease-in-out infinite;
