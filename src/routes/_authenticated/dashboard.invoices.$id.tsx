@@ -201,31 +201,32 @@ function InvoiceDetailPage() {
               <div className="flex items-center gap-2 text-sm font-medium">
                 <QrCode className="h-4 w-4" /> {isAr ? "رمز QR (TLV — Base64)" : "QR TLV (Base64)"}
               </div>
-              <pre className="text-xs font-mono bg-muted/40 p-2 rounded overflow-x-auto break-all whitespace-pre-wrap">
-                {b.qr_tlv ?? "—"}
-              </pre>
-              <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant="outline" onClick={() => copy("QR TLV", b.qr_tlv)} disabled={!b.qr_tlv}>
-                  <Copy className="h-3.5 w-3.5 me-1" /> {isAr ? "نسخ" : "Copy"}
-                </Button>
-                <Button
-                  size="sm" variant="outline"
-                  onClick={() => download(`invoice-${b.number}-qr.txt`, "text/plain", b.qr_tlv)}
-                  disabled={!b.qr_tlv}
-                >
-                  <Download className="h-3.5 w-3.5 me-1" /> {isAr ? "تنزيل TLV" : "Download TLV"}
-                </Button>
+              <div className="flex flex-col md:flex-row gap-4">
                 {b.qr_tlv && (
-                  <a
-                    className="text-xs text-primary underline self-center"
-                    target="_blank" rel="noreferrer"
-                    href={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(b.qr_tlv)}`}
-                  >
-                    {isAr ? "معاينة كصورة QR" : "Preview as QR image"}
-                  </a>
+                  <div className="shrink-0 self-center md:self-start">
+                    <QrImage value={b.qr_tlv} size={200} alt={`Invoice ${b.number ?? ""} QR`} />
+                  </div>
                 )}
+                <div className="flex-1 min-w-0 space-y-2">
+                  <pre className="text-xs font-mono bg-muted/40 p-2 rounded overflow-x-auto break-all whitespace-pre-wrap max-h-32">
+                    {b.qr_tlv ?? "—"}
+                  </pre>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="outline" onClick={() => copy("QR TLV", b.qr_tlv)} disabled={!b.qr_tlv}>
+                      <Copy className="h-3.5 w-3.5 me-1" /> {isAr ? "نسخ" : "Copy"}
+                    </Button>
+                    <Button
+                      size="sm" variant="outline"
+                      onClick={() => download(`invoice-${b.number}-qr.txt`, "text/plain", b.qr_tlv)}
+                      disabled={!b.qr_tlv}
+                    >
+                      <Download className="h-3.5 w-3.5 me-1" /> {isAr ? "تنزيل TLV" : "Download TLV"}
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
+
 
             <div className="border rounded-md p-3 space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium">
