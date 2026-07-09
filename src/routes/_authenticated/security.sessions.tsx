@@ -1,6 +1,7 @@
 import { createFileRoute, ErrorComponent, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { Suspense } from "react";
 import {
   listDevices,
   listLoginEvents,
