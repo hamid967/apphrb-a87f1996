@@ -1,0 +1,1 @@
+DELETE FROM public.login_events WHERE email='hamid@hrhbs.com' AND status IN ('failed','blocked','rate_limited');
