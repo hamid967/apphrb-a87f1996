@@ -302,8 +302,16 @@ export function SmartRemindersPanel({
   }, [allReminders, orgId]);
 
   const visibleReminders = useMemo(
-    () => allReminders.filter((r) => !readIds.has(r.id)).slice(0, 6),
-    [allReminders, readIds],
+    () =>
+      allReminders
+        .filter((r) => {
+          if (readIds.has(r.id)) return false;
+          const cat = categoryFromReminderId(r.id);
+          if (cat && prefs.enabled[cat] === false) return false;
+          return true;
+        })
+        .slice(0, 6),
+    [allReminders, readIds, prefs.enabled],
   );
 
   const Chevron = isAr ? ChevronLeft : ChevronRight;
