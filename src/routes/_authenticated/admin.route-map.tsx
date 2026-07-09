@@ -144,13 +144,12 @@ function RouteMapPage() {
   return (
     <div className="mx-auto max-w-7xl p-4 md:p-6 space-y-4">
       <AdminPageHeader
-        title={isAr ? "خريطة المسارات" : "Route map"}
-        description={
-          isAr
-            ? "قائمة كل المسارات التي يعرفها الموجّه، مع نطاق الوصول لكل مسار. تُستخدم لمراجعة الروابط المفقودة."
-            : "Every URL the router serves, classified by access scope. Use it to audit dead links or missing pages."
-        }
+        ar="خريطة المسارات"
+        en="Route map"
+        descriptionAr="قائمة كل المسارات التي يعرفها الموجّه، مع نطاق الوصول لكل مسار. تُستخدم لمراجعة الروابط المفقودة."
+        descriptionEn="Every URL the router serves, classified by access scope. Use it to audit dead links or missing pages."
       />
+
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {(Object.keys(SCOPE_META) as Scope[]).map((s) => {
