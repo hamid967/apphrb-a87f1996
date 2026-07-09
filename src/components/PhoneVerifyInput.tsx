@@ -167,34 +167,54 @@ export function PhoneVerifyInput({
       )}
 
       {isValid && !verified && (
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          {!codeSent ? (
-            <Button type="button" size="sm" variant="outline" onClick={sendCode}>
-              <ShieldCheck className="me-1.5 size-3.5" />
-              إرسال رمز التحقق
-            </Button>
-          ) : (
-            <>
-              <Input
-                dir="ltr"
-                inputMode="numeric"
-                maxLength={4}
-                value={codeInput}
-                onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, ""))}
-                placeholder="1234"
-                className="w-28"
-              />
-              <Button type="button" size="sm" onClick={confirmCode}>
-                تأكيد
+        <div className="space-y-2 pt-1">
+          <div className="flex flex-wrap items-center gap-2">
+            {!codeSent ? (
+              <Button type="button" size="sm" variant="outline" onClick={sendCode}>
+                <ShieldCheck className="me-1.5 size-3.5" />
+                إرسال رمز التحقق
               </Button>
-              <Button type="button" size="sm" variant="ghost" onClick={sendCode}>
-                إعادة الإرسال
+            ) : (
+              <>
+                <Input
+                  dir="ltr"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={codeInput}
+                  onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, ""))}
+                  placeholder="1234"
+                  className="w-28"
+                />
+                <Button type="button" size="sm" onClick={confirmCode}>
+                  تأكيد
+                </Button>
+                <Button type="button" size="sm" variant="ghost" onClick={sendCode}>
+                  إعادة الإرسال
+                </Button>
+              </>
+            )}
+            <span className="text-xs text-muted-foreground">{parsed?.formatInternational()}</span>
+          </div>
+          {codeSent && (
+            <div className="flex flex-wrap items-center gap-2 rounded-md border border-primary/30 bg-primary/5 p-2 text-xs">
+              <span className="text-muted-foreground">وضع تجريبي — الرمز:</span>
+              <span dir="ltr" className="font-mono text-sm font-bold tracking-widest text-primary">
+                {codeSent}
+              </span>
+              <Button
+                type="button"
+                size="sm"
+                variant="link"
+                className="h-auto p-0 text-xs"
+                onClick={() => setCodeInput(codeSent)}
+              >
+                استخدام الرمز
               </Button>
-            </>
+            </div>
           )}
-          <span className="text-xs text-muted-foreground">{parsed?.formatInternational()}</span>
         </div>
       )}
+
 
       {verified && (
         <p className="flex items-center gap-1 text-xs text-emerald-600">
