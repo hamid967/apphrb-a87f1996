@@ -1529,3 +1529,224 @@ html.theme-tech :where(:not(.theme-luxe *)) [data-slot="select-trigger"] {
   }
 }
 
+
+/* ==================================================================
+   theme-lux — Visionary Glass Admin (Apple/Linear-quality light)
+   Default authenticated palette. Toggled from _authenticated.tsx.
+   Palette (locked):
+     bg      #F8FAFC
+     surface #FFFFFF   text #0F172A   muted #64748B
+     primary #6C5CE7   accent #7C3AED
+   Type: Space Grotesk (display) + DM Sans (body). Radius 28px.
+   ================================================================== */
+.theme-lux {
+  color-scheme: light;
+  --font-sans: 'DM Sans', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'DM Sans', 'Almarai', system-ui, sans-serif;
+
+  --background: oklch(0.985 0.005 250);      /* #F8FAFC */
+  --foreground: oklch(0.19 0.03 260);        /* #0F172A */
+  --card: oklch(1 0 0);                      /* #FFFFFF */
+  --card-foreground: oklch(0.19 0.03 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.19 0.03 260);
+  --primary: oklch(0.56 0.20 285);           /* #6C5CE7 */
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.965 0.008 260);
+  --secondary-foreground: oklch(0.28 0.02 260);
+  --muted: oklch(0.965 0.008 260);
+  --muted-foreground: oklch(0.52 0.02 255);  /* #64748B */
+  --accent: oklch(0.55 0.24 300);            /* #7C3AED */
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.60 0.24 25);
+  --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.70 0.17 155);
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.78 0.16 75);
+  --warning-foreground: oklch(0.19 0.03 260);
+  --border: oklch(0.92 0.008 260);
+  --input: oklch(0.90 0.008 260);
+  --ring: oklch(0.56 0.20 285);
+  --paper: oklch(1 0 0);
+  --ink: oklch(0.19 0.03 260);
+  --radius: 1rem; /* base; cards below use 28px */
+
+  --shadow-soft:
+    0 1px 2px 0 color-mix(in oklab, #6C5CE7 8%, transparent),
+    0 4px 12px -6px color-mix(in oklab, #6C5CE7 10%, transparent);
+  --shadow-elevated:
+    0 20px 50px -12px color-mix(in oklab, #6C5CE7 12%, transparent);
+  --shadow-glow:
+    0 10px 30px -6px color-mix(in oklab, #6C5CE7 30%, transparent);
+
+  --gradient-brand: linear-gradient(135deg, #6C5CE7 0%, #7C3AED 100%);
+  --gradient-surface: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+
+  --sidebar: oklch(1 0 0 / 0.7);
+  --sidebar-foreground: oklch(0.52 0.02 255);
+  --sidebar-primary: oklch(0.56 0.20 285);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.965 0.008 260);
+  --sidebar-accent-foreground: oklch(0.19 0.03 260);
+  --sidebar-border: oklch(0.92 0.008 260);
+  --sidebar-ring: oklch(0.56 0.20 285);
+}
+
+/* ===== theme-lux: neutralize the legacy holo layer inside dashboard ===== */
+html.theme-lux :where(:not(.theme-luxe *)) [data-slot="card"]::before,
+html.theme-lux :where(:not(.theme-luxe *)) [data-slot="card"]::after {
+  display: none !important;
+}
+html.theme-lux :where(:not(.theme-luxe *)) [role="tablist"]::after {
+  display: none !important;
+}
+html.theme-lux :where(:not(.theme-luxe *)) button.bg-primary::after,
+html.theme-lux :where(:not(.theme-luxe *)) a.bg-primary::after,
+html.theme-lux :where(:not(.theme-luxe *)) [role="button"].bg-primary::after {
+  display: none !important;
+}
+html.theme-lux .holo-aurora::before,
+html.theme-lux .holo-bg {
+  display: none !important;
+  background: transparent !important;
+}
+html.theme-lux .holo-text {
+  background: linear-gradient(120deg, #6C5CE7 0%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Soft violet ambient wash */
+html.theme-lux body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(60rem 45rem at 100% 0%,
+      color-mix(in oklab, #6C5CE7 7%, transparent) 0%, transparent 55%),
+    radial-gradient(50rem 40rem at 0% 100%,
+      color-mix(in oklab, #7C3AED 6%, transparent) 0%, transparent 60%);
+}
+html.theme-lux #root,
+html.theme-lux body > * { position: relative; z-index: 1; }
+
+/* Floating glass sidebar */
+html.theme-lux [data-slot="sidebar-container"],
+html.theme-lux [data-sidebar="sidebar"] {
+  background: color-mix(in oklab, #ffffff 70%, transparent);
+  backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid color-mix(in oklab, #ffffff 60%, transparent);
+  border-radius: 28px;
+  margin: 16px;
+  box-shadow: 0 24px 48px -12px color-mix(in oklab, #6C5CE7 8%, transparent);
+}
+
+html.theme-lux [data-sidebar="group-label"] {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: color-mix(in oklab, #64748B 80%, transparent);
+}
+
+/* Active nav pill: white raised on soft violet tint */
+html.theme-lux :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"] {
+  background: #FFFFFF;
+  color: #6C5CE7;
+  border-radius: 16px;
+  box-shadow:
+    0 4px 12px -4px color-mix(in oklab, #6C5CE7 20%, transparent),
+    0 0 0 1px color-mix(in oklab, #6C5CE7 8%, transparent);
+  border: none;
+  font-weight: 600;
+}
+html.theme-lux :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"]::before {
+  display: none;
+}
+html.theme-lux [data-sidebar="menu-button"]:not([data-active="true"]) {
+  color: #64748B;
+  border-radius: 16px;
+  transition: background-color .18s ease, color .18s ease;
+}
+html.theme-lux [data-sidebar="menu-button"]:not([data-active="true"]):hover {
+  background: color-mix(in oklab, #ffffff 60%, transparent);
+  color: #6C5CE7;
+}
+
+/* Header — clean glass, hairline violet underline */
+html.theme-lux [data-slot="sidebar-inset"] > header,
+html.theme-lux main > header.sticky,
+html.theme-lux .app-header {
+  background: color-mix(in oklab, #ffffff 70%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  border-bottom: 1px solid color-mix(in oklab, #6C5CE7 8%, transparent);
+}
+
+/* Cards: 28px, white, deep soft violet shadow */
+html.theme-lux :where(:not(.theme-luxe *)) [data-slot="card"] {
+  background: #FFFFFF;
+  border: 1px solid color-mix(in oklab, #FFFFFF 90%, #6C5CE7 10%);
+  border-radius: 28px;
+  box-shadow: 0 20px 50px -18px color-mix(in oklab, #6C5CE7 12%, transparent);
+  transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s ease;
+  position: relative;
+  overflow: hidden;
+}
+html.theme-lux :where(:not(.theme-luxe *)) [data-slot="card"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 28px 60px -18px color-mix(in oklab, #6C5CE7 20%, transparent);
+}
+
+/* KPI numbers — Space Grotesk 42px, tight leading */
+html.theme-lux .kpi-number,
+html.theme-lux [data-kpi="value"] {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #0F172A;
+}
+
+/* Primary button — soft violet lift */
+html.theme-lux :where(:not(.theme-luxe *)) button.bg-primary,
+html.theme-lux :where(:not(.theme-luxe *)) a.bg-primary,
+html.theme-lux :where(:not(.theme-luxe *)) [role="button"].bg-primary {
+  background: #6C5CE7;
+  color: #ffffff;
+  box-shadow: 0 10px 30px -8px color-mix(in oklab, #6C5CE7 40%, transparent);
+  border-radius: 16px;
+}
+html.theme-lux :where(:not(.theme-luxe *)) button.bg-primary:hover,
+html.theme-lux :where(:not(.theme-luxe *)) a.bg-primary:hover,
+html.theme-lux :where(:not(.theme-luxe *)) [role="button"].bg-primary:hover {
+  background: #7C3AED;
+  box-shadow: 0 14px 40px -8px color-mix(in oklab, #6C5CE7 55%, transparent);
+}
+
+/* Inputs — clean rounded */
+html.theme-lux :where(:not(.theme-luxe *)) input:not([type="checkbox"]):not([type="radio"]),
+html.theme-lux :where(:not(.theme-luxe *)) textarea,
+html.theme-lux :where(:not(.theme-luxe *)) [data-slot="select-trigger"] {
+  background: #FFFFFF;
+  border-color: color-mix(in oklab, #64748B 20%, transparent);
+  border-radius: 16px;
+}
+html.theme-lux :where(:not(.theme-luxe *)) input:focus,
+html.theme-lux :where(:not(.theme-luxe *)) textarea:focus {
+  box-shadow: 0 0 0 4px color-mix(in oklab, #6C5CE7 15%, transparent);
+  border-color: #6C5CE7;
+  outline: none;
+}
+
+/* Utility class you can add on any hero KPI wrapper */
+@utility lux-glass {
+  background: color-mix(in oklab, #ffffff 70%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid color-mix(in oklab, #ffffff 60%, transparent);
+  border-radius: 28px;
+  box-shadow: 0 20px 50px -18px color-mix(in oklab, #6C5CE7 12%, transparent);
+}
