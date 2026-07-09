@@ -240,39 +240,49 @@ async def main() -> int:
     print(f"Using auth source: {source}")
 
 
-    report: dict = {"budgets_ms": BUDGETS_MS, "runs_per_path": RUNS_PER_PATH, "results": {}}
+    report: dict = {
+        "viewports": VIEWPORTS,
+        "budgets_ms": BUDGETS_MS,
+        "runs_per_path": RUNS_PER_PATH,
+        "results": {},
+    }
     all_failures: list[str] = []
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
         try:
-            for path, budget in BUDGETS_MS.items():
-                summary, failures, artifact_dir = await run_path(browser, path, budget)
-                report["results"][path] = {"budget_ms": budget, **summary}
-                med = summary["interactive_ms_median"]
-                if failures:
-                    all_failures.extend(failures)
-                    marker = "FAIL"
-                    print(
-                        f"{marker} {path:22s} median interactive={med}ms "
-                        f"(budget {budget}ms) — artifacts kept at {artifact_dir}"
+            for path, budgets_by_vp in BUDGETS_MS.items():
+                report["results"][path] = {}
+                for vp_name, viewport in VIEWPORTS.items():
+                    budget = budgets_by_vp.get(vp_name, 10000)
+                    summary, failures, artifact_dir = await run_path(
+                        browser, path, vp_name, viewport, budget
                     )
-                    # Attach artifact locations into the JSON report for CI.
-                    report["results"][path]["artifacts"] = {
-                        "dir": str(artifact_dir),
-                        "video_dir": str(artifact_dir / "video"),
-                        "har": str(artifact_dir / "network.har"),
-                        "trace": str(artifact_dir / "trace.zip"),
-                        "screenshot": str(artifact_dir / "final.png"),
-                    }
-                else:
-                    discard_artifacts(artifact_dir)
-                    print(
-                        f"OK   {path:22s} median interactive={med}ms "
-                        f"(budget {budget}ms) transfer={summary['transfer_kb_median']}KB"
-                    )
+                    entry = {"budget_ms": budget, "viewport": viewport, **summary}
+                    med = summary["interactive_ms_median"]
+                    if failures:
+                        all_failures.extend(failures)
+                        entry["artifacts"] = {
+                            "dir": str(artifact_dir),
+                            "video_dir": str(artifact_dir / "video"),
+                            "har": str(artifact_dir / "network.har"),
+                            "trace": str(artifact_dir / "trace.zip"),
+                            "screenshot": str(artifact_dir / "final.png"),
+                        }
+                        print(
+                            f"FAIL [{vp_name:7s}] {path:22s} median interactive={med}ms "
+                            f"(budget {budget}ms) — artifacts kept at {artifact_dir}"
+                        )
+                    else:
+                        discard_artifacts(artifact_dir)
+                        print(
+                            f"OK   [{vp_name:7s}] {path:22s} median interactive={med}ms "
+                            f"(budget {budget}ms) transfer={summary['transfer_kb_median']}KB"
+                        )
+                    report["results"][path][vp_name] = entry
         finally:
             await browser.close()
+
 
     REPORT.write_text(json.dumps(report, indent=2))
     print(f"\nReport → {REPORT}")
