@@ -28,6 +28,7 @@ import {
   Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { getPortalOverview } from "@/lib/portal.functions";
 
 const overviewQuery = queryOptions({
@@ -157,75 +158,89 @@ function PortalOverviewPage() {
           <Kpi
             icon={<FileClock className="size-5" />}
             label={isAr ? "إجمالي الطلبات" : "Total requests"}
-            value={nf.format(data.kpis.requests_total)}
+            value={data.kpis.requests_total}
+            format={(n) => nf.format(n)}
             tone="primary"
           />
           <Kpi
             icon={<CheckCircle2 className="size-5" />}
             label={isAr ? "مكتملة" : "Completed"}
-            value={nf.format(data.kpis.requests_completed)}
+            value={data.kpis.requests_completed}
+            format={(n) => nf.format(n)}
             tone="success"
           />
           <Kpi
             icon={<Clock3 className="size-5" />}
             label={isAr ? "قيد التنفيذ" : "Pending"}
-            value={nf.format(data.kpis.requests_pending)}
+            value={data.kpis.requests_pending}
+            format={(n) => nf.format(n)}
             tone="warning"
           />
           <Kpi
             icon={<XCircle className="size-5" />}
             label={isAr ? "مرفوضة" : "Rejected"}
-            value={nf.format(data.kpis.requests_rejected)}
+            value={data.kpis.requests_rejected}
+            format={(n) => nf.format(n)}
             tone="danger"
           />
           <Kpi
             icon={<Users2 className="size-5" />}
             label={isAr ? "الموظفون" : "Employees"}
-            value={nf.format(data.kpis.employees)}
+            value={data.kpis.employees}
+            format={(n) => nf.format(n)}
             tone="primary"
           />
           <Kpi
             icon={<Building2 className="size-5" />}
             label={isAr ? "عقود نشطة" : "Active contracts"}
-            value={nf.format(data.kpis.contracts_active)}
+            value={data.kpis.contracts_active}
+            format={(n) => nf.format(n)}
             tone="accent"
           />
           <Kpi
             icon={<Receipt className="size-5" />}
             label={isAr ? "فواتير مستحقة" : "Outstanding invoices"}
-            value={nf.format(data.kpis.invoices_outstanding)}
+            value={data.kpis.invoices_outstanding}
+            format={(n) => nf.format(n)}
             tone="warning"
           />
           <Kpi
             icon={<CheckCircle2 className="size-5" />}
             label={isAr ? "فواتير مدفوعة" : "Paid invoices"}
-            value={nf.format(data.kpis.invoices_paid)}
+            value={data.kpis.invoices_paid}
+            format={(n) => nf.format(n)}
             tone="success"
           />
           <Kpi
             icon={<FolderOpen className="size-5" />}
             label={isAr ? "الوثائق" : "Documents"}
-            value={nf.format(data.kpis.documents)}
+            value={data.kpis.documents}
+            format={(n) => nf.format(n)}
             tone="primary"
           />
           <Kpi
             icon={<CalendarDays className="size-5" />}
             label={isAr ? "مواعيد قادمة" : "Upcoming meetings"}
-            value={nf.format(data.kpis.meetings_upcoming)}
+            value={data.kpis.meetings_upcoming}
+            format={(n) => nf.format(n)}
             tone="accent"
           />
           <Kpi
             icon={<Wallet className="size-5" />}
             label={isAr ? "رصيد المحفظة" : "Wallet balance"}
-            value={nf.format(data.kpis.wallet_balance) + (isAr ? " ر.س" : " SAR")}
+            value={data.kpis.wallet_balance}
+            format={(n) => nf.format(n)}
+            suffix={isAr ? " ر.س" : " SAR"}
             tone="success"
           />
           <Kpi
             icon={<Coins className="size-5" />}
             label={isAr ? "نقاط الولاء" : "Loyalty points"}
-            value={nf.format(data.kpis.loyalty_points)}
+            value={data.kpis.loyalty_points}
+            format={(n) => nf.format(n)}
             tone="primary"
           />
+
         </div>
       </section>
 
@@ -458,11 +473,15 @@ function Kpi({
   icon,
   label,
   value,
+  suffix,
+  format,
   tone = "primary",
 }: {
   icon: React.ReactNode;
   label: string;
-  value: string;
+  value: number;
+  suffix?: string;
+  format?: (n: number) => string;
   tone?: Tone;
 }) {
   return (
@@ -483,11 +502,14 @@ function Kpi({
       </div>
       <div className="min-w-0">
         <div className="truncate text-[11px] text-muted-foreground">{label}</div>
-        <div className="mt-0.5 truncate text-lg font-semibold tabular-nums">{value}</div>
+        <div className="mt-0.5 truncate text-lg font-semibold tabular-nums">
+          <AnimatedNumber value={value} format={format} suffix={suffix} />
+        </div>
       </div>
     </motion.div>
   );
 }
+
 
 function Badge({ children, tone = "primary" }: { children: React.ReactNode; tone?: Tone }) {
   return (
