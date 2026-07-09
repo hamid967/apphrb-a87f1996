@@ -302,6 +302,8 @@ export function SmartRemindersPanel({
           ctaEn: "View claim",
           timeAgoMs: age,
           claimNumber: shortId,
+          claimId: c.id,
+          canAttachReceipt: !c.receipt_url,
           reasonAr: "بانتظار قرار المراجع.",
           reasonEn: "Awaiting the reviewer's decision.",
           missing: missingCommon,
