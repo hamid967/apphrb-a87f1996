@@ -352,17 +352,85 @@ export function SmartRemindersPanel({
     });
   }, [allReminders, orgId]);
 
+  // Snooze state ---------------------------------------------------------
+  const [snoozed, setSnoozed] = useState<SnoozeMap>({});
+  const [nowTick, setNowTick] = useState(() => Date.now());
+
+  useEffect(() => {
+    setSnoozed(loadSnoozed(orgId));
+  }, [orgId]);
+
+  // Tick every minute so snoozes expire without a manual refresh.
+  useEffect(() => {
+    const t = window.setInterval(() => setNowTick(Date.now()), 60_000);
+    return () => window.clearInterval(t);
+  }, []);
+
+  // Prune expired snoozes and ones for reminders that no longer exist.
+  useEffect(() => {
+    if (!Object.keys(snoozed).length) return;
+    const live = new Set(allReminders.map((r) => r.id));
+    let changed = false;
+    const next: SnoozeMap = {};
+    for (const [id, until] of Object.entries(snoozed)) {
+      if (until > nowTick && (live.has(id) || allReminders.length === 0)) {
+        next[id] = until;
+      } else {
+        changed = true;
+      }
+    }
+    if (changed) {
+      setSnoozed(next);
+      saveSnoozed(orgId, next);
+    }
+  }, [snoozed, allReminders, nowTick, orgId]);
+
+  const snoozeReminder = useCallback(
+    (id: string, hours: number) => {
+      setSnoozed((prev) => {
+        const next = { ...prev, [id]: Date.now() + hours * 3_600_000 };
+        saveSnoozed(orgId, next);
+        return next;
+      });
+    },
+    [orgId],
+  );
+
+  const unsnoozeReminder = useCallback(
+    (id: string) => {
+      setSnoozed((prev) => {
+        if (!(id in prev)) return prev;
+        const next = { ...prev };
+        delete next[id];
+        saveSnoozed(orgId, next);
+        return next;
+      });
+    },
+    [orgId],
+  );
+
   const visibleReminders = useMemo(
     () =>
       allReminders
         .filter((r) => {
           if (readIds.has(r.id)) return false;
+          const until = snoozed[r.id];
+          if (until && until > nowTick) return false;
           const cat = categoryFromReminderId(r.id);
           if (cat && prefs.enabled[cat] === false) return false;
           return true;
         })
         .slice(0, 6),
-    [allReminders, readIds, prefs.enabled],
+    [allReminders, readIds, snoozed, nowTick, prefs.enabled],
+  );
+
+  const snoozedList = useMemo(
+    () =>
+      allReminders.filter((r) => {
+        const until = snoozed[r.id];
+        return until && until > nowTick;
+      }),
+    [allReminders, snoozed, nowTick],
   );
 
   const Chevron = isAr ? ChevronLeft : ChevronRight;
