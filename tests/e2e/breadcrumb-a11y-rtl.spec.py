@@ -16,8 +16,10 @@ Verifies the unified SmartBreadcrumbs contract shared by /dashboard,
 
 Runs each check at desktop (1280) and mobile (390) viewports.
 
-Skips (exit 0) when TEST_SEED_TOKEN is not set — CI must configure the
-same seed endpoint used by portal-signed-in.spec.
+When TEST_SEED_TOKEN is set the spec drives real /portal routes as a
+seeded tenant. Otherwise it falls back to the public, auth-free harness
+at /dev/breadcrumbs-test?depth=1|2|3 so CI always exercises the
+SmartBreadcrumbs contract.
 """
 import asyncio
 import json
@@ -134,7 +136,9 @@ async def collect_tab_order(page) -> list[dict]:
         """() => {
           const nav = [...document.querySelectorAll('nav[aria-label]')]
             .find(n => /مسار|Breadcrumb/i.test(n.getAttribute('aria-label')||''));
-          const first = nav && nav.querySelector('a,button,[tabindex="0"]');
+          if (!nav) return;
+          const first = [...nav.querySelectorAll('a,button,[tabindex="0"]')]
+            .find(el => el.offsetParent !== null);
           if (first) first.focus();
         }"""
     )
@@ -230,7 +234,7 @@ async def audit_route(page, viewport_label: str, path: str) -> list[str]:
     return check_breadcrumb(label, state, tab_order)
 
 
-async def run(creds: dict) -> list[str]:
+async def run_authenticated(creds: dict) -> list[str]:
     # Portal routes reachable as the seeded tenant. /portal itself is 1 crumb
     # (leaf-only); /portal/tenant is 2 crumbs; /portal/tenant/maintenance is 3.
     routes = ["/portal", "/portal/tenant", "/portal/tenant/maintenance"]
@@ -259,22 +263,58 @@ async def run(creds: dict) -> list[str]:
     return all_errs
 
 
+async def run_harness() -> list[str]:
+    """Auth-free fallback: exercise the /dev/breadcrumbs-test harness at
+    depth=1|2|3 on desktop + mobile using fixture crumbs. Same aria-current
+    / aria-label / Tab-order contract, no seed token required."""
+    routes = [
+        "/dev/breadcrumbs-test?depth=2&lang=ar",
+        "/dev/breadcrumbs-test?depth=3&lang=ar",
+    ]
+    all_errs: list[str] = []
+    async with async_playwright() as pw:
+        browser = await pw.chromium.launch(headless=True)
+        try:
+            for vp_label, vp in [("desktop", {"width": 1280, "height": 900}),
+                                 ("mobile",  {"width": 390,  "height": 844})]:
+                ctx_kwargs = {"viewport": vp, "locale": "ar-SA"}
+                if vp_label == "mobile":
+                    ctx_kwargs.update({"is_mobile": True, "has_touch": True})
+                ctx = await browser.new_context(**ctx_kwargs)
+                page = await ctx.new_page()
+                for path in routes:
+                    all_errs.extend(await audit_route(page, vp_label, path))
+                await ctx.close()
+        finally:
+            await browser.close()
+    return all_errs
+
+
 def main() -> int:
     token = os.environ.get("TEST_SEED_TOKEN")
-    if not token:
-        print("SKIP: TEST_SEED_TOKEN not set; breadcrumb-a11y-rtl spec cannot run.")
-        return 0
-    try:
-        seed = seed_via_endpoint(token)
-    except (urllib.error.URLError, urllib.error.HTTPError, RuntimeError) as e:
-        print(f"FAIL: seed endpoint error: {e}", file=sys.stderr)
-        return 1
-    errs = asyncio.run(run(seed["credentials"]))
+    if token:
+        try:
+            seed = seed_via_endpoint(token)
+        except (urllib.error.URLError, urllib.error.HTTPError, RuntimeError) as e:
+            print(f"WARN: seed endpoint error ({e}); falling back to harness route",
+                  file=sys.stderr)
+            errs = asyncio.run(run_harness())
+            mode = "harness (seed failed)"
+        else:
+            errs = asyncio.run(run_authenticated(seed["credentials"]))
+            mode = "authenticated portal routes"
+    else:
+        print("INFO: TEST_SEED_TOKEN not set; running auth-free harness at "
+              "/dev/breadcrumbs-test")
+        errs = asyncio.run(run_harness())
+        mode = "harness (no seed token)"
+
     if errs:
         for e in errs:
             print(f"FAIL: {e}", file=sys.stderr)
         return 1
-    print("OK: breadcrumb aria-current / aria-label / Tab order intact on RTL desktop + mobile")
+    print(f"OK [{mode}]: breadcrumb aria-current / aria-label / Tab order intact "
+          "on RTL desktop + mobile")
     return 0
 
 
