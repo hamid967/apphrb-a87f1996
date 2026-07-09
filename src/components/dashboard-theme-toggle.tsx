@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Sparkles, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,27 @@ export function readDashboardTheme(): DashboardThemeMode {
   return v === "default" ? "default" : "tech";
 }
 
-export function applyDashboardTheme(mode: DashboardThemeMode) {
+// Track the pending "end of transition" timer so rapid toggles don't
+// leave the html.theme-transitioning class stuck on.
+let __themeTransitionTimer: number | null = null;
+
+export function applyDashboardTheme(mode: DashboardThemeMode, animate = true) {
   const el = document.documentElement;
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+  if (animate && !prefersReducedMotion) {
+    el.classList.add("theme-transitioning");
+    if (__themeTransitionTimer !== null) {
+      window.clearTimeout(__themeTransitionTimer);
+    }
+    __themeTransitionTimer = window.setTimeout(() => {
+      el.classList.remove("theme-transitioning");
+      __themeTransitionTimer = null;
+    }, 360);
+  }
+
   if (mode === "tech") {
     el.classList.add("theme-tech", "dark");
   } else {
@@ -25,9 +44,14 @@ export function applyDashboardTheme(mode: DashboardThemeMode) {
 export function DashboardThemeToggle({ className }: { className?: string }) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<DashboardThemeMode>(() => readDashboardTheme());
+  const firstRun = useRef(true);
 
   useEffect(() => {
-    applyDashboardTheme(mode);
+    // Skip the fade on the very first mount so we don't animate from the
+    // default palette into tech on page load — only user-triggered swaps
+    // should tween.
+    applyDashboardTheme(mode, !firstRun.current);
+    firstRun.current = false;
     try {
       window.localStorage.setItem(STORAGE_KEY, mode);
     } catch {

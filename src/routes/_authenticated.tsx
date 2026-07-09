@@ -59,7 +59,19 @@ function AuthenticatedShellWithBoundary() {
   useEffect(() => {
     const KEY = "aqari.dashboard.theme";
     const el = document.documentElement;
-    const apply = (mode: string) => {
+    let timer: number | null = null;
+    const apply = (mode: string, animate: boolean) => {
+      const prefersReduced = window.matchMedia?.(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      if (animate && !prefersReduced) {
+        el.classList.add("theme-transitioning");
+        if (timer !== null) window.clearTimeout(timer);
+        timer = window.setTimeout(() => {
+          el.classList.remove("theme-transitioning");
+          timer = null;
+        }, 360);
+      }
       if (mode === "default") {
         el.classList.remove("theme-tech", "dark");
       } else {
@@ -73,15 +85,16 @@ function AuthenticatedShellWithBoundary() {
         return "tech";
       }
     })();
-    apply(initial);
+    apply(initial, false);
     const onChange = (e: Event) => {
       const detail = (e as CustomEvent<string>).detail;
-      if (detail) apply(detail);
+      if (detail) apply(detail, true);
     };
     window.addEventListener("aqari:dashboard-theme", onChange);
     return () => {
       window.removeEventListener("aqari:dashboard-theme", onChange);
-      el.classList.remove("theme-tech", "dark");
+      if (timer !== null) window.clearTimeout(timer);
+      el.classList.remove("theme-tech", "dark", "theme-transitioning");
     };
   }, []);
 
