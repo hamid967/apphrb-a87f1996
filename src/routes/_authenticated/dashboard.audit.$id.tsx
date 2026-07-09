@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/audit/$id")({
     <div className="p-6 text-sm text-destructive">{String(error?.message ?? error)}</div>
   ),
   notFoundComponent: () => (
-    <div className="p-6 text-sm text-muted-foreground">Not found — غير موجود</div>
+    <div className="p-6 text-sm text-muted-foreground">غير موجود</div>
   ),
 });
 

@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/audit")({
     <div className="p-6 text-sm text-destructive">{String(error?.message ?? error)}</div>
   ),
   notFoundComponent: () => (
-    <div className="p-6 text-sm text-muted-foreground">Not found — غير موجود</div>
+    <div className="p-6 text-sm text-muted-foreground">غير موجود</div>
   ),
 });
 
@@ -364,26 +364,30 @@ function GlobalAuditPage() {
                 size="sm"
                 onClick={exportCSV}
                 disabled={exporting !== null || (q.data?.total ?? 0) === 0}
+                title="CSV"
+                aria-label="تصدير جدول CSV"
               >
                 {exporting === "csv" ? (
                   <Loader2 className="size-4 animate-spin" />
                 ) : (
                   <FileDown className="size-4" />
                 )}
-                <span className="ms-1 hidden sm:inline">CSV</span>
+                <span className="ms-1 hidden sm:inline">جدول</span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={exportPDF}
                 disabled={exporting !== null || (q.data?.total ?? 0) === 0}
+                title="PDF"
+                aria-label="تصدير مستند PDF"
               >
                 {exporting === "pdf" ? (
                   <Loader2 className="size-4 animate-spin" />
                 ) : (
                   <FileText className="size-4" />
                 )}
-                <span className="ms-1 hidden sm:inline">PDF</span>
+                <span className="ms-1 hidden sm:inline">مستند</span>
               </Button>
               <Button
                 variant="outline"
