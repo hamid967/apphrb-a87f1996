@@ -31,11 +31,13 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+
 import { Button } from "@/components/ui/button";
 
 const DASHBOARD_ROOT = "/dashboard";
