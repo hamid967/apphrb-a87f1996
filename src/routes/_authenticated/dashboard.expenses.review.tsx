@@ -73,6 +73,14 @@ function ClaimsReviewPage() {
     | null
   >(null);
   const [reason, setReason] = useState("");
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const toggleExpanded = (id: string) =>
+    setExpanded((s) => {
+      const next = new Set(s);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   const orgsQ = useQuery({
     queryKey: ["my-organizations"],
