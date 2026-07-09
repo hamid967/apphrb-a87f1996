@@ -29,12 +29,12 @@ export const Route = createFileRoute("/")({
       },
       {
         property: "og:title",
-        content: "عقاري Aqari — إدارة عقارات بالذكاء الاصطناعي للسعودية | HBSpro",
+        content: "عقاري Aqari — إدارة عقارات بالذكاء الاصطناعي",
       },
       {
         property: "og:description",
         content:
-          "أدر محفظتك العقارية بالكامل عبر الذكاء الاصطناعي — ثنائية اللغة، متوافقة مع زاتكا، ومستضافة في المملكة.",
+          "عقاري Aqari من HBSpro — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://hrhbs.com/" },

@@ -75,34 +75,36 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "HBSpro" },
       { name: "application-name", content: "HBSpro" },
       { name: "format-detection", content: "telephone=no" },
-      { title: "HBSpro — AI Real-Estate Cloud" },
+      { title: "عقاري Aqari — إدارة عقارات بالذكاء الاصطناعي" },
       {
         name: "description",
         content:
-          "HBSpro is an AI-powered bilingual (AR/EN) real-estate cloud for property management, CRM, accounting, and maintenance.",
+          "عقاري Aqari من HBSpro — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
       },
-      { property: "og:title", content: "HBSpro — AI Real-Estate Cloud" },
-      { name: "twitter:title", content: "HBSpro — AI Real-Estate Cloud" },
+      { property: "og:title", content: "عقاري Aqari — إدارة عقارات بالذكاء الاصطناعي" },
+      { name: "twitter:title", content: "عقاري Aqari — إدارة عقارات بالذكاء الاصطناعي" },
       {
         property: "og:description",
         content:
-          "AI-powered bilingual real-estate cloud: properties, CRM, accounting, maintenance, and smart insights.",
+          "عقاري Aqari من HBSpro — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
       },
       {
         name: "twitter:description",
         content:
-          "AI-powered bilingual real-estate cloud: properties, CRM, accounting, maintenance, and smart insights.",
+          "عقاري Aqari من HBSpro — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
       },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
       { name: "google-site-verification", content: "vKIb1ucLPoJXIOgTnQWbD22HsBcHVPd_CF0hsWKZpKI" },
+      { property: "og:image", content: "https://hrhbs.com/og-image.jpg" },
+      { name: "twitter:image", content: "https://hrhbs.com/og-image.jpg" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
-      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-512.png" },
+      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-192.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://iefrhjjlftbijuedxmbl.supabase.co", crossOrigin: "anonymous" },
