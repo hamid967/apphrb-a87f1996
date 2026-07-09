@@ -39,26 +39,52 @@ export function DashboardBreadcrumbs() {
   const Sep = isAr ? ChevronLeft : ChevronRight;
 
   return (
-    <nav
-      aria-label="breadcrumb"
-      className="flex min-w-0 items-center gap-1 text-sm text-muted-foreground"
-    >
-      {crumbs.map((c, i) => (
-        <span key={c.href} className="flex min-w-0 items-center gap-1">
-          {i > 0 && <Sep className="size-3.5 shrink-0 opacity-60" aria-hidden />}
-          {c.isLast ? (
-            <span className="truncate font-medium text-foreground" aria-current="page">
-              {i === 0 ? <Home className="inline size-3.5 me-1 opacity-70" /> : null}
-              {c.label}
-            </span>
-          ) : (
-            <Link to={c.href} className="truncate hover:text-foreground">
-              {i === 0 ? <Home className="inline size-3.5 me-1 opacity-70" /> : null}
-              {c.label}
-            </Link>
-          )}
-        </span>
-      ))}
+    <nav aria-label={isAr ? "مسار التنقّل" : "Breadcrumb"} className="min-w-0">
+      <ol className="flex min-w-0 items-center gap-1.5 text-sm">
+        {crumbs.map((c, i) => (
+          <li key={c.href} className="flex min-w-0 items-center gap-1.5">
+            {i > 0 && (
+              <span
+                aria-hidden="true"
+                role="presentation"
+                className="inline-flex text-muted-foreground/60"
+              >
+                <Sep className="size-3.5 shrink-0" />
+              </span>
+            )}
+            {c.isLast ? (
+              <span
+                aria-current="page"
+                tabIndex={0}
+                className="truncate rounded-md bg-primary/10 px-2 py-0.5 font-semibold text-primary ring-1 ring-primary/20 outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                {i === 0 ? (
+                  <Home className="inline size-3.5 me-1 opacity-80" aria-hidden />
+                ) : null}
+                {c.label}
+              </span>
+            ) : (
+              <Link
+                to={c.href}
+                aria-label={
+                  i === 0
+                    ? isAr
+                      ? "الانتقال إلى الرئيسية"
+                      : "Go to Dashboard home"
+                    : undefined
+                }
+                className="truncate rounded-md px-2 py-1 font-medium text-muted-foreground outline-none transition-colors hover:bg-primary/10 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              >
+                {i === 0 ? (
+                  <Home className="inline size-3.5 me-1 opacity-80" aria-hidden />
+                ) : null}
+                {c.label}
+              </Link>
+            )}
+          </li>
+        ))}
+      </ol>
     </nav>
   );
 }
+
