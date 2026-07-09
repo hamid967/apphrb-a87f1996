@@ -198,7 +198,24 @@ async function employeePerformance({ supabase, orgId }: Ctx) {
   return { agents: perAgent };
 }
 
+async function summarizeSystem(ctx: Ctx) {
+  const [rev, exp, occ, over] = await Promise.all([
+    revenueSummary(ctx, { months: 1 }),
+    expenseSummary(ctx, { months: 1 }),
+    occupancySnapshot(ctx),
+    overduePayments(ctx),
+  ]);
+  return {
+    revenue_last_month: rev.total_paid,
+    expenses_last_month: exp.total,
+    occupancy_pct: occ.occupancy_pct,
+    overdue_total: over.total_overdue,
+    overdue_count: over.count,
+  };
+}
+
 async function cashFlowSummary(ctx: Ctx, args: { months?: number }) {
+
   const months = args.months ?? 6;
   const [rev, exp] = await Promise.all([
     revenueSummary(ctx, { months }),
