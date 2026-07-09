@@ -372,7 +372,11 @@ export const attachReceiptToClaim = createServerFn({ method: "POST" })
     }
 
     const shouldSubmit = data.submit && existing.status === "draft";
-    const patch: Record<string, unknown> = { receipt_url: data.receipt_url };
+    const patch: {
+      receipt_url: string;
+      status?: "submitted";
+      submitted_at?: string;
+    } = { receipt_url: data.receipt_url };
     if (shouldSubmit) {
       patch.status = "submitted";
       patch.submitted_at = new Date().toISOString();
