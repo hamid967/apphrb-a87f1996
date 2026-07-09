@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { runDashboardTool } from "@/lib/ai-assistant.functions";
 import { recordRun } from "@/lib/scripts-history";
-import { Loader2, Play, Terminal, ChevronDown, ExternalLink, History } from "lucide-react";
+import { Loader2, Play, Terminal, ChevronDown, ExternalLink, History, CalendarClock } from "lucide-react";
 import { toast } from "sonner";
 
 import { sectionHead } from "@/lib/section-og-head";
