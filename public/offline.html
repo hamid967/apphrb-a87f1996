@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0d1117" />
+    <title>غير متصل — عقاري Aqari</title>
+    <link rel="icon" href="/icon-192.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0d1117;
+        --surface: #161b22;
+        --border: #30363d;
+        --text: #e6edf3;
+        --muted: #8b949e;
+        --primary: #58a6ff;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text); }
+      body {
+        font-family: "Space Grotesk", "DM Sans", "Almarai", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        display: flex; align-items: center; justify-content: center;
+        padding: 24px; padding-top: max(24px, env(safe-area-inset-top));
+      }
+      .card {
+        max-width: 460px; width: 100%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 36px 28px;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      }
+      .icon {
+        width: 72px; height: 72px; margin: 0 auto 20px;
+        border-radius: 50%;
+        background: rgba(88, 166, 255, 0.12);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--primary);
+      }
+      h1 { margin: 0 0 8px; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+      h2 { margin: 0 0 20px; font-size: 14px; font-weight: 500; color: var(--muted); direction: ltr; }
+      p  { margin: 0 0 8px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+      p.en { direction: ltr; text-align: left; }
+      button {
+        margin-top: 24px;
+        appearance: none; border: 0; cursor: pointer;
+        background: var(--primary); color: #0d1117;
+        font: inherit; font-weight: 600; font-size: 14px;
+        padding: 12px 24px; border-radius: 999px;
+        transition: transform .15s ease, opacity .15s ease;
+      }
+      button:hover { transform: translateY(-1px); }
+      button:active { transform: translateY(0); opacity: .9; }
+      .status {
+        margin-top: 18px; font-size: 12px; color: var(--muted);
+      }
+      .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #f85149; margin-inline-end: 6px; vertical-align: middle; }
+      .dot.on { background: #3fb950; }
+    </style>
+  </head>
+  <body>
+    <main class="card" role="main">
+      <div class="icon" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 1l22 22" />
+          <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
+          <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" />
+          <path d="M10.71 5.05A16 16 0 0 1 22.58 9" />
+          <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" />
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+          <line x1="12" y1="20" x2="12.01" y2="20" />
+        </svg>
+      </div>
+      <h1>لا يوجد اتصال بالإنترنت</h1>
+      <h2>You're offline</h2>
+      <p>لا يمكن الوصول للخادم حالياً. يمكنك تصفح الصفحات التي زرتها مسبقاً، وسنقوم بمزامنة أي تغييرات فور عودة الاتصال.</p>
+      <p class="en">Server unreachable. Previously visited pages remain available. We'll sync your changes automatically once you're back online.</p>
+      <button type="button" onclick="location.reload()">إعادة المحاولة · Retry</button>
+      <div class="status">
+        <span id="dot" class="dot" aria-hidden="true"></span>
+        <span id="status-text">غير متصل · Offline</span>
+      </div>
+    </main>
+    <script>
+      (function () {
+        var dot = document.getElementById('dot');
+        var text = document.getElementById('status-text');
+        function update() {
+          if (navigator.onLine) {
+            dot.classList.add('on');
+            text.textContent = 'عاد الاتصال · Back online — reloading…';
+            setTimeout(function () { location.reload(); }, 600);
+          } else {
+            dot.classList.remove('on');
+            text.textContent = 'غير متصل · Offline';
+          }
+        }
+        window.addEventListener('online', update);
+        window.addEventListener('offline', update);
+        update();
+      })();
+    </script>
+  </body>
+</html>
