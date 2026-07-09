@@ -70,16 +70,19 @@ async def apply_status_filter(page, arabic_label: str) -> bool:
     return True
 
 
-async def download_via(page, arabic_button_label: str, ext: str):
-    """Click an export button and capture the download."""
-    async with page.expect_download() as dl_info:
-        # Buttons render both full ("تصدير CSV") and short ("CSV") spans; match the full.
-        await page.get_by_role("button", name=re.compile(arabic_button_label)).first.click()
-    dl = await dl_info.value
+async def download_via(page, arabic_button_label: str, ext: str, *, timeout: int = 8000):
+    """Click an export button and capture the download. Returns None if no download fires."""
+    try:
+        async with page.expect_download(timeout=timeout) as dl_info:
+            await page.get_by_role("button", name=re.compile(arabic_button_label)).first.click()
+        dl = await dl_info.value
+    except Exception:
+        return None, None
     dest = DOWNLOADS / dl.suggested_filename
     await dl.save_as(str(dest))
     print(f"downloaded {ext}: {dl.suggested_filename} -> {dest} ({dest.stat().st_size} bytes)")
     return dl.suggested_filename, dest
+
 
 
 def assert_csv(path: Path, must_contain_in_name: str | None):
