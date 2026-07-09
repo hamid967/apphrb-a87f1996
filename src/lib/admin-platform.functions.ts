@@ -126,10 +126,10 @@ function makeProviderFns(table: "email_providers" | "sms_providers") {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { id, ...rest } = data;
       if (id) {
-        const { error } = await supabaseAdmin.from(table).update(rest).eq("id", id);
+        const { error } = await supabaseAdmin.from(table).update(rest as any).eq("id", id);
         if (error) throw error;
       } else {
-        const { error } = await supabaseAdmin.from(table).insert(rest);
+        const { error } = await supabaseAdmin.from(table).insert(rest as any);
         if (error) throw error;
       }
       return { ok: true };
