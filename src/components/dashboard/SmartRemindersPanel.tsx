@@ -19,6 +19,9 @@ import {
   BellOff,
   Settings2,
   Undo2,
+  Upload,
+  Loader2,
+  Paperclip,
 } from "lucide-react";
 import {
   listMyRecentClaims,
