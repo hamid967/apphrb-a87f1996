@@ -364,9 +364,12 @@ function ScheduleEditor({
   const [label, setLabel] = useState(initial.label ?? "");
   const [interval, setInterval] = useState<number>(initial.interval_minutes ?? 60 * 24);
   const [enabled, setEnabled] = useState<boolean>(initial.enabled ?? true);
+  const [maxRetries, setMaxRetries] = useState<number>(initial.max_retries ?? 0);
+  const [retryDelay, setRetryDelay] = useState<number>(initial.retry_delay_minutes ?? 5);
   const [argsText, setArgsText] = useState<string>(
     JSON.stringify(initial.args ?? {}, null, 2),
   );
+
 
   const parsedArgs = useMemo(() => {
     try {
