@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { listTenantPayments } from "@/lib/portal-payments.functions";
 import { portalHead } from "@/lib/portal-og-head";
+import i18n from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/portal/tenant/payments")({
   head: () =>
@@ -29,10 +30,14 @@ export const Route = createFileRoute("/_authenticated/portal/tenant/payments")({
     <div className="mx-auto max-w-lg p-6 text-center">
       <AlertCircle className="mx-auto mb-2 size-8 text-destructive" />
       <p className="mb-4 text-sm text-muted-foreground">{error.message}</p>
-      <Button onClick={() => reset()}>Retry</Button>
+      <Button onClick={() => reset()}>
+        {i18n.t("accessDenied.retry")}
+      </Button>
     </div>
   ),
-  notFoundComponent: () => <div className="p-6">Not found</div>,
+  notFoundComponent: () => (
+    <div className="p-6">{i18n.t("accessDenied.notFound")}</div>
+  ),
   component: TenantPaymentsPage,
 });
 
@@ -48,7 +53,7 @@ type Payment = {
 };
 
 function TenantPaymentsPage() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const listFn = useServerFn(listTenantPayments);
   const q = useQuery({
@@ -65,17 +70,21 @@ function TenantPaymentsPage() {
     .reduce((s, p) => s + Number(p.amount || 0), 0);
   const currency = items[0]?.currency_code ?? "SAR";
 
+  const statusLabel = (status: string) => {
+    const key = `tenantPortal.payments.status.${status}`;
+    const translated = t(key);
+    return translated === key ? status : translated;
+  };
+
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-4 md:p-6">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            {isAr ? "مدفوعاتي" : "My Payments"}
+            {t("tenantPortal.payments.title")}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {isAr
-              ? "جميع الإيصالات التي أرسلتها وحالتها لدى الإدارة."
-              : "All the receipts you've submitted and their review status."}
+            {t("tenantPortal.payments.subtitle")}
           </p>
         </div>
       </div>
@@ -84,7 +93,7 @@ function TenantPaymentsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">
-              {isAr ? "إجمالي مدفوع" : "Total paid"}
+              {t("tenantPortal.payments.totalPaid")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -96,7 +105,7 @@ function TenantPaymentsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-muted-foreground">
-              {isAr ? "قيد المراجعة" : "Pending review"}
+              {t("tenantPortal.payments.pendingReview")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -111,7 +120,7 @@ function TenantPaymentsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Receipt className="size-4" />
-            {isAr ? "سجل المدفوعات" : "Payment history"}
+            {t("tenantPortal.payments.history")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -121,18 +130,18 @@ function TenantPaymentsPage() {
             </div>
           ) : items.length === 0 ? (
             <div className="py-10 text-center text-sm text-muted-foreground">
-              {isAr ? "لا توجد مدفوعات بعد." : "No payments yet."}
+              {t("tenantPortal.payments.empty")}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{isAr ? "التاريخ" : "Date"}</TableHead>
-                    <TableHead>{isAr ? "العقد" : "Contract"}</TableHead>
-                    <TableHead>{isAr ? "المبلغ" : "Amount"}</TableHead>
-                    <TableHead>{isAr ? "المرجع" : "Reference"}</TableHead>
-                    <TableHead>{isAr ? "الحالة" : "Status"}</TableHead>
+                    <TableHead>{t("tenantPortal.payments.cols.date")}</TableHead>
+                    <TableHead>{t("tenantPortal.payments.cols.contract")}</TableHead>
+                    <TableHead>{t("tenantPortal.payments.cols.amount")}</TableHead>
+                    <TableHead>{t("tenantPortal.payments.cols.reference")}</TableHead>
+                    <TableHead>{t("tenantPortal.payments.cols.status")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -160,7 +169,7 @@ function TenantPaymentsPage() {
                               : "destructive"
                           }
                         >
-                          {p.status}
+                          {statusLabel(p.status)}
                         </Badge>
                       </TableCell>
                     </TableRow>
