@@ -100,6 +100,8 @@ const FONT_SIZES = { sm: 13, md: 15, lg: 18 } as const;
 type SizeKey = keyof typeof FONT_SIZES;
 
 function ThreadView() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.language?.startsWith("ar") ?? true;
   const { threadId } = Route.useParams();
   const qc = useQueryClient();
   const navigate = useNavigate();
