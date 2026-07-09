@@ -654,6 +654,95 @@ export function SmartRemindersPanel({
   }, [visibleReminders, claimsQ.isLoading, isAr, navigate]);
 
   const [openReminder, setOpenReminder] = useState<Reminder | null>(null);
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
+  const [uploadPct, setUploadPct] = useState(0);
+  const receiptInputRef = useRef<HTMLInputElement | null>(null);
+  const queryClient = useQueryClient();
+
+  const handleReceiptUpload = useCallback(
+    async (file: File, reminder: Reminder) => {
+      if (!reminder.claimId) return;
+      const type = file.type || "application/octet-stream";
+      const isImage = type.startsWith("image/");
+      const isPdf = type === "application/pdf";
+      if (!isImage && !isPdf) {
+        toast.error(
+          isAr ? "الملف يجب أن يكون صورة أو PDF" : "File must be an image or PDF",
+        );
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(isAr ? "الحد الأقصى 10 ميجابايت" : "Maximum 10MB");
+        return;
+      }
+      const toastId = toast.loading(
+        isAr ? "جارٍ رفع الإيصال..." : "Uploading receipt...",
+        { description: `${file.name} · 0%` },
+      );
+      try {
+        setUploadingReceipt(true);
+        setUploadPct(0);
+        const { path, signedUrl } = await createReceiptUploadUrl({
+          data: { filename: file.name, content_type: type },
+        });
+        // Upload via XHR to track progress.
+        await new Promise<void>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("PUT", signedUrl);
+          xhr.setRequestHeader("Content-Type", type);
+          xhr.upload.onprogress = (e) => {
+            if (!e.lengthComputable) return;
+            const pct = Math.round((e.loaded / e.total) * 100);
+            setUploadPct(pct);
+            toast.loading(
+              isAr ? "جارٍ رفع الإيصال..." : "Uploading receipt...",
+              { id: toastId, description: `${file.name} · ${pct}%` },
+            );
+          };
+          xhr.onload = () =>
+            xhr.status >= 200 && xhr.status < 300
+              ? resolve()
+              : reject(new Error(`upload_failed_${xhr.status}`));
+          xhr.onerror = () => reject(new Error("upload_failed"));
+          xhr.send(file);
+        });
+
+        await attachReceiptToClaim({
+          data: {
+            claim_id: reminder.claimId,
+            receipt_url: path,
+            submit: !!reminder.claimIsDraft,
+          },
+        });
+
+        toast.success(
+          reminder.claimIsDraft
+            ? isAr
+              ? "تم رفع الإيصال وإرسال المطالبة"
+              : "Receipt uploaded and claim submitted"
+            : isAr
+              ? "تم رفع الإيصال ومرفقته بالمطالبة"
+              : "Receipt uploaded and attached to the claim",
+          { id: toastId },
+        );
+        // Refresh claims and close.
+        await queryClient.invalidateQueries({ queryKey: ["my-recent-claims"] });
+        setOpenReminder(null);
+      } catch (err) {
+        console.error("[reminder receipt upload]", err);
+        toast.error(
+          isAr ? "فشل رفع الإيصال" : "Receipt upload failed",
+          { id: toastId },
+        );
+      } finally {
+        setUploadingReceipt(false);
+        setUploadPct(0);
+        if (receiptInputRef.current) receiptInputRef.current.value = "";
+      }
+    },
+    [isAr, queryClient],
+  );
+
   const Chevron = isAr ? ChevronLeft : ChevronRight;
 
   return (
