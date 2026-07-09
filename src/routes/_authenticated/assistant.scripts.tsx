@@ -184,12 +184,66 @@ function ScriptCard({
       </div>
 
       {script.fields.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {script.fields.map((f) => {
             const label = t(`assistant.scripts.fields.${f.labelKey}` as const);
             const placeholder = f.placeholderKey
               ? t(`assistant.scripts.fields.${f.placeholderKey}` as const)
               : f.placeholder;
+
+            if (f.range) {
+              const r = f.range;
+              const raw = values[f.name];
+              const num = raw !== undefined && raw !== "" ? Number(raw) : r.default;
+              const val = Number.isFinite(num) ? num : r.default;
+              const unit = r.unitKey ? t(`assistant.scripts.fields.${r.unitKey}` as const) : "";
+              const setVal = (n: number) => {
+                const clamped = Math.min(r.max, Math.max(r.min, n));
+                setValues((v) => ({ ...v, [f.name]: String(clamped) }));
+              };
+              return (
+                <div key={f.name} className="sm:col-span-2 flex flex-col gap-2 text-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-muted-foreground">{label}</span>
+                    <div className="inline-flex items-baseline gap-1 rounded-md bg-muted px-2 py-0.5">
+                      <span className="font-mono text-sm font-semibold text-foreground">{val}</span>
+                      {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
+                    </div>
+                  </div>
+                  <input
+                    type="range"
+                    min={r.min}
+                    max={r.max}
+                    step={r.step ?? 1}
+                    value={val}
+                    onChange={(e) => setVal(Number(e.target.value))}
+                    className="w-full accent-primary"
+                    aria-label={label}
+                  />
+                  <div className="flex flex-wrap gap-1.5">
+                    {r.presets.map((p) => {
+                      const active = val === p;
+                      return (
+                        <button
+                          type="button"
+                          key={p}
+                          onClick={() => setVal(p)}
+                          className={`rounded-full border px-2.5 py-0.5 text-xs transition ${
+                            active
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "text-muted-foreground hover:bg-muted"
+                          }`}
+                        >
+                          {p}
+                          {unit ? ` ${unit}` : ""}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <label key={f.name} className="flex flex-col gap-1 text-sm">
                 <span className="text-muted-foreground">{label}</span>
