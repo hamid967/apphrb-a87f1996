@@ -1,56 +1,70 @@
-import { createFileRoute, useSearch } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { z } from "zod";
-import { useEffect } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { toast } from "sonner";
-import { AccessDenied } from "@/components/auth/AccessDenied";
+import { useTranslation } from "react-i18next";
+import { ShieldAlert, ArrowLeft, Home } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 const searchSchema = z.object({
-  permission: z.string().optional(),
-  scope: z.string().optional(),
   reason: z.string().optional(),
+  from: z.string().optional(),
 });
 
 export const Route = createFileRoute("/access-denied")({
-  validateSearch: searchSchema,
+  validateSearch: (input) => searchSchema.parse(input),
   head: () => ({
-    meta: [{ title: "Access denied" }, { name: "robots", content: "noindex" }],
+    meta: [
+      { title: "Access denied — Aqari" },
+      { name: "description", content: "You don't have permission to view this resource." },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
   }),
   component: AccessDeniedPage,
 });
 
 function AccessDeniedPage() {
-  const { permission, scope, reason } = useSearch({ from: "/access-denied" });
-  const reasonKey = (reason ?? "default") + "|" + (permission ?? "") + "|" + (scope ?? "");
-
-  useEffect(() => {
-    if (!reason) return;
-    const lower = reason.toLowerCase();
-    const isBilling =
-      lower.includes("expired") ||
-      lower.includes("subscription") ||
-      lower.includes("اشتراك") ||
-      lower.includes("منتهي") ||
-      lower.includes("فوترة");
-    toast(isBilling ? "اشتراكك بحاجة إلى تجديد" : "تم تقييد الوصول", {
-      description: reason,
-      duration: 4000,
-    });
-  }, [reason]);
+  const { i18n } = useTranslation();
+  const isAr = i18n.language?.startsWith("ar");
+  const search = useSearch({ from: "/access-denied" });
 
   return (
-    <div className="min-h-screen bg-background">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={reasonKey}
-          initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <AccessDenied requiredPermission={permission} scopeLabel={scope} reason={reason} />
-        </motion.div>
-      </AnimatePresence>
+    <div className="min-h-dvh flex items-center justify-center p-6 bg-background">
+      <Card className="w-full max-w-md">
+        <CardContent className="pt-8 pb-6 text-center space-y-4">
+          <div className="mx-auto grid size-14 place-items-center rounded-full bg-destructive/10 text-destructive">
+            <ShieldAlert className="size-7" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              {isAr ? "غير مصرح لك بالوصول" : "Access denied"}
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {isAr
+                ? "ليست لديك الصلاحية المطلوبة لعرض هذه الصفحة. تواصل مع مدير الحساب إذا كنت تظن أنه خطأ."
+                : "You don't have the permissions required to view this page. Contact your account admin if you think this is a mistake."}
+            </p>
+            {search.reason && (
+              <p className="mt-2 text-xs text-muted-foreground/80">
+                <span className="font-mono">{search.reason}</span>
+              </p>
+            )}
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 pt-2">
+            <Button asChild variant="outline">
+              <Link to="/">
+                <Home className="size-4 mr-1" />
+                {isAr ? "الرئيسية" : "Home"}
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link to="/portal">
+                <ArrowLeft className="size-4 mr-1" />
+                {isAr ? "الذهاب إلى البوابة" : "Go to portal"}
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
