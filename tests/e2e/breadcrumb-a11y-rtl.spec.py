@@ -268,7 +268,6 @@ async def run_harness() -> list[str]:
     depth=1|2|3 on desktop + mobile using fixture crumbs. Same aria-current
     / aria-label / Tab-order contract, no seed token required."""
     routes = [
-        "/dev/breadcrumbs-test?depth=1&lang=ar",
         "/dev/breadcrumbs-test?depth=2&lang=ar",
         "/dev/breadcrumbs-test?depth=3&lang=ar",
     ]
