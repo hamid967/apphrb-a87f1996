@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { WelcomeTour } from "./WelcomeTour";
 import {
   Building2,
   FileText,
