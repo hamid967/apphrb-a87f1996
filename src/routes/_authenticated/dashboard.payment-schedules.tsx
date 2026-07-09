@@ -304,6 +304,15 @@ function PaymentSchedulesPage() {
                   <td className="p-3 text-end space-x-1 rtl:space-x-reverse">
                     <Button
                       size="sm" variant="outline"
+                      disabled={disabled || Boolean(r.voucher_id) || voucherMut.isPending}
+                      onClick={() => voucherMut.mutate(r.id)}
+                      title={isAr ? "إنشاء سند" : "Create voucher"}
+                    >
+                      <Receipt className="h-3.5 w-3.5 me-1" />
+                      {isAr ? "سند" : "Voucher"}
+                    </Button>
+                    <Button
+                      size="sm" variant="outline"
                       disabled={disabled || payMut.isPending}
                       onClick={() => payMut.mutate(r.id)}
                     >
