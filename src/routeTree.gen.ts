@@ -127,6 +127,7 @@ import { Route as AuthenticatedDashboardAuctionsRouteImport } from './routes/_au
 import { Route as AuthenticatedDashboardArchiveLogRouteImport } from './routes/_authenticated/dashboard.archive-log'
 import { Route as AuthenticatedDashboardArchiveRouteImport } from './routes/_authenticated/dashboard.archive'
 import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
+import { Route as AuthenticatedCrmAnalyticsRouteImport } from './routes/_authenticated/crm.analytics'
 import { Route as AuthenticatedContractsIdRouteImport } from './routes/_authenticated/contracts.$id'
 import { Route as AuthenticatedAuctionsIdRouteImport } from './routes/_authenticated/auctions.$id'
 import { Route as AuthenticatedAssistantScriptsRouteImport } from './routes/_authenticated/assistant.scripts'
@@ -898,6 +899,12 @@ const AuthenticatedDashboardApplicationsRoute =
     path: '/applications',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedCrmAnalyticsRoute =
+  AuthenticatedCrmAnalyticsRouteImport.update({
+    id: '/crm/analytics',
+    path: '/crm/analytics',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedContractsIdRoute =
   AuthenticatedContractsIdRouteImport.update({
     id: '/contracts/$id',
@@ -1645,6 +1652,7 @@ export interface FileRoutesByFullPath {
   '/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
   '/auctions/$id': typeof AuthenticatedAuctionsIdRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
+  '/crm/analytics': typeof AuthenticatedCrmAnalyticsRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/archive': typeof AuthenticatedDashboardArchiveRoute
   '/dashboard/archive-log': typeof AuthenticatedDashboardArchiveLogRoute
@@ -1874,6 +1882,7 @@ export interface FileRoutesByTo {
   '/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
   '/auctions/$id': typeof AuthenticatedAuctionsIdRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
+  '/crm/analytics': typeof AuthenticatedCrmAnalyticsRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/archive': typeof AuthenticatedDashboardArchiveRoute
   '/dashboard/archive-log': typeof AuthenticatedDashboardArchiveLogRoute
@@ -2107,6 +2116,7 @@ export interface FileRoutesById {
   '/_authenticated/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
   '/_authenticated/auctions/$id': typeof AuthenticatedAuctionsIdRoute
   '/_authenticated/contracts/$id': typeof AuthenticatedContractsIdRoute
+  '/_authenticated/crm/analytics': typeof AuthenticatedCrmAnalyticsRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/_authenticated/dashboard/archive': typeof AuthenticatedDashboardArchiveRoute
   '/_authenticated/dashboard/archive-log': typeof AuthenticatedDashboardArchiveLogRoute
@@ -2343,6 +2353,7 @@ export interface FileRouteTypes {
     | '/assistant/scripts'
     | '/auctions/$id'
     | '/contracts/$id'
+    | '/crm/analytics'
     | '/dashboard/applications'
     | '/dashboard/archive'
     | '/dashboard/archive-log'
@@ -2572,6 +2583,7 @@ export interface FileRouteTypes {
     | '/assistant/scripts'
     | '/auctions/$id'
     | '/contracts/$id'
+    | '/crm/analytics'
     | '/dashboard/applications'
     | '/dashboard/archive'
     | '/dashboard/archive-log'
@@ -2804,6 +2816,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assistant/scripts'
     | '/_authenticated/auctions/$id'
     | '/_authenticated/contracts/$id'
+    | '/_authenticated/crm/analytics'
     | '/_authenticated/dashboard/applications'
     | '/_authenticated/dashboard/archive'
     | '/_authenticated/dashboard/archive-log'
@@ -3847,6 +3860,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/applications'
       preLoaderRoute: typeof AuthenticatedDashboardApplicationsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/crm/analytics': {
+      id: '/_authenticated/crm/analytics'
+      path: '/crm/analytics'
+      fullPath: '/crm/analytics'
+      preLoaderRoute: typeof AuthenticatedCrmAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/contracts/$id': {
       id: '/_authenticated/contracts/$id'
@@ -5240,6 +5260,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRegisterCompanyRoute: typeof AuthenticatedRegisterCompanyRoute
   AuthenticatedAuctionsIdRoute: typeof AuthenticatedAuctionsIdRoute
   AuthenticatedContractsIdRoute: typeof AuthenticatedContractsIdRoute
+  AuthenticatedCrmAnalyticsRoute: typeof AuthenticatedCrmAnalyticsRoute
   AuthenticatedDealsIdRoute: typeof AuthenticatedDealsIdRoute
   AuthenticatedDocumentsIdRoute: typeof AuthenticatedDocumentsIdRoute
   AuthenticatedLeadsIdRoute: typeof AuthenticatedLeadsIdRoute
@@ -5285,6 +5306,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedRegisterCompanyRoute: AuthenticatedRegisterCompanyRoute,
   AuthenticatedAuctionsIdRoute: AuthenticatedAuctionsIdRoute,
   AuthenticatedContractsIdRoute: AuthenticatedContractsIdRoute,
+  AuthenticatedCrmAnalyticsRoute: AuthenticatedCrmAnalyticsRoute,
   AuthenticatedDealsIdRoute: AuthenticatedDealsIdRoute,
   AuthenticatedDocumentsIdRoute: AuthenticatedDocumentsIdRoute,
   AuthenticatedLeadsIdRoute: AuthenticatedLeadsIdRoute,
