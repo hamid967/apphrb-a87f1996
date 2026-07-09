@@ -132,7 +132,8 @@ export const listOwnerPayments = createServerFn({ method: "GET" })
         .select(
           "id, amount, currency_code, paid_at, status, reference, contract_id, tenant_id, tenants(full_name), contracts(contract_number)",
         )
-        .eq("id", "00000000-0000-0000-0000-000000000000");
+        .eq("id", "00000000-0000-0000-0000-000000000000")
+        .is("deleted_at", null);
       return data ?? [];
     }
 
