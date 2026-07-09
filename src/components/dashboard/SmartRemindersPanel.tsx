@@ -325,6 +325,8 @@ export function SmartRemindersPanel({
           ctaEn: "Upload receipt",
           timeAgoMs: age,
           claimNumber: shortId,
+          claimId: c.id,
+          canAttachReceipt: true,
           reasonAr: "لا يمكن اعتماد المطالبة بدون إيصال داعم.",
           reasonEn: "The claim can't be approved without a supporting receipt.",
           missing: [
