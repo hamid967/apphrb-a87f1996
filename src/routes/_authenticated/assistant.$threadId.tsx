@@ -260,7 +260,7 @@ function ThreadView() {
       qc.invalidateQueries({ queryKey: ["assistant-threads"] });
       navigate({ to: "/assistant/$threadId", params: { threadId: row.id } });
     },
-    onError: (e: any) => toast.error(e?.message ?? "تعذّر إنشاء محادثة"),
+    onError: (e: any) => toast.error(e?.message ?? t("assistant.createFailed")),
   });
 
   const renameM = useMutation({
@@ -269,9 +269,9 @@ function ThreadView() {
       qc.invalidateQueries({ queryKey: ["assistant-thread", threadId] });
       qc.invalidateQueries({ queryKey: ["assistant-threads"] });
       setRenameOpen(false);
-      toast.success("تم تحديث العنوان");
+      toast.success(t("assistant.thread.titleUpdated"));
     },
-    onError: (e: any) => toast.error(e?.message ?? "تعذّر إعادة التسمية"),
+    onError: (e: any) => toast.error(e?.message ?? t("assistant.thread.renameFailed")),
   });
 
   const deleteM = useMutation({
@@ -279,10 +279,10 @@ function ThreadView() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["assistant-threads"] });
       qc.removeQueries({ queryKey: ["assistant-thread", threadId] });
-      toast.success("تم حذف المحادثة");
+      toast.success(t("assistant.thread.threadDeleted"));
       navigate({ to: "/assistant" });
     },
-    onError: (e: any) => toast.error(e?.message ?? "تعذّر الحذف"),
+    onError: (e: any) => toast.error(e?.message ?? t("assistant.thread.deleteFailed")),
   });
 
   const openRename = () => {
@@ -322,7 +322,7 @@ function ThreadView() {
     <div className="h-full flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <div className="flex-1 min-w-0">
-          <h2 className="font-semibold truncate">{threadQ.data?.thread?.title ?? "محادثة"}</h2>
+          <h2 className="font-semibold truncate">{threadQ.data?.thread?.title ?? t("assistant.thread.title")}</h2>
         </div>
         <Button
           variant="outline"
@@ -330,7 +330,7 @@ function ThreadView() {
           onClick={() => createM.mutate()}
           disabled={createM.isPending}
         >
-          <Plus className="size-4 ml-1" /> جديد
+          <Plus className="size-4 ml-1" /> {t("assistant.thread.newBtn")}
         </Button>
         <Button
           variant="outline"
@@ -356,25 +356,25 @@ function ThreadView() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={openRename}>
-              <Pencil className="size-4 ml-2" /> إعادة تسمية
+              <Pencil className="size-4 ml-2" /> {t("assistant.thread.renameBtn")}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive focus:text-destructive"
               onClick={() => setDeleteOpen(true)}
             >
-              <Trash2 className="size-4 ml-2" /> حذف المحادثة
+              <Trash2 className="size-4 ml-2" /> {t("assistant.thread.deleteBtn")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" title="الخط والتنسيق">
+            <Button variant="outline" size="icon" title={t("assistant.thread.fontMenuTitle")}>
               <Type className="size-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 p-2 space-y-2">
-            <div className="text-[11px] font-medium text-muted-foreground px-1">نوع الخط</div>
+            <div className="text-[11px] font-medium text-muted-foreground px-1">{t("assistant.thread.fontFamily")}</div>
             <div className="grid grid-cols-2 gap-1">
               {(Object.keys(FONT_FAMILIES) as FontKey[]).map((k) => (
                 <button
@@ -387,7 +387,7 @@ function ThreadView() {
                 </button>
               ))}
             </div>
-            <div className="text-[11px] font-medium text-muted-foreground px-1 pt-1">حجم الخط</div>
+            <div className="text-[11px] font-medium text-muted-foreground px-1 pt-1">{t("assistant.thread.fontSize")}</div>
             <div className="grid grid-cols-3 gap-1">
               {(Object.keys(FONT_SIZES) as SizeKey[]).map((k) => (
                 <button
@@ -395,7 +395,7 @@ function ThreadView() {
                   onClick={() => setSizeKey(k)}
                   className={`text-xs px-2 py-1.5 rounded border transition ${sizeKey === k ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent"}`}
                 >
-                  {k === "sm" ? "صغير" : k === "md" ? "متوسط" : "كبير"}
+                  {k === "sm" ? t("assistant.thread.sizeSmall") : k === "md" ? t("assistant.thread.sizeMedium") : t("assistant.thread.sizeLarge")}
                 </button>
               ))}
             </div>
@@ -405,14 +405,14 @@ function ThreadView() {
                 checked={cleanSymbols}
                 onChange={(e) => setCleanSymbols(e.target.checked)}
               />
-              إخفاء الرموز والإيموجي
+              {t("assistant.thread.hideSymbols")}
             </label>
             <div className="pt-2">
               <div className="text-[11px] font-medium text-muted-foreground px-1 mb-1">
-                معاينة مباشرة
+                {t("assistant.thread.livePreview")}
               </div>
               <div
-                dir="rtl"
+                dir={isRtl ? "rtl" : "ltr"}
                 className="rounded-md border bg-muted/40 p-2 leading-relaxed whitespace-pre-wrap max-h-28 overflow-auto"
                 style={assistantTextStyle}
               >
@@ -429,7 +429,7 @@ function ThreadView() {
         <CardContent ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
           {threadQ.isLoading && (
             <div className="text-sm text-muted-foreground flex items-center gap-2">
-              <Loader2 className="size-4 animate-spin" /> جاري تحميل المحادثة…
+              <Loader2 className="size-4 animate-spin" /> {t("assistant.thread.loadingThread")}
             </div>
           )}
 
@@ -440,23 +440,26 @@ function ThreadView() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
             >
-              <p className="text-muted-foreground text-sm">جرّب أحد الاقتراحات التالية:</p>
+              <p className="text-muted-foreground text-sm">{t("assistant.thread.trySuggestion")}</p>
               <div className="grid gap-2 sm:grid-cols-2">
-                {SUGGESTIONS.map((s, i) => (
-                  <motion.button
-                    key={s}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.04 * i, duration: 0.22 }}
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => sendMessage({ text: s })}
-                    disabled={isPending}
-                    className="text-right text-sm p-3 rounded-lg border hover:bg-accent hover:border-primary/40 transition disabled:opacity-50"
-                  >
-                    {s}
-                  </motion.button>
-                ))}
+                {SUGGESTION_KEYS.map((key, i) => {
+                  const label = t(`assistant.thread.suggestions.${key}` as const);
+                  return (
+                    <motion.button
+                      key={key}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.04 * i, duration: 0.22 }}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => sendMessage({ text: label })}
+                      disabled={isPending}
+                      className={`${isRtl ? "text-right" : "text-left"} text-sm p-3 rounded-lg border hover:bg-accent hover:border-primary/40 transition disabled:opacity-50`}
+                    >
+                      {label}
+                    </motion.button>
+                  );
+                })}
               </div>
             </motion.div>
           )}
