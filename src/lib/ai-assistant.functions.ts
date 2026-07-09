@@ -294,7 +294,7 @@ async function vacantUnitsList({ supabase, orgId }: Ctx, args: { limit?: number 
   };
 }
 
-const TOOLS: Record<string, (ctx: Ctx, args: any) => Promise<any>> = {
+export const TOOLS: Record<string, (ctx: Ctx, args: any) => Promise<any>> = {
   revenue_summary: revenueSummary,
   overdue_payments: overduePayments,
   expiring_contracts: expiringContracts,
