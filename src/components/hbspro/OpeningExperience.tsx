@@ -308,6 +308,7 @@ export function OpeningExperience() {
   const dir = ar ? "rtl" : "ltr";
   const Arrow = ar ? ArrowLeft : ArrowRight;
   const [active, setActive] = useState<Service | null>(null);
+  const [tourOpen, setTourOpen] = useState(false);
 
   // Close on ESC
   useEffect(() => {
