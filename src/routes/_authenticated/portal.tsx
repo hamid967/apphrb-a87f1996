@@ -68,6 +68,9 @@ function PortalLayout() {
           avatarUrl={data?.profile.avatar_url ?? null}
           unread={data?.kpis.notifications_unread ?? 0}
         />
+        <div className="sticky top-14 z-20 border-b border-border/60 bg-background/70 px-3 py-2 backdrop-blur-xl sm:px-4">
+          <PortalBreadcrumbs />
+        </div>
         <main className="min-w-0 flex-1">
           <Outlet />
         </main>
