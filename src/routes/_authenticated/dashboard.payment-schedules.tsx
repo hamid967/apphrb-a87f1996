@@ -174,10 +174,21 @@ function PaymentSchedulesPage() {
               : "Contract, deal, and commission installments with Hijri support."}
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={exportCsv}>
-          <Download className="h-4 w-4 me-1" />
-          {isAr ? "تصدير CSV" : "Export CSV"}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => generateAllMut.mutate()}
+            disabled={generateAllMut.isPending}
+          >
+            <Zap className="h-4 w-4 me-1" />
+            {isAr ? "توليد سندات الأقساط المستحقة" : "Generate due vouchers"}
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportCsv}>
+            <Download className="h-4 w-4 me-1" />
+            {isAr ? "تصدير CSV" : "Export CSV"}
+          </Button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
