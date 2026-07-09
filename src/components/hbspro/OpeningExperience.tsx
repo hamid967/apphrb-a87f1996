@@ -487,7 +487,7 @@ export function OpeningExperience() {
           className="flex w-full flex-col justify-center p-8 lg:w-[55%] lg:p-16"
           style={{ background: "rgba(245,240,224,0.3)" }}
         >
-          <div className="mb-6 flex items-center gap-3">
+          <div className="mb-6 flex flex-wrap items-center gap-3">
             <div className="h-px w-10" style={{ background: GOLD }} />
             <span
               className="text-xs font-bold uppercase tracking-widest"
@@ -495,9 +495,40 @@ export function OpeningExperience() {
             >
               {T.servicesEyebrow}
             </span>
-            <span className="ms-auto text-[10px] uppercase tracking-widest text-stone-500">
+            <span className="text-[10px] uppercase tracking-widest text-stone-500">
               {T.tapHint}
             </span>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="ms-auto"
+            >
+              <Link
+                to="/auth"
+                aria-label={ar ? "بدء سريع — تسجيل الدخول" : "Quick start — sign in"}
+                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-5 py-2.5 text-sm font-bold shadow-lg transition-all hover:scale-[1.03] hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                style={{ background: INK, color: CREAM }}
+              >
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100"
+                  style={{
+                    background: `linear-gradient(120deg, transparent 30%, ${GOLD}33 50%, transparent 70%)`,
+                  }}
+                />
+                <span
+                  className="relative grid h-6 w-6 place-items-center rounded-full"
+                  style={{ background: GOLD, color: INK }}
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                </span>
+                <span className="relative">
+                  {ar ? "بدء سريع" : "Quick start"}
+                </span>
+                <Arrow className="relative h-4 w-4 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+              </Link>
+            </motion.div>
           </div>
 
           <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
