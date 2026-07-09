@@ -629,10 +629,10 @@ function AuthPage() {
                   </span>
                   <div className="flex-1">
                     <div className="text-sm font-semibold" style={{ color: HBS.white }}>
-                      حساب مطوّر (Demo)
+                      {t("auth.devAccountTitle")}
                     </div>
                     <p className="mt-0.5 text-xs" style={{ color: HBS.gray }}>
-                      ينشئ حساباً تلقائياً بصلاحيات كاملة لتجربة النظام فوراً — يُنسخ للحافظة.
+                      {t("auth.devAccountDesc")}
                     </p>
                     <Button
                       type="button"
@@ -646,7 +646,7 @@ function AuthPage() {
                       disabled={devLoading}
                     >
                       {devLoading && <Loader2 className="me-2 size-4 animate-spin" />}
-                      إنشاء حساب مطوّر ودخول فوري
+                      {t("auth.devAccountBtn")}
                     </Button>
                   </div>
                 </div>
