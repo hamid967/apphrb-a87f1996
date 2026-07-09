@@ -185,6 +185,7 @@ export const reviewSubmittedPayment = createServerFn({ method: "POST" })
       .from("payments")
       .select("id, org_id, contract_id, tenant_id, amount, paid_at, status")
       .eq("id", data.payment_id)
+      .is("deleted_at", null)
       .maybeSingle();
     if (pErr) throw pErr;
     if (!payment) throw new Error("الدفعة غير موجودة");
