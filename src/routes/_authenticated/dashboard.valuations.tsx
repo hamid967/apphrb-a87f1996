@@ -23,7 +23,7 @@ function ValuationsPage() {
         { key: "purpose", labelAr: "الغرض", labelEn: "Purpose", render: (r) => r.purpose ?? "—" },
         { key: "suggested", labelAr: "السعر المقترح", labelEn: "Suggested", render: (r) => r.suggested_price != null ? <span className="font-semibold">{`${Number(r.suggested_price).toLocaleString()} ${r.currency ?? "SAR"}`}</span> : "—" },
         { key: "range", labelAr: "النطاق", labelEn: "Range", render: (r) => r.min_price != null && r.max_price != null ? `${Number(r.min_price).toLocaleString()}–${Number(r.max_price).toLocaleString()}` : "—" },
-        { key: "confidence", labelAr: "الثقة", labelEn: "Confidence", render: (r) => r.confidence != null ? `${Math.round(r.confidence * 100)}%` : "—" },
+        { key: "confidence", labelAr: "الثقة", labelEn: "Confidence", render: (r) => r.confidence != null ? `${Math.round(Number(r.confidence) * 100)}%` : "—" },
         { key: "date", labelAr: "التاريخ", labelEn: "Date", render: (r) => new Date(r.created_at).toLocaleDateString() },
       ]}
     />
