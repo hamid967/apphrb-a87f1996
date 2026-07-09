@@ -267,6 +267,13 @@ function SchedulesPage() {
                     </td>
                     <td className="px-3 py-2 align-top">
                       <div className="flex items-center gap-1.5 justify-end flex-wrap">
+                        <Link
+                          to="/assistant/scripts/schedules/$id"
+                          params={{ id: r.id }}
+                          className="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-xs hover:bg-muted"
+                        >
+                          {t("assistant.scripts.viewRuns")}
+                        </Link>
                         <button
                           onClick={() => runNowM.mutate(r.id)}
                           disabled={runNowM.isPending}
