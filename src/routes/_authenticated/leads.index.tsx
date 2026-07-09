@@ -597,3 +597,65 @@ function LeadDialog({
     </Dialog>
   );
 }
+
+type DragHandleProps = {
+  ref: (el: HTMLElement | null) => void;
+  [k: string]: unknown;
+};
+
+function DraggableCard({
+  id,
+  disabled,
+  children,
+}: {
+  id: string;
+  disabled?: boolean;
+  children: (handle: DragHandleProps) => React.ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id,
+    disabled,
+  });
+  const style: React.CSSProperties = {
+    transform: CSS.Translate.toString(transform),
+    opacity: isDragging ? 0.4 : 1,
+  };
+  const handle: DragHandleProps = { ref: () => {}, ...attributes, ...listeners };
+  return (
+    <div ref={setNodeRef} style={style}>
+      {children(handle)}
+    </div>
+  );
+}
+
+function DroppableColumn({
+  stage,
+  label,
+  count,
+  children,
+}: {
+  stage: Stage;
+  label: string;
+  count: number;
+  children: React.ReactNode;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: `col:${stage}` });
+  return (
+    <div className="surface-card">
+      <div className="flex items-center justify-between border-b px-3 py-2">
+        <div className="text-sm font-medium">{label}</div>
+        <Badge variant="secondary" className="tabular-nums">
+          {count}
+        </Badge>
+      </div>
+      <div
+        ref={setNodeRef}
+        className={`max-h-[70vh] space-y-2 overflow-y-auto p-2 transition-colors ${
+          isOver ? "bg-primary/5 ring-2 ring-primary/40" : ""
+        }`}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
