@@ -516,11 +516,17 @@ function RouteMapPage() {
               <TableBody>
                 {filtered.map((r) => {
                   const meta = SCOPE_META[r.scope];
+                  const cat = CATEGORY_META[r.category];
                   return (
                     <TableRow key={r.path} className="align-top">
                       <TableCell>
-                        <div className="font-mono text-xs md:text-sm break-all">
-                          {r.path}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <div className="font-mono text-xs md:text-sm break-all">
+                            {r.path}
+                          </div>
+                          <Badge variant="outline" className={`${cat.tone} whitespace-nowrap text-[10px]`}>
+                            {isAr ? cat.ar : cat.en}
+                          </Badge>
                         </div>
                         <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
                           {isAr ? r.descriptionAr : r.descriptionEn}
@@ -530,9 +536,14 @@ function RouteMapPage() {
                         {isAr ? r.usageAr : r.usageEn}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={`${meta.tone} whitespace-nowrap`}>
-                          {isAr ? meta.labelAr : meta.labelEn}
-                        </Badge>
+                        <div className="flex flex-wrap gap-1">
+                          <Badge variant="outline" className={`${meta.tone} whitespace-nowrap`}>
+                            {isAr ? meta.labelAr : meta.labelEn}
+                          </Badge>
+                          <Badge variant="outline" className="whitespace-nowrap text-[10px]">
+                            {isAr ? ROLE_META[r.role].ar : ROLE_META[r.role].en}
+                          </Badge>
+                        </div>
                         <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
                           {isAr ? r.authAr : r.authEn}
                         </div>
