@@ -17,6 +17,7 @@ import {
 } from "@/components/hbspro/AuthShell";
 import { HBS } from "@/components/hbspro/tokens";
 import { incFailedAttempts, resetFailedAttempts } from "@/lib/auth-attempts";
+import { getAppUrl } from "@/lib/app-url";
 
 export const Route = createFileRoute("/forgot-password")({
   ssr: false,
@@ -50,7 +51,7 @@ function ForgotPasswordPage() {
     setSubmitting(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(targetEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: getAppUrl("/reset-password"),
       });
       if (error) throw error;
       setSentTo(targetEmail);
