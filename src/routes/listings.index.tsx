@@ -16,16 +16,16 @@ export const Route = createFileRoute("/listings/")({
   component: ListingsIndex,
   head: () => ({
     meta: [
-      { title: "العقارات المتاحة — HBSpro | Available Properties" },
+      { title: "العقارات المتاحة — Aqari | Available Properties" },
       {
         name: "description",
         content:
           "تصفح العقارات المتاحة للإيجار في مختلف المدن. صنّف حسب الموقع وعدد الغرف والسعر لتجد منزلك القادم.",
       },
-      { property: "og:title", content: "العقارات المتاحة — HBSpro" },
+      { property: "og:title", content: "العقارات المتاحة — Aqari" },
       {
         property: "og:description",
-        content: "تصفح جميع العقارات المتاحة للإيجار عبر منصة HBSpro.",
+        content: "تصفح جميع العقارات المتاحة للإيجار عبر منصة Aqari.",
       },
       { property: "og:url", content: "https://hrhbs.com/listings" },
       { property: "og:type", content: "website" },

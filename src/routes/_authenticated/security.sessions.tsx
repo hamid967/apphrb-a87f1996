@@ -19,7 +19,7 @@ import { getDeviceFingerprint } from "@/lib/device-fingerprint";
 export const Route = createFileRoute("/_authenticated/security/sessions")({
   head: () => ({
     meta: [
-      { title: "الجلسات والأجهزة | HBSpro" },
+      { title: "الجلسات والأجهزة | Aqari" },
       { name: "description", content: "إدارة الجلسات والأجهزة الموثوقة وسجل الدخول" },
     ],
   }),

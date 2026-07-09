@@ -12,7 +12,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/security/mfa")({
   head: () => ({
     meta: [
-      { title: "المصادقة الثنائية 2FA | HBSpro" },
+      { title: "المصادقة الثنائية 2FA | Aqari" },
       {
         name: "description",
         content: "تفعيل/إيقاف المصادقة الثنائية عبر TOTP وإدارة رموز الاسترداد",
@@ -140,7 +140,7 @@ function MfaPage() {
     if (!recovery) return;
     const blob = new Blob(
       [
-        `HBSpro — رموز الاسترداد\nتاريخ: ${new Date().toLocaleString("ar-SA")}\n\n${recovery.join("\n")}\n\nاحتفظ بهذه الرموز في مكان آمن.\n`,
+        `Aqari — رموز الاسترداد\nتاريخ: ${new Date().toLocaleString("ar-SA")}\n\n${recovery.join("\n")}\n\nاحتفظ بهذه الرموز في مكان آمن.\n`,
       ],
       { type: "text/plain;charset=utf-8" },
     );

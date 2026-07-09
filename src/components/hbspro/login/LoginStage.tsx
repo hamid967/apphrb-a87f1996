@@ -445,7 +445,7 @@ export function LoginStage() {
         </span>
         <div>
           <div className="text-lg font-bold tracking-tight text-white">
-            HBSpro <span style={{ color: HBS.gold }}>AI</span>
+            Aqari <span style={{ color: HBS.gold }}>AI</span>
           </div>
           <div className="text-[10px] uppercase tracking-[0.24em]" style={{ color: HBS.gray }}>
             {t("hbspro.loginStage.intelligence")}

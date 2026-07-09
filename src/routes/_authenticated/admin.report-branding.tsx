@@ -38,7 +38,7 @@ const KEYS = [
     key: "report.company_name",
     labelAr: "اسم الجهة / التوقيع",
     labelEn: "Company / signature name",
-    def: "HBSpro — إدارة العقارات",
+    def: "Aqari — إدارة العقارات",
   },
   { key: "report.phone", labelAr: "رقم الجوال", labelEn: "Mobile", def: "0555208213" },
   { key: "report.email", labelAr: "البريد الإلكتروني", labelEn: "Email", def: "hamid@hrhbs.com" },

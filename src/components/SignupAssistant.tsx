@@ -26,7 +26,7 @@ type Lang = "auto" | "ar" | "en";
 const WELCOME_TEXT: Record<Lang, string> = {
   auto: "أهلاً، أنا حامد 👋 مساعد عقاري Aqari. اسألني بالعربية أو الإنجليزية. / Hi, I'm Hamid — ask me anything about the platform or how to sign up.",
   ar: "أهلاً، أنا حامد 👋 مساعد منصة عقاري Aqari. كيف أقدر أساعدك؟ (نبذة عن النظام، إنشاء حساب، أو تسجيل الدخول)",
-  en: "Hi, I'm Hamid 👋 — assistant for Aqari by HBSpro. How can I help? (platform overview, new account, or sign-in)",
+  en: "Hi, I'm Hamid 👋 — assistant for Aqari by HRHBS. How can I help? (platform overview, new account, or sign-in)",
 };
 
 const QUICK: Record<Lang, string[]> = {
