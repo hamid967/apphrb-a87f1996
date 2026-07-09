@@ -1,0 +1,224 @@
+# .github/workflows/mobile-release.yml
+# Builds Aqari native release artifacts (Android AAB + iOS IPA) from the same
+# React codebase via Capacitor. Triggered manually or on version tags.
+#
+# Required GitHub Secrets (Repository → Settings → Secrets and variables → Actions):
+#
+#   Android:
+#     ANDROID_KEYSTORE_BASE64          base64 of aqari-release.keystore
+#     ANDROID_KEYSTORE_PASSWORD        store password
+#     ANDROID_KEY_ALIAS                key alias (e.g. "aqari")
+#     ANDROID_KEY_PASSWORD             key password
+#     GOOGLE_PLAY_JSON_KEY_BASE64      (optional) service account for auto-upload
+#
+#   iOS:
+#     IOS_P12_BASE64                   base64 of AqariDistribution.p12
+#     IOS_P12_PASSWORD                 .p12 password
+#     IOS_PROVISIONING_PROFILE_BASE64  base64 of App Store .mobileprovision
+#     IOS_TEAM_ID                      Apple Developer team ID
+#     IOS_BUNDLE_ID                    e.g. app.hrhbs.aqari
+#     KEYCHAIN_PASSWORD                any strong string for the temp keychain
+#     APPLE_ID                         Apple ID email for altool upload (optional)
+#     APPLE_APP_SPECIFIC_PASSWORD      app-specific password (optional)
+#     ASC_KEY_ID / ASC_ISSUER_ID / ASC_KEY_BASE64   (optional) ASC API auth
+
+name: Mobile Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "Which platform to build"
+        required: true
+        default: "both"
+        type: choice
+        options: [android, ios, both]
+  push:
+    tags:
+      - "mobile-v*"
+
+concurrency:
+  group: mobile-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Android build — runs on Linux, produces a signed .aab ready for Google Play
+  # ---------------------------------------------------------------------------
+  android:
+    if: ${{ github.event_name == 'push' || github.event.inputs.platform == 'android' || github.event.inputs.platform == 'both' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build web bundle
+        run: bun run build
+
+      - name: Add Android platform (idempotent)
+        run: |
+          if [ ! -d android ]; then
+            bun run cap:add:android
+          else
+            echo "android/ already exists — skipping cap add"
+          fi
+
+      - name: Restore Android signing artifacts
+        run: bun run signing:restore:android
+        env:
+          ANDROID_KEYSTORE_BASE64:     ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD:   ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS:           ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD:        ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GOOGLE_PLAY_JSON_KEY_BASE64: ${{ secrets.GOOGLE_PLAY_JSON_KEY_BASE64 }}
+
+      - name: Capacitor sync (Android)
+        run: bun run cap:sync:android
+
+      - name: Build signed AAB
+        working-directory: android
+        run: ./gradlew bundleRelease --no-daemon --stacktrace
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aqari-android-release
+          path: android/app/build/outputs/bundle/release/*.aab
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Cleanup signing files
+        if: always()
+        run: rm -rf signing/android
+
+  # ---------------------------------------------------------------------------
+  # iOS build — must run on macOS; produces a signed .ipa ready for App Store
+  # ---------------------------------------------------------------------------
+  ios:
+    if: ${{ github.event_name == 'push' || github.event.inputs.platform == 'ios' || github.event.inputs.platform == 'both' }}
+    runs-on: macos-14
+    timeout-minutes: 60
+    env:
+      KEYCHAIN_NAME: build.keychain
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Select Xcode 15
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build web bundle
+        run: bun run build
+
+      - name: Add iOS platform (idempotent)
+        run: |
+          if [ ! -d ios ]; then
+            bun run cap:add:ios
+          else
+            echo "ios/ already exists — skipping cap add"
+          fi
+
+      - name: Restore iOS signing artifacts
+        run: bun run signing:restore:ios
+        env:
+          IOS_P12_BASE64:                  ${{ secrets.IOS_P12_BASE64 }}
+          IOS_P12_PASSWORD:                ${{ secrets.IOS_P12_PASSWORD }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          KEYCHAIN_NAME:                   ${{ env.KEYCHAIN_NAME }}
+          KEYCHAIN_PASSWORD:               ${{ secrets.KEYCHAIN_PASSWORD }}
+
+      - name: Capacitor sync (iOS) + install pods
+        run: |
+          bun run cap:sync:ios
+          cd ios/App && pod install --repo-update
+
+      - name: Extract provisioning profile UUID
+        id: profile
+        run: |
+          UUID=$(security cms -D -i signing/ios/Aqari_AppStore.mobileprovision \
+            | plutil -extract UUID xml1 -o - - \
+            | sed -n 's/.*<string>\(.*\)<\/string>.*/\1/p')
+          echo "uuid=${UUID}" >> "$GITHUB_OUTPUT"
+          echo "Provisioning UUID: ${UUID}"
+
+      - name: Write ExportOptions.plist
+        run: |
+          mkdir -p signing/ios
+          cat > signing/ios/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store</string>
+            <key>teamID</key><string>${{ secrets.IOS_TEAM_ID }}</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>uploadSymbols</key><true/>
+            <key>uploadBitcode</key><false/>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>${{ secrets.IOS_BUNDLE_ID }}</key>
+              <string>${{ steps.profile.outputs.uuid }}</string>
+            </dict>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Archive iOS app
+        working-directory: ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath "$RUNNER_TEMP/Aqari.xcarchive" \
+            -destination "generic/platform=iOS" \
+            DEVELOPMENT_TEAM="${{ secrets.IOS_TEAM_ID }}" \
+            PRODUCT_BUNDLE_IDENTIFIER="${{ secrets.IOS_BUNDLE_ID }}" \
+            CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER="${{ steps.profile.outputs.uuid }}" \
+            clean archive
+
+      - name: Export IPA
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Aqari.xcarchive" \
+            -exportOptionsPlist signing/ios/ExportOptions.plist \
+            -exportPath "$RUNNER_TEMP/ipa"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aqari-ios-release
+          path: ${{ runner.temp }}/ipa/*.ipa
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Cleanup keychain + signing files
+        if: always()
+        run: |
+          security delete-keychain "${{ env.KEYCHAIN_NAME }}" || true
+          rm -rf signing/ios
