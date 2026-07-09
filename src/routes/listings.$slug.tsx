@@ -23,10 +23,10 @@ export const Route = createFileRoute("/listings/$slug")({
     const url = `https://hrhbs.com/listings/${params.slug}`;
     if (!l) {
       return {
-        meta: [{ title: "Listing unavailable — HBSpro" }, { name: "robots", content: "noindex" }],
+        meta: [{ title: "Listing unavailable — Aqari" }, { name: "robots", content: "noindex" }],
       };
     }
-    const title = `${l.title} — HBSpro`;
+    const title = `${l.title} — Aqari`;
     const desc = (
       l.description ??
       `${l.bedrooms ?? ""} bd · ${l.bathrooms ?? ""} ba property in ${l.city ?? ""}`

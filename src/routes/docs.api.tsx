@@ -4,7 +4,7 @@ import { ogImageMeta } from "@/lib/og-image";
 export const Route = createFileRoute("/docs/api")({
   head: () => ({
     meta: [
-      { title: "Aqari API Docs — HBSpro" },
+      { title: "Aqari API Docs — Aqari" },
       {
         name: "description",
         content:

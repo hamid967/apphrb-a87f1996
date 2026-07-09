@@ -32,13 +32,13 @@ const OG_SERVICES = `https://hrhbs.com${ogServices.url}`;
 export const Route = createFileRoute("/services")({
   head: () => ({
     meta: [
-      { title: "خدمات HBSpro — منصة SaaS للقطاع العقاري | Services" },
+      { title: "خدمات Aqari — منصة SaaS للقطاع العقاري | Services" },
       {
         name: "description",
         content:
-          "استكشف وحدات HBSpro: العقارات، العقود، المدفوعات، الصيانة، التقارير التنفيذية، CRM للمستأجرين، خط العملاء المحتملين، وبوابة الملاك.",
+          "استكشف وحدات Aqari: العقارات، العقود، المدفوعات، الصيانة، التقارير التنفيذية، CRM للمستأجرين، خط العملاء المحتملين، وبوابة الملاك.",
       },
-      { property: "og:title", content: "خدمات HBSpro — منصة SaaS للقطاع العقاري" },
+      { property: "og:title", content: "خدمات Aqari — منصة SaaS للقطاع العقاري" },
       {
         property: "og:description",
         content:
@@ -182,7 +182,7 @@ function ServicesPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-3">
             <BrandMark size={32} />
-            <span className="text-display text-lg">{t("brand", { defaultValue: "HBSpro" })}</span>
+            <span className="text-display text-lg">{t("brand", { defaultValue: "Aqari" })}</span>
           </Link>
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
@@ -214,7 +214,7 @@ function ServicesPage() {
               {isAr ? "٨ خدمات • جاهزة للإنتاج" : "8 modules • production-ready"}
             </div>
             <h1 className="text-display mx-auto max-w-3xl bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-4xl text-transparent sm:text-6xl">
-              {isAr ? "خدمات HBSpro" : "HBSpro Services"}
+              {isAr ? "خدمات Aqari" : "Aqari Services"}
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
               {isAr

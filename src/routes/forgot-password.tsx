@@ -23,7 +23,7 @@ export const Route = createFileRoute("/forgot-password")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "استعادة كلمة المرور — HBSpro" },
+      { title: "استعادة كلمة المرور — Aqari" },
       { name: "description", content: "أرسل رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني." },
       { name: "robots", content: "noindex" },
     ],

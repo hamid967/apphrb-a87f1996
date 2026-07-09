@@ -25,7 +25,7 @@ import { savePendingRedirect } from "@/lib/pending-redirect";
 export const Route = createFileRoute("/onboarding/wizard")({
   ssr: false,
   head: () => ({
-    meta: [{ title: "تفعيل الحساب — HBSpro" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "تفعيل الحساب — Aqari" }, { name: "robots", content: "noindex" }],
   }),
   component: OnboardingWizardPage,
 });

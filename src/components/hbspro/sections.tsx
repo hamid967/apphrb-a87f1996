@@ -765,7 +765,7 @@ export function DashboardPreview() {
                 >
                   <Building2 className="h-4 w-4" />
                 </div>
-                <span className="text-sm font-semibold">HBSpro</span>
+                <span className="text-sm font-semibold">Aqari</span>
               </div>
               {(
                 [
@@ -1914,7 +1914,7 @@ export function Footer() {
           className="mt-10 border-t pt-6 text-xs"
           style={{ borderColor: HBS.border, color: HBS.gray }}
         >
-          © {new Date().getFullYear()} HBSpro · HRHBS. {t("hbspro.footer.rights")}
+          © {new Date().getFullYear()} Aqari · HRHBS. {t("hbspro.footer.rights")}
         </div>
       </div>
     </footer>

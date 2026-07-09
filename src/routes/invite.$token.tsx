@@ -12,7 +12,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 export const Route = createFileRoute("/invite/$token")({
   ssr: false,
   head: () => ({
-    meta: [{ title: "قبول دعوة — HBSpro" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "قبول دعوة — Aqari" }, { name: "robots", content: "noindex" }],
   }),
   component: InvitePage,
 });

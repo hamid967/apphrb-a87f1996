@@ -57,7 +57,7 @@ const spec: {
 } = {
   openapi: "3.1.0",
   info: {
-    title: "Aqari (HBSpro) Public API",
+    title: "Aqari (Aqari) Public API",
     version: "1.0.0",
     description:
       "Read-only API for real-estate portfolio data. Authenticate with `Authorization: Bearer <api_key>`. Rate limit: 60 requests/minute per key.",
