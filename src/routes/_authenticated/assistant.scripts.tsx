@@ -129,7 +129,13 @@ function ScriptCard({
   onRun: (name: string, args: Record<string, unknown>) => Promise<any>;
   t: TFunction;
 }) {
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
+    for (const f of script.fields) {
+      if (f.range) initial[f.name] = String(f.range.default);
+    }
+    return initial;
+  });
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
