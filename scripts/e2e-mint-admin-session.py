@@ -266,9 +266,11 @@ def main() -> int:
 
     supabase_url = require_env("VITE_SUPABASE_URL").rstrip("/")
     anon_key = require_env("VITE_SUPABASE_PUBLISHABLE_KEY")
-    email = os.environ.get("E2E_ADMIN_EMAIL", "hamid@hrhbs.com")
+    default_email = "e2e-perf@aqari.test" if os.environ.get("SUPABASE_SERVICE_ROLE_KEY") else "hamid@hrhbs.com"
+    email = os.environ.get("E2E_TEST_EMAIL") or os.environ.get("E2E_ADMIN_EMAIL", default_email)
     password = os.environ.get("E2E_ADMIN_PASSWORD")
     service_role = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+    role = os.environ.get("E2E_TEST_ROLE", "admin")
     base_url = os.environ.get("BASE_URL", "http://localhost:8080").rstrip("/")
 
     ref = project_ref(supabase_url)
@@ -278,7 +280,10 @@ def main() -> int:
         source = "password"
         session = sign_in(supabase_url, anon_key, email, password)
     elif service_role:
-        source = "admin-magiclink"
+        # Ensure a dedicated test user with the requested role exists — no
+        # real super-admin credentials needed.
+        ensure_test_user(supabase_url, service_role, email, role)
+        source = f"admin-magiclink ({email}, role={role})"
         session = admin_mint_via_magiclink(supabase_url, service_role, anon_key, email)
     else:
         sys.exit(
