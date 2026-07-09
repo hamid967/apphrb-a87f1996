@@ -304,7 +304,7 @@ export function Hero() {
   return (
     <section
       dir="ltr"
-      className="relative overflow-hidden pt-28 pb-16"
+      className="relative overflow-hidden pt-20 pb-10 sm:pt-24 sm:pb-14 lg:pt-28 lg:pb-16"
       style={{ background: HBS.bg }}
     >
       <div className="pointer-events-none absolute inset-0">
@@ -317,7 +317,7 @@ export function Hero() {
         <Particles density={30} />
       </div>
 
-      <div className="relative mx-auto grid max-w-7xl grid-cols-12 items-center gap-8 px-6">
+      <div className="relative mx-auto grid max-w-7xl grid-cols-12 items-center gap-6 px-4 sm:gap-8 sm:px-6">
         {/* Text column */}
         <div
           dir={dir}
@@ -327,7 +327,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
-            className="text-4xl font-extrabold leading-[1.1] text-white sm:text-5xl lg:text-6xl"
+            className="text-3xl font-extrabold leading-[1.1] text-white sm:text-5xl lg:text-6xl"
           >
             <span className="block">{L.titleTop}</span>
             <span
