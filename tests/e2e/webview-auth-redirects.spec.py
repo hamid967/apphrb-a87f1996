@@ -24,8 +24,15 @@ from urllib.parse import urlparse, parse_qs
 from playwright.async_api import async_playwright, Route as PWRoute
 
 BASE = "http://localhost:8080"
-SHOTS = Path("/tmp/browser/webview-redirects")
+# Per-attempt override so CI can bucket screenshots/traces/videos/logs by
+# attempt number (see .github/workflows/auth-redirects.yml). Defaults keep
+# local runs writing into the historical location.
+SHOTS = Path(os.environ.get("WEBVIEW_E2E_ARTIFACT_DIR", "/tmp/browser/webview-redirects"))
 SHOTS.mkdir(parents=True, exist_ok=True)
+TRACE_PATH = SHOTS / "trace.zip"
+CONSOLE_LOG_PATH = SHOTS / "browser-console.log"
+VIDEO_DIR = SHOTS / "video"
+VIDEO_DIR.mkdir(parents=True, exist_ok=True)
 
 IPHONE_UA = (
     "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) "
@@ -641,45 +648,89 @@ async def test_corrupted_pending_redirect_is_ignored(context) -> str | None:
 
 async def main() -> int:
     failures: list[str] = []
+    console_log = CONSOLE_LOG_PATH.open("w", encoding="utf-8")
+
+    def _log(line: str) -> None:
+        console_log.write(line.rstrip() + "\n")
+        console_log.flush()
+
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
         # WebView-ish: mobile UA + phone viewport. Fresh context = no session.
+        # record_video captures every page opened on this context so a failing
+        # attempt has full visual playback, not just the final screenshot.
         context = await browser.new_context(
             viewport={"width": 390, "height": 844},
             user_agent=IPHONE_UA,
             device_scale_factor=3,
             is_mobile=True,
             has_touch=True,
+            record_video_dir=str(VIDEO_DIR),
+            record_video_size={"width": 390, "height": 844},
         )
 
-        for name, coro in [
-            ("onboarding-requires-auth", test_onboarding_requires_auth(context)),
-            ("reset-password-without-token", test_reset_password_without_token(context)),
-            ("forgot-password-redirect-to", test_forgot_password_redirect_to(context)),
-            ("google-oauth-redirect-uri", test_google_oauth_redirect_uri(context)),
-            ("pending-redirect-survives-webview", test_pending_redirect_survives_webview(context)),
-            ("pending-redirect-returns-to-wizard", test_pending_redirect_returns_to_wizard(context)),
-            ("pending-redirect-cleared-after-use", test_pending_redirect_cleared_after_use(context)),
-            ("unsafe-redirect-is-ignored", test_unsafe_redirect_is_ignored(context)),
-            ("corrupted-pending-redirect-is-ignored", test_corrupted_pending_redirect_is_ignored(context)),
-            ("session-storage-unavailable", test_session_storage_unavailable(context)),
-        ]:
-            print(f"\n--- {name} ---")
-            try:
-                err = await coro
-            except Exception as exc:
-                err = f"{name} crashed: {exc!r}"
-            if err:
-                failures.append(err)
+        # Full Playwright trace (network + snapshots + sources) so a failing
+        # attempt is fully reconstructable via `playwright show-trace`.
+        await context.tracing.start(screenshots=True, snapshots=True, sources=True)
 
-        await browser.close()
+        # Browser-side signals (console + uncaught pageerrors + request failures)
+        # are streamed to a plain-text log so CI reviewers don't need Playwright
+        # tooling to skim what went wrong.
+        context.on(
+            "console",
+            lambda m: _log(f"[console.{m.type}] {m.text}"),
+        )
+        context.on(
+            "pageerror",
+            lambda e: _log(f"[pageerror] {e}"),
+        )
+        context.on(
+            "requestfailed",
+            lambda r: _log(f"[requestfailed] {r.method} {r.url} :: {r.failure}"),
+        )
+
+        try:
+            for name, coro in [
+                ("onboarding-requires-auth", test_onboarding_requires_auth(context)),
+                ("reset-password-without-token", test_reset_password_without_token(context)),
+                ("forgot-password-redirect-to", test_forgot_password_redirect_to(context)),
+                ("google-oauth-redirect-uri", test_google_oauth_redirect_uri(context)),
+                ("pending-redirect-survives-webview", test_pending_redirect_survives_webview(context)),
+                ("pending-redirect-returns-to-wizard", test_pending_redirect_returns_to_wizard(context)),
+                ("pending-redirect-cleared-after-use", test_pending_redirect_cleared_after_use(context)),
+                ("unsafe-redirect-is-ignored", test_unsafe_redirect_is_ignored(context)),
+                ("corrupted-pending-redirect-is-ignored", test_corrupted_pending_redirect_is_ignored(context)),
+                ("session-storage-unavailable", test_session_storage_unavailable(context)),
+            ]:
+                print(f"\n--- {name} ---")
+                _log(f"\n=== {name} ===")
+                try:
+                    err = await coro
+                except Exception as exc:
+                    err = f"{name} crashed: {exc!r}"
+                if err:
+                    failures.append(err)
+                    _log(f"[failure] {err}")
+        finally:
+            # Always flush trace + video, even if a test crashed hard, so the
+            # artifact bundle has enough to diagnose flakes on the *failing*
+            # attempt (see workflow retry loop).
+            try:
+                await context.tracing.stop(path=str(TRACE_PATH))
+            except Exception as exc:
+                _log(f"[trace-stop-failed] {exc!r}")
+            await context.close()
+            await browser.close()
+            console_log.close()
 
     if failures:
         print("\nFAIL:")
         for f in failures:
             print(f"  - {f}")
+        print(f"\nArtifacts saved to: {SHOTS}")
         return 1
     print("\nOK: WebView redirect behaviour verified for onboarding + password recovery.")
+    print(f"Artifacts saved to: {SHOTS}")
     return 0
 
 
