@@ -25,8 +25,19 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - name: Vitest — redirect helpers
-        run: bunx vitest run src/lib/app-url.test.ts src/routes/auth.redirect.test.ts
+      - name: Vitest — redirect helpers with coverage
+        # Runs the two focused test files under v8 coverage; vitest.config.ts
+        # enforces 100% coverage on src/lib/app-url.ts and prints an uncovered-
+        # lines table for src/routes/auth.tsx so gaps are visible in the log.
+        run: bun run test:coverage:redirects
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-redirects-coverage
+          path: coverage
+          if-no-files-found: warn
 
   webview-e2e:
     name: E2E (WebView-simulated redirects)
