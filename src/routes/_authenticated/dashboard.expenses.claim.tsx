@@ -640,6 +640,7 @@ function ReceiptStep({
     <div className="space-y-3">
       <button
         type="button"
+        data-coach="receipt-upload"
         onClick={onPick}
         onDragOver={(e) => {
           e.preventDefault();
