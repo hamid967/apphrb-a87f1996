@@ -81,6 +81,62 @@ def sign_in(supabase_url: str, anon_key: str, email: str, password: str) -> dict
         sys.exit(f"ERROR: sign-in failed ({e.code}): {body}")
 
 
+def admin_mint_via_magiclink(
+    supabase_url: str, service_role_key: str, anon_key: str, email: str,
+) -> dict:
+    """Fallback: mint a session for `email` using the service-role Admin API.
+
+    1) POST /auth/v1/admin/generate_link {type:magiclink,email}
+       → returns { hashed_token, ... }
+    2) POST /auth/v1/verify {type:magiclink, token_hash}
+       → returns a full session (access_token, refresh_token, expires_at, user).
+
+    This does NOT require the user's password and does NOT modify the user.
+    Requires a super-admin user to already exist in auth.users.
+    """
+    # 1) generate_link
+    gen_req = urllib.request.Request(
+        f"{supabase_url}/auth/v1/admin/generate_link",
+        method="POST",
+        data=json.dumps({"type": "magiclink", "email": email}).encode(),
+        headers={
+            "Content-Type": "application/json",
+            "apikey": service_role_key,
+            "Authorization": f"Bearer {service_role_key}",
+        },
+    )
+    try:
+        with urllib.request.urlopen(gen_req, timeout=15) as r:
+            gen = json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        body = e.read().decode(errors="replace")
+        sys.exit(f"ERROR: admin generate_link failed ({e.code}): {body}")
+
+    token_hash = (
+        gen.get("hashed_token")
+        or gen.get("properties", {}).get("hashed_token")
+    )
+    if not token_hash:
+        sys.exit(f"ERROR: generate_link missing hashed_token: {gen}")
+
+    # 2) verify (exchange token_hash for a session)
+    ver_req = urllib.request.Request(
+        f"{supabase_url}/auth/v1/verify",
+        method="POST",
+        data=json.dumps({"type": "magiclink", "token_hash": token_hash}).encode(),
+        headers={
+            "Content-Type": "application/json",
+            "apikey": anon_key,
+        },
+    )
+    try:
+        with urllib.request.urlopen(ver_req, timeout=15) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        body = e.read().decode(errors="replace")
+        sys.exit(f"ERROR: verify magiclink failed ({e.code}): {body}")
+
+
 def to_ssr_cookie_value(session: dict) -> str:
     """@supabase/ssr encodes the session as `base64-<b64url(JSON)>`."""
     payload = json.dumps(session, separators=(",", ":")).encode()
