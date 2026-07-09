@@ -1,74 +1,53 @@
-## هدف التطوير
-إكمال الأقسام الناقصة عبر جميع طبقات التطبيق الأربع (تسويقي عام → لوحة الشركة → لوحة السوبر أدمن → بوابات المستأجر/المالك)، مع ربط كامل بالباك اند (Lovable Cloud + RLS) واستخدام مفاتيح الترجمة i18n لكل نص، والالتزام بثيم HRHBS البنفسجي للوحات والخط Almarai.
+## نطاق التطوير: تحسينات UI/UX + الأداء
 
-بعد فحص المشروع الحالي، الأقسام الموجودة كثيرة بالفعل. سأركّز على الفجوات الحقيقية فقط.
+الهوية البصرية ثابتة (بنفسجي HRHBS + Almarai) — العمل تحسين الجودة والسرعة داخل نفس النظام، لا إعادة تصميم.
 
----
+## 1) تحسينات UI/UX
 
-## المرحلة 1 — الموقع التسويقي العام
-مسارات جديدة تُضاف تحت `src/routes/` مع `head()` مستقل لكل واحدة (SEO):
-- `about.tsx` — من نحن، الرؤية، الرسالة، الفريق
-- `contact.tsx` — نموذج تواصل يُخزَّن في جدول `demo_requests` (موجود)
-- `faq.tsx` — أسئلة شائعة قابلة للتصفية بحسب الفئة
-- `blog.index.tsx` + `blog.$slug.tsx` — مدونة (جدول `blog_posts` جديد)
-- `solutions.owners.tsx` / `solutions.brokers.tsx` / `solutions.enterprises.tsx` — صفحات حلول لكل شريحة
+**أ. الصفحة الرئيسية (Landing)**
+- تنقيح الـ Hero: إيقاع طباعي أوضح، فراغ أكبر، CTA بارز واحد، شارة الثقة تحت الفولد.
+- توحيد البطاقات (مزايا/باقات/شهادات) على نظام spacing واحد + ظل موحّد (`--shadow-elegant`).
+- تأثيرات دخول خفيفة عبر `animate-fade-in` + `hover-scale` بدلاً من الحركات الثقيلة.
 
-## المرحلة 2 — لوحة تحكم الشركة (Dashboard)
-إضافة الأقسام الغائبة من الـ spec:
-- `dashboard.units.tsx` + `dashboard.units.$id.tsx` — إدارة الوحدات مستقلة عن العقارات
-- `dashboard.owners.tsx` + `dashboard.owners.$id.tsx` — إدارة الملاك وكشوف حساباتهم (`owner_statements`)
-- `dashboard.vouchers.tsx` — سندات القبض والصرف
-- `dashboard.commissions.tsx` — عمولات الوسطاء (`commissions`)
-- `dashboard.crm.leads.tsx` / `dashboard.crm.deals.tsx` / `dashboard.crm.meetings.tsx` — CRM مبسّط
-- `dashboard.tasks.tsx` — المهام (`tasks`)
-- `dashboard.documents.tsx` — إدارة المستندات مع نسخ (`documents` + `document_versions`)
-- `dashboard.viewings.tsx` — مواعيد المعاينة (`property_viewings`)
-- `dashboard.valuations.tsx` — تقييمات العقارات (`property_valuations`)
+**ب. لوحات التحكم (Dashboard / Portal)**
+- توحيد `PageHeader` (عنوان + وصف + أزرار) عبر جميع صفحات `_authenticated/*`.
+- بطاقات KPI بمقاسات وأيقونات موحّدة، أرقام بخط tabular، حالات فارغة (Empty States) مصممة.
+- جداول: sticky header، truncate آمن للـ RTL، badges موحّدة للحالات (نشط/معلّق/مرفوض).
+- Skeletons بدل spinners في القوائم الطويلة.
 
-## المرحلة 3 — لوحة السوبر أدمن (/admin) — مسار مستقل
-تحويل `/admin` من داخل `_authenticated` (كما هو الآن) إلى تجربة مكتملة بإضافة:
-- `admin.plans.tsx` — إدارة الباقات (`packages`)
-- `admin.support.tsx` — تذاكر الدعم (`tickets`)
-- `admin.backups.tsx` — النسخ الاحتياطية (`backups`)
-- `admin.email-providers.tsx` / `admin.sms-providers.tsx` — إعدادات مزودي الاتصال
-- `admin.banks.tsx` — إدارة البنوك للتحويلات
-- `admin.demo-requests.tsx` — طلبات العروض التوضيحية القادمة من الموقع التسويقي
+**ج. Sidebar & Navigation**
+- تفعيل حالة `active` واضحة (pill بنفسجي فاتح)، حالة مطوية بأيقونات فقط.
+- Breadcrumbs في رأس الصفحات الفرعية.
 
-## المرحلة 4 — بوابات خارجية (Portals)
-`src/routes/_authenticated/portal/` جديد مع تصميم مبسّط مختلف عن Dashboard:
-- `portal.tenant.index.tsx` — الرئيسية للمستأجر: عقد نشط + مدفوعات مستحقة
-- `portal.tenant.payments.tsx` — كل الدفعات + رفع تحويل بنكي
-- `portal.tenant.maintenance.tsx` — طلبات صيانة (فتح/متابعة)
-- `portal.owner.index.tsx` — الرئيسية للمالك: ملخّص العقارات + كشف حساب
-- `portal.owner.statements.tsx` — كشوف الحساب الشهرية
-- التوجيه بحسب الدور من `has_role` مع صفحة `access-denied` عند التعارض
+**د. الوصولية (a11y)**
+- `aria-label` لكل زر أيقوني، `<main>` واحد لكل صفحة، `h-dvh` بدل `h-screen`.
+- تباين ألوان مطابق لـ WCAG AA على النصوص الثانوية.
 
----
+**هـ. RTL & i18n**
+- مراجعة flex/gap/space-x على المسارات المتأثرة، ترجمة نصوص `dashboard.auctions.*` و`dashboard.audit.*` المتبقية (CSV/PDF/Excel/Not found).
 
-## الجانب التقني
+## 2) تحسينات الأداء
 
-### الجداول الجديدة (Migrations)
-- `blog_posts(slug, title_ar, title_en, body_ar, body_en, cover_url, published_at, author_id)` مع RLS: قراءة عامة للمنشور، كتابة لدور `content_editor`
-- `faq_entries(category, question_ar, question_en, answer_ar, answer_en, order_index)` قراءة عامة
-- (باقي الجداول موجودة — سنستخدمها كما هي)
+- **Route-level code splitting**: التأكد أن كل route ثقيل (assistant, admin, auctions) يستخدم lazy component عبر `createFileRoute` + `component: lazyRouteComponent(...)` حيث يلزم.
+- **TanStack Query**: مراجعة `staleTime` و `gcTime` للاستعلامات المتكررة (companies, profile, roles) لتقليل requests.
+- **Images**: `loading="lazy"` + `decoding="async"` على كل img غير LCP، preload لصورة hero.
+- **Bundle audit**: تشغيل `bun run build` وقياس أكبر chunks؛ فصل مكتبات ثقيلة (recharts, r3f) عبر dynamic import.
+- **Fonts**: التأكد من تحميل Almarai بـ `font-display: swap` وpreload للـ weights المستخدمة فقط.
+- **Realtime/subscriptions**: مراجعة أن كل `.channel()` يُنظَّف في cleanup لتفادي تسريبات ذاكرة.
 
-كل جدول جديد يتبع الأربع خطوات: CREATE → GRANT → ENABLE RLS → POLICY، مع `updated_at` trigger.
+## 3) خطة التنفيذ (على دفعات)
 
-### طبقة الوصول
-- كل قراءة/كتابة عبر `createServerFn` في `src/lib/*.functions.ts` مع `.middleware([requireSupabaseAuth])` للمحمي، و publishable client للقراءة العامة (المدونة/FAQ).
-- استخدام TanStack Query pattern القياسي: `ensureQueryData` في الـ loader + `useSuspenseQuery` في المكوّن.
+1. **دفعة 1 — أساسيات مشتركة**: `PageHeader`, Empty States, Skeletons, tokens (`--shadow-elegant`, animations).
+2. **دفعة 2 — Dashboard/Admin**: تطبيق المكونات الجديدة على أهم 6-8 صفحات.
+3. **دفعة 3 — a11y + i18n**: aria-labels، ترجمة النصوص المتبقية.
+4. **دفعة 4 — الأداء**: lazy routes, query cache tuning, image lazy, bundle audit + تقرير.
+5. **دفعة 5 — Landing polish**: تنقيح الهيرو والأقسام التسويقية.
 
-### i18n
-كل النصوص عبر `t()` بمفاتيح AR+EN. تشغيل `bun run audit:i18n` بعد كل مرحلة.
+بعد كل دفعة: `tsgo --noEmit` + جولة بصرية سريعة.
 
-### التصميم
-- لوحات التحكم: ثيم HRHBS البنفسجي (Primary #7C3AED)، خط Almarai، sidebar أبيض
-- الموقع التسويقي: `.theme-luxe` (كما هو)
-- البوابات: تصميم مبسّط بنفس التوكنز البنفسجية لكن layout أخف
+## تفاصيل تقنية
 
----
-
-## الترتيب المقترح والاعتماد
-سأنفّذ **المرحلة 1** كاملة في هذا الرد (5-6 مسارات + جدولين + navigation)، ثم أطلب موافقتك للانتقال للمرحلة التالية. هذا يضمن مراجعة تدريجية بدل موجة تغييرات ضخمة.
-
-هل أبدأ بالمرحلة 1، أم تفضّل ترتيب/نطاق مختلف (مثلاً: البوابات الخارجية أولاً لأنها الأكثر إلحاحاً)؟
+- لا تعديل على `src/routeTree.gen.ts` (auto-generated).
+- الحفاظ على `mem://` (بنفسجي #7C3AED، Almarai، semantic tokens فقط).
+- لا تغيير في منطق الأعمال أو RLS أو المخطط — تحسينات عرض + أداء فقط.
+- كل دفعة PR-sized: تعديلات مركّزة قابلة للمراجعة.
