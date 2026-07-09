@@ -294,7 +294,7 @@ async function vacantUnitsList({ supabase, orgId }: Ctx, args: { limit?: number 
   };
 }
 
-const TOOLS: Record<string, (ctx: Ctx, args: any) => Promise<any>> = {
+export const TOOLS: Record<string, (ctx: Ctx, args: any) => Promise<any>> = {
   revenue_summary: revenueSummary,
   overdue_payments: overduePayments,
   expiring_contracts: expiringContracts,
@@ -446,7 +446,8 @@ async function auditRpc(
   }
 }
 
-const ALLOWED_TOOL_NAMES = TOOL_SCHEMAS.map((t) => t.name) as [string, ...string[]];
+export const ALLOWED_TOOL_NAMES = TOOL_SCHEMAS.map((t) => t.name) as [string, ...string[]];
+export { SENSITIVE_TOOLS, ELEVATED_ROLES };
 
 // ------- Recommend an editable dashboard layout from KPIs -------
 

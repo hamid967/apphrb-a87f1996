@@ -182,6 +182,7 @@ import { Route as ApiPublicV1ContractsRouteImport } from './routes/api/public/v1
 import { Route as ApiPublicV1AuctionsRouteImport } from './routes/api/public/v1/auctions'
 import { Route as ApiPublicOgImageDotsvgRouteImport } from './routes/api/public/og/image[.]svg'
 import { Route as ApiPublicOgImageDotpngRouteImport } from './routes/api/public/og/image[.]png'
+import { Route as ApiPublicHooksRunScheduledScriptsRouteImport } from './routes/api/public/hooks/run-scheduled-scripts'
 import { Route as ApiPublicHooksRentRemindersRouteImport } from './routes/api/public/hooks/rent-reminders'
 import { Route as ApiPublicHooksDispatchNotificationsRouteImport } from './routes/api/public/hooks/dispatch-notifications'
 import { Route as ApiPublicHooksAuctionsTickRouteImport } from './routes/api/public/hooks/auctions-tick'
@@ -214,6 +215,7 @@ import { Route as AuthenticatedDashboardAuditIdRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardAuctionsReportsRouteImport } from './routes/_authenticated/dashboard.auctions.reports'
 import { Route as AuthenticatedDashboardAuctionsNewRouteImport } from './routes/_authenticated/dashboard.auctions.new'
 import { Route as AuthenticatedDashboardAuctionsAuditRouteImport } from './routes/_authenticated/dashboard.auctions.audit'
+import { Route as AuthenticatedAssistantScriptsSchedulesRouteImport } from './routes/_authenticated/assistant.scripts.schedules'
 import { Route as AuthenticatedAssistantScriptsHistoryRouteImport } from './routes/_authenticated/assistant.scripts.history'
 import { Route as AuthenticatedAssistantScriptsNameRouteImport } from './routes/_authenticated/assistant.scripts.$name'
 import { Route as ApiPublicV1UnitsIdRouteImport } from './routes/api/public/v1/units.$id'
@@ -1203,6 +1205,12 @@ const ApiPublicOgImageDotpngRoute = ApiPublicOgImageDotpngRouteImport.update({
   path: '/api/public/og/image.png',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksRunScheduledScriptsRoute =
+  ApiPublicHooksRunScheduledScriptsRouteImport.update({
+    id: '/api/public/hooks/run-scheduled-scripts',
+    path: '/api/public/hooks/run-scheduled-scripts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksRentRemindersRoute =
   ApiPublicHooksRentRemindersRouteImport.update({
     id: '/api/public/hooks/rent-reminders',
@@ -1394,6 +1402,12 @@ const AuthenticatedDashboardAuctionsAuditRoute =
     id: '/audit',
     path: '/audit',
     getParentRoute: () => AuthenticatedDashboardAuctionsRoute,
+  } as any)
+const AuthenticatedAssistantScriptsSchedulesRoute =
+  AuthenticatedAssistantScriptsSchedulesRouteImport.update({
+    id: '/schedules',
+    path: '/schedules',
+    getParentRoute: () => AuthenticatedAssistantScriptsRoute,
   } as any)
 const AuthenticatedAssistantScriptsHistoryRoute =
   AuthenticatedAssistantScriptsHistoryRouteImport.update({
@@ -1645,6 +1659,7 @@ export interface FileRoutesByFullPath {
   '/team/': typeof AuthenticatedTeamIndexRoute
   '/assistant/scripts/$name': typeof AuthenticatedAssistantScriptsNameRoute
   '/assistant/scripts/history': typeof AuthenticatedAssistantScriptsHistoryRoute
+  '/assistant/scripts/schedules': typeof AuthenticatedAssistantScriptsSchedulesRoute
   '/dashboard/auctions/audit': typeof AuthenticatedDashboardAuctionsAuditRouteWithChildren
   '/dashboard/auctions/new': typeof AuthenticatedDashboardAuctionsNewRoute
   '/dashboard/auctions/reports': typeof AuthenticatedDashboardAuctionsReportsRouteWithChildren
@@ -1677,6 +1692,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/auctions-tick': typeof ApiPublicHooksAuctionsTickRoute
   '/api/public/hooks/dispatch-notifications': typeof ApiPublicHooksDispatchNotificationsRoute
   '/api/public/hooks/rent-reminders': typeof ApiPublicHooksRentRemindersRoute
+  '/api/public/hooks/run-scheduled-scripts': typeof ApiPublicHooksRunScheduledScriptsRoute
   '/api/public/og/image.png': typeof ApiPublicOgImageDotpngRoute
   '/api/public/og/image.svg': typeof ApiPublicOgImageDotsvgRoute
   '/api/public/v1/auctions': typeof ApiPublicV1AuctionsRouteWithChildren
@@ -1860,6 +1876,7 @@ export interface FileRoutesByTo {
   '/team': typeof AuthenticatedTeamIndexRoute
   '/assistant/scripts/$name': typeof AuthenticatedAssistantScriptsNameRoute
   '/assistant/scripts/history': typeof AuthenticatedAssistantScriptsHistoryRoute
+  '/assistant/scripts/schedules': typeof AuthenticatedAssistantScriptsSchedulesRoute
   '/dashboard/auctions/audit': typeof AuthenticatedDashboardAuctionsAuditRouteWithChildren
   '/dashboard/auctions/new': typeof AuthenticatedDashboardAuctionsNewRoute
   '/dashboard/auctions/reports': typeof AuthenticatedDashboardAuctionsReportsRouteWithChildren
@@ -1892,6 +1909,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/auctions-tick': typeof ApiPublicHooksAuctionsTickRoute
   '/api/public/hooks/dispatch-notifications': typeof ApiPublicHooksDispatchNotificationsRoute
   '/api/public/hooks/rent-reminders': typeof ApiPublicHooksRentRemindersRoute
+  '/api/public/hooks/run-scheduled-scripts': typeof ApiPublicHooksRunScheduledScriptsRoute
   '/api/public/og/image.png': typeof ApiPublicOgImageDotpngRoute
   '/api/public/og/image.svg': typeof ApiPublicOgImageDotsvgRoute
   '/api/public/v1/auctions': typeof ApiPublicV1AuctionsRouteWithChildren
@@ -2085,6 +2103,7 @@ export interface FileRoutesById {
   '/_authenticated/team/': typeof AuthenticatedTeamIndexRoute
   '/_authenticated/assistant/scripts/$name': typeof AuthenticatedAssistantScriptsNameRoute
   '/_authenticated/assistant/scripts/history': typeof AuthenticatedAssistantScriptsHistoryRoute
+  '/_authenticated/assistant/scripts/schedules': typeof AuthenticatedAssistantScriptsSchedulesRoute
   '/_authenticated/dashboard/auctions/audit': typeof AuthenticatedDashboardAuctionsAuditRouteWithChildren
   '/_authenticated/dashboard/auctions/new': typeof AuthenticatedDashboardAuctionsNewRoute
   '/_authenticated/dashboard/auctions/reports': typeof AuthenticatedDashboardAuctionsReportsRouteWithChildren
@@ -2117,6 +2136,7 @@ export interface FileRoutesById {
   '/api/public/hooks/auctions-tick': typeof ApiPublicHooksAuctionsTickRoute
   '/api/public/hooks/dispatch-notifications': typeof ApiPublicHooksDispatchNotificationsRoute
   '/api/public/hooks/rent-reminders': typeof ApiPublicHooksRentRemindersRoute
+  '/api/public/hooks/run-scheduled-scripts': typeof ApiPublicHooksRunScheduledScriptsRoute
   '/api/public/og/image.png': typeof ApiPublicOgImageDotpngRoute
   '/api/public/og/image.svg': typeof ApiPublicOgImageDotsvgRoute
   '/api/public/v1/auctions': typeof ApiPublicV1AuctionsRouteWithChildren
@@ -2310,6 +2330,7 @@ export interface FileRouteTypes {
     | '/team/'
     | '/assistant/scripts/$name'
     | '/assistant/scripts/history'
+    | '/assistant/scripts/schedules'
     | '/dashboard/auctions/audit'
     | '/dashboard/auctions/new'
     | '/dashboard/auctions/reports'
@@ -2342,6 +2363,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auctions-tick'
     | '/api/public/hooks/dispatch-notifications'
     | '/api/public/hooks/rent-reminders'
+    | '/api/public/hooks/run-scheduled-scripts'
     | '/api/public/og/image.png'
     | '/api/public/og/image.svg'
     | '/api/public/v1/auctions'
@@ -2525,6 +2547,7 @@ export interface FileRouteTypes {
     | '/team'
     | '/assistant/scripts/$name'
     | '/assistant/scripts/history'
+    | '/assistant/scripts/schedules'
     | '/dashboard/auctions/audit'
     | '/dashboard/auctions/new'
     | '/dashboard/auctions/reports'
@@ -2557,6 +2580,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auctions-tick'
     | '/api/public/hooks/dispatch-notifications'
     | '/api/public/hooks/rent-reminders'
+    | '/api/public/hooks/run-scheduled-scripts'
     | '/api/public/og/image.png'
     | '/api/public/og/image.svg'
     | '/api/public/v1/auctions'
@@ -2749,6 +2773,7 @@ export interface FileRouteTypes {
     | '/_authenticated/team/'
     | '/_authenticated/assistant/scripts/$name'
     | '/_authenticated/assistant/scripts/history'
+    | '/_authenticated/assistant/scripts/schedules'
     | '/_authenticated/dashboard/auctions/audit'
     | '/_authenticated/dashboard/auctions/new'
     | '/_authenticated/dashboard/auctions/reports'
@@ -2781,6 +2806,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auctions-tick'
     | '/api/public/hooks/dispatch-notifications'
     | '/api/public/hooks/rent-reminders'
+    | '/api/public/hooks/run-scheduled-scripts'
     | '/api/public/og/image.png'
     | '/api/public/og/image.svg'
     | '/api/public/v1/auctions'
@@ -2861,6 +2887,7 @@ export interface RootRouteChildren {
   ApiPublicHooksAuctionsTickRoute: typeof ApiPublicHooksAuctionsTickRoute
   ApiPublicHooksDispatchNotificationsRoute: typeof ApiPublicHooksDispatchNotificationsRoute
   ApiPublicHooksRentRemindersRoute: typeof ApiPublicHooksRentRemindersRoute
+  ApiPublicHooksRunScheduledScriptsRoute: typeof ApiPublicHooksRunScheduledScriptsRoute
   ApiPublicOgImageDotpngRoute: typeof ApiPublicOgImageDotpngRoute
   ApiPublicOgImageDotsvgRoute: typeof ApiPublicOgImageDotsvgRoute
   ApiPublicV1AuctionsRoute: typeof ApiPublicV1AuctionsRouteWithChildren
@@ -4090,6 +4117,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicOgImageDotpngRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/run-scheduled-scripts': {
+      id: '/api/public/hooks/run-scheduled-scripts'
+      path: '/api/public/hooks/run-scheduled-scripts'
+      fullPath: '/api/public/hooks/run-scheduled-scripts'
+      preLoaderRoute: typeof ApiPublicHooksRunScheduledScriptsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/rent-reminders': {
       id: '/api/public/hooks/rent-reminders'
       path: '/api/public/hooks/rent-reminders'
@@ -4314,6 +4348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAuctionsAuditRouteImport
       parentRoute: typeof AuthenticatedDashboardAuctionsRoute
     }
+    '/_authenticated/assistant/scripts/schedules': {
+      id: '/_authenticated/assistant/scripts/schedules'
+      path: '/schedules'
+      fullPath: '/assistant/scripts/schedules'
+      preLoaderRoute: typeof AuthenticatedAssistantScriptsSchedulesRouteImport
+      parentRoute: typeof AuthenticatedAssistantScriptsRoute
+    }
     '/_authenticated/assistant/scripts/history': {
       id: '/_authenticated/assistant/scripts/history'
       path: '/history'
@@ -4530,6 +4571,7 @@ const AuthenticatedAdminRouteWithChildren =
 interface AuthenticatedAssistantScriptsRouteChildren {
   AuthenticatedAssistantScriptsNameRoute: typeof AuthenticatedAssistantScriptsNameRoute
   AuthenticatedAssistantScriptsHistoryRoute: typeof AuthenticatedAssistantScriptsHistoryRoute
+  AuthenticatedAssistantScriptsSchedulesRoute: typeof AuthenticatedAssistantScriptsSchedulesRoute
 }
 
 const AuthenticatedAssistantScriptsRouteChildren: AuthenticatedAssistantScriptsRouteChildren =
@@ -4538,6 +4580,8 @@ const AuthenticatedAssistantScriptsRouteChildren: AuthenticatedAssistantScriptsR
       AuthenticatedAssistantScriptsNameRoute,
     AuthenticatedAssistantScriptsHistoryRoute:
       AuthenticatedAssistantScriptsHistoryRoute,
+    AuthenticatedAssistantScriptsSchedulesRoute:
+      AuthenticatedAssistantScriptsSchedulesRoute,
   }
 
 const AuthenticatedAssistantScriptsRouteWithChildren =
@@ -5206,6 +5250,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksDispatchNotificationsRoute:
     ApiPublicHooksDispatchNotificationsRoute,
   ApiPublicHooksRentRemindersRoute: ApiPublicHooksRentRemindersRoute,
+  ApiPublicHooksRunScheduledScriptsRoute:
+    ApiPublicHooksRunScheduledScriptsRoute,
   ApiPublicOgImageDotpngRoute: ApiPublicOgImageDotpngRoute,
   ApiPublicOgImageDotsvgRoute: ApiPublicOgImageDotsvgRoute,
   ApiPublicV1AuctionsRoute: ApiPublicV1AuctionsRouteWithChildren,

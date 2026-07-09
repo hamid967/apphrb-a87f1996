@@ -4928,6 +4928,104 @@ export type Database = {
           },
         ]
       }
+      scripts_schedule_runs: {
+        Row: {
+          duration_ms: number | null
+          error: string | null
+          id: string
+          org_id: string
+          result: Json | null
+          schedule_id: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          org_id: string
+          result?: Json | null
+          schedule_id: string
+          started_at?: string
+          status: string
+        }
+        Update: {
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          org_id?: string
+          result?: Json | null
+          schedule_id?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scripts_schedule_runs_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "scripts_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scripts_schedules: {
+        Row: {
+          args: Json
+          created_at: string
+          created_by: string
+          enabled: boolean
+          id: string
+          interval_minutes: number
+          label: string | null
+          last_duration_ms: number | null
+          last_error: string | null
+          last_run_at: string | null
+          last_status: string | null
+          name: string
+          next_run_at: string
+          org_id: string
+          run_count: number
+          updated_at: string
+        }
+        Insert: {
+          args?: Json
+          created_at?: string
+          created_by: string
+          enabled?: boolean
+          id?: string
+          interval_minutes: number
+          label?: string | null
+          last_duration_ms?: number | null
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?: string | null
+          name: string
+          next_run_at?: string
+          org_id: string
+          run_count?: number
+          updated_at?: string
+        }
+        Update: {
+          args?: Json
+          created_at?: string
+          created_by?: string
+          enabled?: boolean
+          id?: string
+          interval_minutes?: number
+          label?: string | null
+          last_duration_ms?: number | null
+          last_error?: string | null
+          last_run_at?: string | null
+          last_status?: string | null
+          name?: string
+          next_run_at?: string
+          org_id?: string
+          run_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sms_providers: {
         Row: {
           active: boolean
