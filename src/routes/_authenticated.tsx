@@ -72,17 +72,20 @@ function AuthenticatedShellWithBoundary() {
           timer = null;
         }, 360);
       }
-      if (mode === "default") {
-        el.classList.remove("theme-tech", "dark");
-      } else {
+      if (mode === "tech") {
+        el.classList.remove("theme-lux");
         el.classList.add("theme-tech", "dark");
+      } else {
+        // "default" (or anything else) → Visionary Glass light
+        el.classList.remove("theme-tech", "dark");
+        el.classList.add("theme-lux");
       }
     };
     const initial = (() => {
       try {
-        return window.localStorage.getItem(KEY) ?? "tech";
+        return window.localStorage.getItem(KEY) ?? "default";
       } catch {
-        return "tech";
+        return "default";
       }
     })();
     apply(initial, false);
@@ -94,7 +97,7 @@ function AuthenticatedShellWithBoundary() {
     return () => {
       window.removeEventListener("aqari:dashboard-theme", onChange);
       if (timer !== null) window.clearTimeout(timer);
-      el.classList.remove("theme-tech", "dark", "theme-transitioning");
+      el.classList.remove("theme-tech", "dark", "theme-lux", "theme-transitioning");
     };
   }, []);
 
