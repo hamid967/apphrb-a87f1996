@@ -391,6 +391,24 @@ function ScheduleEditor({
           <span className="text-muted-foreground text-sm">
             {t("assistant.scripts.scheduleInterval")}
           </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="number"
+              min={5}
+              max={43200}
+              step={5}
+              value={interval}
+              onChange={(e) => {
+                const n = Number(e.target.value);
+                if (Number.isFinite(n)) setInterval(Math.min(43200, Math.max(5, Math.round(n))));
+              }}
+              className="w-32 rounded-md border bg-background px-3 py-1.5 font-mono"
+              aria-label="interval_minutes"
+            />
+            <span className="text-xs text-muted-foreground">
+              {t("assistant.scripts.intervalMinutes", { n: interval })} · ≈ {formatInterval(interval, t)}
+            </span>
+          </div>
           <div className="flex flex-wrap gap-1.5">
             {INTERVAL_PRESETS.map((p) => {
               const active = interval === p.minutes;
@@ -418,6 +436,7 @@ function ScheduleEditor({
               );
             })}
           </div>
+          <p className="text-[11px] text-muted-foreground">min 5 · max 43200 (30 يوم)</p>
         </div>
         <label className="md:col-span-2 flex flex-col gap-1">
           <span className="text-muted-foreground">args (JSON)</span>
