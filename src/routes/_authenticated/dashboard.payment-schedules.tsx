@@ -148,13 +148,7 @@ function PaymentSchedulesPage() {
     return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
 
-  const exportCsv = async () => {
-    if (rows.length === 0) {
-      toast.info(isAr ? "لا توجد بيانات للتصدير" : "Nothing to export");
-      return;
-    }
-    // Batch-fetch linked vouchers (payments) and commissions to enrich the
-    // CSV. RLS on the browser client scopes results to the caller's orgs.
+  const buildExportData = async () => {
     const voucherIds = Array.from(
       new Set(rows.map((r) => r.voucher_id).filter((v): v is string => !!v)),
     );
@@ -194,11 +188,10 @@ function PaymentSchedulesPage() {
       "commission_status", "commission_paid_at", "commission_currency",
       "commission_agent_id",
     ];
-    const lines = [headers.join(",")];
-    for (const r of rows) {
+    const dataRows = rows.map((r) => {
       const v = r.voucher_id ? vMap.get(r.voucher_id) : null;
       const c = r.commission_id ? cMap.get(r.commission_id) : null;
-      lines.push([
+      return [
         r.installment_no, r.due_date, r.source_type,
         r.amount, r.vat_amount, r.total_amount, r.status, r.notes,
         r.contract_id, r.deal_id, r.commission_id,
@@ -208,27 +201,67 @@ function PaymentSchedulesPage() {
         c?.percent, c?.amount,
         c?.status, c?.paid_at, c?.currency,
         c?.agent_id,
-      ].map(csvCell).join(","));
-    }
+      ];
+    });
+    return { headers, dataRows };
+  };
 
-    // BOM so Excel opens Arabic notes/references in UTF-8 correctly.
+  const scopedFilename = (ext: string) => {
+    const scope = [
+      source !== "all" ? source : null,
+      status !== "all" ? status : null,
+    ].filter(Boolean).join("-");
+    return `payment-schedules${scope ? `-${scope}` : ""}-${new Date().toISOString().slice(0, 10)}.${ext}`;
+  };
+
+  const exportCsv = async () => {
+    if (rows.length === 0) {
+      toast.info(isAr ? "لا توجد بيانات للتصدير" : "Nothing to export");
+      return;
+    }
+    const { headers, dataRows } = await buildExportData();
+    const lines = [headers.join(",")];
+    for (const row of dataRows) lines.push(row.map(csvCell).join(","));
     const blob = new Blob(["\uFEFF" + lines.join("\n")], {
       type: "text/csv;charset=utf-8",
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    const scope = [
-      source !== "all" ? source : null,
-      status !== "all" ? status : null,
-    ].filter(Boolean).join("-");
-    a.download = `payment-schedules${scope ? `-${scope}` : ""}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = scopedFilename("csv");
     a.click();
     URL.revokeObjectURL(url);
     toast.success(
       isAr ? `تم تصدير ${rows.length} صفاً` : `Exported ${rows.length} rows`,
     );
   };
+
+  const exportXlsx = async () => {
+    if (rows.length === 0) {
+      toast.info(isAr ? "لا توجد بيانات للتصدير" : "Nothing to export");
+      return;
+    }
+    const { headers, dataRows } = await buildExportData();
+    const aoa: unknown[][] = [headers, ...dataRows];
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws["!cols"] = headers.map((h) => ({
+      wch: Math.min(
+        28,
+        Math.max(
+          h.length + 2,
+          ...dataRows.map((r) => String(r[headers.indexOf(h)] ?? "").length + 2),
+        ),
+      ),
+    }));
+    if (isAr) ws["!views"] = [{ RTL: true }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "payment-schedules");
+    XLSX.writeFile(wb, scopedFilename("xlsx"));
+    toast.success(
+      isAr ? `تم تصدير ${rows.length} صفاً` : `Exported ${rows.length} rows`,
+    );
+  };
+
 
   return (
     <div className="p-4 md:p-6 space-y-4" dir={isAr ? "rtl" : "ltr"}>
