@@ -726,7 +726,7 @@ export function SmartRemindersPanel({
           { id: toastId },
         );
         // Refresh claims and close.
-        await queryClient.invalidateQueries({ queryKey: ["my-recent-claims"] });
+        await queryClient.invalidateQueries({ queryKey: ["my-recent-claims-reminders"] });
         setOpenReminder(null);
       } catch (err) {
         console.error("[reminder receipt upload]", err);
