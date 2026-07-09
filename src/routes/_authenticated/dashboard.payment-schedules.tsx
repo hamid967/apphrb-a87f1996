@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Download, Ban, Check, RefreshCw } from "lucide-react";
+import { Download, Ban, Check, RefreshCw, Receipt, Zap } from "lucide-react";
 import { HijriDateBadge } from "@/components/ui/hijri-date-badge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
