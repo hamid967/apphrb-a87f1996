@@ -41,11 +41,9 @@ export const upsertScriptSchedule = createServerFn({ method: "POST" })
   .inputValidator((raw: unknown) => UpsertSchema.parse(raw))
   .handler(async ({ data, context }) => {
     const { orgId } = await resolveOrg(context.supabase, context.userId);
-    const payload: Record<string, unknown> = {
-      org_id: orgId,
-      created_by: context.userId,
+    const base = {
       name: data.name,
-      args: data.args ?? {},
+      args: (data.args ?? {}) as any,
       label: data.label ?? null,
       interval_minutes: data.interval_minutes,
       enabled: data.enabled ?? true,
@@ -53,13 +51,7 @@ export const upsertScriptSchedule = createServerFn({ method: "POST" })
     if (data.id) {
       const { data: row, error } = await context.supabase
         .from("scripts_schedules")
-        .update({
-          name: payload.name,
-          args: payload.args,
-          label: payload.label,
-          interval_minutes: payload.interval_minutes,
-          enabled: payload.enabled,
-        })
+        .update(base)
         .eq("id", data.id)
         .eq("org_id", orgId)
         .select()
@@ -69,7 +61,7 @@ export const upsertScriptSchedule = createServerFn({ method: "POST" })
     }
     const { data: row, error } = await context.supabase
       .from("scripts_schedules")
-      .insert(payload)
+      .insert({ ...base, org_id: orgId, created_by: context.userId })
       .select()
       .single();
     if (error) throw new Error(error.message);
