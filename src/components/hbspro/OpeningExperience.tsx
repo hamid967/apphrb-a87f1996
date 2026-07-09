@@ -557,27 +557,46 @@ export function OpeningExperience() {
             <motion.button
               type="button"
               onClick={() => setActive(FEATURED_SERVICE)}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.5 }}
-              whileHover={{ y: -4 }}
-              className="group relative col-span-2 overflow-hidden rounded-[2.5rem] p-8 text-start shadow-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-              style={{ background: SURFACE }}
-              aria-label={ar ? FEATURED_SERVICE.titleAr : FEATURED_SERVICE.titleEn}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={cardHover}
+              whileTap={cardTap}
+              whileFocus={cardHover}
+              className="group relative col-span-2 flex min-h-[11rem] touch-manipulation flex-col overflow-hidden rounded-[2.5rem] p-8 text-start shadow-lg outline-none transition-shadow duration-300 hover:shadow-2xl focus-visible:ring-4 focus-visible:ring-offset-2 motion-reduce:transition-none"
+              style={{
+                background: SURFACE,
+                WebkitTapHighlightColor: "transparent",
+                // @ts-expect-error CSS custom property for ring color
+                "--tw-ring-color": `${GOLD}cc`,
+              }}
+              aria-label={`${ar ? FEATURED_SERVICE.titleAr : FEATURED_SERVICE.titleEn} — ${
+                ar ? "اضغط لعرض التفاصيل" : "press to view details"
+              }`}
             >
-              <div className="absolute top-6 end-6">
+              {/* Sheen sweep on hover */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-0 transition-all duration-700 ease-out group-hover:translate-x-full group-hover:opacity-100 motion-reduce:hidden"
+              />
+              <motion.div
+                className="absolute top-6 end-6"
+                whileHover={reduceMotion ? undefined : { rotate: [0, -8, 8, 0] }}
+                transition={{ duration: 0.6 }}
+              >
                 <div
-                  className="grid h-14 w-14 place-items-center rounded-2xl shadow-inner"
+                  className="grid h-14 w-14 place-items-center rounded-2xl shadow-inner transition-transform duration-300 group-hover:scale-110 motion-reduce:transform-none"
                   style={{ background: GOLD }}
                 >
                   <Zap className="h-8 w-8" style={{ color: INK }} />
                 </div>
-              </div>
-              <div className="mt-12">
+              </motion.div>
+              <div className="relative mt-12">
                 <h3 className="mb-2 text-xl font-bold text-white">
                   {ar ? FEATURED_SERVICE.titleAr : FEATURED_SERVICE.titleEn}
                 </h3>
-                <p className="text-sm leading-relaxed text-white/75">
+                <p className="text-sm leading-relaxed text-white/80">
                   {ar ? FEATURED_SERVICE.descAr : FEATURED_SERVICE.descEn}
                 </p>
               </div>
