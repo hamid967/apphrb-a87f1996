@@ -198,19 +198,82 @@ async function employeePerformance({ supabase, orgId }: Ctx) {
   return { agents: perAgent };
 }
 
-async function summarizeSystem(ctx: Ctx) {
-  const [rev, exp, occ, over] = await Promise.all([
-    revenueSummary(ctx, { months: 1 }),
-    expenseSummary(ctx, { months: 1 }),
-    occupancySnapshot(ctx),
-    overduePayments(ctx),
+async function cashFlowSummary(ctx: Ctx, args: { months?: number }) {
+  const months = args.months ?? 6;
+  const [rev, exp] = await Promise.all([
+    revenueSummary(ctx, { months }),
+    expenseSummary(ctx, { months }),
   ]);
+  const revByMonth = rev.by_month ?? {};
+  const expByCat = exp.by_category ?? {};
+  const net = (rev.total_paid ?? 0) - (exp.total ?? 0);
   return {
-    revenue_last_month: rev.total_paid,
-    expenses_last_month: exp.total,
-    occupancy_pct: occ.occupancy_pct,
-    overdue_total: over.total_overdue,
-    overdue_count: over.count,
+    months,
+    revenue_total: rev.total_paid ?? 0,
+    expense_total: exp.total ?? 0,
+    net_cash_flow: net,
+    margin_pct: rev.total_paid ? +((net * 100) / rev.total_paid).toFixed(1) : 0,
+    revenue_by_month: revByMonth,
+    expense_by_category: expByCat,
+    currency: rev.currency ?? "SAR",
+  };
+}
+
+async function maintenanceBacklog({ supabase, orgId }: Ctx) {
+  const { data } = await supabase
+    .from("maintenance_tickets")
+    .select("id, status, priority, created_at")
+    .eq("org_id", orgId)
+    .not("status", "in", "(closed,resolved,cancelled)")
+    .order("created_at", { ascending: true })
+    .limit(500);
+  const now = Date.now();
+  const rows = data ?? [];
+  const byStatus: Record<string, number> = {};
+  const byPriority: Record<string, number> = {};
+  let overdue7 = 0;
+  let overdue30 = 0;
+  for (const r of rows as any[]) {
+    byStatus[r.status ?? "unknown"] = (byStatus[r.status ?? "unknown"] ?? 0) + 1;
+    byPriority[r.priority ?? "normal"] = (byPriority[r.priority ?? "normal"] ?? 0) + 1;
+    const ageDays = r.created_at
+      ? (now - new Date(r.created_at).getTime()) / (1000 * 60 * 60 * 24)
+      : 0;
+    if (ageDays > 30) overdue30++;
+    else if (ageDays > 7) overdue7++;
+  }
+  return {
+    open_count: rows.length,
+    by_status: byStatus,
+    by_priority: byPriority,
+    aging_gt_7_days: overdue7,
+    aging_gt_30_days: overdue30,
+  };
+}
+
+async function vacantUnitsList({ supabase, orgId }: Ctx, args: { limit?: number }) {
+  const limit = Math.min(Math.max(args.limit ?? 25, 1), 100);
+  const { data } = await supabase
+    .from("units")
+    .select("id, unit_number, monthly_rent, status, property_id, updated_at")
+    .eq("org_id", orgId)
+    .is("deleted_at", null)
+    .in("status", ["vacant", "available"])
+    .order("updated_at", { ascending: true })
+    .limit(limit);
+  const rows = (data ?? []) as any[];
+  const potential = rows.reduce((s, u) => s + Number(u.monthly_rent ?? 0), 0);
+  const now = Date.now();
+  const enriched = rows.map((u) => ({
+    ...u,
+    days_vacant: u.updated_at
+      ? Math.floor((now - new Date(u.updated_at).getTime()) / (1000 * 60 * 60 * 24))
+      : null,
+  }));
+  return {
+    vacant_count: rows.length,
+    potential_monthly_revenue: potential,
+    units: enriched,
   };
 }
 
@@ -225,7 +288,11 @@ const TOOLS: Record<string, (ctx: Ctx, args: any) => Promise<any>> = {
   suggest_rent_price: suggestRentPrice,
   employee_performance: employeePerformance,
   summarize_system: summarizeSystem,
+  cash_flow_summary: cashFlowSummary,
+  maintenance_backlog: maintenanceBacklog,
+  vacant_units_list: vacantUnitsList,
 };
+
 
 // Role-based access: sensitive financial/HR tools require elevated org role.
 // RLS still enforces data scoping; this adds an explicit deny + audit for
