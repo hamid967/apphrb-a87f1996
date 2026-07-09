@@ -53,6 +53,17 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedShellWithBoundary() {
+  // Apply the Minimal Dark Tech theme (Slate & Steel + Space Grotesk/DM Sans)
+  // to every authenticated route. Scoped via <html> class so all shadcn
+  // tokens flip together; removed on unmount so /auth, /, and marketing
+  // keep the violet HRHBS + luxe themes intact.
+  useEffect(() => {
+    const el = document.documentElement;
+    el.classList.add("theme-tech", "dark");
+    return () => {
+      el.classList.remove("theme-tech", "dark");
+    };
+  }, []);
   return (
     <ErrorBoundary>
       <IdleLogout />
