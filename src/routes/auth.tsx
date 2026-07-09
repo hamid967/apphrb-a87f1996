@@ -677,7 +677,6 @@ function AuthPage() {
                   {[
                     t("auth.encryptedLogin"),
                     t("auth.jwtReady"),
-                    t("auth.twoFactorAuth"),
                     t("auth.socCert"),
                   ].map((s) => (
                     <div key={s} className="flex items-center gap-1.5">
