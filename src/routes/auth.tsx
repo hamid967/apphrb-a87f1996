@@ -32,13 +32,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { checkLoginRateLimit, recordLoginEvent } from "@/lib/sessions.functions";
-import { verifyTurnstile } from "@/lib/turnstile.functions";
-import { TurnstileWidget } from "@/components/security/TurnstileWidget";
 import {
   getFailedAttempts,
   incFailedAttempts,
   resetFailedAttempts,
-  CAPTCHA_THRESHOLD,
 } from "@/lib/auth-attempts";
 import { getDeviceFingerprint } from "@/lib/device-fingerprint";
 import { SignupAssistant } from "@/components/SignupAssistant";
