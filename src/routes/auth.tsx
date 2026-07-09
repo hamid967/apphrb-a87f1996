@@ -146,9 +146,8 @@ function AuthPage() {
     }
   }, [ready, user, nav, redirectTarget]);
   useEffect(() => {
-    const isAr = (i18n.language || "").startsWith("ar");
-    document.title = isAr ? "تسجيل الدخول — HBSpro" : "Sign in — HBSpro";
-  }, [i18n.language]);
+    document.title = t("auth.metaTitle");
+  }, [t, i18n.language]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
