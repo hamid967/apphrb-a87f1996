@@ -13,8 +13,27 @@ export function readDashboardTheme(): DashboardThemeMode {
   return v === "default" ? "default" : "tech";
 }
 
-export function applyDashboardTheme(mode: DashboardThemeMode) {
+// Track the pending "end of transition" timer so rapid toggles don't
+// leave the html.theme-transitioning class stuck on.
+let __themeTransitionTimer: number | null = null;
+
+export function applyDashboardTheme(mode: DashboardThemeMode, animate = true) {
   const el = document.documentElement;
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+  if (animate && !prefersReducedMotion) {
+    el.classList.add("theme-transitioning");
+    if (__themeTransitionTimer !== null) {
+      window.clearTimeout(__themeTransitionTimer);
+    }
+    __themeTransitionTimer = window.setTimeout(() => {
+      el.classList.remove("theme-transitioning");
+      __themeTransitionTimer = null;
+    }, 360);
+  }
+
   if (mode === "tech") {
     el.classList.add("theme-tech", "dark");
   } else {
