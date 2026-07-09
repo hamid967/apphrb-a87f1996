@@ -889,20 +889,6 @@ function ModuleLauncher({ isAr }: { isAr: boolean }) {
       tone: "primary",
     },
     {
-      to: "/admin/seed",
-      icon: <Database className="size-5" />,
-      title: isAr ? "قاعدة البيانات" : "Database Tools",
-      desc: isAr ? "بذور واختبار" : "Seed & maintenance",
-      tone: "amber",
-    },
-    {
-      to: "/admin/systest",
-      icon: <Zap className="size-5" />,
-      title: isAr ? "اختبار النظام" : "System Tests",
-      desc: isAr ? "فحص الصحة" : "Health checks",
-      tone: "sky",
-    },
-    {
       to: "/admin/telemetry-emails",
       icon: <ScrollText className="size-5" />,
       title: isAr ? "سجل رسائل التليمتري" : "Telemetry emails",
