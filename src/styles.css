@@ -643,8 +643,8 @@ body::-webkit-scrollbar,
   --card: oklch(1 0 0 / 96%);
   --card-foreground: oklch(0.19 0.06 265);
   --muted-foreground: oklch(0.42 0.03 260);
-  --border: oklch(0.19 0.06 265 / 12%);
-  --input: oklch(0.19 0.06 265 / 10%);
+  --border: oklch(0.19 0.06 265 / 32%);         /* WCAG 1.4.11 — ≥3:1 vs bg */
+  --input: oklch(0.19 0.06 265 / 32%);          /* form control border ≥3:1 */
   --primary: oklch(0.44 0.09 260);              /* darker navy for AA on white */
   --primary-foreground: oklch(0.98 0.005 250);
   --ring: oklch(0.44 0.09 260);
