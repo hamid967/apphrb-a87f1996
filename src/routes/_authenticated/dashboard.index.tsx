@@ -77,6 +77,11 @@ import { AutoDashboardPanel } from "@/components/dashboard/AutoDashboardPanel";
 import { QuickExpenseWidget } from "@/components/dashboard/QuickExpenseWidget";
 import { ServicesGrid } from "@/components/dashboard/ServicesGrid";
 import { PendingApprovalsPanel } from "@/components/dashboard/PendingApprovalsPanel";
+import {
+  SortableDashboard,
+  type DashboardSection,
+} from "@/components/dashboard/SortableDashboard";
+import { useAuth } from "@/hooks/use-auth";
 
 const FILTERS = ["all", "sale", "rent"] as const;
 type Filter = (typeof FILTERS)[number];
