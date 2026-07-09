@@ -20,6 +20,7 @@ import { PhoneVerifyInput } from "@/components/PhoneVerifyInput";
 import { registerCompany, getMyAccessContext } from "@/lib/company.functions";
 import { createProperty } from "@/lib/properties.functions";
 import { setOnboardingStep } from "@/lib/onboarding.functions";
+import { savePendingRedirect } from "@/lib/pending-redirect";
 
 export const Route = createFileRoute("/onboarding/wizard")({
   ssr: false,
