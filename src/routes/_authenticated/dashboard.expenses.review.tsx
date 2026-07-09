@@ -219,6 +219,7 @@ function ClaimsReviewPage() {
                   const busy = decide.isPending && decide.variables?.data.claim_id === r.id;
                   const canAct = status === "submitted" || status === "in_review";
                   return (
+                    <>
                     <TableRow key={r.id}>
                       <TableCell>
                         <div className="font-medium">{r.title || r.claim_number || "—"}</div>
@@ -260,6 +261,19 @@ function ClaimsReviewPage() {
                       </TableCell>
                       <TableCell className="text-end">
                         <div className="flex justify-end gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => toggleExpanded(r.id)}
+                            className="h-8"
+                            aria-label={t("approvalAudit.title")}
+                            aria-expanded={expanded.has(r.id)}
+                          >
+                            <History className="h-3.5 w-3.5" />
+                            <ChevronDown
+                              className={`ms-0.5 h-3 w-3 transition-transform ${expanded.has(r.id) ? "rotate-180" : ""}`}
+                            />
+                          </Button>
                           <Button
                             size="sm"
                             variant="default"
@@ -309,6 +323,14 @@ function ClaimsReviewPage() {
                         </div>
                       </TableCell>
                     </TableRow>
+                    {expanded.has(r.id) && (
+                      <TableRow key={`${r.id}-audit`} className="bg-muted/20 hover:bg-muted/20">
+                        <TableCell colSpan={7} className="p-3">
+                          <ApprovalAuditTrail entity="expense_claims" entityId={r.id} />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    </>
                   );
                 })}
               </TableBody>
