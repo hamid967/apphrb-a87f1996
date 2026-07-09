@@ -166,7 +166,6 @@ function AuthPage() {
             },
           }).catch(() => {});
           setFailedAttempts(incFailedAttempts(email));
-          setCaptchaToken(null);
           throw error;
         }
         // Verify establishment membership only when the user typed a number.
@@ -188,7 +187,6 @@ function AuthPage() {
               },
             }).catch(() => {});
             setFailedAttempts(incFailedAttempts(email));
-            setCaptchaToken(null);
             throw new Error("رقم المنشأة غير صحيح أو لا ينتمي لهذا الحساب");
           }
         }
