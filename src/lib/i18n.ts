@@ -2151,6 +2151,9 @@ const en = {
         suggest_rent_price: { title: "Suggest rent price", desc: "Suggest a price range for a unit or city based on comparables." },
         employee_performance: { title: "Employee performance", desc: "Deal count and won amount per sales employee." },
         summarize_system: { title: "System summary", desc: "High-level KPIs for the dashboard." },
+        cash_flow_summary: { title: "Cash flow", desc: "Net cash flow (revenue minus expenses) with monthly and category breakdowns." },
+        maintenance_backlog: { title: "Maintenance backlog", desc: "Open maintenance tickets grouped by status, priority, and age." },
+        vacant_units_list: { title: "Vacant units", desc: "Currently vacant units with days vacant and potential revenue." },
       },
       fields: {
         months: "Number of months",
@@ -2158,9 +2161,11 @@ const en = {
         horizonMonths: "Horizon months",
         unitId: "Unit ID (UUID)",
         city: "City",
+        limit: "Max results",
         optional: "Optional",
       },
     },
+
     audit: {
       title: "Hamid's scripts audit log",
       subtitle: "All attempts to run assistant scripts inside your organization, with user, outcome and time.",
