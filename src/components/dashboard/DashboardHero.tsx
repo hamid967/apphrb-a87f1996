@@ -11,6 +11,8 @@ import {
   Moon,
   Sunset,
   Sunrise,
+  Receipt,
+  Layers,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
