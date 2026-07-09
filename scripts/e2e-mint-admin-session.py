@@ -284,7 +284,7 @@ def main() -> int:
     email = os.environ.get("E2E_TEST_EMAIL") or os.environ.get("E2E_ADMIN_EMAIL", default_email)
     password = os.environ.get("E2E_ADMIN_PASSWORD")
     service_role = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-    role = os.environ.get("E2E_TEST_ROLE", "admin")
+    role = os.environ.get("E2E_TEST_ROLE", "super_admin")
     base_url = os.environ.get("BASE_URL", "http://localhost:8080").rstrip("/")
 
     ref = project_ref(supabase_url)
