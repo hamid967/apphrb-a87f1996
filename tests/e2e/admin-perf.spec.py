@@ -37,16 +37,27 @@ STORAGE_STATE_FILE = Path(__file__).resolve().parent.parent / ".auth" / "admin.s
 SESSION_FILE = Path(__file__).resolve().parent.parent / ".auth" / "admin.session.json"
 COOKIES_FILE = Path(__file__).resolve().parent.parent / ".auth" / "admin.cookies.json"
 
-# Per-path budgets in milliseconds for "time until key selector is visible".
-# Dev-server + first-hit compile is slow; keep budgets generous but low enough
-# to catch real regressions (e.g. a synchronous 2 MB import).
-BUDGETS_MS: dict[str, int] = {
-    "/admin/route-map": 8000,
-    "/security/sessions": 8000,
+# Viewport presets that mirror the device switcher in the editor preview.
+# Widths/heights match Chrome DevTools' defaults so results stay comparable
+# with what a developer sees when they toggle the preview manually.
+VIEWPORTS: dict[str, dict[str, int]] = {
+    "mobile":  {"width": 390,  "height": 844},   # iPhone 14 class
+    "tablet":  {"width": 820,  "height": 1180},  # iPad Air class
+    "desktop": {"width": 1280, "height": 1800},
 }
 
-# How many times to load each path. First hit warms Vite; we report the
-# median of the remaining runs.
+# Per-(path, viewport) budgets in milliseconds for "time until key selector
+# is visible". Smaller screens usually cost more due to layout/reflow, so
+# their budgets are looser. Dev-server + first-hit compile is slow; tune
+# these when a page grows legitimately and treat unexpected jumps as
+# regressions.
+BUDGETS_MS: dict[str, dict[str, int]] = {
+    "/admin/route-map":   {"desktop": 8000, "tablet": 9000, "mobile": 10000},
+    "/security/sessions": {"desktop": 8000, "tablet": 9000, "mobile": 10000},
+}
+
+# How many times to load each (path, viewport). First hit warms Vite; we
+# report the median of the remaining runs.
 RUNS_PER_PATH = 3
 
 # Key selectors that signal each page is usable.
@@ -54,6 +65,7 @@ READY_SELECTORS: dict[str, str] = {
     "/admin/route-map": "table tbody tr",
     "/security/sessions": "h1, h2",
 }
+
 
 
 def resolve_auth_source() -> str:
@@ -153,20 +165,26 @@ def slug(path: str) -> str:
     return path.strip("/").replace("/", "_") or "root"
 
 
-async def run_path(browser, path: str, budget: int) -> tuple[dict, list[str], Path]:
+async def run_path(
+    browser,
+    path: str,
+    viewport_name: str,
+    viewport: dict[str, int],
+    budget: int,
+) -> tuple[dict, list[str], Path]:
     """Load a path RUNS_PER_PATH times inside a dedicated context that records
-    video + HAR + Playwright trace. Returns (summary, failures, artifact_dir).
-    Caller decides whether to keep or delete the artifact dir based on pass/fail."""
-    artifact_dir = SCREENSHOTS / slug(path)
+    video + HAR + Playwright trace. One context per (path, viewport) so each
+    combination gets its own isolated diagnostics bundle."""
+    artifact_dir = SCREENSHOTS / slug(path) / viewport_name
     video_dir = artifact_dir / "video"
     video_dir.mkdir(parents=True, exist_ok=True)
     har_path = artifact_dir / "network.har"
     trace_path = artifact_dir / "trace.zip"
 
     context = await browser.new_context(
-        viewport={"width": 1280, "height": 1800},
+        viewport=viewport,
         record_video_dir=str(video_dir),
-        record_video_size={"width": 1280, "height": 900},
+        record_video_size=viewport,
         record_har_path=str(har_path),
         record_har_content="omit",
     )
@@ -180,7 +198,8 @@ async def run_path(browser, path: str, budget: int) -> tuple[dict, list[str], Pa
         for i in range(RUNS_PER_PATH):
             r = await measure(page, path)
             print(
-                f"  {path:22s} run {i + 1}: nav={r['navigation_ms']:>5}ms "
+                f"  [{viewport_name:7s}] {path:22s} run {i + 1}: "
+                f"nav={r['navigation_ms']:>5}ms "
                 f"interactive={r['interactive_ms']:>5}ms "
                 f"transfer={r['transfer_kb']:>6.1f}KB "
                 f"status={r['status']} ready={r['ready']}"
@@ -195,10 +214,11 @@ async def run_path(browser, path: str, budget: int) -> tuple[dict, list[str], Pa
 
     summary = summarize(runs)
     med = summary["interactive_ms_median"]
+    label = f"{path} @ {viewport_name}"
     if not summary["all_ready"]:
-        failures.append(f"{path}: never rendered ready selector")
+        failures.append(f"{label}: never rendered ready selector")
     if med > budget:
-        failures.append(f"{path}: interactive_ms median {med} > budget {budget}")
+        failures.append(f"{label}: interactive_ms median {med} > budget {budget}")
 
     return summary, failures, artifact_dir
 
@@ -219,39 +239,50 @@ async def main() -> int:
         return 0
     print(f"Using auth source: {source}")
 
-    report: dict = {"budgets_ms": BUDGETS_MS, "runs_per_path": RUNS_PER_PATH, "results": {}}
+
+    report: dict = {
+        "viewports": VIEWPORTS,
+        "budgets_ms": BUDGETS_MS,
+        "runs_per_path": RUNS_PER_PATH,
+        "results": {},
+    }
     all_failures: list[str] = []
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
         try:
-            for path, budget in BUDGETS_MS.items():
-                summary, failures, artifact_dir = await run_path(browser, path, budget)
-                report["results"][path] = {"budget_ms": budget, **summary}
-                med = summary["interactive_ms_median"]
-                if failures:
-                    all_failures.extend(failures)
-                    marker = "FAIL"
-                    print(
-                        f"{marker} {path:22s} median interactive={med}ms "
-                        f"(budget {budget}ms) — artifacts kept at {artifact_dir}"
+            for path, budgets_by_vp in BUDGETS_MS.items():
+                report["results"][path] = {}
+                for vp_name, viewport in VIEWPORTS.items():
+                    budget = budgets_by_vp.get(vp_name, 10000)
+                    summary, failures, artifact_dir = await run_path(
+                        browser, path, vp_name, viewport, budget
                     )
-                    # Attach artifact locations into the JSON report for CI.
-                    report["results"][path]["artifacts"] = {
-                        "dir": str(artifact_dir),
-                        "video_dir": str(artifact_dir / "video"),
-                        "har": str(artifact_dir / "network.har"),
-                        "trace": str(artifact_dir / "trace.zip"),
-                        "screenshot": str(artifact_dir / "final.png"),
-                    }
-                else:
-                    discard_artifacts(artifact_dir)
-                    print(
-                        f"OK   {path:22s} median interactive={med}ms "
-                        f"(budget {budget}ms) transfer={summary['transfer_kb_median']}KB"
-                    )
+                    entry = {"budget_ms": budget, "viewport": viewport, **summary}
+                    med = summary["interactive_ms_median"]
+                    if failures:
+                        all_failures.extend(failures)
+                        entry["artifacts"] = {
+                            "dir": str(artifact_dir),
+                            "video_dir": str(artifact_dir / "video"),
+                            "har": str(artifact_dir / "network.har"),
+                            "trace": str(artifact_dir / "trace.zip"),
+                            "screenshot": str(artifact_dir / "final.png"),
+                        }
+                        print(
+                            f"FAIL [{vp_name:7s}] {path:22s} median interactive={med}ms "
+                            f"(budget {budget}ms) — artifacts kept at {artifact_dir}"
+                        )
+                    else:
+                        discard_artifacts(artifact_dir)
+                        print(
+                            f"OK   [{vp_name:7s}] {path:22s} median interactive={med}ms "
+                            f"(budget {budget}ms) transfer={summary['transfer_kb_median']}KB"
+                        )
+                    report["results"][path][vp_name] = entry
         finally:
             await browser.close()
+
 
     REPORT.write_text(json.dumps(report, indent=2))
     print(f"\nReport → {REPORT}")
