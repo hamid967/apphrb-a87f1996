@@ -4,7 +4,7 @@ import { initReactI18next } from "react-i18next";
 export const RTL_LANGS = new Set(["ar", "he", "fa", "ur"]);
 
 const en = {
-  brand: "HBSpro",
+  brand: "Aqari",
   tagline: "AI-powered real-estate cloud for modern agencies.",
   search: "Search",
   nav: {
@@ -36,7 +36,7 @@ const en = {
     },
   },
   auth: {
-    title: "Sign in to HBSpro",
+    title: "Sign in to Aqari",
     subtitle: "Welcome back — let's get you into your workspace.",
     email: "Email",
     password: "Password",
@@ -50,8 +50,8 @@ const en = {
     sessionExpiredRedirect: "Your session has expired. Redirecting to sign in…",
     sessionExpiredFallback: "Your session has expired. Redirecting to sign in…",
     signInNow: "Sign in now",
-    metaTitle: "Sign in — HBSpro",
-    metaDesc: "Sign in to your HBSpro account or create a new one.",
+    metaTitle: "Sign in — Aqari",
+    metaDesc: "Sign in to your Aqari account or create a new one.",
     welcome: "Welcome to",
     welcomeSubtitle: "Sign in to access the intelligent property management platform.",
     enterpriseBadge: "Enterprise",
@@ -83,7 +83,7 @@ const en = {
     secure: "Secure",
     multiTenant: "Multi-Tenant",
     footerLegal: "By continuing you agree to the terms and privacy policy.",
-    footerCopyright: "© {{year}} HBSpro — {{legal}}",
+    footerCopyright: "© {{year}} Aqari — {{legal}}",
     establishmentMismatch: "Establishment number is incorrect or doesn't belong to this account.",
     rateLimited:
       "Sign-in temporarily blocked due to repeated failures. Try again in {{minutes}} minutes.",
@@ -479,7 +479,7 @@ const en = {
   intro: {
     skip: "Skip",
     enterDashboard: "Enter dashboard",
-    metaDescription: "HBSpro — the AI-powered platform for real-estate management in Saudi Arabia.",
+    metaDescription: "Aqari — the AI-powered platform for real-estate management in Saudi Arabia.",
     brand: "Aqari",
     tagline: "AI-powered real estate for the Kingdom",
     dragHint: "Drag to orbit · Click a city to fly",
@@ -499,7 +499,7 @@ const en = {
     confirm: "Confirm unsubscribe",
   },
   forgot: {
-    metaTitle: "Reset password — HBSpro",
+    metaTitle: "Reset password — Aqari",
     metaDesc: "Send a password reset link to your email.",
     title: "Forgot your password?",
     subtitle: "Enter your email and we'll send you a link to reset your password.",
@@ -518,7 +518,7 @@ const en = {
     captchaFailed: "CAPTCHA verification failed. Try again",
   },
   reset: {
-    metaTitle: "Reset password — HBSpro",
+    metaTitle: "Reset password — Aqari",
     title: "Set a new password",
     subtitle: "Choose a strong password of at least 8 characters.",
     linkInvalid: "This reset link is invalid or has expired.",
@@ -533,7 +533,7 @@ const en = {
     updateFailed: "Update failed",
   },
   portalInvite: {
-    metaTitle: "Accept portal invitation — HBSpro",
+    metaTitle: "Accept portal invitation — Aqari",
     brand: "Client portal",
     signInPrompt: "Please sign in to view the invitation details.",
     signIn: "Sign in",
@@ -588,10 +588,10 @@ const en = {
     revokeBtn: "Revoke",
   },
   listings: {
-    metaTitle: "Available Properties — HBSpro",
+    metaTitle: "Available Properties — Aqari",
     metaDesc:
       "Browse available rental properties across cities. Filter by location, bedrooms, and price to find your next home.",
-    brand: "HBSpro Listings",
+    brand: "Aqari Listings",
     filterCity: "Filter by city",
     filterCityPlaceholder: "Filter by city…",
     heading: "Available properties",
@@ -599,11 +599,11 @@ const en = {
     perMonth: "/mo",
     emptyTitle: "No properties available yet",
     emptyDesc:
-      "New listings will appear here as soon as our partner agencies publish them. In the meantime, explore how HBSpro helps landlords list, manage, and rent properties.",
+      "New listings will appear here as soon as our partner agencies publish them. In the meantime, explore how Aqari helps landlords list, manage, and rent properties.",
     emptyCtaServices: "Explore services",
     emptyCtaContact: "List your property",
     allListings: "All listings",
-    unavailableTitle: "Listing unavailable — HBSpro",
+    unavailableTitle: "Listing unavailable — Aqari",
     notFound: "Listing not found.",
     beds: "bd",
     baths: "ba",
@@ -1416,7 +1416,7 @@ const en = {
     },
     ai: {
       eyebrow: "AI",
-      title: "Meet HBSpro AI.",
+      title: "Meet Aqari AI.",
       sub: "An autonomous agent that reads contracts, forecasts revenue, and drafts decisions — in Arabic and English.",
       capabilities: {
         gen: "Contract Generator",
@@ -1424,7 +1424,7 @@ const en = {
         reports: "Smart Reports",
         forecast: "Occupancy Forecast",
       },
-      online: "HBSpro AI · online",
+      online: "Aqari AI · online",
       chat: {
         u1: "Which properties will lose tenants in Q4?",
         a1: "3 units at high risk (Riyadh · Al Malaz). I've drafted renewal offers for you.",
@@ -1440,7 +1440,7 @@ const en = {
       t1: {
         n: "Faisal Al Harbi",
         r: "COO, Riyadh Properties",
-        q: "HBSpro cut our lease-renewal cycle by 60%. The Arabic AI is genuinely usable.",
+        q: "Aqari cut our lease-renewal cycle by 60%. The Arabic AI is genuinely usable.",
       },
       t2: {
         n: "Nora Al Qahtani",
@@ -1488,7 +1488,7 @@ const en = {
     faq: {
       eyebrow: "FAQ",
       title: "Answers, straight up.",
-      q1: "Is HBSpro hosted in Saudi Arabia?",
+      q1: "Is Aqari hosted in Saudi Arabia?",
       a1: "Yes, all data resides in KSA-region infrastructure and complies with PDPL.",
       q2: "Does it support Arabic and English?",
       a2: "Fully bilingual, with an Arabic-native AI trained on Saudi real-estate terminology.",
@@ -1583,7 +1583,7 @@ const en = {
       revenue: "Revenue",
       maintenance: "Maintenance",
       occupancy: "Occupancy",
-      assistantName: "HBSpro AI Assistant",
+      assistantName: "Aqari AI Assistant",
       workingNow: "Working now",
       aiLines: [
         "Analyzing properties in Riyadh…",
@@ -2054,7 +2054,7 @@ const en = {
 };
 
 const ar: typeof en = {
-  brand: "HBSpro",
+  brand: "Aqari",
   tagline: "المنصة الحديثة لفرق العقارات.",
   search: "بحث",
   nav: {
@@ -2080,7 +2080,7 @@ const ar: typeof en = {
     },
   },
   auth: {
-    title: "تسجيل الدخول إلى HBSpro",
+    title: "تسجيل الدخول إلى Aqari",
     subtitle: "مرحباً بعودتك — لندخلك إلى مساحة عملك.",
     email: "البريد الإلكتروني",
     password: "كلمة المرور",
@@ -2094,8 +2094,8 @@ const ar: typeof en = {
     sessionExpiredRedirect: "انتهت جلستك. جارٍ إعادة التوجيه إلى صفحة تسجيل الدخول…",
     sessionExpiredFallback: "انتهت جلستك. جارٍ إعادة التوجيه إلى صفحة تسجيل الدخول…",
     signInNow: "سجّل الدخول الآن",
-    metaTitle: "تسجيل الدخول — HBSpro",
-    metaDesc: "سجّل الدخول إلى حسابك في HBSpro أو أنشئ حساباً جديداً.",
+    metaTitle: "تسجيل الدخول — Aqari",
+    metaDesc: "سجّل الدخول إلى حسابك في Aqari أو أنشئ حساباً جديداً.",
     welcome: "مرحبًا بك في",
     welcomeSubtitle: "قم بتسجيل الدخول للوصول إلى منصة إدارة الأملاك الذكية.",
     enterpriseBadge: "المؤسسات",
@@ -2127,7 +2127,7 @@ const ar: typeof en = {
     secure: "آمن",
     multiTenant: "متعدد المستأجرين",
     footerLegal: "بالمتابعة أنت توافق على الشروط وسياسة الخصوصية.",
-    footerCopyright: "© {{year}} HBSpro — {{legal}}",
+    footerCopyright: "© {{year}} Aqari — {{legal}}",
     establishmentMismatch: "رقم المنشأة غير صحيح أو لا ينتمي لهذا الحساب",
     rateLimited:
       "تم حظر الدخول مؤقتاً بسبب محاولات فاشلة متكررة. حاول بعد {{minutes}} دقيقة.",
@@ -2517,7 +2517,7 @@ const ar: typeof en = {
     skip: "تخطّي",
     enterDashboard: "الدخول إلى الداشبورد",
     metaDescription:
-      "منصة HBSpro الذكية لإدارة العقارات في المملكة العربية السعودية — مدعومة بالذكاء الاصطناعي.",
+      "منصة Aqari الذكية لإدارة العقارات في المملكة العربية السعودية — مدعومة بالذكاء الاصطناعي.",
     brand: "عقاري",
     tagline: "عقارات المملكة بالذكاء الاصطناعي",
     dragHint: "اسحب للتدوير · انقر مدينة للطيران إليها",
@@ -2537,7 +2537,7 @@ const ar: typeof en = {
     confirm: "تأكيد إلغاء الاشتراك",
   },
   forgot: {
-    metaTitle: "استعادة كلمة المرور — HBSpro",
+    metaTitle: "استعادة كلمة المرور — Aqari",
     metaDesc: "أرسل رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.",
     title: "نسيت كلمة المرور؟",
     subtitle: "أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور.",
@@ -2556,7 +2556,7 @@ const ar: typeof en = {
     captchaFailed: "فشل التحقق من CAPTCHA. حاول مجدداً",
   },
   reset: {
-    metaTitle: "إعادة تعيين كلمة المرور — HBSpro",
+    metaTitle: "إعادة تعيين كلمة المرور — Aqari",
     title: "تعيين كلمة مرور جديدة",
     subtitle: "اختر كلمة مرور قوية لا تقل عن 8 أحرف.",
     linkInvalid: "رابط إعادة التعيين غير صالح أو منتهي الصلاحية.",
@@ -2571,7 +2571,7 @@ const ar: typeof en = {
     updateFailed: "تعذّر التحديث",
   },
   portalInvite: {
-    metaTitle: "قبول دعوة البوابة — HBSpro",
+    metaTitle: "قبول دعوة البوابة — Aqari",
     brand: "بوابة العملاء",
     signInPrompt: "يرجى تسجيل الدخول لعرض تفاصيل الدعوة.",
     signIn: "تسجيل الدخول",
@@ -2626,10 +2626,10 @@ const ar: typeof en = {
     revokeBtn: "إلغاء الدعوة",
   },
   listings: {
-    metaTitle: "العقارات المتاحة — HBSpro",
+    metaTitle: "العقارات المتاحة — Aqari",
     metaDesc:
       "تصفّح العقارات المتاحة للإيجار في مختلف المدن. صفّي حسب الموقع وعدد الغرف والسعر لتجد منزلك القادم.",
-    brand: "قوائم HBSpro",
+    brand: "قوائم Aqari",
     filterCity: "تصفية حسب المدينة",
     filterCityPlaceholder: "تصفية حسب المدينة…",
     heading: "العقارات المتاحة",
@@ -2637,11 +2637,11 @@ const ar: typeof en = {
     perMonth: "/شهر",
     emptyTitle: "لا توجد عقارات متاحة حالياً",
     emptyDesc:
-      "ستظهر العقارات هنا فور نشرها من قِبل شركاء HBSpro. حتى ذلك الحين، تعرّف على كيف تساعدك منصتنا في نشر وإدارة وتأجير عقاراتك.",
+      "ستظهر العقارات هنا فور نشرها من قِبل شركاء Aqari. حتى ذلك الحين، تعرّف على كيف تساعدك منصتنا في نشر وإدارة وتأجير عقاراتك.",
     emptyCtaServices: "استكشف الخدمات",
     emptyCtaContact: "أدرج عقارك",
     allListings: "كل القوائم",
-    unavailableTitle: "القائمة غير متاحة — HBSpro",
+    unavailableTitle: "القائمة غير متاحة — Aqari",
     notFound: "القائمة غير موجودة.",
     beds: "غرفة",
     baths: "حمام",
@@ -3447,7 +3447,7 @@ const ar: typeof en = {
     },
     ai: {
       eyebrow: "الذكاء الاصطناعي",
-      title: "تعرّف على HBSpro AI.",
+      title: "تعرّف على Aqari AI.",
       sub: "وكيل مستقل يقرأ العقود ويتنبأ بالإيراد ويصيغ القرارات — بالعربية والإنجليزية.",
       capabilities: {
         gen: "منشئ العقود",
@@ -3455,7 +3455,7 @@ const ar: typeof en = {
         reports: "تقارير ذكية",
         forecast: "توقع الإشغال",
       },
-      online: "HBSpro AI · متصل",
+      online: "Aqari AI · متصل",
       chat: {
         u1: "أي العقارات ستفقد مستأجرين في الربع الرابع؟",
         a1: "3 وحدات عالية المخاطر (الرياض · المَلَز). أعددت لك عروض تجديد.",
@@ -3471,7 +3471,7 @@ const ar: typeof en = {
       t1: {
         n: "فيصل الحربي",
         r: "الرئيس التشغيلي، عقارات الرياض",
-        q: "خفّضت HBSpro دورة تجديد العقود لدينا بنسبة 60٪. الـ AI العربي قابل للاستخدام فعلاً.",
+        q: "خفّضت Aqari دورة تجديد العقود لدينا بنسبة 60٪. الـ AI العربي قابل للاستخدام فعلاً.",
       },
       t2: {
         n: "نورة القحطاني",
@@ -3519,7 +3519,7 @@ const ar: typeof en = {
     faq: {
       eyebrow: "الأسئلة الشائعة",
       title: "إجابات مباشرة.",
-      q1: "هل HBSpro مستضافة في السعودية؟",
+      q1: "هل Aqari مستضافة في السعودية؟",
       a1: "نعم، كل البيانات في بنية تحتية داخل المملكة ومتوافقة مع نظام حماية البيانات الشخصية.",
       q2: "هل يدعم العربية والإنجليزية؟",
       a2: "ثنائي اللغة بالكامل، مع AI عربي مدرَّب على مصطلحات العقار السعودي.",
@@ -3614,7 +3614,7 @@ const ar: typeof en = {
       revenue: "الإيراد",
       maintenance: "الصيانة",
       occupancy: "الإشغال",
-      assistantName: "مساعد HBSpro الذكي",
+      assistantName: "مساعد Aqari الذكي",
       workingNow: "يعمل الآن",
       aiLines: [
         "تحليل العقارات في الرياض...",
