@@ -471,6 +471,12 @@ function Dashboard() {
                   node: <KpiGrid orgId={org?.id} isAr={isAr} />,
                 },
                 {
+                  id: "reminders",
+                  labelAr: "التذكيرات الذكية",
+                  labelEn: "Smart reminders",
+                  node: <SmartRemindersPanel orgId={org?.id} isAr={isAr} />,
+                },
+                {
                   id: "analytics",
                   labelAr: "التحليلات والخريطة",
                   labelEn: "Analytics & map",
