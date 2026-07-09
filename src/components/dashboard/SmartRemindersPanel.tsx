@@ -281,7 +281,7 @@ export function SmartRemindersPanel({
       const uploadReceiptAction: ReminderAction = {
         labelAr: "رفع إيصال",
         labelEn: "Upload receipt",
-        href: "/dashboard/expenses/claim",
+        href: "/dashboard/expenses",
         primary: true,
       };
 
