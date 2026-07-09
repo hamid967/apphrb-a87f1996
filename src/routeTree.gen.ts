@@ -232,6 +232,7 @@ import { Route as AuthenticatedDashboardExpensesBatchesBatchIdRouteImport } from
 import { Route as AuthenticatedDashboardAuctionsReportsFiltersUsageRouteImport } from './routes/_authenticated/dashboard.auctions.reports.filters-usage'
 import { Route as AuthenticatedDashboardAuctionsAuditIdRouteImport } from './routes/_authenticated/dashboard.auctions.audit.$id'
 import { Route as AuthenticatedDashboardAuctionsIdEditRouteImport } from './routes/_authenticated/dashboard.auctions.$id.edit'
+import { Route as AuthenticatedAssistantScriptsSchedulesIdRouteImport } from './routes/_authenticated/assistant.scripts.schedules.$id'
 import { Route as ApiPublicV1AuctionsIdBidsRouteImport } from './routes/api/public/v1/auctions.$id.bids'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
@@ -1499,6 +1500,12 @@ const AuthenticatedDashboardAuctionsIdEditRoute =
     path: '/$id/edit',
     getParentRoute: () => AuthenticatedDashboardAuctionsRoute,
   } as any)
+const AuthenticatedAssistantScriptsSchedulesIdRoute =
+  AuthenticatedAssistantScriptsSchedulesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAssistantScriptsSchedulesRoute,
+  } as any)
 const ApiPublicV1AuctionsIdBidsRoute =
   ApiPublicV1AuctionsIdBidsRouteImport.update({
     id: '/bids',
@@ -1659,7 +1666,7 @@ export interface FileRoutesByFullPath {
   '/team/': typeof AuthenticatedTeamIndexRoute
   '/assistant/scripts/$name': typeof AuthenticatedAssistantScriptsNameRoute
   '/assistant/scripts/history': typeof AuthenticatedAssistantScriptsHistoryRoute
-  '/assistant/scripts/schedules': typeof AuthenticatedAssistantScriptsSchedulesRoute
+  '/assistant/scripts/schedules': typeof AuthenticatedAssistantScriptsSchedulesRouteWithChildren
   '/dashboard/auctions/audit': typeof AuthenticatedDashboardAuctionsAuditRouteWithChildren
   '/dashboard/auctions/new': typeof AuthenticatedDashboardAuctionsNewRoute
   '/dashboard/auctions/reports': typeof AuthenticatedDashboardAuctionsReportsRouteWithChildren
@@ -1715,6 +1722,7 @@ export interface FileRoutesByFullPath {
   '/portal/settings/': typeof AuthenticatedPortalSettingsIndexRoute
   '/portal/tenant/': typeof AuthenticatedPortalTenantIndexRoute
   '/tenant/portal/': typeof AuthenticatedTenantPortalIndexRoute
+  '/assistant/scripts/schedules/$id': typeof AuthenticatedAssistantScriptsSchedulesIdRoute
   '/dashboard/auctions/$id/edit': typeof AuthenticatedDashboardAuctionsIdEditRoute
   '/dashboard/auctions/audit/$id': typeof AuthenticatedDashboardAuctionsAuditIdRoute
   '/dashboard/auctions/reports/filters-usage': typeof AuthenticatedDashboardAuctionsReportsFiltersUsageRoute
@@ -1876,7 +1884,7 @@ export interface FileRoutesByTo {
   '/team': typeof AuthenticatedTeamIndexRoute
   '/assistant/scripts/$name': typeof AuthenticatedAssistantScriptsNameRoute
   '/assistant/scripts/history': typeof AuthenticatedAssistantScriptsHistoryRoute
-  '/assistant/scripts/schedules': typeof AuthenticatedAssistantScriptsSchedulesRoute
+  '/assistant/scripts/schedules': typeof AuthenticatedAssistantScriptsSchedulesRouteWithChildren
   '/dashboard/auctions/audit': typeof AuthenticatedDashboardAuctionsAuditRouteWithChildren
   '/dashboard/auctions/new': typeof AuthenticatedDashboardAuctionsNewRoute
   '/dashboard/auctions/reports': typeof AuthenticatedDashboardAuctionsReportsRouteWithChildren
@@ -1932,6 +1940,7 @@ export interface FileRoutesByTo {
   '/portal/settings': typeof AuthenticatedPortalSettingsIndexRoute
   '/portal/tenant': typeof AuthenticatedPortalTenantIndexRoute
   '/tenant/portal': typeof AuthenticatedTenantPortalIndexRoute
+  '/assistant/scripts/schedules/$id': typeof AuthenticatedAssistantScriptsSchedulesIdRoute
   '/dashboard/auctions/$id/edit': typeof AuthenticatedDashboardAuctionsIdEditRoute
   '/dashboard/auctions/audit/$id': typeof AuthenticatedDashboardAuctionsAuditIdRoute
   '/dashboard/auctions/reports/filters-usage': typeof AuthenticatedDashboardAuctionsReportsFiltersUsageRoute
@@ -2103,7 +2112,7 @@ export interface FileRoutesById {
   '/_authenticated/team/': typeof AuthenticatedTeamIndexRoute
   '/_authenticated/assistant/scripts/$name': typeof AuthenticatedAssistantScriptsNameRoute
   '/_authenticated/assistant/scripts/history': typeof AuthenticatedAssistantScriptsHistoryRoute
-  '/_authenticated/assistant/scripts/schedules': typeof AuthenticatedAssistantScriptsSchedulesRoute
+  '/_authenticated/assistant/scripts/schedules': typeof AuthenticatedAssistantScriptsSchedulesRouteWithChildren
   '/_authenticated/dashboard/auctions/audit': typeof AuthenticatedDashboardAuctionsAuditRouteWithChildren
   '/_authenticated/dashboard/auctions/new': typeof AuthenticatedDashboardAuctionsNewRoute
   '/_authenticated/dashboard/auctions/reports': typeof AuthenticatedDashboardAuctionsReportsRouteWithChildren
@@ -2159,6 +2168,7 @@ export interface FileRoutesById {
   '/_authenticated/portal/settings/': typeof AuthenticatedPortalSettingsIndexRoute
   '/_authenticated/portal/tenant/': typeof AuthenticatedPortalTenantIndexRoute
   '/_authenticated/tenant/portal/': typeof AuthenticatedTenantPortalIndexRoute
+  '/_authenticated/assistant/scripts/schedules/$id': typeof AuthenticatedAssistantScriptsSchedulesIdRoute
   '/_authenticated/dashboard/auctions/$id/edit': typeof AuthenticatedDashboardAuctionsIdEditRoute
   '/_authenticated/dashboard/auctions/audit/$id': typeof AuthenticatedDashboardAuctionsAuditIdRoute
   '/_authenticated/dashboard/auctions/reports/filters-usage': typeof AuthenticatedDashboardAuctionsReportsFiltersUsageRoute
@@ -2386,6 +2396,7 @@ export interface FileRouteTypes {
     | '/portal/settings/'
     | '/portal/tenant/'
     | '/tenant/portal/'
+    | '/assistant/scripts/schedules/$id'
     | '/dashboard/auctions/$id/edit'
     | '/dashboard/auctions/audit/$id'
     | '/dashboard/auctions/reports/filters-usage'
@@ -2603,6 +2614,7 @@ export interface FileRouteTypes {
     | '/portal/settings'
     | '/portal/tenant'
     | '/tenant/portal'
+    | '/assistant/scripts/schedules/$id'
     | '/dashboard/auctions/$id/edit'
     | '/dashboard/auctions/audit/$id'
     | '/dashboard/auctions/reports/filters-usage'
@@ -2829,6 +2841,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portal/settings/'
     | '/_authenticated/portal/tenant/'
     | '/_authenticated/tenant/portal/'
+    | '/_authenticated/assistant/scripts/schedules/$id'
     | '/_authenticated/dashboard/auctions/$id/edit'
     | '/_authenticated/dashboard/auctions/audit/$id'
     | '/_authenticated/dashboard/auctions/reports/filters-usage'
@@ -4467,6 +4480,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAuctionsIdEditRouteImport
       parentRoute: typeof AuthenticatedDashboardAuctionsRoute
     }
+    '/_authenticated/assistant/scripts/schedules/$id': {
+      id: '/_authenticated/assistant/scripts/schedules/$id'
+      path: '/$id'
+      fullPath: '/assistant/scripts/schedules/$id'
+      preLoaderRoute: typeof AuthenticatedAssistantScriptsSchedulesIdRouteImport
+      parentRoute: typeof AuthenticatedAssistantScriptsSchedulesRoute
+    }
     '/api/public/v1/auctions/$id/bids': {
       id: '/api/public/v1/auctions/$id/bids'
       path: '/bids'
@@ -4568,10 +4588,25 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
 const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
+interface AuthenticatedAssistantScriptsSchedulesRouteChildren {
+  AuthenticatedAssistantScriptsSchedulesIdRoute: typeof AuthenticatedAssistantScriptsSchedulesIdRoute
+}
+
+const AuthenticatedAssistantScriptsSchedulesRouteChildren: AuthenticatedAssistantScriptsSchedulesRouteChildren =
+  {
+    AuthenticatedAssistantScriptsSchedulesIdRoute:
+      AuthenticatedAssistantScriptsSchedulesIdRoute,
+  }
+
+const AuthenticatedAssistantScriptsSchedulesRouteWithChildren =
+  AuthenticatedAssistantScriptsSchedulesRoute._addFileChildren(
+    AuthenticatedAssistantScriptsSchedulesRouteChildren,
+  )
+
 interface AuthenticatedAssistantScriptsRouteChildren {
   AuthenticatedAssistantScriptsNameRoute: typeof AuthenticatedAssistantScriptsNameRoute
   AuthenticatedAssistantScriptsHistoryRoute: typeof AuthenticatedAssistantScriptsHistoryRoute
-  AuthenticatedAssistantScriptsSchedulesRoute: typeof AuthenticatedAssistantScriptsSchedulesRoute
+  AuthenticatedAssistantScriptsSchedulesRoute: typeof AuthenticatedAssistantScriptsSchedulesRouteWithChildren
 }
 
 const AuthenticatedAssistantScriptsRouteChildren: AuthenticatedAssistantScriptsRouteChildren =
@@ -4581,7 +4616,7 @@ const AuthenticatedAssistantScriptsRouteChildren: AuthenticatedAssistantScriptsR
     AuthenticatedAssistantScriptsHistoryRoute:
       AuthenticatedAssistantScriptsHistoryRoute,
     AuthenticatedAssistantScriptsSchedulesRoute:
-      AuthenticatedAssistantScriptsSchedulesRoute,
+      AuthenticatedAssistantScriptsSchedulesRouteWithChildren,
   }
 
 const AuthenticatedAssistantScriptsRouteWithChildren =
