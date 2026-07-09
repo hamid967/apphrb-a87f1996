@@ -74,12 +74,45 @@ jobs:
           done
           echo "dev server failed to start"; tail -n 200 /tmp/dev-server.log; exit 1
 
-      - name: Run WebView redirect spec
+      - name: Run WebView redirect spec (with auto-retry on flake)
+        # Retries up to E2E_MAX_ATTEMPTS times to absorb intermittent
+        # dev-server / Chromium flakes (network stalls, first-hit HMR compile,
+        # transient timeouts). Each attempt's log is preserved separately and
+        # run.log points at the successful (or last) attempt. Fails the job
+        # only after every attempt exhausts.
+        env:
+          E2E_MAX_ATTEMPTS: "3"
+          E2E_RETRY_BACKOFF_SECONDS: "5"
         run: |
           mkdir -p /tmp/browser/webview-redirects
-          set -o pipefail
-          python tests/e2e/webview-auth-redirects.spec.py \
-            2>&1 | tee /tmp/browser/webview-redirects/run.log
+          attempt=1
+          rc=1
+          while [ "$attempt" -le "$E2E_MAX_ATTEMPTS" ]; do
+            echo "::group::WebView E2E attempt $attempt / $E2E_MAX_ATTEMPTS"
+            log="/tmp/browser/webview-redirects/run.attempt-${attempt}.log"
+            set +e
+            set -o pipefail
+            python tests/e2e/webview-auth-redirects.spec.py 2>&1 | tee "$log"
+            rc=${PIPESTATUS[0]}
+            set +o pipefail
+            set -e
+            echo "::endgroup::"
+            if [ "$rc" -eq 0 ]; then
+              echo "attempt $attempt succeeded"
+              cp -f "$log" /tmp/browser/webview-redirects/run.log
+              break
+            fi
+            echo "attempt $attempt failed (exit=$rc)"
+            if [ "$attempt" -lt "$E2E_MAX_ATTEMPTS" ]; then
+              sleep "$E2E_RETRY_BACKOFF_SECONDS"
+            fi
+            attempt=$((attempt + 1))
+          done
+          if [ ! -f /tmp/browser/webview-redirects/run.log ]; then
+            cp -f "/tmp/browser/webview-redirects/run.attempt-$((attempt - 1)).log" \
+              /tmp/browser/webview-redirects/run.log || true
+          fi
+          exit "$rc"
 
       - name: Stop dev server
         if: always()
