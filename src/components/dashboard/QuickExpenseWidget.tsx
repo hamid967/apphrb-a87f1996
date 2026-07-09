@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { ReceiptCameraButton } from "@/components/receipt-camera-button";
 
 const CATS = [
   "office",
@@ -541,6 +542,10 @@ export function QuickExpenseWidget({ orgId }: { orgId: string | undefined }) {
               )}
             </div>
           )}
+              <ReceiptCameraButton
+                onCapture={(f) => void handleFile(f)}
+                disabled={uploading || !orgId}
+              />
               <button
             type="button"
             onClick={() => goStep(1)}

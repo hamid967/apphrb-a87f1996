@@ -28,6 +28,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { ReceiptCameraButton } from "@/components/receipt-camera-button";
 
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute("/_authenticated/dashboard/expenses/claim")({
@@ -355,6 +356,7 @@ function ClaimWizard() {
               fileName={fileName}
               onPick={() => fileInput.current?.click()}
               onDrop={(f) => handleFile(f)}
+              onCapture={(f) => handleFile(f)}
               onSkip={() => setStep(1)}
             />
           )}
@@ -622,12 +624,14 @@ function ReceiptStep({
   fileName,
   onPick,
   onDrop,
+  onCapture,
   onSkip,
 }: {
   uploading: boolean;
   fileName: string | null;
   onPick: () => void;
   onDrop: (f: File | undefined | null) => void;
+  onCapture: (f: File | undefined | null) => void;
   onSkip: () => void;
 }) {
   const { t } = useTranslation();
@@ -674,6 +678,7 @@ function ReceiptStep({
           </>
         )}
       </button>
+      <ReceiptCameraButton onCapture={onCapture} disabled={uploading} />
       <div className="text-center">
         <button
           type="button"
