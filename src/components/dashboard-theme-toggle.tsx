@@ -35,9 +35,11 @@ export function applyDashboardTheme(mode: DashboardThemeMode, animate = true) {
   }
 
   if (mode === "tech") {
+    el.classList.remove("theme-lux");
     el.classList.add("theme-tech", "dark");
   } else {
     el.classList.remove("theme-tech", "dark");
+    el.classList.add("theme-lux");
   }
 }
 
