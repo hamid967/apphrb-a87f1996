@@ -270,8 +270,8 @@ function TicketsPage() {
                           <User className="size-3" /> {r.technician?.full_name ?? t("maintenance.placeholders.unassigned")}
                         </div>
                       </div>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { if (confirm(t("maintenance.actions.deleteTicketConfirm"))) del.mutate(r.id); }}>
-                        <Trash2 className="size-3.5" />
+                      <Button size="icon" variant="ghost" className="h-7 w-7" aria-label={t("maintenance.actions.deleteTicket") || "حذف"} onClick={() => { if (confirm(t("maintenance.actions.deleteTicketConfirm"))) del.mutate(r.id); }}>
+                        <Trash2 className="size-3.5" aria-hidden />
                       </Button>
                     </div>
                     <div className="mt-2 grid grid-cols-2 gap-1.5">
