@@ -174,47 +174,55 @@ export function DashboardSidebar() {
         aria-label={isAr ? "أقسام لوحة التحكم" : "Dashboard sections"}
         className="relative z-10 px-1.5"
       >
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
-              {items.map((item) => {
-                const label = isAr ? item.ar : item.en;
-                const active = isActive(item);
-                return (
-                  <SidebarMenuItem
-                    key={item.url + ((item as { search?: { view?: string } }).search?.view ?? "")}
-                  >
-                    <SidebarMenuButton
-                      asChild
-                      isActive={active}
-                      tooltip={label}
-                      className={[
-                        "group relative h-11 rounded-xl px-3 text-sidebar-foreground/80 transition-colors duration-200",
-                        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:font-semibold",
-                      ].join(" ")}
+        {groups.map((group) => (
+          <SidebarGroup key={group.labelEn}>
+            {!collapsed && (
+              <SidebarGroupLabel className="px-3 pt-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                {isAr ? group.labelAr : group.labelEn}
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5">
+                {group.items.map((item) => {
+                  const label = isAr ? item.ar : item.en;
+                  const active = isActive(item);
+                  return (
+                    <SidebarMenuItem
+                      key={item.url + (item.search?.view ?? "")}
                     >
-                      <Link
-                        to={item.url}
-                        search={(item as { search?: Record<string, unknown> }).search as any}
-                        aria-label={label}
-                        aria-current={active ? "page" : undefined}
-                        className="flex items-center gap-3 focus-visible:outline-none min-w-0"
+                      <SidebarMenuButton
+                        asChild
+                        isActive={active}
+                        tooltip={label}
+                        className={[
+                          "group relative h-10 rounded-xl px-3 text-sidebar-foreground/80 transition-colors duration-200",
+                          "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                          "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:font-semibold",
+                        ].join(" ")}
                       >
-                        <item.icon
-                          className={`size-[18px] shrink-0 transition ${active ? "text-primary" : "text-sidebar-foreground/60 group-hover:text-primary"}`}
-                          aria-hidden="true"
-                          focusable="false"
-                        />
-                        <span className="truncate text-[13px]">{label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                        <Link
+                          to={item.url}
+                          search={item.search as any}
+                          aria-label={label}
+                          aria-current={active ? "page" : undefined}
+                          className="flex items-center gap-3 focus-visible:outline-none min-w-0"
+                        >
+                          <item.icon
+                            className={`size-[18px] shrink-0 transition ${active ? "text-primary" : "text-sidebar-foreground/60 group-hover:text-primary"}`}
+                            aria-hidden="true"
+                            focusable="false"
+                          />
+                          <span className="truncate text-[13px]">{label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+
       </SidebarContent>
 
       <SidebarFooter className="relative z-10 gap-3 p-3">
