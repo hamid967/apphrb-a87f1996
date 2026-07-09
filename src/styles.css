@@ -837,13 +837,15 @@ body::-webkit-scrollbar,
   position: absolute;
   inset: 0;
   border-radius: inherit;
+  /* Sits BEHIND the button text (isolation is set on the parent) so the
+     iridescent sheen never lowers text contrast. Whiteness capped at 25%. */
+  z-index: -1;
   background: linear-gradient(120deg,
-    transparent 30%,
-    color-mix(in oklab, #ffffff 45%, transparent) 50%,
-    transparent 70%);
+    transparent 35%,
+    color-mix(in oklab, #ffffff 25%, transparent) 50%,
+    transparent 65%);
   background-size: 220% 100%;
   background-position: 100% 0;
-  mix-blend-mode: overlay;
   pointer-events: none;
   transition: background-position .8s ease;
 }
