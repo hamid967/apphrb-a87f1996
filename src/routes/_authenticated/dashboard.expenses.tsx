@@ -292,6 +292,14 @@ function ExpensesPage() {
         onOpenWizard={goToClaim}
       />
 
+      <MonthlySummaryPanel
+        isAr={isAr}
+        rows={rows}
+        claims={claimsQ.data ?? []}
+        loading={q.isLoading || claimsQ.isLoading}
+      />
+
+
       <div className="mt-6 grid gap-3 md:grid-cols-3">
         <StatCard label={t("expenses.statCount")} value={String(filtered.length)} />
         <StatCard label={t("expenses.statTotal")} value={fmt(totals.total)} suffix="SAR" />
