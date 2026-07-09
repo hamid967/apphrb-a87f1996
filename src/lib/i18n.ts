@@ -2163,6 +2163,9 @@ const en = {
         city: "City",
         limit: "Max results",
         optional: "Optional",
+        unitMonths: "months",
+        unitDays: "days",
+        unitItems: "items",
       },
     },
 
