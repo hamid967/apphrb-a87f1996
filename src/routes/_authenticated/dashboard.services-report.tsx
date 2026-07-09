@@ -143,7 +143,7 @@ const SERVICES: Service[] = [
   },
   {
     id: "accounting",
-    to: "/dashboard/accounting",
+    to: "/accounting",
     icon: Wallet,
     titleAr: "المحاسبة",
     titleEn: "Accounting",
@@ -221,7 +221,7 @@ const SERVICES: Service[] = [
   },
   {
     id: "listings",
-    to: "/dashboard/listings",
+    to: "/listings",
     icon: Megaphone,
     titleAr: "الإعلانات والعملاء المحتملون",
     titleEn: "Listings & Leads",
@@ -260,7 +260,7 @@ const SERVICES: Service[] = [
   },
   {
     id: "subscriptions",
-    to: "/dashboard/subscription",
+    to: "/dashboard/settings/billing",
     icon: Sparkles,
     titleAr: "الاشتراكات والفوترة",
     titleEn: "Subscriptions & Billing",
