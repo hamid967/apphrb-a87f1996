@@ -9,6 +9,7 @@ export const Route = createFileRoute("/_authenticated/portal/tenant")({
 
 const TABS = [
   { to: "/portal/tenant", label: "نظرة عامة", exact: true },
+  { to: "/portal/tenant/payments", label: "المدفوعات", exact: false },
   { to: "/portal/tenant/maintenance", label: "الصيانة", exact: false },
 ] as const;
 
