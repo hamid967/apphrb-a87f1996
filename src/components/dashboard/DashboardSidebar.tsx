@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { motion, LayoutGroup } from "motion/react";
 import {
   LayoutDashboard,
   KeyRound,
