@@ -355,6 +355,14 @@ export function SmartRemindersPanel({
               {isAr ? "تمييز الكل" : "Mark all"}
             </button>
           )}
+          <RouterLink
+            to="/dashboard/settings/reminders"
+            className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-background/60 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            title={isAr ? "إعدادات التذكيرات" : "Reminder settings"}
+          >
+            <Settings2 className="size-3" />
+            {isAr ? "الإعدادات" : "Settings"}
+          </RouterLink>
         </div>
       </header>
 
