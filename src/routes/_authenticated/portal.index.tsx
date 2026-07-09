@@ -28,6 +28,7 @@ import {
   Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { getPortalOverview } from "@/lib/portal.functions";
 
 const overviewQuery = queryOptions({
