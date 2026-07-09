@@ -99,14 +99,11 @@ function AuthPage() {
   const [oauthLoading, setOauthLoading] = useState(false);
   const [devLoading, setDevLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   useEffect(() => {
     setFailedAttempts(getFailedAttempts(email));
-    setCaptchaToken(null);
   }, [email]);
 
-  const captchaRequired = failedAttempts >= CAPTCHA_THRESHOLD;
 
   useEffect(() => {
     if (ready && user) {
