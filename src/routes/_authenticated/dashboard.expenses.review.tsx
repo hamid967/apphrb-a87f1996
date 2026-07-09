@@ -367,5 +367,3 @@ function ClaimsReviewPage() {
     </div>
   );
 }
-
-export default ClaimsReviewPage;
