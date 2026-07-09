@@ -398,6 +398,11 @@ function PaymentSchedulesPage() {
             <span className="hidden sm:inline">{isAr ? "تصدير XLSX" : "Export XLSX"}</span>
             <span className="sm:hidden">XLSX</span>
           </Button>
+          <Button variant="outline" size="sm" onClick={exportPdf} className={btnPress}>
+            <FileText className="h-4 w-4 me-1" />
+            <span className="hidden sm:inline">{isAr ? "تصدير PDF" : "Export PDF"}</span>
+            <span className="sm:hidden">PDF</span>
+          </Button>
         </div>
       </header>
 
