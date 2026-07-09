@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link, Link as RouterLink } from "@tanstack/react-router";
+import { Link, Link as RouterLink, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import {
   BellRing,
@@ -432,6 +433,61 @@ export function SmartRemindersPanel({
       }),
     [allReminders, snoozed, nowTick],
   );
+
+  // Fire a toast whenever a genuinely new reminder appears after mount.
+  // Skips the initial hydration (so refreshes don't spam the user) and
+  // ignores reminders that are already read/snoozed/filtered by prefs.
+  const seenIdsRef = useRef<Set<string> | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (claimsQ.isLoading) return;
+    const currentIds = new Set(visibleReminders.map((r) => r.id));
+    if (seenIdsRef.current === null) {
+      seenIdsRef.current = currentIds;
+      return;
+    }
+    const prev = seenIdsRef.current;
+    const fresh = visibleReminders.filter((r) => !prev.has(r.id));
+    seenIdsRef.current = currentIds;
+    if (fresh.length === 0) return;
+
+    const openExpenses = () => navigate({ to: "/dashboard/expenses" });
+
+    if (fresh.length === 1) {
+      const r = fresh[0];
+      const fn =
+        r.tone === "danger"
+          ? toast.error
+          : r.tone === "success"
+            ? toast.success
+            : r.tone === "warn"
+              ? toast.warning
+              : toast.info;
+      fn(isAr ? r.titleAr : r.titleEn, {
+        description: isAr ? r.bodyAr : r.bodyEn,
+        action: {
+          label: isAr ? "فتح المصروفات" : "Open expenses",
+          onClick: openExpenses,
+        },
+      });
+    } else {
+      toast.info(
+        isAr
+          ? `${fresh.length} تذكيرات جديدة`
+          : `${fresh.length} new reminders`,
+        {
+          description: isAr
+            ? "تحقق من مطالباتك ومراجعاتك الأخيرة."
+            : "Check your latest claims and reviews.",
+          action: {
+            label: isAr ? "فتح المصروفات" : "Open expenses",
+            onClick: openExpenses,
+          },
+        },
+      );
+    }
+  }, [visibleReminders, claimsQ.isLoading, isAr, navigate]);
 
   const Chevron = isAr ? ChevronLeft : ChevronRight;
 
