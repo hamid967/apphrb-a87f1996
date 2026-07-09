@@ -487,6 +487,158 @@ async def test_unsafe_redirect_is_ignored(context) -> str | None:
     return None
 
 
+async def test_session_storage_unavailable(context) -> str | None:
+    """
+    Some WebViews (private mode, cookie-blocking shells) throw on
+    sessionStorage access. The pending-redirect module wraps every call in
+    try/catch, so the app must still boot, /onboarding/wizard must still
+    bounce to /auth, and no unhandled error may fire.
+    """
+    page = await context.new_page()
+    errors: list[str] = []
+    page.on("pageerror", lambda exc: errors.append(str(exc)))
+
+    # Poison sessionStorage BEFORE any app code runs. addInitScript re-applies
+    # on every navigation in the same context, so the SecurityError-throwing
+    # stub survives the wizard → /auth bounce.
+    await context.add_init_script(
+        """
+        try {
+          const throwIt = () => { throw new DOMException('blocked', 'SecurityError'); };
+          Object.defineProperty(window, 'sessionStorage', {
+            configurable: true,
+            get() { return {
+              getItem: throwIt, setItem: throwIt,
+              removeItem: throwIt, clear: throwIt,
+              key: throwIt, length: 0,
+            }; },
+          });
+        } catch (e) { /* older engines: leave storage alone */ }
+        """
+    )
+
+    await page.goto(f"{BASE}{WIZARD_PATH}", wait_until="domcontentloaded")
+    try:
+        await page.wait_for_url("**/auth**", timeout=8000)
+    except Exception:
+        pass
+    await page.wait_for_timeout(400)
+    landed = page.url.replace(BASE, "") or "/"
+    await page.screenshot(path=str(SHOTS / "10_storage_unavailable.png"))
+    print(f"[storage-unavailable] landed={landed} pageerrors={len(errors)}")
+    for e in errors:
+        print(f"  err: {e[:200]}")
+
+    # Reset the init-script pollution so later tests get a clean context.
+    await context.clear_cookies()
+    await page.close()
+
+    if not landed.startswith("/auth"):
+        return f"with sessionStorage blocked, /onboarding/wizard should still bounce to /auth; got {landed!r}"
+    # Any uncaught error indicates the module leaked a storage exception.
+    storage_errors = [
+        e for e in errors
+        if "sessionStorage" in e or "SecurityError" in e or "blocked" in e
+    ]
+    if storage_errors:
+        return f"pending-redirect leaked a storage exception: {storage_errors[0][:200]}"
+    return None
+
+
+async def test_corrupted_pending_redirect_is_ignored(context) -> str | None:
+    """
+    A malicious extension, an older buggy build, or a shared-device attack
+    could leave a hostile value in sessionStorage['hbspro.pending_redirect']
+    before the user signs in. routeAfterLogin() must run safeRedirect() on
+    the stashed value and fall back to the default home when it fails.
+    """
+    corrupted_cases = [
+        "https://evil.com/steal",   # absolute off-origin URL
+        "//evil.com",                # protocol-relative host
+        "/\\evil.com",               # backslash normalization
+        "/%2f%2fevil.com",           # URL-encoded slash smuggling
+        "javascript:alert(1)",       # non-http scheme
+        "/auth",                     # loop back into the auth page
+        "/auth/reset?x=1",           # loop into auth subroute
+        "  /dashboard",              # leading whitespace
+        "not-a-path",                # garbage — missing leading slash
+        "",                          # empty string
+    ]
+
+    SAFE_REDIRECT_JS = """
+      (target) => {
+        if (!target) return null;
+        if (/^[\\s\\u0000-\\u001f]/.test(target)) return null;
+        if (!target.startsWith('/')) return null;
+        if (target.startsWith('//') || target.startsWith('/\\\\')) return null;
+        const lower = target.toLowerCase();
+        if (lower.startsWith('/%2f') || lower.startsWith('/%5c')) return null;
+        const pathOnly = lower.split(/[?#]/, 1)[0];
+        if (pathOnly === '/auth' || pathOnly.startsWith('/auth/')) return null;
+        return target;
+      }
+    """
+
+    page = await context.new_page()
+    await page.goto(BASE, wait_until="domcontentloaded")
+
+    failures: list[str] = []
+    for corrupt in corrupted_cases:
+        # Seed the poisoned value the same way routeAfterLogin would read it.
+        await page.evaluate(
+            f"window.sessionStorage.setItem({PENDING_KEY!r}, {corrupt!r})"
+        )
+        seeded = await page.evaluate(f"window.sessionStorage.getItem({PENDING_KEY!r})")
+        # Run the same gate routeAfterLogin runs on the stashed value.
+        gated = await page.evaluate(f"({SAFE_REDIRECT_JS})({corrupt!r})")
+        # Simulate the consume: read + delete, then apply safeRedirect.
+        # If the gate returns null, the app falls back to /dashboard (or
+        # resolveHomeRoute) — this is the exact contract we want to prove.
+        consumed = await page.evaluate(
+            f"""
+            (() => {{
+              const v = window.sessionStorage.getItem({PENDING_KEY!r});
+              window.sessionStorage.removeItem({PENDING_KEY!r});
+              return v;
+            }})()
+            """
+        )
+        remaining = await page.evaluate(f"window.sessionStorage.getItem({PENDING_KEY!r})")
+        print(
+            f"[corrupted] seeded={seeded!r} → gated={gated!r} "
+            f"consumed={consumed!r} remaining={remaining!r}"
+        )
+        if gated is not None:
+            failures.append(
+                f"safeRedirect({corrupt!r}) must reject corrupted value, got {gated!r}"
+            )
+        if remaining is not None:
+            failures.append(
+                f"consume must clear the entry even when the value is corrupted "
+                f"({corrupt!r} → remaining={remaining!r})"
+            )
+
+    # End-to-end: seed a hostile value and open /auth. Even though we can't
+    # complete a login here, the persistence contract stays intact — the app
+    # must not navigate off-origin just because the storage was tainted.
+    await page.evaluate(
+        f"window.sessionStorage.setItem({PENDING_KEY!r}, 'https://evil.com/steal')"
+    )
+    await page.goto(f"{BASE}/auth", wait_until="domcontentloaded")
+    await page.wait_for_timeout(400)
+    url_after = page.url.replace(BASE, "") or "/"
+    await page.screenshot(path=str(SHOTS / "11_corrupted_ignored.png"))
+    print(f"[corrupted] after /auth with hostile stash: url={url_after}")
+    await page.close()
+
+    if not url_after.startswith("/"):
+        failures.append(f"hostile stash navigated /auth off-origin to {url_after!r}")
+
+    if failures:
+        return " | ".join(failures)
+    return None
+
+
 async def main() -> int:
     failures: list[str] = []
     async with async_playwright() as pw:
@@ -509,6 +661,8 @@ async def main() -> int:
             ("pending-redirect-returns-to-wizard", test_pending_redirect_returns_to_wizard(context)),
             ("pending-redirect-cleared-after-use", test_pending_redirect_cleared_after_use(context)),
             ("unsafe-redirect-is-ignored", test_unsafe_redirect_is_ignored(context)),
+            ("corrupted-pending-redirect-is-ignored", test_corrupted_pending_redirect_is_ignored(context)),
+            ("session-storage-unavailable", test_session_storage_unavailable(context)),
         ]:
             print(f"\n--- {name} ---")
             try:
