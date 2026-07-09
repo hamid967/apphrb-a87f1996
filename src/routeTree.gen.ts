@@ -143,6 +143,7 @@ import { Route as AuthenticatedAdminReportBrandingRouteImport } from './routes/_
 import { Route as AuthenticatedAdminRealtimeDiagnosticsRouteImport } from './routes/_authenticated/admin.realtime-diagnostics'
 import { Route as AuthenticatedAdminPortalInvitationsRouteImport } from './routes/_authenticated/admin.portal-invitations'
 import { Route as AuthenticatedAdminPoliciesRouteImport } from './routes/_authenticated/admin.policies'
+import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
 import { Route as AuthenticatedAdminNotificationsQueueRouteImport } from './routes/_authenticated/admin.notifications-queue'
 import { Route as AuthenticatedAdminIntroAnalyticsRouteImport } from './routes/_authenticated/admin.intro-analytics'
 import { Route as AuthenticatedAdminFilterAnalyticsRouteImport } from './routes/_authenticated/admin.filter-analytics'
@@ -971,6 +972,11 @@ const AuthenticatedAdminPoliciesRoute =
     path: '/policies',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPlansRoute = AuthenticatedAdminPlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminNotificationsQueueRoute =
   AuthenticatedAdminNotificationsQueueRouteImport.update({
     id: '/notifications-queue',
@@ -1467,6 +1473,7 @@ export interface FileRoutesByFullPath {
   '/admin/filter-analytics': typeof AuthenticatedAdminFilterAnalyticsRoute
   '/admin/intro-analytics': typeof AuthenticatedAdminIntroAnalyticsRoute
   '/admin/notifications-queue': typeof AuthenticatedAdminNotificationsQueueRoute
+  '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/policies': typeof AuthenticatedAdminPoliciesRoute
   '/admin/portal-invitations': typeof AuthenticatedAdminPortalInvitationsRoute
   '/admin/realtime-diagnostics': typeof AuthenticatedAdminRealtimeDiagnosticsRoute
@@ -1674,6 +1681,7 @@ export interface FileRoutesByTo {
   '/admin/filter-analytics': typeof AuthenticatedAdminFilterAnalyticsRoute
   '/admin/intro-analytics': typeof AuthenticatedAdminIntroAnalyticsRoute
   '/admin/notifications-queue': typeof AuthenticatedAdminNotificationsQueueRoute
+  '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/policies': typeof AuthenticatedAdminPoliciesRoute
   '/admin/portal-invitations': typeof AuthenticatedAdminPortalInvitationsRoute
   '/admin/realtime-diagnostics': typeof AuthenticatedAdminRealtimeDiagnosticsRoute
@@ -1885,6 +1893,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/filter-analytics': typeof AuthenticatedAdminFilterAnalyticsRoute
   '/_authenticated/admin/intro-analytics': typeof AuthenticatedAdminIntroAnalyticsRoute
   '/_authenticated/admin/notifications-queue': typeof AuthenticatedAdminNotificationsQueueRoute
+  '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/policies': typeof AuthenticatedAdminPoliciesRoute
   '/_authenticated/admin/portal-invitations': typeof AuthenticatedAdminPortalInvitationsRoute
   '/_authenticated/admin/realtime-diagnostics': typeof AuthenticatedAdminRealtimeDiagnosticsRoute
@@ -2099,6 +2108,7 @@ export interface FileRouteTypes {
     | '/admin/filter-analytics'
     | '/admin/intro-analytics'
     | '/admin/notifications-queue'
+    | '/admin/plans'
     | '/admin/policies'
     | '/admin/portal-invitations'
     | '/admin/realtime-diagnostics'
@@ -2306,6 +2316,7 @@ export interface FileRouteTypes {
     | '/admin/filter-analytics'
     | '/admin/intro-analytics'
     | '/admin/notifications-queue'
+    | '/admin/plans'
     | '/admin/policies'
     | '/admin/portal-invitations'
     | '/admin/realtime-diagnostics'
@@ -2516,6 +2527,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/filter-analytics'
     | '/_authenticated/admin/intro-analytics'
     | '/_authenticated/admin/notifications-queue'
+    | '/_authenticated/admin/plans'
     | '/_authenticated/admin/policies'
     | '/_authenticated/admin/portal-invitations'
     | '/_authenticated/admin/realtime-diagnostics'
@@ -3676,6 +3688,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPoliciesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/plans': {
+      id: '/_authenticated/admin/plans'
+      path: '/plans'
+      fullPath: '/admin/plans'
+      preLoaderRoute: typeof AuthenticatedAdminPlansRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/notifications-queue': {
       id: '/_authenticated/admin/notifications-queue'
       path: '/notifications-queue'
@@ -4246,6 +4265,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminFilterAnalyticsRoute: typeof AuthenticatedAdminFilterAnalyticsRoute
   AuthenticatedAdminIntroAnalyticsRoute: typeof AuthenticatedAdminIntroAnalyticsRoute
   AuthenticatedAdminNotificationsQueueRoute: typeof AuthenticatedAdminNotificationsQueueRoute
+  AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminPoliciesRoute: typeof AuthenticatedAdminPoliciesRoute
   AuthenticatedAdminPortalInvitationsRoute: typeof AuthenticatedAdminPortalInvitationsRoute
   AuthenticatedAdminRealtimeDiagnosticsRoute: typeof AuthenticatedAdminRealtimeDiagnosticsRoute
@@ -4272,6 +4292,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminIntroAnalyticsRoute: AuthenticatedAdminIntroAnalyticsRoute,
   AuthenticatedAdminNotificationsQueueRoute:
     AuthenticatedAdminNotificationsQueueRoute,
+  AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
   AuthenticatedAdminPoliciesRoute: AuthenticatedAdminPoliciesRoute,
   AuthenticatedAdminPortalInvitationsRoute:
     AuthenticatedAdminPortalInvitationsRoute,
