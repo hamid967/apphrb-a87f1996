@@ -20,6 +20,7 @@ import { PhoneVerifyInput } from "@/components/PhoneVerifyInput";
 import { registerCompany, getMyAccessContext } from "@/lib/company.functions";
 import { createProperty } from "@/lib/properties.functions";
 import { setOnboardingStep } from "@/lib/onboarding.functions";
+import { savePendingRedirect } from "@/lib/pending-redirect";
 
 export const Route = createFileRoute("/onboarding/wizard")({
   ssr: false,
@@ -98,7 +99,16 @@ function OnboardingWizardPage() {
   useEffect(() => {
     if (!ready) return;
     if (!user) {
-      nav({ to: "/auth", replace: true });
+      // Preserve current location (path + query + hash) so /auth can bounce
+      // the visitor back here after sign-in. WebViews sometimes strip the
+      // ?redirect= query, so we also persist it in sessionStorage as a
+      // backup that survives the OAuth / magic-link round-trip.
+      const loc =
+        typeof window !== "undefined"
+          ? `${window.location.pathname}${window.location.search}${window.location.hash}`
+          : "/onboarding/wizard";
+      savePendingRedirect(loc);
+      nav({ to: "/auth", search: { redirect: loc }, replace: true });
       return;
     }
     (async () => {

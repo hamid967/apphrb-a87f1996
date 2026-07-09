@@ -39,6 +39,11 @@ import {
 } from "@/lib/auth-attempts";
 import { getDeviceFingerprint } from "@/lib/device-fingerprint";
 import { getAppOrigin, getAppUrl } from "@/lib/app-url";
+import {
+  consumePendingRedirect,
+  clearPendingRedirect,
+  savePendingRedirect,
+} from "@/lib/pending-redirect";
 import { SignupAssistant } from "@/components/SignupAssistant";
 import { LoginStage } from "@/components/hbspro/login/LoginStage";
 import { HBS } from "@/components/hbspro/tokens";
@@ -66,11 +71,22 @@ export function safeRedirect(target: string | undefined): string | null {
 
 
 export async function routeAfterLogin(nav: ReturnType<typeof useNavigate>, redirect?: string) {
+  // 1) Explicit ?redirect= wins when it points at a safe same-origin path.
   const safe = safeRedirect(redirect);
   if (safe) {
+    clearPendingRedirect();
     nav({ to: safe, replace: true });
     return;
   }
+  // 2) Fall back to the destination we stashed before bouncing to /auth.
+  //    Some WebViews strip query params on OAuth round-trips, so this is
+  //    the only signal left when the query param is gone.
+  const stashed = safeRedirect(consumePendingRedirect() ?? undefined);
+  if (stashed) {
+    nav({ to: stashed, replace: true });
+    return;
+  }
+  // 3) No preserved intent — resolve the user's default home route.
   try {
     const ctx = await getMyAccessContext();
     const target = resolveHomeRoute(ctx);
@@ -117,10 +133,16 @@ function AuthPage() {
   }, [email]);
 
 
+  // Persist any incoming ?redirect= so we can recover it if the WebView
+  // strips query params during an OAuth / magic-link round-trip.
+  useEffect(() => {
+    const safe = safeRedirect(redirectTarget);
+    if (safe) savePendingRedirect(safe);
+  }, [redirectTarget]);
+
   useEffect(() => {
     if (ready && user) {
-      const safe = safeRedirect(redirectTarget);
-      nav({ to: safe ?? "/dashboard", replace: true });
+      void routeAfterLogin(nav, redirectTarget);
     }
   }, [ready, user, nav, redirectTarget]);
   useEffect(() => {
