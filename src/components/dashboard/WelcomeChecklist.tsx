@@ -293,8 +293,9 @@ export function WelcomeChecklist({ isAr }: { isAr: boolean }) {
                   </div>
                   {!done && (
                     <div className="flex shrink-0 items-center gap-1">
-                      <Link
-                        to={step.to}
+                      <button
+                        type="button"
+                        onClick={() => openStep(step)}
                         aria-label={`${T.open}: ${isAr ? step.labelAr : step.labelEn}`}
                         className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                       >
@@ -303,7 +304,7 @@ export function WelcomeChecklist({ isAr }: { isAr: boolean }) {
                           className="h-3 w-3 rtl:rotate-180"
                           aria-hidden
                         />
-                      </Link>
+                      </button>
                       {!step.required && (
                         <button
                           type="button"
