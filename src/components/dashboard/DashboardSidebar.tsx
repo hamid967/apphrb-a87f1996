@@ -89,7 +89,7 @@ export function DashboardSidebar() {
       items: [
         { url: "/dashboard/properties", icon: Home, ar: "العقارات", en: "Properties" },
         { url: "/dashboard/units", icon: KeyRound, ar: "الوحدات", en: "Units" },
-        { url: "/dashboard/owners", icon: Users2, ar: "الملّاك", en: "Owners" },
+        { url: "/owners", icon: Users2, ar: "الملّاك", en: "Owners" },
         { url: "/dashboard/valuations", icon: Gauge, ar: "التقييمات", en: "Valuations" },
         { url: "/dashboard/viewings", icon: CalendarClock, ar: "المعاينات", en: "Viewings" },
       ],
