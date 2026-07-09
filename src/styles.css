@@ -684,13 +684,22 @@ body::-webkit-scrollbar,
 
 /* Iridescent text — for hero words, KPI numbers, headline emphasis. */
 @utility holo-text {
-  background: var(--gradient-holo);
+  /* Uses the WCAG-safe text gradient (every stop ≥ 4.5:1 on white).
+     If background-clip:text is unsupported, the fallback color keeps
+     the text legible instead of showing transparent glyphs. */
+  color: var(--color-primary);
+  background: var(--gradient-holo-text);
   background-size: 200% 200%;
   background-clip: text;
   -webkit-background-clip: text;
-  color: transparent;
   -webkit-text-fill-color: transparent;
   animation: holo-shift 8s ease-in-out infinite;
+}
+@supports not ((background-clip: text) or (-webkit-background-clip: text)) {
+  .holo-text {
+    background: none !important;
+    -webkit-text-fill-color: currentColor !important;
+  }
 }
 
 /* Iridescent border via gradient mask — 1px chrome edge on cards/buttons. */
