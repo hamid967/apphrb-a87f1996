@@ -70,6 +70,88 @@ describe("safeRedirect (post-login destination)", () => {
 });
 
 /**
+ * Edge cases: real-world redirect targets carry query strings, fragments,
+ * and trailing slashes. Attackers try to smuggle other origins through
+ * whitespace, backslashes, and URL-encoded slashes.
+ */
+describe("safeRedirect edge cases (query params, trailing slash, smuggling)", () => {
+  it("preserves query strings on valid paths", () => {
+    expect(safeRedirect("/dashboard?tab=expenses")).toBe("/dashboard?tab=expenses");
+    expect(safeRedirect("/onboarding/wizard?step=2&lang=ar")).toBe(
+      "/onboarding/wizard?step=2&lang=ar",
+    );
+    expect(safeRedirect("/reset-password?token=abc&type=recovery")).toBe(
+      "/reset-password?token=abc&type=recovery",
+    );
+    expect(safeRedirect("/search?q=hello+world&page=3")).toBe("/search?q=hello+world&page=3");
+  });
+
+  it("preserves trailing slashes and fragments", () => {
+    expect(safeRedirect("/dashboard/")).toBe("/dashboard/");
+    expect(safeRedirect("/dashboard/expenses/")).toBe("/dashboard/expenses/");
+    expect(safeRedirect("/dashboard#section-2")).toBe("/dashboard#section-2");
+    expect(safeRedirect("/dashboard/?tab=x#anchor")).toBe("/dashboard/?tab=x#anchor");
+  });
+
+  it("accepts deep nested paths with mixed casing", () => {
+    expect(safeRedirect("/dashboard/expenses/123/edit")).toBe("/dashboard/expenses/123/edit");
+    expect(safeRedirect("/tenant/portal/statements/00000000-0000-0000-0000-000000000000")).toBe(
+      "/tenant/portal/statements/00000000-0000-0000-0000-000000000000",
+    );
+    expect(safeRedirect("/Dashboard")).toBe("/Dashboard"); // router owns case; only /auth is loop-guarded
+  });
+
+  it("rejects backslash-normalization open-redirect vectors", () => {
+    expect(safeRedirect("/\\evil.com")).toBeNull();
+    expect(safeRedirect("/\\\\evil.com")).toBeNull();
+    expect(safeRedirect("/\\evil.com/dashboard")).toBeNull();
+  });
+
+  it("rejects URL-encoded slash smuggling", () => {
+    expect(safeRedirect("/%2fevil.com")).toBeNull();
+    expect(safeRedirect("/%2F%2Fevil.com")).toBeNull();
+    expect(safeRedirect("/%2f%2fevil.com/dashboard")).toBeNull();
+    expect(safeRedirect("/%5cevil.com")).toBeNull(); // encoded backslash
+  });
+
+  it("rejects leading whitespace / control chars that browsers strip", () => {
+    expect(safeRedirect(" /dashboard")).toBeNull();
+    expect(safeRedirect("\t/dashboard")).toBeNull();
+    expect(safeRedirect("\n//evil.com")).toBeNull();
+    expect(safeRedirect(" //evil.com")).toBeNull();
+    expect(safeRedirect("\u0000/dashboard")).toBeNull();
+  });
+
+  it("rejects non-http schemes even when they look path-like", () => {
+    expect(safeRedirect("javascript:alert(1)")).toBeNull();
+    expect(safeRedirect("data:text/html,<script>alert(1)</script>")).toBeNull();
+    expect(safeRedirect("vbscript:msgbox(1)")).toBeNull();
+    expect(safeRedirect("mailto:evil@example.com")).toBeNull();
+    // "javascript:" starts with "j", not "/", so the leading-slash guard already blocks it —
+    // this test locks that guard in.
+  });
+
+  it("case-insensitively refuses to loop back to /auth (with any query/fragment)", () => {
+    expect(safeRedirect("/AUTH")).toBeNull();
+    expect(safeRedirect("/Auth?next=/dashboard")).toBeNull();
+    expect(safeRedirect("/auth#hash")).toBeNull();
+    expect(safeRedirect("/auth/reset?token=x")).toBeNull();
+    // But paths that merely *start* with "auth" as a different segment are fine.
+    expect(safeRedirect("/author/123")).toBe("/author/123");
+    expect(safeRedirect("/authorize-device")).toBe("/authorize-device");
+  });
+
+  it("rejects empty and whitespace-only inputs", () => {
+    expect(safeRedirect("")).toBeNull();
+    expect(safeRedirect(" ")).toBeNull();
+    expect(safeRedirect("\t\n")).toBeNull();
+    expect(safeRedirect(undefined)).toBeNull();
+  });
+});
+
+
+
+/**
  * Simulates the Google OAuth entry point (`lovable.auth.signInWithOAuth`)
  * from a WebView-style origin. The redirect_uri MUST be an http(s) URL —
  * Lovable's OAuth broker and Supabase reject `capacitor://`, so a
