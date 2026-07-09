@@ -60,6 +60,29 @@ export function DashboardThemeToggle({ className }: { className?: string }) {
     window.dispatchEvent(new CustomEvent("aqari:dashboard-theme", { detail: mode }));
   }, [mode]);
 
+  // Keep this button's icon/label in sync when the theme is changed elsewhere:
+  // another DashboardThemeToggle instance (e.g. Admin header vs Dashboard topbar),
+  // another browser tab writing to localStorage, or programmatic dispatch.
+  useEffect(() => {
+    const onEvent = (e: Event) => {
+      const detail = (e as CustomEvent<DashboardThemeMode>).detail;
+      if (detail === "tech" || detail === "default") {
+        setMode((prev) => (prev === detail ? prev : detail));
+      }
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== STORAGE_KEY) return;
+      const next: DashboardThemeMode = e.newValue === "default" ? "default" : "tech";
+      setMode((prev) => (prev === next ? prev : next));
+    };
+    window.addEventListener("aqari:dashboard-theme", onEvent);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener("aqari:dashboard-theme", onEvent);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
+
   const isTech = mode === "tech";
   const label = isTech
     ? t("theme.dashboard.switchToDefault", "التبديل إلى الثيم الافتراضي")
