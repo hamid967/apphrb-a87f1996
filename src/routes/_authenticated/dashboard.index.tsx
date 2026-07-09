@@ -481,6 +481,12 @@ function Dashboard() {
             <ExpiringContractsCard isAr={isAr} />
           </div>
 
+          {/* Pending approvals — visible to owner/admin */}
+          <div className="mt-4">
+            <PendingApprovalsPanel />
+          </div>
+
+
           {/* Recent payments + Notifications */}
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             <RecentPaymentsCard isAr={isAr} />
