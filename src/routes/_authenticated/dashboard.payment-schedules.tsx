@@ -98,6 +98,35 @@ function PaymentSchedulesPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const voucherMut = useMutation({
+    mutationFn: (id: string) => createVoucherFromSchedule({ data: { scheduleId: id } }),
+    onSuccess: (res) => {
+      toast.success(
+        res.created
+          ? (isAr ? "تم إنشاء سند الدفع" : "Voucher created")
+          : (isAr ? "السند موجود مسبقاً" : "Voucher already exists"),
+      );
+      qc.invalidateQueries({ queryKey: ["payment-schedules"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const generateAllMut = useMutation({
+    mutationFn: () =>
+      generateDueVouchers({
+        data: { orgId: orgId === "all" ? undefined : orgId },
+      }),
+    onSuccess: (res) => {
+      toast.success(
+        isAr
+          ? `تم إنشاء ${res.created} سند من أصل ${res.scanned}`
+          : `Created ${res.created} of ${res.scanned} due vouchers`,
+      );
+      qc.invalidateQueries({ queryKey: ["payment-schedules"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const rows = (listQ.data?.items ?? []) as Row[];
 
   const summary = useMemo(() => {
