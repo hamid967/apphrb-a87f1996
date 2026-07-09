@@ -624,6 +624,46 @@ export function SmartRemindersPanel({
           </AnimatePresence>
         </ul>
       )}
+
+      {snoozedList.length > 0 && (
+        <div className="mt-3 rounded-lg border border-dashed border-border/70 bg-muted/20 p-2">
+          <div className="mb-1 flex items-center justify-between gap-2 px-1">
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+              <BellOff className="size-3" />
+              {isAr
+                ? `في وضع الغفوة (${snoozedList.length})`
+                : `Snoozed (${snoozedList.length})`}
+            </span>
+          </div>
+          <ul className="space-y-1">
+            {snoozedList.slice(0, 3).map((r) => {
+              const until = snoozed[r.id];
+              return (
+                <li
+                  key={r.id}
+                  className="flex items-center justify-between gap-2 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-background/60"
+                >
+                  <span className="truncate">
+                    {isAr ? r.titleAr : r.titleEn}
+                    <span className="ms-1 opacity-70">
+                      · {isAr ? "يعود بعد" : "back in"} {formatUntil(until, !!isAr)}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => unsnoozeReminder(r.id)}
+                    className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-background/70 px-1.5 py-0.5 font-semibold text-foreground/80 transition hover:bg-background"
+                    title={isAr ? "إلغاء الغفوة" : "Unsnooze"}
+                  >
+                    <Undo2 className="size-3" />
+                    {isAr ? "إعادة" : "Restore"}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }
