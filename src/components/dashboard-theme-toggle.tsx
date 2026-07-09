@@ -87,8 +87,8 @@ export function DashboardThemeToggle({ className }: { className?: string }) {
 
   const isTech = mode === "tech";
   const label = isTech
-    ? t("theme.dashboard.switchToDefault", "التبديل إلى الثيم الافتراضي")
-    : t("theme.dashboard.switchToTech", "التبديل إلى Minimal Dark Tech");
+    ? t("theme.dashboard.switchToLux", "التبديل إلى الثيم الفاتح")
+    : t("theme.dashboard.switchToTech", "التبديل إلى الثيم الداكن");
 
   return (
     <Button
