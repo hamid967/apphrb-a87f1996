@@ -63,7 +63,7 @@ export function DashboardHero({ orgName, userName, canCreate, isAr }: Props) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="space-y-3"
+      className="holo-aurora space-y-3 rounded-3xl p-1"
       aria-label={t("dashboard.title")}
     >
       <PageHeader
