@@ -44,15 +44,26 @@ import { LoginStage } from "@/components/hbspro/login/LoginStage";
 import { HBS } from "@/components/hbspro/tokens";
 
 // Only allow same-origin absolute paths as redirect targets to prevent open
-// redirects to arbitrary hosts. Rejects absolute URLs (http://...) and any
-// path that doesn't start with a single "/" (e.g. "//evil.com" or "..").
+// redirects to arbitrary hosts. Query strings and fragments are preserved so
+// deep links keep their state (e.g. /dashboard?tab=x, /reset-password?token=y).
 export function safeRedirect(target: string | undefined): string | null {
   if (!target) return null;
-  if (!target.startsWith("/") || target.startsWith("//")) return null;
-  // Never bounce back to the auth pages themselves.
-  if (target === "/auth" || target.startsWith("/auth?") || target.startsWith("/auth/")) return null;
+  // Leading whitespace / control chars — browsers strip these and then
+  // re-parse, turning " //evil.com" into "//evil.com".
+  if (/^[\s\u0000-\u001f]/.test(target)) return null;
+  if (!target.startsWith("/")) return null;
+  // Protocol-relative and backslash-normalization vectors:
+  //   "//evil.com" and "/\evil.com" both resolve to another host in some clients.
+  if (target.startsWith("//") || target.startsWith("/\\")) return null;
+  // URL-encoded slash smuggling: "/%2f%2fevil.com" decodes to "//evil.com".
+  const lower = target.toLowerCase();
+  if (lower.startsWith("/%2f") || lower.startsWith("/%5c")) return null;
+  // Never bounce back to the auth pages themselves (case-insensitive; loop guard).
+  const pathOnly = lower.split(/[?#]/, 1)[0];
+  if (pathOnly === "/auth" || pathOnly.startsWith("/auth/")) return null;
   return target;
 }
+
 
 export async function routeAfterLogin(nav: ReturnType<typeof useNavigate>, redirect?: string) {
   const safe = safeRedirect(redirect);
