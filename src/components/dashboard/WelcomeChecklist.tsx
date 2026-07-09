@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Link } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Sparkles,
@@ -95,8 +95,22 @@ const DISMISS_KEY = "aqary:welcome-checklist:dismissed";
 export function WelcomeChecklist({ isAr }: { isAr: boolean }) {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const getProgress = useServerFn(getOnboardingProgress);
   const markStep = useServerFn(setOnboardingStep);
+
+  const openStep = (step: StepDef) => {
+    // Reset the per-step coach completion so the tour re-runs on this visit.
+    try {
+      localStorage.removeItem(`aqary:coach:${step.id}:done`);
+    } catch {
+      /* ignore */
+    }
+    navigate({
+      to: step.to,
+      search: { coach: step.id } as never,
+    });
+  };
 
   const [dismissed, setDismissed] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
@@ -279,8 +293,9 @@ export function WelcomeChecklist({ isAr }: { isAr: boolean }) {
                   </div>
                   {!done && (
                     <div className="flex shrink-0 items-center gap-1">
-                      <Link
-                        to={step.to}
+                      <button
+                        type="button"
+                        onClick={() => openStep(step)}
                         aria-label={`${T.open}: ${isAr ? step.labelAr : step.labelEn}`}
                         className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
                       >
@@ -289,7 +304,7 @@ export function WelcomeChecklist({ isAr }: { isAr: boolean }) {
                           className="h-3 w-3 rtl:rotate-180"
                           aria-hidden
                         />
-                      </Link>
+                      </button>
                       {!step.required && (
                         <button
                           type="button"
