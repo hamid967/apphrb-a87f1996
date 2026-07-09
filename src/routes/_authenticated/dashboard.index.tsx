@@ -190,6 +190,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 function Dashboard() {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
+  const { user } = useAuth();
   const { q, filter, sort, type, status, minBeds, minBaths, page, scrollY, view } =
     Route.useSearch();
   const navigate = Route.useNavigate();
