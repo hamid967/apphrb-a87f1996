@@ -477,6 +477,40 @@ function ScheduleEditor({
             <span className="text-xs text-destructive">{parsedArgs.err}</span>
           )}
         </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-muted-foreground">{t("assistant.scripts.scheduleMaxRetries")}</span>
+          <input
+            type="number"
+            min={0}
+            max={10}
+            step={1}
+            value={maxRetries}
+            onChange={(e) => {
+              const n = Number(e.target.value);
+              if (Number.isFinite(n)) setMaxRetries(Math.min(10, Math.max(0, Math.round(n))));
+            }}
+            className="rounded-md border bg-background px-3 py-1.5 font-mono"
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-muted-foreground">{t("assistant.scripts.scheduleRetryDelay")}</span>
+          <input
+            type="number"
+            min={1}
+            max={1440}
+            step={1}
+            value={retryDelay}
+            onChange={(e) => {
+              const n = Number(e.target.value);
+              if (Number.isFinite(n)) setRetryDelay(Math.min(1440, Math.max(1, Math.round(n))));
+            }}
+            disabled={maxRetries === 0}
+            className="rounded-md border bg-background px-3 py-1.5 font-mono disabled:opacity-50"
+          />
+        </label>
+        <p className="md:col-span-2 text-[11px] text-muted-foreground">
+          {t("assistant.scripts.scheduleRetriesHint")}
+        </p>
         <label className="inline-flex items-center gap-2">
           <input
             type="checkbox"
@@ -507,8 +541,11 @@ function ScheduleEditor({
               label: label || undefined,
               interval_minutes: interval,
               enabled,
+              max_retries: maxRetries,
+              retry_delay_minutes: retryDelay,
             });
           }}
+
           disabled={busy || !parsedArgs.ok}
           className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground disabled:opacity-60"
         >
