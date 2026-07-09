@@ -111,8 +111,8 @@ export function DashboardSidebar() {
       items: [
         { url: "/dashboard/tenants", icon: Users2, ar: "المستأجرون", en: "Tenants" },
         { url: "/dashboard/applications", icon: ClipboardList, ar: "طلبات السكن", en: "Applications" },
-        { url: "/dashboard/crm/leads", icon: Target, ar: "العملاء المحتملون", en: "Leads" },
-        { url: "/dashboard/crm/deals", icon: Handshake, ar: "الصفقات", en: "Deals" },
+        { url: "/leads", icon: Target, ar: "العملاء المحتملون", en: "Leads" },
+        { url: "/deals", icon: Handshake, ar: "الصفقات", en: "Deals" },
         { url: "/dashboard/crm/meetings", icon: CalendarClock, ar: "الاجتماعات", en: "Meetings" },
       ],
     },
