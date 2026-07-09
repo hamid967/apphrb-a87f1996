@@ -265,68 +265,102 @@ function PaymentSchedulesPage() {
   };
 
 
+  const activeFilters = [
+    orgId !== "all" && {
+      key: "org",
+      label: (orgsQ.data ?? []).find((o) => o.org.id === orgId)?.org.name ?? orgId,
+      clear: () => setOrgId("all"),
+    },
+    status !== "all" && {
+      key: "status",
+      label: isAr ? STATUS_LABEL[status]?.ar : STATUS_LABEL[status]?.en,
+      clear: () => setStatus("all"),
+    },
+    source !== "all" && {
+      key: "source",
+      label: isAr ? SOURCE_LABEL[source]?.ar : SOURCE_LABEL[source]?.en,
+      clear: () => setSource("all"),
+    },
+  ].filter(Boolean) as { key: string; label: string; clear: () => void }[];
+
+  const clearAllFilters = () => {
+    setOrgId("all");
+    setStatus("all");
+    setSource("all");
+  };
+
+  const isRefetching = listQ.isFetching && !listQ.isLoading;
+  const busyRowId = (voucherMut.isPending && voucherMut.variables) ||
+    (payMut.isPending && payMut.variables) ||
+    (cancelMut.isPending && cancelMut.variables) || null;
+
+  const btnPress = "transition-all duration-150 active:scale-[0.97] hover:-translate-y-0.5";
+
   return (
-    <div className="p-4 md:p-6 space-y-4" dir={isAr ? "rtl" : "ltr"}>
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">
+    <div className="p-4 md:p-6 space-y-4 animate-fade-in" dir={isAr ? "rtl" : "ltr"}>
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 md:flex md:flex-wrap md:items-center md:justify-between">
+        <div className="min-w-0">
+          <h1 className="truncate text-xl sm:text-2xl font-bold">
             {isAr ? "جداول الأقساط" : "Payment Schedules"}
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {isAr
               ? "أقساط العقود والصفقات والعمولات مع دعم التقويم الهجري."
               : "Contract, deal, and commission installments with Hijri support."}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 justify-end">
           <Button
             variant="default"
             size="sm"
             onClick={() => generateAllMut.mutate()}
             disabled={generateAllMut.isPending}
+            className={btnPress}
           >
-            <Zap className="h-4 w-4 me-1" />
-            {isAr ? "توليد سندات الأقساط المستحقة" : "Generate due vouchers"}
+            {generateAllMut.isPending
+              ? <Loader2 className="h-4 w-4 me-1 animate-spin" />
+              : <Zap className="h-4 w-4 me-1" />}
+            <span className="hidden sm:inline">
+              {isAr ? "توليد سندات الأقساط المستحقة" : "Generate due vouchers"}
+            </span>
+            <span className="sm:hidden">{isAr ? "توليد" : "Generate"}</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={exportCsv}>
+          <Button variant="outline" size="sm" onClick={exportCsv} className={btnPress}>
             <Download className="h-4 w-4 me-1" />
-            {isAr ? "تصدير CSV" : "Export CSV"}
+            <span className="hidden sm:inline">{isAr ? "تصدير CSV" : "Export CSV"}</span>
+            <span className="sm:hidden">CSV</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={exportXlsx}>
+          <Button variant="outline" size="sm" onClick={exportXlsx} className={btnPress}>
             <FileSpreadsheet className="h-4 w-4 me-1" />
-            {isAr ? "تصدير XLSX" : "Export XLSX"}
+            <span className="hidden sm:inline">{isAr ? "تصدير XLSX" : "Export XLSX"}</span>
+            <span className="sm:hidden">XLSX</span>
           </Button>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <Card className="p-4">
-          <div className="text-xs text-muted-foreground">
-            {isAr ? "إجمالي مستحق" : "Total due"}
-          </div>
-          <div className="text-2xl font-semibold">{summary.due.toFixed(2)}</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-xs text-muted-foreground">
-            {isAr ? "مدفوع" : "Paid"}
-          </div>
-          <div className="text-2xl font-semibold text-primary">
-            {summary.paid.toFixed(2)}
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-xs text-muted-foreground">
-            {isAr ? "متأخر" : "Overdue"}
-          </div>
-          <div className="text-2xl font-semibold text-destructive">
-            {summary.overdue.toFixed(2)}
-          </div>
-        </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {[
+          { label: isAr ? "إجمالي مستحق" : "Total due", val: summary.due, tone: "" },
+          { label: isAr ? "مدفوع" : "Paid", val: summary.paid, tone: "text-primary" },
+          { label: isAr ? "متأخر" : "Overdue", val: summary.overdue, tone: "text-destructive" },
+        ].map((c) => (
+          <Card
+            key={c.label}
+            className="p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <div className="text-xs text-muted-foreground">{c.label}</div>
+            <div className={cn("text-2xl font-semibold tabular-nums tracking-tight", c.tone)}>
+              {listQ.isLoading
+                ? <Skeleton className="h-7 w-24 mt-1" />
+                : c.val.toFixed(2)}
+            </div>
+          </Card>
+        ))}
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 items-center">
         <Select value={orgId} onValueChange={setOrgId}>
-          <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-52 transition-colors"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{isAr ? "كل المؤسسات" : "All organizations"}</SelectItem>
             {(orgsQ.data ?? []).map((o) => (
@@ -335,7 +369,7 @@ function PaymentSchedulesPage() {
           </SelectContent>
         </Select>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-40 transition-colors"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{isAr ? "كل الحالات" : "All statuses"}</SelectItem>
             {Object.entries(STATUS_LABEL).map(([k, v]) => (
@@ -344,7 +378,7 @@ function PaymentSchedulesPage() {
           </SelectContent>
         </Select>
         <Select value={source} onValueChange={setSource}>
-          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-[calc(50%-0.25rem)] sm:w-40 transition-colors"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{isAr ? "كل المصادر" : "All sources"}</SelectItem>
             {Object.entries(SOURCE_LABEL).map(([k, v]) => (
@@ -356,13 +390,53 @@ function PaymentSchedulesPage() {
           variant="outline"
           size="sm"
           onClick={() => qc.invalidateQueries({ queryKey: ["payment-schedules"] })}
+          className={cn(btnPress, "ms-auto")}
+          disabled={isRefetching}
+          aria-label={isAr ? "تحديث" : "Refresh"}
         >
-          <RefreshCw className="h-4 w-4 me-1" />
-          {isAr ? "تحديث" : "Refresh"}
+          <RefreshCw className={cn("h-4 w-4 me-1", isRefetching && "animate-spin")} />
+          <span className="hidden sm:inline">{isAr ? "تحديث" : "Refresh"}</span>
         </Button>
       </div>
 
-      <Card className="overflow-x-auto">
+      {activeFilters.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 animate-fade-in">
+          <span className="text-xs text-muted-foreground me-1">
+            {isAr ? "فلاتر نشطة:" : "Active filters:"}
+          </span>
+          {activeFilters.map((f) => (
+            <Badge
+              key={f.key}
+              variant="secondary"
+              className="pe-1 gap-1 transition-transform hover:scale-105"
+            >
+              {f.label}
+              <button
+                type="button"
+                onClick={f.clear}
+                className="rounded-full p-0.5 hover:bg-background/60 transition-colors"
+                aria-label={isAr ? "إزالة" : "Remove"}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 text-xs"
+            onClick={clearAllFilters}
+          >
+            {isAr ? "مسح الكل" : "Clear all"}
+          </Button>
+        </div>
+      )}
+
+      {/* Desktop table */}
+      <Card className={cn(
+        "overflow-x-auto hidden md:block transition-opacity",
+        isRefetching && "opacity-70",
+      )}>
         <table className="w-full text-sm">
           <thead className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
             <tr>
@@ -378,61 +452,84 @@ function PaymentSchedulesPage() {
           </thead>
           <tbody>
             {listQ.isLoading ? (
-              <tr><td colSpan={8} className="p-6 text-center text-muted-foreground">
-                {isAr ? "جارٍ التحميل…" : "Loading…"}
-              </td></tr>
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-b">
+                  {Array.from({ length: 8 }).map((__, j) => (
+                    <td key={j} className="p-3"><Skeleton className="h-4 w-full max-w-24" /></td>
+                  ))}
+                </tr>
+              ))
             ) : rows.length === 0 ? (
-              <tr><td colSpan={8} className="p-6 text-center text-muted-foreground">
-                {isAr ? "لا توجد أقساط." : "No installments yet."}
+              <tr><td colSpan={8} className="p-10 text-center text-muted-foreground">
+                <div className="flex flex-col items-center gap-2 animate-fade-in">
+                  <Receipt className="h-8 w-8 opacity-40" />
+                  <span>{isAr ? "لا توجد أقساط." : "No installments yet."}</span>
+                </div>
               </td></tr>
             ) : rows.map((r) => {
               const s = STATUS_LABEL[r.status ?? "pending"];
               const src = SOURCE_LABEL[r.source_type];
               const disabled = r.status === "paid" || r.status === "cancelled";
+              const rowBusy = busyRowId === r.id;
               return (
-                <tr key={r.id} className="border-b hover:bg-muted/30">
+                <tr
+                  key={r.id}
+                  className={cn(
+                    "border-b transition-colors hover:bg-muted/30",
+                    rowBusy && "bg-muted/50 animate-pulse",
+                  )}
+                >
                   <td className="p-3 font-mono">{r.installment_no}</td>
                   <td className="p-3">
                     <div className="flex flex-col gap-1">
-                      <span>{r.due_date}</span>
+                      <span className="tabular-nums">{r.due_date}</span>
                       <HijriDateBadge date={r.due_date} />
                     </div>
                   </td>
                   <td className="p-3">{isAr ? src?.ar : src?.en}</td>
-                  <td className="p-3 text-end font-mono">{Number(r.amount).toFixed(2)}</td>
-                  <td className="p-3 text-end font-mono">{Number(r.vat_amount).toFixed(2)}</td>
-                  <td className="p-3 text-end font-mono font-semibold">
+                  <td className="p-3 text-end font-mono tabular-nums">{Number(r.amount).toFixed(2)}</td>
+                  <td className="p-3 text-end font-mono tabular-nums">{Number(r.vat_amount).toFixed(2)}</td>
+                  <td className="p-3 text-end font-mono tabular-nums font-semibold">
                     {Number(r.total_amount).toFixed(2)}
                   </td>
                   <td className="p-3">
-                    <Badge variant={s?.variant ?? "outline"}>
+                    <Badge variant={s?.variant ?? "outline"} className="transition-transform">
                       {isAr ? s?.ar : s?.en}
                     </Badge>
                   </td>
                   <td className="p-3 text-end space-x-1 rtl:space-x-reverse">
                     <Button
                       size="sm" variant="outline"
-                      disabled={disabled || Boolean(r.voucher_id) || voucherMut.isPending}
+                      disabled={disabled || Boolean(r.voucher_id) || rowBusy}
                       onClick={() => voucherMut.mutate(r.id)}
                       title={isAr ? "إنشاء سند" : "Create voucher"}
+                      className={btnPress}
                     >
-                      <Receipt className="h-3.5 w-3.5 me-1" />
+                      {voucherMut.isPending && voucherMut.variables === r.id
+                        ? <Loader2 className="h-3.5 w-3.5 me-1 animate-spin" />
+                        : <Receipt className="h-3.5 w-3.5 me-1" />}
                       {isAr ? "سند" : "Voucher"}
                     </Button>
                     <Button
                       size="sm" variant="outline"
-                      disabled={disabled || payMut.isPending}
+                      disabled={disabled || rowBusy}
                       onClick={() => payMut.mutate(r.id)}
+                      className={btnPress}
                     >
-                      <Check className="h-3.5 w-3.5 me-1" />
+                      {payMut.isPending && payMut.variables === r.id
+                        ? <Loader2 className="h-3.5 w-3.5 me-1 animate-spin" />
+                        : <Check className="h-3.5 w-3.5 me-1" />}
                       {isAr ? "دفع" : "Pay"}
                     </Button>
                     <Button
                       size="sm" variant="ghost"
-                      disabled={disabled || cancelMut.isPending}
+                      disabled={disabled || rowBusy}
                       onClick={() => cancelMut.mutate(r.id)}
+                      className={btnPress}
                     >
-                      <Ban className="h-3.5 w-3.5 me-1" />
+                      {cancelMut.isPending && cancelMut.variables === r.id
+                        ? <Loader2 className="h-3.5 w-3.5 me-1 animate-spin" />
+                        : <Ban className="h-3.5 w-3.5 me-1" />}
                       {isAr ? "إلغاء" : "Cancel"}
                     </Button>
                   </td>
@@ -443,12 +540,111 @@ function PaymentSchedulesPage() {
         </table>
       </Card>
 
-      <Input
-        type="hidden"
-        aria-hidden
-        readOnly
-        value={rows.length}
-      />
+      {/* Mobile card list */}
+      <div className={cn(
+        "md:hidden space-y-2 transition-opacity",
+        isRefetching && "opacity-70",
+      )}>
+        {listQ.isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="p-3 space-y-2">
+              <div className="flex justify-between">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-5 w-14 rounded-full" />
+              </div>
+              <Skeleton className="h-6 w-32" />
+              <div className="flex gap-2 pt-1">
+                <Skeleton className="h-8 flex-1" />
+                <Skeleton className="h-8 flex-1" />
+                <Skeleton className="h-8 flex-1" />
+              </div>
+            </Card>
+          ))
+        ) : rows.length === 0 ? (
+          <Card className="p-10 text-center text-muted-foreground animate-fade-in">
+            <Receipt className="h-8 w-8 opacity-40 mx-auto mb-2" />
+            {isAr ? "لا توجد أقساط." : "No installments yet."}
+          </Card>
+        ) : rows.map((r) => {
+          const s = STATUS_LABEL[r.status ?? "pending"];
+          const src = SOURCE_LABEL[r.source_type];
+          const disabled = r.status === "paid" || r.status === "cancelled";
+          const rowBusy = busyRowId === r.id;
+          return (
+            <Card
+              key={r.id}
+              className={cn(
+                "p-3 space-y-2 transition-all duration-200 active:scale-[0.99]",
+                rowBusy && "bg-muted/40 animate-pulse",
+              )}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-mono text-xs text-muted-foreground shrink-0">
+                    #{r.installment_no}
+                  </span>
+                  <span className="text-sm truncate">{isAr ? src?.ar : src?.en}</span>
+                </div>
+                <Badge variant={s?.variant ?? "outline"} className="shrink-0">
+                  {isAr ? s?.ar : s?.en}
+                </Badge>
+              </div>
+              <div className="flex items-end justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="text-xs text-muted-foreground">{r.due_date}</div>
+                  <HijriDateBadge date={r.due_date} />
+                </div>
+                <div className="text-end">
+                  <div className="text-lg font-semibold tabular-nums">
+                    {Number(r.total_amount).toFixed(2)}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground tabular-nums">
+                    {isAr ? "شامل ضريبة" : "incl. VAT"} {Number(r.vat_amount).toFixed(2)}
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5 pt-1">
+                <Button
+                  size="sm" variant="outline"
+                  disabled={disabled || Boolean(r.voucher_id) || rowBusy}
+                  onClick={() => voucherMut.mutate(r.id)}
+                  className={btnPress}
+                >
+                  {voucherMut.isPending && voucherMut.variables === r.id
+                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    : <Receipt className="h-3.5 w-3.5 me-1" />}
+                  <span className="text-xs">{isAr ? "سند" : "Voucher"}</span>
+                </Button>
+                <Button
+                  size="sm" variant="default"
+                  disabled={disabled || rowBusy}
+                  onClick={() => payMut.mutate(r.id)}
+                  className={btnPress}
+                >
+                  {payMut.isPending && payMut.variables === r.id
+                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    : <Check className="h-3.5 w-3.5 me-1" />}
+                  <span className="text-xs">{isAr ? "دفع" : "Pay"}</span>
+                </Button>
+                <Button
+                  size="sm" variant="ghost"
+                  disabled={disabled || rowBusy}
+                  onClick={() => cancelMut.mutate(r.id)}
+                  className={btnPress}
+                >
+                  {cancelMut.isPending && cancelMut.variables === r.id
+                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    : <Ban className="h-3.5 w-3.5 me-1" />}
+                  <span className="text-xs">{isAr ? "إلغاء" : "Cancel"}</span>
+                </Button>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+
+      <Input type="hidden" aria-hidden readOnly value={rows.length} />
     </div>
   );
 }
+
