@@ -210,16 +210,15 @@ function LeadsPage() {
         )}
       </div>
 
-      <div className="mt-6 grid gap-3 md:grid-cols-3 xl:grid-cols-7">
-        {STAGES.map((stage) => (
-          <div key={stage} className="surface-card">
-            <div className="flex items-center justify-between border-b px-3 py-2">
-              <div className="text-sm font-medium">{t(`crm.leads.stages.${stage}`)}</div>
-              <Badge variant="secondary" className="tabular-nums">
-                {grouped[stage].length}
-              </Badge>
-            </div>
-            <div className="max-h-[70vh] space-y-2 overflow-y-auto p-2">
+      <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
+        <div className="mt-6 grid gap-3 md:grid-cols-3 xl:grid-cols-7">
+          {STAGES.map((stage) => (
+            <DroppableColumn
+              key={stage}
+              stage={stage}
+              label={t(`crm.leads.stages.${stage}`)}
+              count={grouped[stage].length}
+            >
               {grouped[stage].length === 0 ? (
                 <div className="rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">
                   {t("crm.leads.empty")}
@@ -230,114 +229,147 @@ function LeadsPage() {
                   const prev = idx > 0 ? STAGES[idx - 1] : null;
                   const next = idx < STAGES.length - 1 ? STAGES[idx + 1] : null;
                   return (
-                    <div
-                      key={lead.id}
-                      className="rounded-lg border bg-background p-3 text-sm shadow-sm"
-                    >
-                      <Link
-                        to="/leads/$id"
-                        params={{ id: lead.id }}
-                        className="block truncate font-medium hover:underline"
-                      >
-                        {lead.contact?.full_name ?? "—"}
-                      </Link>
-                      {lead.property && (
-                        <div className="mt-0.5 truncate text-xs text-muted-foreground">
-                          {isAr ? lead.property.title_ar : lead.property.title_en}
-                        </div>
-                      )}
-                      {(lead.budget_min != null || lead.budget_max != null) && (
-                        <div className="mt-1 text-xs tabular-nums text-muted-foreground">
-                          {lead.budget_min?.toLocaleString() ?? "0"} –{" "}
-                          {lead.budget_max?.toLocaleString() ?? "∞"} {lead.currency}
-                        </div>
-                      )}
-                      {lead.source && (
-                        <div className="mt-1 text-xs text-muted-foreground">· {lead.source}</div>
-                      )}
-                      {canEdit && (
-                        <div className="mt-2 flex items-center justify-between gap-1">
-                          <div className="flex gap-1">
-                            {prev && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-7 px-2"
-                                onClick={() => move.mutate({ id: lead.id, stage: prev })}
+                    <DraggableCard key={lead.id} id={lead.id} disabled={!canEdit}>
+                      {(dragHandle) => (
+                        <div className="rounded-lg border bg-background p-3 text-sm shadow-sm">
+                          <div className="flex items-start gap-2">
+                            {canEdit && (
+                              <button
+                                type="button"
+                                {...dragHandle}
+                                className="mt-0.5 cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
+                                aria-label="drag"
                               >
-                                {isAr ? (
-                                  <ArrowRight className="size-3.5" />
-                                ) : (
-                                  <ArrowLeft className="size-3.5" />
-                                )}
-                              </Button>
+                                <GripVertical className="size-4" />
+                              </button>
                             )}
-                            {next && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-7 px-2"
-                                onClick={() => move.mutate({ id: lead.id, stage: next })}
+                            <div className="min-w-0 flex-1">
+                              <Link
+                                to="/leads/$id"
+                                params={{ id: lead.id }}
+                                className="block truncate font-medium hover:underline"
                               >
-                                {isAr ? (
-                                  <ArrowLeft className="size-3.5" />
-                                ) : (
-                                  <ArrowRight className="size-3.5" />
-                                )}
-                              </Button>
-                            )}
+                                {lead.contact?.full_name ?? "—"}
+                              </Link>
+                              {lead.property && (
+                                <div className="mt-0.5 truncate text-xs text-muted-foreground">
+                                  {isAr ? lead.property.title_ar : lead.property.title_en}
+                                </div>
+                              )}
+                              {(lead.budget_min != null || lead.budget_max != null) && (
+                                <div className="mt-1 text-xs tabular-nums text-muted-foreground">
+                                  {lead.budget_min?.toLocaleString() ?? "0"} –{" "}
+                                  {lead.budget_max?.toLocaleString() ?? "∞"} {lead.currency}
+                                </div>
+                              )}
+                              {lead.source && (
+                                <div className="mt-1 text-xs text-muted-foreground">
+                                  · {lead.source}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex gap-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 px-2"
-                              onClick={() => {
-                                setEditing(lead);
-                                setOpen(true);
-                              }}
-                            >
-                              <Pencil className="size-3.5" />
-                            </Button>
-                            {canEdit && lead.property_id && stage !== "won" && stage !== "lost" && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-7 px-2"
-                                title={t("crm.leads.convert")}
-                                disabled={convert.isPending}
-                                onClick={() => {
-                                  if (window.confirm(t("crm.leads.convertHint")))
-                                    convert.mutate(lead);
-                                }}
-                              >
-                                <Handshake className="size-3.5" />
-                              </Button>
-                            )}
-                            {canDelete && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-7 px-2"
-                                onClick={() => {
-                                  if (window.confirm(t("crm.leads.confirmDelete")))
-                                    del.mutate(lead.id);
-                                }}
-                              >
-                                <Trash2 className="size-3.5 text-destructive" />
-                              </Button>
-                            )}
-                          </div>
+                          {canEdit && (
+                            <div className="mt-2 flex items-center justify-between gap-1">
+                              <div className="flex gap-1">
+                                {prev && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-7 px-2"
+                                    onClick={() => move.mutate({ id: lead.id, stage: prev })}
+                                  >
+                                    {isAr ? (
+                                      <ArrowRight className="size-3.5" />
+                                    ) : (
+                                      <ArrowLeft className="size-3.5" />
+                                    )}
+                                  </Button>
+                                )}
+                                {next && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-7 px-2"
+                                    onClick={() => move.mutate({ id: lead.id, stage: next })}
+                                  >
+                                    {isAr ? (
+                                      <ArrowLeft className="size-3.5" />
+                                    ) : (
+                                      <ArrowRight className="size-3.5" />
+                                    )}
+                                  </Button>
+                                )}
+                              </div>
+                              <div className="flex gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 px-2"
+                                  onClick={() => {
+                                    setEditing(lead);
+                                    setOpen(true);
+                                  }}
+                                >
+                                  <Pencil className="size-3.5" />
+                                </Button>
+                                {canEdit &&
+                                  lead.property_id &&
+                                  stage !== "won" &&
+                                  stage !== "lost" && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-7 px-2"
+                                      title={t("crm.leads.convert")}
+                                      disabled={convert.isPending}
+                                      onClick={() => {
+                                        if (window.confirm(t("crm.leads.convertHint")))
+                                          convert.mutate(lead);
+                                      }}
+                                    >
+                                      <Handshake className="size-3.5" />
+                                    </Button>
+                                  )}
+                                {canDelete && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-7 px-2"
+                                    onClick={() => {
+                                      if (window.confirm(t("crm.leads.confirmDelete")))
+                                        del.mutate(lead.id);
+                                    }}
+                                  >
+                                    <Trash2 className="size-3.5 text-destructive" />
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
-                    </div>
+                    </DraggableCard>
                   );
                 })
               )}
+            </DroppableColumn>
+          ))}
+        </div>
+        <DragOverlay>
+          {activeLead ? (
+            <div className="rounded-lg border bg-background p-3 text-sm shadow-lg">
+              <div className="truncate font-medium">{activeLead.contact?.full_name ?? "—"}</div>
+              {activeLead.property && (
+                <div className="mt-0.5 truncate text-xs text-muted-foreground">
+                  {isAr ? activeLead.property.title_ar : activeLead.property.title_en}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
-      </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+
 
       {org && (
         <LeadDialog
