@@ -335,7 +335,7 @@ export function WelcomeChecklist({ isAr }: { isAr: boolean }) {
                       {!step.required && (
                         <button
                           type="button"
-                          onClick={() => markMut.mutate(step.id)}
+                          onClick={() => markMut.mutate({ step: step.id, done: true })}
                           disabled={markMut.isPending}
                           aria-label={`${T.markDone}: ${isAr ? step.labelAr : step.labelEn}`}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition hover:border-primary/40 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 disabled:opacity-50"
