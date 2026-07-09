@@ -54,16 +54,37 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthenticatedShellWithBoundary() {
   // Apply the Minimal Dark Tech theme (Slate & Steel + Space Grotesk/DM Sans)
-  // to every authenticated route. Scoped via <html> class so all shadcn
-  // tokens flip together; removed on unmount so /auth, /, and marketing
-  // keep the violet HRHBS + luxe themes intact.
+  // to every authenticated route by default, but let the user opt out and
+  // persist that choice in localStorage via DashboardThemeToggle.
   useEffect(() => {
+    const KEY = "aqari.dashboard.theme";
     const el = document.documentElement;
-    el.classList.add("theme-tech", "dark");
+    const apply = (mode: string) => {
+      if (mode === "default") {
+        el.classList.remove("theme-tech", "dark");
+      } else {
+        el.classList.add("theme-tech", "dark");
+      }
+    };
+    const initial = (() => {
+      try {
+        return window.localStorage.getItem(KEY) ?? "tech";
+      } catch {
+        return "tech";
+      }
+    })();
+    apply(initial);
+    const onChange = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      if (detail) apply(detail);
+    };
+    window.addEventListener("aqari:dashboard-theme", onChange);
     return () => {
+      window.removeEventListener("aqari:dashboard-theme", onChange);
       el.classList.remove("theme-tech", "dark");
     };
   }, []);
+
   return (
     <ErrorBoundary>
       <IdleLogout />
