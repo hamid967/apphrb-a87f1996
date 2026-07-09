@@ -322,6 +322,8 @@ const SENSITIVE_TOOLS = new Set([
   "risk_analysis",
   "employee_performance",
   "summarize_system",
+  "cash_flow_summary",
+
 ]);
 const ELEVATED_ROLES = new Set(["owner", "admin", "manager", "finance"]);
 
