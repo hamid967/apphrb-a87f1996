@@ -669,3 +669,101 @@ body::-webkit-scrollbar,
   background: rgba(255, 255, 255, 0.75) !important;
   border-bottom-color: rgba(11, 18, 32, 0.08) !important;
 }
+
+/* ============================================================
+   Holographic / Chrome utilities — opt-in flashy layer
+   Applied on top of the violet HRHBS base theme.
+   Intensity target: 3/5 — gradients + glow + one animated sheen.
+   ============================================================ */
+
+/* Iridescent text — for hero words, KPI numbers, headline emphasis. */
+@utility holo-text {
+  background: var(--gradient-holo);
+  background-size: 200% 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: holo-shift 8s ease-in-out infinite;
+}
+
+/* Iridescent border via gradient mask — 1px chrome edge on cards/buttons. */
+@utility holo-border {
+  position: relative;
+  isolation: isolate;
+}
+@utility holo-border {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--gradient-holo);
+    background-size: 200% 200%;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    animation: holo-shift 10s ease-in-out infinite;
+  }
+}
+
+/* Multi-color halo glow for hero CTAs and focused KPI cards. */
+@utility holo-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+/* Soft iridescent surface tint — for empty-state badges, hero panels. */
+@utility holo-bg {
+  background:
+    var(--gradient-holo-soft),
+    var(--color-card);
+  background-size: 200% 200%, auto;
+  animation: holo-shift 12s ease-in-out infinite;
+}
+
+/* Ambient aurora backdrop — apply on landing hero / dashboard shell. */
+@utility holo-aurora {
+  position: relative;
+  isolation: isolate;
+}
+@utility holo-aurora {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -20% -10%;
+    z-index: -1;
+    background:
+      radial-gradient(closest-side, color-mix(in oklab, #c4b5fd 40%, transparent), transparent 70%) 20% 20%/60% 60% no-repeat,
+      radial-gradient(closest-side, color-mix(in oklab, #f0abfc 35%, transparent), transparent 70%) 80% 30%/55% 55% no-repeat,
+      radial-gradient(closest-side, color-mix(in oklab, #67e8f9 30%, transparent), transparent 70%) 40% 80%/55% 55% no-repeat,
+      radial-gradient(closest-side, color-mix(in oklab, #fde68a 25%, transparent), transparent 70%) 85% 85%/45% 45% no-repeat;
+    filter: blur(60px) saturate(140%);
+    opacity: 0.55;
+    pointer-events: none;
+    animation: holo-drift 18s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes holo-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+@keyframes holo-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(-2%, 1%, 0) scale(1.05); }
+  100% { transform: translate3d(2%, -1%, 0) scale(1.02); }
+}
+
+/* Respect reduced motion — no animated gradients or drifting halos. */
+@media (prefers-reduced-motion: reduce) {
+  .holo-text,
+  .holo-border::before,
+  .holo-bg,
+  .holo-aurora::before {
+    animation: none !important;
+  }
+}
