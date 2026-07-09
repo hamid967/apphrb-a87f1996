@@ -547,19 +547,59 @@ export function SmartRemindersPanel({
                       </div>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      markRead(r.id);
-                    }}
-                    aria-label={isAr ? "تمييز كمقروء" : "Mark as read"}
-                    title={isAr ? "تمييز كمقروء" : "Mark as read"}
-                    className={`absolute top-2 ${isAr ? "left-2" : "right-2"} grid size-6 place-items-center rounded-md border border-transparent bg-background/60 text-muted-foreground opacity-0 transition hover:border-border hover:bg-background hover:text-foreground focus:opacity-100 group-hover:opacity-100`}
+                  <div
+                    className={`absolute top-2 ${isAr ? "left-2" : "right-2"} flex items-center gap-1 opacity-0 transition group-hover:opacity-100 focus-within:opacity-100`}
                   >
-                    <Check className="size-3.5" />
-                  </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          aria-label={isAr ? "غفوة التذكير" : "Snooze reminder"}
+                          title={isAr ? "غفوة" : "Snooze"}
+                          className="grid size-6 place-items-center rounded-md border border-transparent bg-background/60 text-muted-foreground transition hover:border-border hover:bg-background hover:text-foreground"
+                        >
+                          <BellOff className="size-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align={isAr ? "start" : "end"}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <DropdownMenuLabel className="text-[11px]">
+                          {isAr ? "غفوة لمدة" : "Snooze for"}
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {SNOOZE_OPTIONS.map((opt) => (
+                          <DropdownMenuItem
+                            key={opt.hours}
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              snoozeReminder(r.id, opt.hours);
+                            }}
+                          >
+                            {isAr ? opt.ar : opt.en}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        markRead(r.id);
+                      }}
+                      aria-label={isAr ? "تمييز كمقروء" : "Mark as read"}
+                      title={isAr ? "تمييز كمقروء" : "Mark as read"}
+                      className="grid size-6 place-items-center rounded-md border border-transparent bg-background/60 text-muted-foreground transition hover:border-border hover:bg-background hover:text-foreground"
+                    >
+                      <Check className="size-3.5" />
+                    </button>
+                  </div>
                 </div>
               );
               return (
