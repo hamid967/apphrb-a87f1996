@@ -129,6 +129,11 @@ type ReminderAction = {
   labelEn: string;
   href: string;
   primary?: boolean;
+  /**
+   * When set, the action navigates to the correction wizard with the given
+   * original claim id prefilled instead of the raw `href`.
+   */
+  correctOriginalId?: string;
 };
 
 type ReminderDetail = {
@@ -375,8 +380,9 @@ export function SmartRemindersPanel({
             {
               labelAr: "تصحيح وإعادة إرسال",
               labelEn: "Correct & resubmit",
-              href: "/dashboard/expenses",
+              href: "/dashboard/expenses/claim/correct",
               primary: true,
+              correctOriginalId: c.id,
             },
             viewAction,
           ],
@@ -1131,13 +1137,24 @@ export function SmartRemindersPanel({
                       size="sm"
                       variant={a.primary ? "default" : "outline"}
                     >
-                      <Link
-                        to={a.href}
-                        onClick={() => setOpenReminder(null)}
-                      >
-                        {isAr ? a.labelAr : a.labelEn}
-                        <Chevron className="ms-1 size-3.5" />
-                      </Link>
+                      {a.correctOriginalId ? (
+                        <Link
+                          to="/dashboard/expenses/claim/correct"
+                          search={{ original: a.correctOriginalId }}
+                          onClick={() => setOpenReminder(null)}
+                        >
+                          {isAr ? a.labelAr : a.labelEn}
+                          <Chevron className="ms-1 size-3.5" />
+                        </Link>
+                      ) : (
+                        <Link
+                          to={a.href}
+                          onClick={() => setOpenReminder(null)}
+                        >
+                          {isAr ? a.labelAr : a.labelEn}
+                          <Chevron className="ms-1 size-3.5" />
+                        </Link>
+                      )}
                     </Button>
                   ))}
                 </DialogFooter>
