@@ -205,6 +205,7 @@ import { Route as AuthenticatedDashboardSettingsApiKeysRouteImport } from './rou
 import { Route as AuthenticatedDashboardPropertiesNewRouteImport } from './routes/_authenticated/dashboard.properties.new'
 import { Route as AuthenticatedDashboardPropertiesIdRouteImport } from './routes/_authenticated/dashboard.properties.$id'
 import { Route as AuthenticatedDashboardMaintenanceTechniciansRouteImport } from './routes/_authenticated/dashboard.maintenance.technicians'
+import { Route as AuthenticatedDashboardInvoicesIdRouteImport } from './routes/_authenticated/dashboard.invoices.$id'
 import { Route as AuthenticatedDashboardExpensesReviewRouteImport } from './routes/_authenticated/dashboard.expenses.review'
 import { Route as AuthenticatedDashboardExpensesClaimRouteImport } from './routes/_authenticated/dashboard.expenses.claim'
 import { Route as AuthenticatedDashboardExpensesBatchesRouteImport } from './routes/_authenticated/dashboard.expenses.batches'
@@ -1346,6 +1347,12 @@ const AuthenticatedDashboardMaintenanceTechniciansRoute =
     path: '/technicians',
     getParentRoute: () => AuthenticatedDashboardMaintenanceRoute,
   } as any)
+const AuthenticatedDashboardInvoicesIdRoute =
+  AuthenticatedDashboardInvoicesIdRouteImport.update({
+    id: '/invoices/$id',
+    path: '/invoices/$id',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardExpensesReviewRoute =
   AuthenticatedDashboardExpensesReviewRouteImport.update({
     id: '/review',
@@ -1695,6 +1702,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/expenses/batches': typeof AuthenticatedDashboardExpensesBatchesRouteWithChildren
   '/dashboard/expenses/claim': typeof AuthenticatedDashboardExpensesClaimRouteWithChildren
   '/dashboard/expenses/review': typeof AuthenticatedDashboardExpensesReviewRoute
+  '/dashboard/invoices/$id': typeof AuthenticatedDashboardInvoicesIdRoute
   '/dashboard/maintenance/technicians': typeof AuthenticatedDashboardMaintenanceTechniciansRoute
   '/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
@@ -1915,6 +1923,7 @@ export interface FileRoutesByTo {
   '/dashboard/expenses/batches': typeof AuthenticatedDashboardExpensesBatchesRouteWithChildren
   '/dashboard/expenses/claim': typeof AuthenticatedDashboardExpensesClaimRouteWithChildren
   '/dashboard/expenses/review': typeof AuthenticatedDashboardExpensesReviewRoute
+  '/dashboard/invoices/$id': typeof AuthenticatedDashboardInvoicesIdRoute
   '/dashboard/maintenance/technicians': typeof AuthenticatedDashboardMaintenanceTechniciansRoute
   '/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
@@ -2145,6 +2154,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/expenses/batches': typeof AuthenticatedDashboardExpensesBatchesRouteWithChildren
   '/_authenticated/dashboard/expenses/claim': typeof AuthenticatedDashboardExpensesClaimRouteWithChildren
   '/_authenticated/dashboard/expenses/review': typeof AuthenticatedDashboardExpensesReviewRoute
+  '/_authenticated/dashboard/invoices/$id': typeof AuthenticatedDashboardInvoicesIdRoute
   '/_authenticated/dashboard/maintenance/technicians': typeof AuthenticatedDashboardMaintenanceTechniciansRoute
   '/_authenticated/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/_authenticated/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
@@ -2375,6 +2385,7 @@ export interface FileRouteTypes {
     | '/dashboard/expenses/batches'
     | '/dashboard/expenses/claim'
     | '/dashboard/expenses/review'
+    | '/dashboard/invoices/$id'
     | '/dashboard/maintenance/technicians'
     | '/dashboard/properties/$id'
     | '/dashboard/properties/new'
@@ -2595,6 +2606,7 @@ export interface FileRouteTypes {
     | '/dashboard/expenses/batches'
     | '/dashboard/expenses/claim'
     | '/dashboard/expenses/review'
+    | '/dashboard/invoices/$id'
     | '/dashboard/maintenance/technicians'
     | '/dashboard/properties/$id'
     | '/dashboard/properties/new'
@@ -2824,6 +2836,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/expenses/batches'
     | '/_authenticated/dashboard/expenses/claim'
     | '/_authenticated/dashboard/expenses/review'
+    | '/_authenticated/dashboard/invoices/$id'
     | '/_authenticated/dashboard/maintenance/technicians'
     | '/_authenticated/dashboard/properties/$id'
     | '/_authenticated/dashboard/properties/new'
@@ -4317,6 +4330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardMaintenanceTechniciansRouteImport
       parentRoute: typeof AuthenticatedDashboardMaintenanceRoute
     }
+    '/_authenticated/dashboard/invoices/$id': {
+      id: '/_authenticated/dashboard/invoices/$id'
+      path: '/invoices/$id'
+      fullPath: '/dashboard/invoices/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardInvoicesIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/expenses/review': {
       id: '/_authenticated/dashboard/expenses/review'
       path: '/review'
@@ -4903,6 +4923,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedDashboardContractsIdRoute: typeof AuthenticatedDashboardContractsIdRoute
   AuthenticatedDashboardContractsNewRoute: typeof AuthenticatedDashboardContractsNewRoute
+  AuthenticatedDashboardInvoicesIdRoute: typeof AuthenticatedDashboardInvoicesIdRoute
   AuthenticatedDashboardPropertiesIdRoute: typeof AuthenticatedDashboardPropertiesIdRoute
   AuthenticatedDashboardPropertiesNewRoute: typeof AuthenticatedDashboardPropertiesNewRoute
   AuthenticatedDashboardUnitsIdRoute: typeof AuthenticatedDashboardUnitsIdRoute
@@ -4959,6 +4980,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardContractsIdRoute,
     AuthenticatedDashboardContractsNewRoute:
       AuthenticatedDashboardContractsNewRoute,
+    AuthenticatedDashboardInvoicesIdRoute:
+      AuthenticatedDashboardInvoicesIdRoute,
     AuthenticatedDashboardPropertiesIdRoute:
       AuthenticatedDashboardPropertiesIdRoute,
     AuthenticatedDashboardPropertiesNewRoute:
