@@ -45,8 +45,10 @@ export default defineConfig({
         devOptions: { enabled: false },
         manifest: false,
         workbox: {
-          navigateFallback: "/",
+          navigateFallback: "/offline.html",
           navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
+          // Ensure the offline shell is always precached and available.
+          additionalManifestEntries: [{ url: "/offline.html", revision: null }],
           globPatterns: ["**/*.{js,css,html,ico,png,svg,webp,woff2}"],
           // Exclude heavy on-demand chunks and marketing imagery from the
           // service-worker precache. They still cache at runtime the first
