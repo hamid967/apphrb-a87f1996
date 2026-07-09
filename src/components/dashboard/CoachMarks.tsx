@@ -1,8 +1,10 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { X, ChevronRight, ChevronLeft, CheckCircle2, Sparkles } from "lucide-react";
+import { setOnboardingStep } from "@/lib/onboarding.functions";
 
 /**
  * Coach Marks — auto-launching, step-by-step guided hints.
