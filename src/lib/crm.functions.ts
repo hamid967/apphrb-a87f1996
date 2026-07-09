@@ -56,6 +56,8 @@ const createLeadSchema = z.object({
   currency: z.string().min(3).max(6).default("SAR"),
   notes: z.string().max(4000).optional().nullable(),
   assigned_to: z.string().uuid().optional().nullable(),
+  lost_reason: z.string().max(500).optional().nullable(),
+  expected_close_date: z.string().date().optional().nullable(),
 });
 
 const updateLeadSchema = createLeadSchema

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -190,7 +190,13 @@ function LeadsPage() {
                       key={lead.id}
                       className="rounded-lg border bg-background p-3 text-sm shadow-sm"
                     >
-                      <div className="truncate font-medium">{lead.contact?.full_name ?? "—"}</div>
+                      <Link
+                        to="/leads/$id"
+                        params={{ id: lead.id }}
+                        className="block truncate font-medium hover:underline"
+                      >
+                        {lead.contact?.full_name ?? "—"}
+                      </Link>
                       {lead.property && (
                         <div className="mt-0.5 truncate text-xs text-muted-foreground">
                           {isAr ? lead.property.title_ar : lead.property.title_en}

@@ -97,6 +97,7 @@ import { Route as AuthenticatedPortalAppointmentsRouteImport } from './routes/_a
 import { Route as AuthenticatedOwnersContractsRouteImport } from './routes/_authenticated/owners.contracts'
 import { Route as AuthenticatedOwnersIdRouteImport } from './routes/_authenticated/owners.$id'
 import { Route as AuthenticatedMaintenanceTechniciansRouteImport } from './routes/_authenticated/maintenance.technicians'
+import { Route as AuthenticatedLeadsIdRouteImport } from './routes/_authenticated/leads.$id'
 import { Route as AuthenticatedDocumentsIdRouteImport } from './routes/_authenticated/documents.$id'
 import { Route as AuthenticatedDealsIdRouteImport } from './routes/_authenticated/deals.$id'
 import { Route as AuthenticatedDashboardVouchersRouteImport } from './routes/_authenticated/dashboard.vouchers'
@@ -126,6 +127,7 @@ import { Route as AuthenticatedDashboardAuctionsRouteImport } from './routes/_au
 import { Route as AuthenticatedDashboardArchiveLogRouteImport } from './routes/_authenticated/dashboard.archive-log'
 import { Route as AuthenticatedDashboardArchiveRouteImport } from './routes/_authenticated/dashboard.archive'
 import { Route as AuthenticatedDashboardApplicationsRouteImport } from './routes/_authenticated/dashboard.applications'
+import { Route as AuthenticatedCrmAnalyticsRouteImport } from './routes/_authenticated/crm.analytics'
 import { Route as AuthenticatedContractsIdRouteImport } from './routes/_authenticated/contracts.$id'
 import { Route as AuthenticatedAuctionsIdRouteImport } from './routes/_authenticated/auctions.$id'
 import { Route as AuthenticatedAssistantScriptsRouteImport } from './routes/_authenticated/assistant.scripts'
@@ -719,6 +721,11 @@ const AuthenticatedMaintenanceTechniciansRoute =
     path: '/maintenance/technicians',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedLeadsIdRoute = AuthenticatedLeadsIdRouteImport.update({
+  id: '/leads/$id',
+  path: '/leads/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDocumentsIdRoute =
   AuthenticatedDocumentsIdRouteImport.update({
     id: '/documents/$id',
@@ -891,6 +898,12 @@ const AuthenticatedDashboardApplicationsRoute =
     id: '/applications',
     path: '/applications',
     getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedCrmAnalyticsRoute =
+  AuthenticatedCrmAnalyticsRouteImport.update({
+    id: '/crm/analytics',
+    path: '/crm/analytics',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedContractsIdRoute =
   AuthenticatedContractsIdRouteImport.update({
@@ -1639,6 +1652,7 @@ export interface FileRoutesByFullPath {
   '/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
   '/auctions/$id': typeof AuthenticatedAuctionsIdRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
+  '/crm/analytics': typeof AuthenticatedCrmAnalyticsRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/archive': typeof AuthenticatedDashboardArchiveRoute
   '/dashboard/archive-log': typeof AuthenticatedDashboardArchiveLogRoute
@@ -1668,6 +1682,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/vouchers': typeof AuthenticatedDashboardVouchersRoute
   '/deals/$id': typeof AuthenticatedDealsIdRoute
   '/documents/$id': typeof AuthenticatedDocumentsIdRoute
+  '/leads/$id': typeof AuthenticatedLeadsIdRoute
   '/maintenance/technicians': typeof AuthenticatedMaintenanceTechniciansRoute
   '/owners/$id': typeof AuthenticatedOwnersIdRouteWithChildren
   '/owners/contracts': typeof AuthenticatedOwnersContractsRoute
@@ -1867,6 +1882,7 @@ export interface FileRoutesByTo {
   '/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
   '/auctions/$id': typeof AuthenticatedAuctionsIdRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
+  '/crm/analytics': typeof AuthenticatedCrmAnalyticsRoute
   '/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/dashboard/archive': typeof AuthenticatedDashboardArchiveRoute
   '/dashboard/archive-log': typeof AuthenticatedDashboardArchiveLogRoute
@@ -1895,6 +1911,7 @@ export interface FileRoutesByTo {
   '/dashboard/vouchers': typeof AuthenticatedDashboardVouchersRoute
   '/deals/$id': typeof AuthenticatedDealsIdRoute
   '/documents/$id': typeof AuthenticatedDocumentsIdRoute
+  '/leads/$id': typeof AuthenticatedLeadsIdRoute
   '/maintenance/technicians': typeof AuthenticatedMaintenanceTechniciansRoute
   '/owners/$id': typeof AuthenticatedOwnersIdRouteWithChildren
   '/owners/contracts': typeof AuthenticatedOwnersContractsRoute
@@ -2099,6 +2116,7 @@ export interface FileRoutesById {
   '/_authenticated/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
   '/_authenticated/auctions/$id': typeof AuthenticatedAuctionsIdRoute
   '/_authenticated/contracts/$id': typeof AuthenticatedContractsIdRoute
+  '/_authenticated/crm/analytics': typeof AuthenticatedCrmAnalyticsRoute
   '/_authenticated/dashboard/applications': typeof AuthenticatedDashboardApplicationsRoute
   '/_authenticated/dashboard/archive': typeof AuthenticatedDashboardArchiveRoute
   '/_authenticated/dashboard/archive-log': typeof AuthenticatedDashboardArchiveLogRoute
@@ -2128,6 +2146,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/vouchers': typeof AuthenticatedDashboardVouchersRoute
   '/_authenticated/deals/$id': typeof AuthenticatedDealsIdRoute
   '/_authenticated/documents/$id': typeof AuthenticatedDocumentsIdRoute
+  '/_authenticated/leads/$id': typeof AuthenticatedLeadsIdRoute
   '/_authenticated/maintenance/technicians': typeof AuthenticatedMaintenanceTechniciansRoute
   '/_authenticated/owners/$id': typeof AuthenticatedOwnersIdRouteWithChildren
   '/_authenticated/owners/contracts': typeof AuthenticatedOwnersContractsRoute
@@ -2334,6 +2353,7 @@ export interface FileRouteTypes {
     | '/assistant/scripts'
     | '/auctions/$id'
     | '/contracts/$id'
+    | '/crm/analytics'
     | '/dashboard/applications'
     | '/dashboard/archive'
     | '/dashboard/archive-log'
@@ -2363,6 +2383,7 @@ export interface FileRouteTypes {
     | '/dashboard/vouchers'
     | '/deals/$id'
     | '/documents/$id'
+    | '/leads/$id'
     | '/maintenance/technicians'
     | '/owners/$id'
     | '/owners/contracts'
@@ -2562,6 +2583,7 @@ export interface FileRouteTypes {
     | '/assistant/scripts'
     | '/auctions/$id'
     | '/contracts/$id'
+    | '/crm/analytics'
     | '/dashboard/applications'
     | '/dashboard/archive'
     | '/dashboard/archive-log'
@@ -2590,6 +2612,7 @@ export interface FileRouteTypes {
     | '/dashboard/vouchers'
     | '/deals/$id'
     | '/documents/$id'
+    | '/leads/$id'
     | '/maintenance/technicians'
     | '/owners/$id'
     | '/owners/contracts'
@@ -2793,6 +2816,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assistant/scripts'
     | '/_authenticated/auctions/$id'
     | '/_authenticated/contracts/$id'
+    | '/_authenticated/crm/analytics'
     | '/_authenticated/dashboard/applications'
     | '/_authenticated/dashboard/archive'
     | '/_authenticated/dashboard/archive-log'
@@ -2822,6 +2846,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/vouchers'
     | '/_authenticated/deals/$id'
     | '/_authenticated/documents/$id'
+    | '/_authenticated/leads/$id'
     | '/_authenticated/maintenance/technicians'
     | '/_authenticated/owners/$id'
     | '/_authenticated/owners/contracts'
@@ -3626,6 +3651,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMaintenanceTechniciansRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/leads/$id': {
+      id: '/_authenticated/leads/$id'
+      path: '/leads/$id'
+      fullPath: '/leads/$id'
+      preLoaderRoute: typeof AuthenticatedLeadsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/documents/$id': {
       id: '/_authenticated/documents/$id'
       path: '/documents/$id'
@@ -3828,6 +3860,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/applications'
       preLoaderRoute: typeof AuthenticatedDashboardApplicationsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/crm/analytics': {
+      id: '/_authenticated/crm/analytics'
+      path: '/crm/analytics'
+      fullPath: '/crm/analytics'
+      preLoaderRoute: typeof AuthenticatedCrmAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/contracts/$id': {
       id: '/_authenticated/contracts/$id'
@@ -5221,8 +5260,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedRegisterCompanyRoute: typeof AuthenticatedRegisterCompanyRoute
   AuthenticatedAuctionsIdRoute: typeof AuthenticatedAuctionsIdRoute
   AuthenticatedContractsIdRoute: typeof AuthenticatedContractsIdRoute
+  AuthenticatedCrmAnalyticsRoute: typeof AuthenticatedCrmAnalyticsRoute
   AuthenticatedDealsIdRoute: typeof AuthenticatedDealsIdRoute
   AuthenticatedDocumentsIdRoute: typeof AuthenticatedDocumentsIdRoute
+  AuthenticatedLeadsIdRoute: typeof AuthenticatedLeadsIdRoute
   AuthenticatedMaintenanceTechniciansRoute: typeof AuthenticatedMaintenanceTechniciansRoute
   AuthenticatedOwnersIdRoute: typeof AuthenticatedOwnersIdRouteWithChildren
   AuthenticatedOwnersContractsRoute: typeof AuthenticatedOwnersContractsRoute
@@ -5265,8 +5306,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedRegisterCompanyRoute: AuthenticatedRegisterCompanyRoute,
   AuthenticatedAuctionsIdRoute: AuthenticatedAuctionsIdRoute,
   AuthenticatedContractsIdRoute: AuthenticatedContractsIdRoute,
+  AuthenticatedCrmAnalyticsRoute: AuthenticatedCrmAnalyticsRoute,
   AuthenticatedDealsIdRoute: AuthenticatedDealsIdRoute,
   AuthenticatedDocumentsIdRoute: AuthenticatedDocumentsIdRoute,
+  AuthenticatedLeadsIdRoute: AuthenticatedLeadsIdRoute,
   AuthenticatedMaintenanceTechniciansRoute:
     AuthenticatedMaintenanceTechniciansRoute,
   AuthenticatedOwnersIdRoute: AuthenticatedOwnersIdRouteWithChildren,

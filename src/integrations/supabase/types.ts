@@ -2303,6 +2303,53 @@ export type Database = {
           },
         ]
       }
+      lead_activities: {
+        Row: {
+          activity_type: string
+          actor_id: string | null
+          body: string | null
+          created_at: string
+          from_stage: string | null
+          id: string
+          lead_id: string
+          metadata: Json
+          org_id: string
+          to_stage: string | null
+        }
+        Insert: {
+          activity_type: string
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          from_stage?: string | null
+          id?: string
+          lead_id: string
+          metadata?: Json
+          org_id: string
+          to_stage?: string | null
+        }
+        Update: {
+          activity_type?: string
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          from_stage?: string | null
+          id?: string
+          lead_id?: string
+          metadata?: Json
+          org_id?: string
+          to_stage?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           assigned_to: string | null
@@ -2312,13 +2359,18 @@ export type Database = {
           created_at: string
           created_by: string | null
           currency: string
+          expected_close_date: string | null
           id: string
+          last_activity_at: string | null
+          lost_at: string | null
+          lost_reason: string | null
           notes: string | null
           org_id: string
           property_id: string | null
           source: string | null
           stage: Database["public"]["Enums"]["lead_stage"]
           updated_at: string
+          won_at: string | null
         }
         Insert: {
           assigned_to?: string | null
@@ -2328,13 +2380,18 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string
+          expected_close_date?: string | null
           id?: string
+          last_activity_at?: string | null
+          lost_at?: string | null
+          lost_reason?: string | null
           notes?: string | null
           org_id: string
           property_id?: string | null
           source?: string | null
           stage?: Database["public"]["Enums"]["lead_stage"]
           updated_at?: string
+          won_at?: string | null
         }
         Update: {
           assigned_to?: string | null
@@ -2344,13 +2401,18 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string
+          expected_close_date?: string | null
           id?: string
+          last_activity_at?: string | null
+          lost_at?: string | null
+          lost_reason?: string | null
           notes?: string | null
           org_id?: string
           property_id?: string | null
           source?: string | null
           stage?: Database["public"]["Enums"]["lead_stage"]
           updated_at?: string
+          won_at?: string | null
         }
         Relationships: [
           {
@@ -2372,6 +2434,57 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_lead_matches: {
+        Row: {
+          created_at: string
+          id: string
+          lead_id: string
+          listing_id: string
+          notes: string | null
+          org_id: string
+          score: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lead_id: string
+          listing_id: string
+          notes?: string | null
+          org_id: string
+          score?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lead_id?: string
+          listing_id?: string
+          notes?: string | null
+          org_id?: string
+          score?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_lead_matches_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_lead_matches_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
             referencedColumns: ["id"]
           },
         ]
@@ -6306,6 +6419,25 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "contracts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_lead_pipeline: {
+        Row: {
+          assigned_to: string | null
+          last_activity_at: string | null
+          leads_count: number | null
+          org_id: string | null
+          pipeline_value: number | null
+          stage: Database["public"]["Enums"]["lead_stage"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
