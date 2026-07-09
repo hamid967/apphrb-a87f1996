@@ -119,11 +119,6 @@ function ForgotPasswordPage() {
               {submitting && <Loader2 className="me-2 size-4 animate-spin" />}
               {t("forgot.submit")}
             </Button>
-            {captchaRequired && (
-              <div className="pt-2">
-                <TurnstileWidget onToken={setCaptchaToken} />
-              </div>
-            )}
           </form>
         </>
       ) : (
