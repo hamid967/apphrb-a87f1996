@@ -53,13 +53,16 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedShellWithBoundary() {
-  // Apply the Minimal Dark Tech theme (Slate & Steel + Space Grotesk/DM Sans)
-  // to every authenticated route by default, but let the user opt out and
-  // persist that choice in localStorage via DashboardThemeToggle.
+  // Dashboard theme modes:
+  //   "royal"   — Emerald Prestige (default, luxury cream+emerald+gold)
+  //   "tech"    — Slate & Steel dark
+  //   "default" — legacy Visionary Glass (theme-lux)
+  // Persisted per user in localStorage; toggled via DashboardThemeToggle.
   useEffect(() => {
     const KEY = "aqari.dashboard.theme";
     const el = document.documentElement;
     let timer: number | null = null;
+    const ALL_MODE_CLASSES = ["theme-tech", "theme-lux", "theme-royal", "dark"];
     const apply = (mode: string, animate: boolean) => {
       const prefersReduced = window.matchMedia?.(
         "(prefers-reduced-motion: reduce)",
@@ -72,20 +75,34 @@ function AuthenticatedShellWithBoundary() {
           timer = null;
         }, 360);
       }
+      el.classList.remove(...ALL_MODE_CLASSES);
       if (mode === "tech") {
-        el.classList.remove("theme-lux");
         el.classList.add("theme-tech", "dark");
-      } else {
-        // "default" (or anything else) → Visionary Glass light
-        el.classList.remove("theme-tech", "dark");
+      } else if (mode === "default") {
         el.classList.add("theme-lux");
+      } else {
+        // "royal" is the new default
+        el.classList.add("theme-royal");
       }
     };
     const initial = (() => {
       try {
-        return window.localStorage.getItem(KEY) ?? "default";
+        const raw = window.localStorage.getItem(KEY);
+        const MIGRATED = "aqari.dashboard.theme.royalMigrated";
+        // One-time migration: promote the historical auto-applied "default"
+        // (Visionary Glass) to the new Royal default so returning users see
+        // the redesign. They can switch back via DashboardThemeToggle.
+        if (!window.localStorage.getItem(MIGRATED)) {
+          if (raw === null || raw === "default") {
+            window.localStorage.setItem(KEY, "royal");
+            window.localStorage.setItem(MIGRATED, "1");
+            return "royal";
+          }
+          window.localStorage.setItem(MIGRATED, "1");
+        }
+        return raw ?? "royal";
       } catch {
-        return "default";
+        return "royal";
       }
     })();
     apply(initial, false);
@@ -97,7 +114,7 @@ function AuthenticatedShellWithBoundary() {
     return () => {
       window.removeEventListener("aqari:dashboard-theme", onChange);
       if (timer !== null) window.clearTimeout(timer);
-      el.classList.remove("theme-tech", "dark", "theme-lux", "theme-transitioning");
+      el.classList.remove(...ALL_MODE_CLASSES, "theme-transitioning");
     };
   }, []);
 
