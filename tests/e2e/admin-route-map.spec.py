@@ -186,6 +186,74 @@ async def run(page) -> None:
            f"unique={sorted(set(badges))[:3]}")
     await page.screenshot(path=str(SCREENSHOTS / "03_scope_admin.png"))
 
+    # Reset scope back to "all" for the dynamic-route checks.
+    await page.locator('[role="combobox"]').first.click()
+    all_option = page.get_by_role("option").filter(
+        has_text="All scopes"
+    ).or_(page.get_by_role("option").filter(has_text="كل النطاقات")).first
+    await all_option.click()
+    await page.wait_for_timeout(200)
+
+    # 6. Dynamic ($param) rows: search by "$" and assert every row is
+    # marked dynamic and its Open cell shows the em-dash placeholder
+    # (no <a> — dynamic paths can't be opened without params).
+    await search.fill("$")
+    await page.wait_for_timeout(250)
+    dyn_rows = page.locator("table tbody tr")
+    dyn_count = await dyn_rows.count()
+    record("dynamic-route filter yields at least one $param row",
+           dyn_count > 0, f"rows={dyn_count}")
+
+    dyn_paths = await page.locator("table tbody tr td:first-child").all_inner_texts()
+    all_have_dollar = all("$" in p for p in dyn_paths) and dyn_count > 0
+    record("every filtered row's path contains a $param segment",
+           all_have_dollar, f"sample={dyn_paths[:3]}")
+
+    dyn_flags = await page.locator("table tbody tr td:nth-child(3)").all_inner_texts()
+    all_marked_yes = all(("Yes" in v) or ("نعم" in v) for v in dyn_flags) and dyn_count > 0
+    record("dynamic column reads Yes/نعم for every $param row",
+           all_marked_yes, f"flags={dyn_flags[:3]}")
+
+    # Open cell on dynamic rows must NOT render an <a>.
+    open_links_on_dyn = await page.locator("table tbody tr td:nth-child(4) a").count()
+    record("dynamic rows expose no Open link",
+           open_links_on_dyn == 0, f"anchors={open_links_on_dyn}")
+    await page.screenshot(path=str(SCREENSHOTS / "04_dynamic_rows.png"))
+
+    # 7. Static-route Open link opens in a new tab.
+    await search.fill("/admin/users")
+    await page.wait_for_timeout(250)
+    users_row = page.locator("table tbody tr", has_text="/admin/users").first
+    if await users_row.count() == 0:
+        record("Open link on /admin/users row opens in new tab", False,
+               "row not found")
+        return
+
+    open_link = users_row.locator("a", has_text="Open").or_(
+        users_row.locator("a", has_text="فتح")
+    ).first
+    target = await open_link.get_attribute("target")
+    href = await open_link.get_attribute("href")
+    record("Open anchor targets a new tab (target=_blank)",
+           target == "_blank", f"target={target}")
+    record("Open anchor href points at the row's path",
+           href is not None and href.endswith("/admin/users"),
+           f"href={href}")
+
+    # Verify the click actually opens a second page in the same context.
+    async with page.context.expect_page(timeout=5000) as new_page_info:
+        await open_link.click()
+    new_page = await new_page_info.value
+    await new_page.wait_for_load_state("domcontentloaded")
+    new_url = new_page.url.replace(BASE, "")
+    record("clicking Open opens /admin/users in a new tab",
+           new_url.startswith("/admin/users"),
+           f"new_url={new_url}")
+    await new_page.screenshot(path=str(SCREENSHOTS / "05_open_new_tab.png"))
+    await new_page.close()
+
+
+
 
 async def main() -> int:
     source = resolve_auth_source()
