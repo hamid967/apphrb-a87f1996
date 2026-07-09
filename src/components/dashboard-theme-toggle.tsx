@@ -100,7 +100,7 @@ export function DashboardThemeToggle({ className }: { className?: string }) {
       onClick={() => setMode(isTech ? "default" : "tech")}
       className={cn("rounded-xl", className)}
     >
-      {isTech ? <Square className="size-4" /> : <Sparkles className="size-4" />}
+      {isTech ? <Sun className="size-4" /> : <Moon className="size-4" />}
     </Button>
   );
 }
