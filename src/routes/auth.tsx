@@ -530,7 +530,7 @@ function AuthPage() {
                   disabled={submitting}
                 >
                   {submitting && <Loader2 className="me-2 size-4 animate-spin" />}
-                  {mode === "signup" ? t("auth.signUp") : "تسجيل الدخول"}
+                  {mode === "signup" ? t("auth.signUp") : t("auth.signIn")}
                 </Button>
               </form>
 
