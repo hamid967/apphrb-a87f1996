@@ -458,11 +458,15 @@ function Kpi({
   icon,
   label,
   value,
+  suffix,
+  format,
   tone = "primary",
 }: {
   icon: React.ReactNode;
   label: string;
-  value: string;
+  value: number;
+  suffix?: string;
+  format?: (n: number) => string;
   tone?: Tone;
 }) {
   return (
@@ -483,11 +487,14 @@ function Kpi({
       </div>
       <div className="min-w-0">
         <div className="truncate text-[11px] text-muted-foreground">{label}</div>
-        <div className="mt-0.5 truncate text-lg font-semibold tabular-nums">{value}</div>
+        <div className="mt-0.5 truncate text-lg font-semibold tabular-nums">
+          <AnimatedNumber value={value} format={format} suffix={suffix} />
+        </div>
       </div>
     </motion.div>
   );
 }
+
 
 function Badge({ children, tone = "primary" }: { children: React.ReactNode; tone?: Tone }) {
   return (
