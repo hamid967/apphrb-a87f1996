@@ -133,10 +133,16 @@ function AuthPage() {
   }, [email]);
 
 
+  // Persist any incoming ?redirect= so we can recover it if the WebView
+  // strips query params during an OAuth / magic-link round-trip.
+  useEffect(() => {
+    const safe = safeRedirect(redirectTarget);
+    if (safe) savePendingRedirect(safe);
+  }, [redirectTarget]);
+
   useEffect(() => {
     if (ready && user) {
-      const safe = safeRedirect(redirectTarget);
-      nav({ to: safe ?? "/dashboard", replace: true });
+      void routeAfterLogin(nav, redirectTarget);
     }
   }, [ready, user, nav, redirectTarget]);
   useEffect(() => {
