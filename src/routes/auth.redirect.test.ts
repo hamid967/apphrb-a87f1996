@@ -38,7 +38,8 @@ vi.mock("@tanstack/react-router", () => ({
   useSearch: () => ({}),
 }));
 
-const { safeRedirect } = await import("./auth");
+const { safeRedirect, routeAfterLogin } = await import("./auth");
+const { getAppOrigin } = await import("@/lib/app-url");
 
 describe("safeRedirect (post-login destination)", () => {
   it("returns valid same-origin paths", () => {
