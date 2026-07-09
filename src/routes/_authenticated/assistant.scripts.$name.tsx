@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { runDashboardTool } from "@/lib/ai-assistant.functions";
 import { recordRun } from "@/lib/scripts-history";
+import { exportRowsToCsv, exportRowsToPdf } from "@/lib/scripts-export";
 import { sectionHead } from "@/lib/section-og-head";
 import {
   ArrowLeft,
@@ -18,6 +19,8 @@ import {
   RefreshCw,
   CheckCircle2,
   Clock,
+  FileDown,
+  FileText,
 } from "lucide-react";
 
 type SearchArgs = Record<string, string | number | undefined>;
