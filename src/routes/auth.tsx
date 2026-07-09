@@ -495,7 +495,7 @@ function AuthPage() {
                       onClick={() => setShowPassword((v) => !v)}
                       className="absolute end-2 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-md hover:bg-white/10"
                       style={{ color: HBS.gray }}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                     >
                       {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                     </button>
