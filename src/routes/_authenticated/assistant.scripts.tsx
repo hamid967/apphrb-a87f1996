@@ -359,9 +359,18 @@ function AssistantScriptsPage() {
 
   return (
     <div className="mx-auto max-w-5xl p-4 md:p-6 space-y-6" dir={isRtl ? "rtl" : "ltr"}>
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold">{t("assistant.scripts.title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("assistant.scripts.subtitle")}</p>
+      <header className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold">{t("assistant.scripts.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("assistant.scripts.subtitle")}</p>
+        </div>
+        <Link
+          to="/assistant/scripts/history"
+          className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted"
+        >
+          <History className="size-4" />
+          {t("assistant.scripts.history")}
+        </Link>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
