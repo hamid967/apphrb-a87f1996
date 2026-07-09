@@ -511,6 +511,54 @@ export type Database = {
           },
         ]
       }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          body_ar: string
+          body_en: string
+          cover_url: string | null
+          created_at: string
+          excerpt_ar: string | null
+          excerpt_en: string | null
+          id: string
+          published_at: string | null
+          slug: string
+          title_ar: string
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          body_ar: string
+          body_en: string
+          cover_url?: string | null
+          created_at?: string
+          excerpt_ar?: string | null
+          excerpt_en?: string | null
+          id?: string
+          published_at?: string | null
+          slug: string
+          title_ar: string
+          title_en: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          body_ar?: string
+          body_en?: string
+          cover_url?: string | null
+          created_at?: string
+          excerpt_ar?: string | null
+          excerpt_en?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       branches: {
         Row: {
           address: string | null
@@ -1938,6 +1986,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      faq_entries: {
+        Row: {
+          answer_ar: string
+          answer_en: string
+          category: string
+          created_at: string
+          id: string
+          is_published: boolean
+          order_index: number
+          question_ar: string
+          question_en: string
+          updated_at: string
+        }
+        Insert: {
+          answer_ar: string
+          answer_en: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          order_index?: number
+          question_ar: string
+          question_en: string
+          updated_at?: string
+        }
+        Update: {
+          answer_ar?: string
+          answer_en?: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          order_index?: number
+          question_ar?: string
+          question_en?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       filter_analytics_events: {
         Row: {

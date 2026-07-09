@@ -15,12 +15,19 @@ import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AccessDeniedRouteImport } from './routes/access-denied'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as SolutionsOwnersRouteImport } from './routes/solutions.owners'
+import { Route as SolutionsEnterprisesRouteImport } from './routes/solutions.enterprises'
+import { Route as SolutionsBrokersRouteImport } from './routes/solutions.brokers'
 import { Route as PortalInviteTokenRouteImport } from './routes/portal-invite.$token'
 import { Route as OnboardingWorkspaceRouteImport } from './routes/onboarding.workspace'
 import { Route as OnboardingWizardRouteImport } from './routes/onboarding.wizard'
@@ -32,6 +39,7 @@ import { Route as InviteTokenRouteImport } from './routes/invite.$token'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as DocsApiRouteImport } from './routes/docs.api'
 import { Route as DevVerifyRouteImport } from './routes/dev.verify'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedRegisterCompanyRouteImport } from './routes/_authenticated/register-company'
 import { Route as AuthenticatedPortalRouteImport } from './routes/_authenticated/portal'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -232,6 +240,16 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CompareRoute = CompareRouteImport.update({
   id: '/compare',
   path: '/compare',
@@ -247,6 +265,11 @@ const AccessDeniedRoute = AccessDeniedRouteImport.update({
   path: '/access-denied',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
@@ -259,6 +282,26 @@ const IndexRoute = IndexRouteImport.update({
 const ListingsIndexRoute = ListingsIndexRouteImport.update({
   id: '/listings/',
   path: '/listings/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolutionsOwnersRoute = SolutionsOwnersRouteImport.update({
+  id: '/solutions/owners',
+  path: '/solutions/owners',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolutionsEnterprisesRoute = SolutionsEnterprisesRouteImport.update({
+  id: '/solutions/enterprises',
+  path: '/solutions/enterprises',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolutionsBrokersRoute = SolutionsBrokersRouteImport.update({
+  id: '/solutions/brokers',
+  path: '/solutions/brokers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortalInviteTokenRoute = PortalInviteTokenRouteImport.update({
@@ -314,6 +357,11 @@ const DocsApiRoute = DocsApiRouteImport.update({
 const DevVerifyRoute = DevVerifyRouteImport.update({
   id: '/dev/verify',
   path: '/dev/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRegisterCompanyRoute =
@@ -1295,9 +1343,12 @@ const ApiPublicV1AuctionsIdBidsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/access-denied': typeof AccessDeniedRoute
   '/auth': typeof AuthRoute
   '/compare': typeof CompareRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -1312,6 +1363,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/portal': typeof AuthenticatedPortalRouteWithChildren
   '/register-company': typeof AuthenticatedRegisterCompanyRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/dev/verify': typeof DevVerifyRoute
   '/docs/api': typeof DocsApiRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -1323,6 +1375,10 @@ export interface FileRoutesByFullPath {
   '/onboarding/wizard': typeof OnboardingWizardRoute
   '/onboarding/workspace': typeof OnboardingWorkspaceRoute
   '/portal-invite/$token': typeof PortalInviteTokenRoute
+  '/solutions/brokers': typeof SolutionsBrokersRoute
+  '/solutions/enterprises': typeof SolutionsEnterprisesRoute
+  '/solutions/owners': typeof SolutionsOwnersRoute
+  '/blog/': typeof BlogIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/accounting/expenses': typeof AuthenticatedAccountingExpensesRoute
   '/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
@@ -1488,9 +1544,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/access-denied': typeof AccessDeniedRoute
   '/auth': typeof AuthRoute
   '/compare': typeof CompareRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -1500,6 +1559,7 @@ export interface FileRoutesByTo {
   '/leasing': typeof AuthenticatedLeasingRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/register-company': typeof AuthenticatedRegisterCompanyRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/dev/verify': typeof DevVerifyRoute
   '/docs/api': typeof DocsApiRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -1511,6 +1571,10 @@ export interface FileRoutesByTo {
   '/onboarding/wizard': typeof OnboardingWizardRoute
   '/onboarding/workspace': typeof OnboardingWorkspaceRoute
   '/portal-invite/$token': typeof PortalInviteTokenRoute
+  '/solutions/brokers': typeof SolutionsBrokersRoute
+  '/solutions/enterprises': typeof SolutionsEnterprisesRoute
+  '/solutions/owners': typeof SolutionsOwnersRoute
+  '/blog': typeof BlogIndexRoute
   '/listings': typeof ListingsIndexRoute
   '/accounting/expenses': typeof AuthenticatedAccountingExpensesRoute
   '/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
@@ -1676,9 +1740,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/about': typeof AboutRoute
   '/access-denied': typeof AccessDeniedRoute
   '/auth': typeof AuthRoute
   '/compare': typeof CompareRoute
+  '/contact': typeof ContactRoute
+  '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -1693,6 +1760,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/portal': typeof AuthenticatedPortalRouteWithChildren
   '/_authenticated/register-company': typeof AuthenticatedRegisterCompanyRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/dev/verify': typeof DevVerifyRoute
   '/docs/api': typeof DocsApiRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
@@ -1704,6 +1772,10 @@ export interface FileRoutesById {
   '/onboarding/wizard': typeof OnboardingWizardRoute
   '/onboarding/workspace': typeof OnboardingWorkspaceRoute
   '/portal-invite/$token': typeof PortalInviteTokenRoute
+  '/solutions/brokers': typeof SolutionsBrokersRoute
+  '/solutions/enterprises': typeof SolutionsEnterprisesRoute
+  '/solutions/owners': typeof SolutionsOwnersRoute
+  '/blog/': typeof BlogIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/_authenticated/accounting/expenses': typeof AuthenticatedAccountingExpensesRoute
   '/_authenticated/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
@@ -1871,9 +1943,12 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/access-denied'
     | '/auth'
     | '/compare'
+    | '/contact'
+    | '/faq'
     | '/forgot-password'
     | '/pricing'
     | '/reset-password'
@@ -1888,6 +1963,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/portal'
     | '/register-company'
+    | '/blog/$slug'
     | '/dev/verify'
     | '/docs/api'
     | '/email/unsubscribe'
@@ -1899,6 +1975,10 @@ export interface FileRouteTypes {
     | '/onboarding/wizard'
     | '/onboarding/workspace'
     | '/portal-invite/$token'
+    | '/solutions/brokers'
+    | '/solutions/enterprises'
+    | '/solutions/owners'
+    | '/blog/'
     | '/listings/'
     | '/accounting/expenses'
     | '/accounting/pnl'
@@ -2064,9 +2144,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/access-denied'
     | '/auth'
     | '/compare'
+    | '/contact'
+    | '/faq'
     | '/forgot-password'
     | '/pricing'
     | '/reset-password'
@@ -2076,6 +2159,7 @@ export interface FileRouteTypes {
     | '/leasing'
     | '/onboarding'
     | '/register-company'
+    | '/blog/$slug'
     | '/dev/verify'
     | '/docs/api'
     | '/email/unsubscribe'
@@ -2087,6 +2171,10 @@ export interface FileRouteTypes {
     | '/onboarding/wizard'
     | '/onboarding/workspace'
     | '/portal-invite/$token'
+    | '/solutions/brokers'
+    | '/solutions/enterprises'
+    | '/solutions/owners'
+    | '/blog'
     | '/listings'
     | '/accounting/expenses'
     | '/accounting/pnl'
@@ -2251,9 +2339,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/about'
     | '/access-denied'
     | '/auth'
     | '/compare'
+    | '/contact'
+    | '/faq'
     | '/forgot-password'
     | '/pricing'
     | '/reset-password'
@@ -2268,6 +2359,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/portal'
     | '/_authenticated/register-company'
+    | '/blog/$slug'
     | '/dev/verify'
     | '/docs/api'
     | '/email/unsubscribe'
@@ -2279,6 +2371,10 @@ export interface FileRouteTypes {
     | '/onboarding/wizard'
     | '/onboarding/workspace'
     | '/portal-invite/$token'
+    | '/solutions/brokers'
+    | '/solutions/enterprises'
+    | '/solutions/owners'
+    | '/blog/'
     | '/listings/'
     | '/_authenticated/accounting/expenses'
     | '/_authenticated/accounting/pnl'
@@ -2446,15 +2542,19 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AboutRoute: typeof AboutRoute
   AccessDeniedRoute: typeof AccessDeniedRoute
   AuthRoute: typeof AuthRoute
   CompareRoute: typeof CompareRoute
+  ContactRoute: typeof ContactRoute
+  FaqRoute: typeof FaqRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   DevVerifyRoute: typeof DevVerifyRoute
   DocsApiRoute: typeof DocsApiRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
@@ -2466,6 +2566,10 @@ export interface RootRouteChildren {
   OnboardingWizardRoute: typeof OnboardingWizardRoute
   OnboardingWorkspaceRoute: typeof OnboardingWorkspaceRoute
   PortalInviteTokenRoute: typeof PortalInviteTokenRoute
+  SolutionsBrokersRoute: typeof SolutionsBrokersRoute
+  SolutionsEnterprisesRoute: typeof SolutionsEnterprisesRoute
+  SolutionsOwnersRoute: typeof SolutionsOwnersRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   ListingsIndexRoute: typeof ListingsIndexRoute
   ApiAssistantChatRoute: typeof ApiAssistantChatRoute
   ApiPublicFilterAnalyticsBeaconRoute: typeof ApiPublicFilterAnalyticsBeaconRoute
@@ -2535,6 +2639,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/compare': {
       id: '/compare'
       path: '/compare'
@@ -2556,6 +2674,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccessDeniedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -2575,6 +2700,34 @@ declare module '@tanstack/react-router' {
       path: '/listings'
       fullPath: '/listings/'
       preLoaderRoute: typeof ListingsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solutions/owners': {
+      id: '/solutions/owners'
+      path: '/solutions/owners'
+      fullPath: '/solutions/owners'
+      preLoaderRoute: typeof SolutionsOwnersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solutions/enterprises': {
+      id: '/solutions/enterprises'
+      path: '/solutions/enterprises'
+      fullPath: '/solutions/enterprises'
+      preLoaderRoute: typeof SolutionsEnterprisesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solutions/brokers': {
+      id: '/solutions/brokers'
+      path: '/solutions/brokers'
+      fullPath: '/solutions/brokers'
+      preLoaderRoute: typeof SolutionsBrokersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portal-invite/$token': {
@@ -2652,6 +2805,13 @@ declare module '@tanstack/react-router' {
       path: '/dev/verify'
       fullPath: '/dev/verify'
       preLoaderRoute: typeof DevVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/register-company': {
@@ -4497,15 +4657,19 @@ const ApiPublicV1UnitsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AboutRoute: AboutRoute,
   AccessDeniedRoute: AccessDeniedRoute,
   AuthRoute: AuthRoute,
   CompareRoute: CompareRoute,
+  ContactRoute: ContactRoute,
+  FaqRoute: FaqRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UnsubscribeRoute: UnsubscribeRoute,
+  BlogSlugRoute: BlogSlugRoute,
   DevVerifyRoute: DevVerifyRoute,
   DocsApiRoute: DocsApiRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
@@ -4517,6 +4681,10 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingWizardRoute: OnboardingWizardRoute,
   OnboardingWorkspaceRoute: OnboardingWorkspaceRoute,
   PortalInviteTokenRoute: PortalInviteTokenRoute,
+  SolutionsBrokersRoute: SolutionsBrokersRoute,
+  SolutionsEnterprisesRoute: SolutionsEnterprisesRoute,
+  SolutionsOwnersRoute: SolutionsOwnersRoute,
+  BlogIndexRoute: BlogIndexRoute,
   ListingsIndexRoute: ListingsIndexRoute,
   ApiAssistantChatRoute: ApiAssistantChatRoute,
   ApiPublicFilterAnalyticsBeaconRoute: ApiPublicFilterAnalyticsBeaconRoute,
@@ -4545,13 +4713,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
