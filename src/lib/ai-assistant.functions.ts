@@ -384,7 +384,23 @@ const TOOL_SCHEMAS = [
     description: "High-level KPIs for a dashboard: revenue, expenses, occupancy, overdue.",
     params: { type: "object", properties: {} },
   },
+  {
+    name: "cash_flow_summary",
+    description: "Net cash flow (revenue minus expenses) over N months, with margin and breakdowns.",
+    params: { type: "object", properties: { months: { type: "number" } } },
+  },
+  {
+    name: "maintenance_backlog",
+    description: "Open maintenance tickets grouped by status and priority, with aging buckets.",
+    params: { type: "object", properties: {} },
+  },
+  {
+    name: "vacant_units_list",
+    description: "List currently vacant units with days vacant and potential monthly revenue.",
+    params: { type: "object", properties: { limit: { type: "number" } } },
+  },
 ];
+
 
 // ============= SERVER FUNCTION =============
 
