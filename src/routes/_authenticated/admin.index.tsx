@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { Suspense } from "react";
 import { AdminPageHeader, AdminPageLoading } from "@/components/admin/AdminPageHeader";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { sectionHead } from "@/lib/section-og-head";
 import {
   Users2,
