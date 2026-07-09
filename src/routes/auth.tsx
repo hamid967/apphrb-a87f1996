@@ -246,7 +246,7 @@ function AuthPage() {
     }
   };
 
-  const notImplemented = (label: string) => () => toast(`${label} — قريباً`);
+  const notImplemented = (label: string) => () => toast(t("common.comingSoonLabel", { label, defaultValue: `${label} — coming soon` }));
 
   const onDeveloperAccount = async () => {
     setDevLoading(true);
