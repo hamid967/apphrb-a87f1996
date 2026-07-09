@@ -153,6 +153,7 @@ import { Route as AuthenticatedAdminEmailProvidersRouteImport } from './routes/_
 import { Route as AuthenticatedAdminDecisionLogRouteImport } from './routes/_authenticated/admin.decision-log'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 import { Route as AuthenticatedAdminBillingMetricsRouteImport } from './routes/_authenticated/admin.billing-metrics'
+import { Route as AuthenticatedAdminBanksRouteImport } from './routes/_authenticated/admin.banks'
 import { Route as AuthenticatedAdminBackupsRouteImport } from './routes/_authenticated/admin.backups'
 import { Route as AuthenticatedAdminAuditLogRouteImport } from './routes/_authenticated/admin.audit-log'
 import { Route as AuthenticatedAccountingVatRouteImport } from './routes/_authenticated/accounting.vat'
@@ -1035,6 +1036,11 @@ const AuthenticatedAdminBillingMetricsRoute =
     path: '/billing-metrics',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminBanksRoute = AuthenticatedAdminBanksRouteImport.update({
+  id: '/banks',
+  path: '/banks',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminBackupsRoute =
   AuthenticatedAdminBackupsRouteImport.update({
     id: '/backups',
@@ -1496,6 +1502,7 @@ export interface FileRoutesByFullPath {
   '/accounting/vat': typeof AuthenticatedAccountingVatRoute
   '/admin/audit-log': typeof AuthenticatedAdminAuditLogRoute
   '/admin/backups': typeof AuthenticatedAdminBackupsRoute
+  '/admin/banks': typeof AuthenticatedAdminBanksRoute
   '/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
@@ -1708,6 +1715,7 @@ export interface FileRoutesByTo {
   '/accounting/vat': typeof AuthenticatedAccountingVatRoute
   '/admin/audit-log': typeof AuthenticatedAdminAuditLogRoute
   '/admin/backups': typeof AuthenticatedAdminBackupsRoute
+  '/admin/banks': typeof AuthenticatedAdminBanksRoute
   '/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
@@ -1924,6 +1932,7 @@ export interface FileRoutesById {
   '/_authenticated/accounting/vat': typeof AuthenticatedAccountingVatRoute
   '/_authenticated/admin/audit-log': typeof AuthenticatedAdminAuditLogRoute
   '/_authenticated/admin/backups': typeof AuthenticatedAdminBackupsRoute
+  '/_authenticated/admin/banks': typeof AuthenticatedAdminBanksRoute
   '/_authenticated/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
@@ -2143,6 +2152,7 @@ export interface FileRouteTypes {
     | '/accounting/vat'
     | '/admin/audit-log'
     | '/admin/backups'
+    | '/admin/banks'
     | '/admin/billing-metrics'
     | '/admin/companies'
     | '/admin/decision-log'
@@ -2355,6 +2365,7 @@ export interface FileRouteTypes {
     | '/accounting/vat'
     | '/admin/audit-log'
     | '/admin/backups'
+    | '/admin/banks'
     | '/admin/billing-metrics'
     | '/admin/companies'
     | '/admin/decision-log'
@@ -2570,6 +2581,7 @@ export interface FileRouteTypes {
     | '/_authenticated/accounting/vat'
     | '/_authenticated/admin/audit-log'
     | '/_authenticated/admin/backups'
+    | '/_authenticated/admin/banks'
     | '/_authenticated/admin/billing-metrics'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/decision-log'
@@ -3810,6 +3822,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBillingMetricsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/banks': {
+      id: '/_authenticated/admin/banks'
+      path: '/banks'
+      fullPath: '/admin/banks'
+      preLoaderRoute: typeof AuthenticatedAdminBanksRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/backups': {
       id: '/_authenticated/admin/backups'
       path: '/backups'
@@ -4340,6 +4359,7 @@ const AuthenticatedAccountingRouteWithChildren =
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAuditLogRoute: typeof AuthenticatedAdminAuditLogRoute
   AuthenticatedAdminBackupsRoute: typeof AuthenticatedAdminBackupsRoute
+  AuthenticatedAdminBanksRoute: typeof AuthenticatedAdminBanksRoute
   AuthenticatedAdminBillingMetricsRoute: typeof AuthenticatedAdminBillingMetricsRoute
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
   AuthenticatedAdminDecisionLogRoute: typeof AuthenticatedAdminDecisionLogRoute
@@ -4369,6 +4389,7 @@ interface AuthenticatedAdminRouteChildren {
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAuditLogRoute: AuthenticatedAdminAuditLogRoute,
   AuthenticatedAdminBackupsRoute: AuthenticatedAdminBackupsRoute,
+  AuthenticatedAdminBanksRoute: AuthenticatedAdminBanksRoute,
   AuthenticatedAdminBillingMetricsRoute: AuthenticatedAdminBillingMetricsRoute,
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
   AuthenticatedAdminDecisionLogRoute: AuthenticatedAdminDecisionLogRoute,
