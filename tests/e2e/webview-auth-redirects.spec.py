@@ -331,6 +331,78 @@ async def test_pending_redirect_returns_to_wizard(context) -> str | None:
     )
 
 
+async def test_pending_redirect_cleared_after_use(context) -> str | None:
+    """
+    Guardrail against a stale sessionStorage entry silently hijacking a
+    later navigation. After the wizard round-trip completes, revisiting
+    /auth (e.g. the user signs out and comes back later) must NOT re-consume
+    the previous destination — the entry has to be gone.
+    """
+    page = await context.new_page()
+    await page.goto(BASE, wait_until="domcontentloaded")
+    await page.evaluate(f"window.sessionStorage.removeItem({PENDING_KEY!r})")
+
+    # 1) Prime: unauth hit on wizard stashes the pending destination.
+    await page.goto(f"{BASE}{WIZARD_PATH}", wait_until="domcontentloaded")
+    try:
+        await page.wait_for_url("**/auth**", timeout=8000)
+    except Exception:
+        pass
+    primed = await page.evaluate(f"window.sessionStorage.getItem({PENDING_KEY!r})")
+    print(f"[cleared-after-use] primed={primed!r}")
+    if primed != WIZARD_PATH:
+        await page.close()
+        return f"prime step failed: sessionStorage={primed!r}"
+
+    # 2) Simulate the success path routeAfterLogin runs — consume + navigate
+    #    to the wizard. This is what happens the moment the Supabase session
+    #    becomes available on /auth.
+    consumed = await page.evaluate(
+        f"""
+        (() => {{
+          const v = window.sessionStorage.getItem({PENDING_KEY!r});
+          window.sessionStorage.removeItem({PENDING_KEY!r});
+          return v;
+        }})()
+        """
+    )
+    await page.goto(f"{BASE}{consumed}", wait_until="domcontentloaded")
+    await page.wait_for_timeout(300)
+    at_wizard = page.url.replace(BASE, "") or "/"
+    after_wizard = await page.evaluate(f"window.sessionStorage.getItem({PENDING_KEY!r})")
+    await page.screenshot(path=str(SHOTS / "8_cleared_at_wizard.png"))
+    print(f"[cleared-after-use] at={at_wizard} sessionStorage={after_wizard!r}")
+    if after_wizard is not None:
+        await page.close()
+        return (
+            f"sessionStorage[{PENDING_KEY}] must be cleared after the "
+            f"successful redirect to {WIZARD_PATH}; got {after_wizard!r}"
+        )
+
+    # 3) Later revisit to /auth (bare, no query) must NOT re-hydrate the
+    #    stashed destination, and must not bounce back to /onboarding/wizard
+    #    on its own. Assert both the storage stays empty AND the URL stays
+    #    on /auth (or resolves to a non-wizard destination if a session
+    #    happens to exist).
+    await page.goto(f"{BASE}/auth", wait_until="domcontentloaded")
+    await page.wait_for_timeout(500)
+    later_stored = await page.evaluate(f"window.sessionStorage.getItem({PENDING_KEY!r})")
+    later_url = page.url.replace(BASE, "") or "/"
+    print(f"[cleared-after-use] later /auth: url={later_url} sessionStorage={later_stored!r}")
+    await page.close()
+    if later_stored is not None:
+        return (
+            f"revisiting /auth must not resurrect the stashed destination; "
+            f"got sessionStorage={later_stored!r}"
+        )
+    if WIZARD_PATH in later_url:
+        return (
+            f"revisiting /auth after a completed round-trip should NOT "
+            f"auto-redirect back to {WIZARD_PATH}; ended at {later_url!r}"
+        )
+    return None
+
+
 async def main() -> int:
     failures: list[str] = []
     async with async_playwright() as pw:
@@ -351,6 +423,7 @@ async def main() -> int:
             ("google-oauth-redirect-uri", test_google_oauth_redirect_uri(context)),
             ("pending-redirect-survives-webview", test_pending_redirect_survives_webview(context)),
             ("pending-redirect-returns-to-wizard", test_pending_redirect_returns_to_wizard(context)),
+            ("pending-redirect-cleared-after-use", test_pending_redirect_cleared_after_use(context)),
         ]:
             print(f"\n--- {name} ---")
             try:
