@@ -147,7 +147,7 @@ export const getZatcaBundle = createServerFn({ method: "GET" })
     const { data: inv, error } = await context.supabase
       .from("invoices")
       .select(
-        "id, number, zatca_uuid, zatca_hash, previous_hash, qr_tlv, zatca_status, zatca_reported_at, invoice_type",
+        "id, number, zatca_uuid, zatca_hash, previous_hash, qr_tlv, xml_ubl, zatca_status, zatca_reported_at, invoice_type, total, currency, issue_date",
       )
       .eq("id", data.invoiceId)
       .single();
