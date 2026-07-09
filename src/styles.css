@@ -899,3 +899,140 @@ body::-webkit-scrollbar,
     transform: none !important;
   }
 }
+
+/* ============================================================
+   Holographic intensity levels — controlled via <html data-holo>
+   Values: off | soft | medium (default) | intense
+   Scales opacity, glow strength, and animation speed of the
+   overlay layer defined above. Contrast tokens are never touched.
+   ============================================================ */
+
+/* Soft: subtle hairline + no lift/glow on hover */
+html[data-holo="soft"] :where(:not(.theme-luxe *)) [data-slot="card"]::before,
+html[data-holo="soft"] :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"]::before,
+html[data-holo="soft"] :where(:not(.theme-luxe *)) [role="tablist"]::after {
+  opacity: 0.18;
+}
+html[data-holo="soft"] :where(:not(.theme-luxe *)) [data-slot="card"]:hover {
+  transform: none;
+  box-shadow: var(--shadow-soft);
+}
+html[data-holo="soft"] :where(:not(.theme-luxe *)) [data-slot="card"]:hover::before {
+  opacity: 0.35;
+}
+html[data-holo="soft"] :where(:not(.theme-luxe *)) button.bg-primary::after,
+html[data-holo="soft"] :where(:not(.theme-luxe *)) a.bg-primary::after,
+html[data-holo="soft"] :where(:not(.theme-luxe *)) [role="button"].bg-primary::after {
+  display: none;
+}
+html[data-holo="soft"] :where(:not(.theme-luxe *)) button.bg-primary:hover,
+html[data-holo="soft"] :where(:not(.theme-luxe *)) a.bg-primary:hover {
+  box-shadow: var(--shadow-elevated);
+  transform: none;
+}
+html[data-holo="soft"] :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"] {
+  box-shadow: var(--shadow-soft);
+}
+html[data-holo="soft"] .holo-aurora::before {
+  opacity: 0.25;
+}
+html[data-holo="soft"] .holo-text {
+  background: none;
+  color: var(--color-primary);
+  -webkit-text-fill-color: currentColor;
+  animation: none;
+}
+
+/* Intense: stronger opacity, faster shimmer, larger halo */
+html[data-holo="intense"] :where(:not(.theme-luxe *)) [data-slot="card"]::before,
+html[data-holo="intense"] :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"]::before,
+html[data-holo="intense"] :where(:not(.theme-luxe *)) [role="tablist"]::after {
+  opacity: 0.65;
+  animation-duration: 5s;
+}
+html[data-holo="intense"] :where(:not(.theme-luxe *)) [data-slot="card"] {
+  box-shadow: var(--shadow-elevated);
+}
+html[data-holo="intense"] :where(:not(.theme-luxe *)) [data-slot="card"]:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    var(--shadow-glow),
+    0 24px 60px -24px color-mix(in oklab, #7C3AED 40%, transparent);
+}
+html[data-holo="intense"] :where(:not(.theme-luxe *)) [data-slot="card"]:hover::before {
+  opacity: 1;
+}
+html[data-holo="intense"] :where(:not(.theme-luxe *)) button.bg-primary,
+html[data-holo="intense"] :where(:not(.theme-luxe *)) a.bg-primary,
+html[data-holo="intense"] :where(:not(.theme-luxe *)) [role="button"].bg-primary {
+  box-shadow: var(--shadow-glow);
+}
+html[data-holo="intense"] :where(:not(.theme-luxe *)) button.bg-primary::after,
+html[data-holo="intense"] :where(:not(.theme-luxe *)) a.bg-primary::after,
+html[data-holo="intense"] :where(:not(.theme-luxe *)) [role="button"].bg-primary::after {
+  background: linear-gradient(120deg,
+    transparent 20%,
+    color-mix(in oklab, #ffffff 70%, transparent) 50%,
+    transparent 80%);
+  background-size: 220% 100%;
+  background-position: 100% 0;
+  animation: holo-shift 4s ease-in-out infinite;
+}
+html[data-holo="intense"] :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"] {
+  box-shadow:
+    var(--shadow-glow),
+    0 0 0 1px color-mix(in oklab, #c4b5fd 60%, transparent);
+}
+html[data-holo="intense"] .holo-aurora::before {
+  opacity: 0.85;
+  filter: blur(50px) saturate(160%);
+}
+html[data-holo="intense"] .holo-text {
+  animation-duration: 5s;
+}
+
+/* Off: fully disable the flashy layer — plain violet base only */
+html[data-holo="off"] :where(:not(.theme-luxe *)) [data-slot="card"]::before,
+html[data-holo="off"] :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"]::before,
+html[data-holo="off"] :where(:not(.theme-luxe *)) [role="tablist"]::after,
+html[data-holo="off"] :where(:not(.theme-luxe *)) button.bg-primary::after,
+html[data-holo="off"] :where(:not(.theme-luxe *)) a.bg-primary::after,
+html[data-holo="off"] :where(:not(.theme-luxe *)) [role="button"].bg-primary::after,
+html[data-holo="off"] .holo-aurora::before {
+  display: none;
+}
+html[data-holo="off"] :where(:not(.theme-luxe *)) [data-slot="card"]:hover,
+html[data-holo="off"] :where(:not(.theme-luxe *)) button.bg-primary:hover,
+html[data-holo="off"] :where(:not(.theme-luxe *)) a.bg-primary:hover {
+  transform: none;
+  box-shadow: var(--shadow-soft);
+}
+html[data-holo="off"] :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"] {
+  box-shadow: none;
+}
+html[data-holo="off"] .holo-text {
+  background: none;
+  color: var(--color-primary);
+  -webkit-text-fill-color: currentColor;
+  animation: none;
+}
+
+/* Reduced motion overrides ANY intensity: no animations, no lift.
+   The static gradient hairlines remain (visual, not motion). */
+@media (prefers-reduced-motion: reduce) {
+  html[data-holo] :where(:not(.theme-luxe *)) [data-slot="card"]::before,
+  html[data-holo] :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"]::before,
+  html[data-holo] :where(:not(.theme-luxe *)) [role="tablist"]::after,
+  html[data-holo] :where(:not(.theme-luxe *)) button.bg-primary::after,
+  html[data-holo] :where(:not(.theme-luxe *)) a.bg-primary::after,
+  html[data-holo] .holo-aurora::before,
+  html[data-holo] .holo-text,
+  html[data-holo] .holo-bg {
+    animation: none !important;
+  }
+  html[data-holo] :where(:not(.theme-luxe *)) [data-slot="card"]:hover,
+  html[data-holo] :where(:not(.theme-luxe *)) button.bg-primary:hover,
+  html[data-holo] :where(:not(.theme-luxe *)) a.bg-primary:hover {
+    transform: none !important;
+  }
+}
