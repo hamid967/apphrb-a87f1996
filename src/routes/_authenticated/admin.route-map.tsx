@@ -40,16 +40,149 @@ type RouteRow = {
   scope: Scope;
   dynamic: boolean;
   segments: number;
+  descriptionAr: string;
+  descriptionEn: string;
+  usageAr: string;
+  usageEn: string;
+  authAr: string;
+  authEn: string;
 };
 
 function classify(path: string): Scope {
   if (path.startsWith("/api/")) return "api";
-  // The router strips `_authenticated` from public URLs, so we detect scope
-  // by walking routesById below and marking anything whose id contains
-  // `/_authenticated/admin` as admin, `/_authenticated` as authenticated,
-  // everything else as public.
   return "public";
 }
+
+/** Top-level section descriptions used when a specific path isn't in PATH_META. */
+const SECTION_META: Record<
+  string,
+  { ar: string; en: string; useAr: string; useEn: string }
+> = {
+  admin: {
+    ar: "لوحة الإدارة العليا للنظام (سوبر أدمن).",
+    en: "Super-admin control panel for the whole platform.",
+    useAr: "لإدارة الشركات، الاشتراكات، المزودين والإعدادات العامة.",
+    useEn: "Manage tenants, subscriptions, providers, and global settings.",
+  },
+  dashboard: {
+    ar: "لوحة تحكم الشركة والمستأجرين والعمليات اليومية.",
+    en: "Tenant workspace for daily operations.",
+    useAr: "متابعة العقارات، العقود، المدفوعات، والمهام التشغيلية.",
+    useEn: "Track properties, contracts, payments, and operations.",
+  },
+  accounting: {
+    ar: "الوحدة المحاسبية للشركة (مصروفات، ضريبة، أرباح).",
+    en: "Company accounting module (expenses, VAT, P&L).",
+    useAr: "تسجيل ومراجعة الحركات المالية وإصدار التقارير.",
+    useEn: "Record and review financials; export reports.",
+  },
+  assistant: {
+    ar: "المساعد الذكي بالذكاء الاصطناعي.",
+    en: "In-app AI assistant.",
+    useAr: "طرح أسئلة على البيانات وتنفيذ سكربتات محدودة الصلاحية.",
+    useEn: "Ask questions on your data and run scoped scripts.",
+  },
+  listings: {
+    ar: "إعلانات العقارات العامة.",
+    en: "Public property listings.",
+    useAr: "تصفح الإعلانات وتقديم الطلبات من غير تسجيل.",
+    useEn: "Browse listings and submit applications without login.",
+  },
+  auctions: {
+    ar: "المزادات العقارية.",
+    en: "Real-estate auctions.",
+    useAr: "عرض المزادات النشطة وتفاصيلها.",
+    useEn: "Public list of active auctions with details.",
+  },
+  contracts: { ar: "عرض عقد محدد.", en: "View a specific contract.", useAr: "فتح تفاصيل العقد عبر الرابط المباشر.", useEn: "Deep link to a contract detail page." },
+  onboarding: { ar: "خطوات تهيئة الحساب والشركة.", en: "Account/company onboarding.", useAr: "استكمال بيانات المستخدم الجديد قبل الدخول للوحة.", useEn: "New-user setup before entering the dashboard." },
+  security: { ar: "إعدادات الأمان والجلسات و2FA.", en: "Security, sessions & 2FA.", useAr: "تفعيل التحقق الثنائي ومراجعة الأجهزة النشطة.", useEn: "Enable 2FA and review active devices." },
+  billing: { ar: "الفواتير والاشتراك للشركة.", en: "Company billing & subscription.", useAr: "مراجعة الفواتير ورفع إثبات التحويل البنكي.", useEn: "Review invoices and upload bank-transfer receipts." },
+  reports: { ar: "التقارير التشغيلية والمالية.", en: "Operational & financial reports.", useAr: "توليد تقارير مطبوعة أو مصدَّرة.", useEn: "Generate printable or exportable reports." },
+  crm: { ar: "إدارة علاقات العملاء (عملاء محتملين، صفقات).", en: "CRM (leads, deals, meetings).", useAr: "متابعة قمع المبيعات والاجتماعات.", useEn: "Track sales pipeline and meetings." },
+  auth: { ar: "شاشة تسجيل الدخول والتسجيل.", en: "Sign in / sign up screen.", useAr: "بريد+كلمة سر، رمز OTP، أو Google.", useEn: "Password, OTP, or Google sign-in." },
+  invite: { ar: "قبول دعوة إلى شركة عبر رابط توكن.", en: "Accept a company invite via token.", useAr: "يفتح تلقائياً من رسالة الدعوة.", useEn: "Opened from the invitation email." },
+  blog: { ar: "مدوّنة المنصة.", en: "Platform blog.", useAr: "مقالات تسويقية وتحديثات.", useEn: "Marketing articles and updates." },
+  docs: { ar: "توثيق واجهات النظام.", en: "System/API documentation.", useAr: "مرجع للمطوّرين والمكاملين.", useEn: "Reference for developers and integrators." },
+  dev: { ar: "أدوات التطوير والاختبار الداخلي.", en: "Internal dev/test utilities.", useAr: "لأغراض تصحيح الأخطاء فقط.", useEn: "Debug-only utilities." },
+  api: { ar: "نقطة نهاية خادم (JSON/Webhook).", en: "Server endpoint (JSON/Webhook).", useAr: "تُستدعى من خدمات خارجية أو مهام مجدولة.", useEn: "Called by external services or scheduled jobs." },
+  solutions: { ar: "صفحات حلول قطاعية (وسطاء/ملاك/مؤسسات).", en: "Segment-specific solution pages.", useAr: "محتوى تسويقي لكل شريحة عملاء.", useEn: "Marketing content per audience." },
+};
+
+/** Curated overrides for specific paths (highest priority). */
+const PATH_META: Record<
+  string,
+  { ar: string; en: string; useAr: string; useEn: string }
+> = {
+  "/": { ar: "الصفحة الرئيسية للمنصة.", en: "Marketing landing page.", useAr: "نقطة الدخول للزوار الجدد.", useEn: "Entry point for new visitors." },
+  "/pricing": { ar: "الخطط والأسعار.", en: "Plans & pricing.", useAr: "اختيار الخطة قبل التسجيل.", useEn: "Choose a plan before signup." },
+  "/contact": { ar: "نموذج التواصل.", en: "Contact form.", useAr: "طلب عرض أو دعم.", useEn: "Request a demo or support." },
+  "/about": { ar: "عن الشركة.", en: "About us.", useAr: "معلومات تعريفية عن HRHBS.", useEn: "About HRHBS." },
+  "/services": { ar: "الخدمات المقدَّمة.", en: "Services offered.", useAr: "قائمة خدمات المنصة.", useEn: "Platform services overview." },
+  "/faq": { ar: "الأسئلة الشائعة.", en: "FAQ.", useAr: "إجابات سريعة قبل التواصل مع الدعم.", useEn: "Quick answers before contacting support." },
+  "/compare": { ar: "مقارنة الخطط.", en: "Plan comparison.", useAr: "مقارنة تفصيلية بين الخطط.", useEn: "Detailed plan comparison." },
+  "/forgot-password": { ar: "استعادة كلمة المرور.", en: "Forgot password.", useAr: "إرسال رابط الاستعادة للبريد.", useEn: "Send reset link by email." },
+  "/reset-password": { ar: "تعيين كلمة مرور جديدة.", en: "Reset password.", useAr: "يفتح من رابط الاستعادة.", useEn: "Opened from the reset email." },
+  "/access-denied": { ar: "لا تملك صلاحية.", en: "Access denied.", useAr: "تظهر عند محاولة فتح صفحة محمية.", useEn: "Shown when access is blocked." },
+  "/unsubscribe": { ar: "إلغاء الاشتراك بالبريد.", en: "Email unsubscribe.", useAr: "من رابط ذيل الرسائل.", useEn: "From email footer link." },
+  "/dashboard": { ar: "لوحة التحكم الرئيسية للشركة.", en: "Company main dashboard.", useAr: "الشاشة الأولى بعد الدخول.", useEn: "First screen after sign-in." },
+  "/admin": { ar: "الصفحة الرئيسية للسوبر أدمن.", en: "Super-admin home.", useAr: "لوحة KPIs عامة للمنصة.", useEn: "Platform-wide KPIs." },
+  "/admin/route-map": { ar: "هذه الصفحة — خريطة كل المسارات.", en: "This page — full route map.", useAr: "لمراجعة الروابط ومستوى الوصول.", useEn: "Audit links & access scopes." },
+  "/admin/companies": { ar: "إدارة الشركات المشتركة.", en: "Manage tenant companies.", useAr: "تفعيل/إيقاف/عرض تفاصيل الشركات.", useEn: "Enable/disable/view tenants." },
+  "/admin/plans": { ar: "إدارة خطط الاشتراك.", en: "Manage subscription plans.", useAr: "إضافة/تعديل الخطط والأسعار.", useEn: "Add/edit plans and pricing." },
+  "/admin/subscription-payments": { ar: "مراجعة إثباتات التحويل البنكي.", en: "Bank-transfer receipts review.", useAr: "قبول/رفض دفعات الاشتراك.", useEn: "Approve/reject subscription payments." },
+  "/admin/audit-log": { ar: "سجل التدقيق الشامل.", en: "Global audit log.", useAr: "تتبع كل التغييرات الحساسة.", useEn: "Track sensitive changes." },
+  "/admin/users": { ar: "المستخدمون على مستوى المنصة.", en: "Platform-wide users.", useAr: "بحث وإدارة الحسابات.", useEn: "Search & manage accounts." },
+  "/admin/roles": { ar: "أدوار وصلاحيات النظام.", en: "System roles & permissions.", useAr: "منح/سحب صلاحيات السوبر أدمن.", useEn: "Grant/revoke super-admin." },
+  "/auth": { ar: "شاشة تسجيل الدخول.", en: "Sign-in screen.", useAr: "بريد+كلمة سر، OTP، أو Google.", useEn: "Password, OTP, or Google." },
+};
+
+function metaFor(path: string): {
+  descriptionAr: string;
+  descriptionEn: string;
+  usageAr: string;
+  usageEn: string;
+} {
+  if (PATH_META[path]) {
+    const m = PATH_META[path];
+    return { descriptionAr: m.ar, descriptionEn: m.en, usageAr: m.useAr, usageEn: m.useEn };
+  }
+  const seg = path.split("/").filter(Boolean)[0] ?? "";
+  const section = SECTION_META[seg];
+  if (section) {
+    return {
+      descriptionAr: section.ar,
+      descriptionEn: section.en,
+      usageAr: section.useAr,
+      usageEn: section.useEn,
+    };
+  }
+  return {
+    descriptionAr: "صفحة داخل التطبيق.",
+    descriptionEn: "In-app page.",
+    usageAr: "—",
+    usageEn: "—",
+  };
+}
+
+const AUTH_META: Record<Scope, { ar: string; en: string }> = {
+  public: {
+    ar: "لا يتطلب تسجيل الدخول — متاح للزوّار.",
+    en: "No login required — open to visitors.",
+  },
+  authenticated: {
+    ar: "يتطلب تسجيل الدخول بأي دور (موظف/مدير شركة).",
+    en: "Requires any signed-in user (staff or company admin).",
+  },
+  admin: {
+    ar: "يتطلب دور super_admin مع تفعيل 2FA إجبارياً.",
+    en: "Requires super_admin role with 2FA enforced.",
+  },
+  api: {
+    ar: "نقطة خادم — لا تُفتح من المتصفح مباشرة؛ تتحقق من التوقيع/المصادقة داخلياً.",
+    en: "Server endpoint — not opened in the browser; verifies its own auth/signature.",
+  },
+};
 
 const SCOPE_META: Record<
   Scope,
@@ -106,11 +239,19 @@ function useAllRoutes(): RouteRow[] {
         if (id.includes("/_authenticated/admin")) scope = "admin";
         else if (id.includes("/_authenticated")) scope = "authenticated";
       }
+      const m = metaFor(fullPath);
+      const auth = AUTH_META[scope];
       const row: RouteRow = {
         path: fullPath,
         scope,
         dynamic: fullPath.includes("$"),
         segments: fullPath.split("/").filter(Boolean).length,
+        descriptionAr: m.descriptionAr,
+        descriptionEn: m.descriptionEn,
+        usageAr: m.usageAr,
+        usageEn: m.usageEn,
+        authAr: auth.ar,
+        authEn: auth.en,
       };
       // Deduplicate: FileRoutesByFullPath/ByTo produce two ids for the same URL.
       if (!seen.has(row.path)) seen.set(row.path, row);
@@ -131,8 +272,9 @@ function RouteMapPage() {
     const q = deferredQuery.trim().toLowerCase();
     return rows.filter((r) => {
       if (scope !== "all" && r.scope !== scope) return false;
-      if (q && !r.path.toLowerCase().includes(q)) return false;
-      return true;
+      if (!q) return true;
+      const hay = `${r.path} ${r.descriptionAr} ${r.descriptionEn} ${r.usageAr} ${r.usageEn}`.toLowerCase();
+      return hay.includes(q);
     });
   }, [rows, deferredQuery, scope]);
 
@@ -184,7 +326,7 @@ function RouteMapPage() {
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={isAr ? "ابحث عن مسار..." : "Filter by path..."}
+                placeholder={isAr ? "ابحث في المسار أو الوصف..." : "Filter path or description..."}
                 className="ps-9"
               />
             </div>
@@ -216,10 +358,15 @@ function RouteMapPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[55%]">
-                    {isAr ? "المسار" : "Path"}
+                  <TableHead className="w-[26%]">
+                    {isAr ? "المسار / الوصف" : "Path / Description"}
                   </TableHead>
-                  <TableHead>{isAr ? "النطاق" : "Scope"}</TableHead>
+                  <TableHead className="w-[28%]">
+                    {isAr ? "الاستخدام" : "Usage"}
+                  </TableHead>
+                  <TableHead className="w-[26%]">
+                    {isAr ? "حالة الدخول" : "Access"}
+                  </TableHead>
                   <TableHead className="text-center">
                     {isAr ? "ديناميكي" : "Dynamic"}
                   </TableHead>
@@ -232,23 +379,32 @@ function RouteMapPage() {
                 {filtered.map((r) => {
                   const meta = SCOPE_META[r.scope];
                   return (
-                    <TableRow key={r.path}>
-                      <TableCell className="font-mono text-xs md:text-sm">
-                        {r.path}
+                    <TableRow key={r.path} className="align-top">
+                      <TableCell>
+                        <div className="font-mono text-xs md:text-sm break-all">
+                          {r.path}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                          {isAr ? r.descriptionAr : r.descriptionEn}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground leading-relaxed">
+                        {isAr ? r.usageAr : r.usageEn}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={meta.tone}>
+                        <Badge variant="outline" className={`${meta.tone} whitespace-nowrap`}>
                           {isAr ? meta.labelAr : meta.labelEn}
                         </Badge>
+                        <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                          {isAr ? r.authAr : r.authEn}
+                        </div>
                       </TableCell>
                       <TableCell className="text-center text-xs text-muted-foreground">
                         {r.dynamic ? (isAr ? "نعم" : "Yes") : "—"}
                       </TableCell>
                       <TableCell className="text-end">
                         {r.dynamic || r.scope === "api" ? (
-                          <span className="text-xs text-muted-foreground">
-                            {isAr ? "—" : "—"}
-                          </span>
+                          <span className="text-xs text-muted-foreground">—</span>
                         ) : (
                           <Link
                             to={r.path as never}
@@ -265,7 +421,7 @@ function RouteMapPage() {
                 })}
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-sm text-muted-foreground py-8">
+                    <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-8">
                       {isAr ? "لا توجد نتائج" : "No routes match your filters"}
                     </TableCell>
                   </TableRow>
