@@ -46,7 +46,7 @@ import { HBS } from "@/components/hbspro/tokens";
 // Only allow same-origin absolute paths as redirect targets to prevent open
 // redirects to arbitrary hosts. Rejects absolute URLs (http://...) and any
 // path that doesn't start with a single "/" (e.g. "//evil.com" or "..").
-function safeRedirect(target: string | undefined): string | null {
+export function safeRedirect(target: string | undefined): string | null {
   if (!target) return null;
   if (!target.startsWith("/") || target.startsWith("//")) return null;
   // Never bounce back to the auth pages themselves.
