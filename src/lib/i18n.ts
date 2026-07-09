@@ -2145,6 +2145,10 @@ const en = {
       showing: "Showing {{shown}} of {{total}}",
       notInRows: "Not present in results",
       noRows: "No rows to display for this result.",
+      retry: "Retry",
+      completed: "Completed",
+      autoRefresh: "Auto-refresh",
+      autoRefreshOn: "Auto-refreshing every 30s",
       cats: {
         reports: "Reports",
         analysis: "Analysis",
