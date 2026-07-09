@@ -24,6 +24,8 @@
     "i18n:ci:update": "node scripts/i18n-ci-check.mjs --update",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:redirects": "vitest run --coverage src/lib/app-url.test.ts src/routes/auth.redirect.test.ts",
     "build:analyze": "ANALYZE=true NODE_OPTIONS=--max-old-space-size=6144 vite build"
   },
   "dependencies": {
@@ -149,6 +151,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",

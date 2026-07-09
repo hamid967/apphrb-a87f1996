@@ -33,3 +33,4 @@ dist-ssr
 
 # E2E minted sessions (Playwright storageState) — never commit
 tests/.auth/
+coverage/
