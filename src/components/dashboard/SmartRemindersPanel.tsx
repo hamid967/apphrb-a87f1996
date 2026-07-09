@@ -17,6 +17,14 @@ import {
   CheckCheck,
 } from "lucide-react";
 import { listMyRecentClaims } from "@/lib/expense-claims.functions";
+import { Link as RouterLink } from "@tanstack/react-router";
+import { Settings2 } from "lucide-react";
+import {
+  useReminderPreferences,
+  categoryFromReminderId,
+  frequencyToMs,
+} from "@/lib/reminder-preferences";
+import { useAuth } from "@/hooks/use-auth";
 
 const READ_STORAGE_KEY = (orgId: string | undefined) =>
   `aqari:reminders-read:${orgId ?? "anon"}`;
@@ -114,11 +122,17 @@ export function SmartRemindersPanel({
   orgId: string | undefined;
   isAr: boolean;
 }) {
+  const { user } = useAuth();
+  const prefs = useReminderPreferences(user?.id);
+  const refetchMs = frequencyToMs(prefs.frequency);
+
   const claimsQ = useQuery({
     queryKey: ["my-recent-claims-reminders", orgId],
     queryFn: () => listMyRecentClaims({ data: { org_id: orgId!, limit: 25 } }),
     enabled: !!orgId,
-    staleTime: 30_000,
+    staleTime: refetchMs ?? 5 * 60_000,
+    refetchInterval: refetchMs ?? false,
+    refetchOnWindowFocus: prefs.frequency !== "off",
   });
 
   const allReminders = useMemo<Reminder[]>(() => {
@@ -288,8 +302,16 @@ export function SmartRemindersPanel({
   }, [allReminders, orgId]);
 
   const visibleReminders = useMemo(
-    () => allReminders.filter((r) => !readIds.has(r.id)).slice(0, 6),
-    [allReminders, readIds],
+    () =>
+      allReminders
+        .filter((r) => {
+          if (readIds.has(r.id)) return false;
+          const cat = categoryFromReminderId(r.id);
+          if (cat && prefs.enabled[cat] === false) return false;
+          return true;
+        })
+        .slice(0, 6),
+    [allReminders, readIds, prefs.enabled],
   );
 
   const Chevron = isAr ? ChevronLeft : ChevronRight;
@@ -333,6 +355,14 @@ export function SmartRemindersPanel({
               {isAr ? "تمييز الكل" : "Mark all"}
             </button>
           )}
+          <RouterLink
+            to="/dashboard/settings/reminders"
+            className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-background/60 px-2 py-0.5 text-[11px] font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            title={isAr ? "إعدادات التذكيرات" : "Reminder settings"}
+          >
+            <Settings2 className="size-3" />
+            {isAr ? "الإعدادات" : "Settings"}
+          </RouterLink>
         </div>
       </header>
 
