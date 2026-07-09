@@ -358,10 +358,15 @@ function RouteMapPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[55%]">
-                    {isAr ? "المسار" : "Path"}
+                  <TableHead className="w-[26%]">
+                    {isAr ? "المسار / الوصف" : "Path / Description"}
                   </TableHead>
-                  <TableHead>{isAr ? "النطاق" : "Scope"}</TableHead>
+                  <TableHead className="w-[28%]">
+                    {isAr ? "الاستخدام" : "Usage"}
+                  </TableHead>
+                  <TableHead className="w-[26%]">
+                    {isAr ? "حالة الدخول" : "Access"}
+                  </TableHead>
                   <TableHead className="text-center">
                     {isAr ? "ديناميكي" : "Dynamic"}
                   </TableHead>
@@ -374,23 +379,32 @@ function RouteMapPage() {
                 {filtered.map((r) => {
                   const meta = SCOPE_META[r.scope];
                   return (
-                    <TableRow key={r.path}>
-                      <TableCell className="font-mono text-xs md:text-sm">
-                        {r.path}
+                    <TableRow key={r.path} className="align-top">
+                      <TableCell>
+                        <div className="font-mono text-xs md:text-sm break-all">
+                          {r.path}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                          {isAr ? r.descriptionAr : r.descriptionEn}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground leading-relaxed">
+                        {isAr ? r.usageAr : r.usageEn}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={meta.tone}>
+                        <Badge variant="outline" className={`${meta.tone} whitespace-nowrap`}>
                           {isAr ? meta.labelAr : meta.labelEn}
                         </Badge>
+                        <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                          {isAr ? r.authAr : r.authEn}
+                        </div>
                       </TableCell>
                       <TableCell className="text-center text-xs text-muted-foreground">
                         {r.dynamic ? (isAr ? "نعم" : "Yes") : "—"}
                       </TableCell>
                       <TableCell className="text-end">
                         {r.dynamic || r.scope === "api" ? (
-                          <span className="text-xs text-muted-foreground">
-                            {isAr ? "—" : "—"}
-                          </span>
+                          <span className="text-xs text-muted-foreground">—</span>
                         ) : (
                           <Link
                             to={r.path as never}
@@ -407,7 +421,7 @@ function RouteMapPage() {
                 })}
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-sm text-muted-foreground py-8">
+                    <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-8">
                       {isAr ? "لا توجد نتائج" : "No routes match your filters"}
                     </TableCell>
                   </TableRow>
