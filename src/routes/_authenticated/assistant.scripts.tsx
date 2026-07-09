@@ -63,6 +63,18 @@ const SCRIPTS: ScriptDef[] = [
   },
   { name: "employee_performance", category: "analysis", fields: [] },
   { name: "summarize_system", category: "reports", fields: [] },
+  {
+    name: "cash_flow_summary",
+    category: "reports",
+    fields: [{ name: "months", type: "number", labelKey: "months", placeholder: "6" }],
+  },
+  { name: "maintenance_backlog", category: "ops", fields: [] },
+  {
+    name: "vacant_units_list",
+    category: "ops",
+    fields: [{ name: "limit", type: "number", labelKey: "limit", placeholder: "25" }],
+  },
+
 ];
 
 function ScriptCard({
