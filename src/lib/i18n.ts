@@ -3961,6 +3961,44 @@ const ar: typeof en = {
     commissions: "العمولات",
     deals: "الصفقات",
   },
+  tenantPortal: {
+    tabs: {
+      overview: "نظرة عامة",
+      payments: "المدفوعات",
+      maintenance: "الصيانة",
+    },
+    payments: {
+      title: "مدفوعاتي",
+      subtitle: "جميع الإيصالات التي أرسلتها وحالتها لدى الإدارة.",
+      totalPaid: "إجمالي مدفوع",
+      pendingReview: "قيد المراجعة",
+      history: "سجل المدفوعات",
+      empty: "لا توجد مدفوعات بعد.",
+      cols: {
+        date: "التاريخ",
+        contract: "العقد",
+        amount: "المبلغ",
+        reference: "المرجع",
+        status: "الحالة",
+      },
+      status: {
+        verified: "موثقة",
+        paid: "مدفوعة",
+        pending: "قيد المراجعة",
+        rejected: "مرفوضة",
+      },
+    },
+  },
+  accessDenied: {
+    metaTitle: "غير مصرح بالوصول — عقاري",
+    metaDesc: "ليست لديك صلاحية عرض هذا المورد.",
+    title: "غير مصرح لك بالوصول",
+    body: "ليست لديك الصلاحية المطلوبة لعرض هذه الصفحة. تواصل مع مدير الحساب إذا كنت تظن أنه خطأ.",
+    retry: "إعادة المحاولة",
+    notFound: "غير موجود",
+    home: "الرئيسية",
+    goToPortal: "الذهاب إلى البوابة",
+  },
 };
 
 if (!i18n.isInitialized) {
