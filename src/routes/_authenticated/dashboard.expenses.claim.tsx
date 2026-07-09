@@ -567,7 +567,7 @@ function ClaimWizard() {
                 {t("expenseClaim.next")} <ArrowRight className="h-4 w-4 ms-1" />
               </Button>
             ) : (
-              <Button onClick={onSubmit} disabled={!canSubmit || submit.isPending}>
+              <Button data-coach="receipt-submit" onClick={onSubmit} disabled={!canSubmit || submit.isPending}>
                 {submit.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 me-2 animate-spin" /> {t("expenseClaim.submitting")}
