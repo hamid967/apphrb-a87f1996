@@ -2151,6 +2151,9 @@ const en = {
         suggest_rent_price: { title: "Suggest rent price", desc: "Suggest a price range for a unit or city based on comparables." },
         employee_performance: { title: "Employee performance", desc: "Deal count and won amount per sales employee." },
         summarize_system: { title: "System summary", desc: "High-level KPIs for the dashboard." },
+        cash_flow_summary: { title: "Cash flow", desc: "Net cash flow (revenue minus expenses) with monthly and category breakdowns." },
+        maintenance_backlog: { title: "Maintenance backlog", desc: "Open maintenance tickets grouped by status, priority, and age." },
+        vacant_units_list: { title: "Vacant units", desc: "Currently vacant units with days vacant and potential revenue." },
       },
       fields: {
         months: "Number of months",
@@ -2158,9 +2161,11 @@ const en = {
         horizonMonths: "Horizon months",
         unitId: "Unit ID (UUID)",
         city: "City",
+        limit: "Max results",
         optional: "Optional",
       },
     },
+
     audit: {
       title: "Hamid's scripts audit log",
       subtitle: "All attempts to run assistant scripts inside your organization, with user, outcome and time.",
@@ -4312,6 +4317,9 @@ const ar: typeof en = {
         suggest_rent_price: { title: "اقتراح سعر إيجار", desc: "اقتراح نطاق سعري لوحدة أو مدينة بناءً على المقارنات." },
         employee_performance: { title: "أداء الموظفين", desc: "عدد الصفقات وقيمة المكسب لكل موظف مبيعات." },
         summarize_system: { title: "ملخص النظام", desc: "مؤشرات KPIs عالية المستوى للوحة تحكم." },
+        cash_flow_summary: { title: "التدفق النقدي", desc: "صافي التدفق النقدي (الإيرادات ناقص المصروفات) مع تفصيل شهري وحسب الفئة." },
+        maintenance_backlog: { title: "طلبات صيانة متراكمة", desc: "تذاكر الصيانة المفتوحة مصنّفة حسب الحالة والأولوية والعمر." },
+        vacant_units_list: { title: "الوحدات الشاغرة", desc: "الوحدات الشاغرة حالياً مع أيام الشغور والإيرادات المحتملة." },
       },
       fields: {
         months: "عدد الأشهر",
@@ -4319,9 +4327,11 @@ const ar: typeof en = {
         horizonMonths: "أفق الأشهر",
         unitId: "معرّف الوحدة (UUID)",
         city: "المدينة",
+        limit: "الحد الأقصى للنتائج",
         optional: "اختياري",
       },
     },
+
     audit: {
       title: "سجل تدقيق سكربتات حامد",
       subtitle: "جميع محاولات تشغيل سكربتات المساعد داخل مؤسستك، مع المستخدم والنتيجة والوقت.",
