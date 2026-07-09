@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { HBS } from "@/components/hbspro/tokens";
 import {
   Navbar,
-  Hero,
   Stats,
   Features,
   DashboardPreview,
@@ -16,6 +15,7 @@ import {
   Footer,
   DemoModalRoot,
 } from "@/components/hbspro/sections";
+import { OpeningExperience } from "@/components/hbspro/OpeningExperience";
 import { SignupAssistant } from "@/components/SignupAssistant";
 
 export const Route = createFileRoute("/")({
@@ -85,7 +85,7 @@ function HBSproHome() {
     >
       <Navbar />
       <main>
-        <Hero />
+        <OpeningExperience />
         <Stats />
         <Features />
         <AISection />

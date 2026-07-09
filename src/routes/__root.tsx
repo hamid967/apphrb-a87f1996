@@ -111,7 +111,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "dns-prefetch", href: "https://iefrhjjlftbijuedxmbl.supabase.co" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=DM+Serif+Display&family=Fira+Sans:wght@400;500;600;700&display=swap",
       },
     ],
     scripts: [
