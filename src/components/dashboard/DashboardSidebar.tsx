@@ -14,7 +14,16 @@ import {
   LogOut,
   ClipboardList,
   BarChart3,
+  Home,
+  Wallet,
+  Target,
+  CheckSquare,
+  FolderOpen,
+  CalendarClock,
+  Gauge,
+  Handshake,
 } from "lucide-react";
+
 import {
   Sidebar,
   SidebarContent,
