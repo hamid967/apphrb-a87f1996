@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, Link as RouterLink } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "motion/react";
 import {
   BellRing,
@@ -15,10 +15,19 @@ import {
   Sparkles,
   Check,
   CheckCheck,
+  BellOff,
+  Settings2,
+  Undo2,
 } from "lucide-react";
 import { listMyRecentClaims } from "@/lib/expense-claims.functions";
-import { Link as RouterLink } from "@tanstack/react-router";
-import { Settings2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import {
   useReminderPreferences,
   categoryFromReminderId,
@@ -51,6 +60,48 @@ function saveReadIds(orgId: string | undefined, ids: Set<string>) {
   } catch {
     /* ignore quota errors */
   }
+}
+
+const SNOOZE_STORAGE_KEY = (orgId: string | undefined) =>
+  `aqari:reminders-snoozed:${orgId ?? "anon"}`;
+
+type SnoozeMap = Record<string, number>; // id -> epoch ms when snooze ends
+
+function loadSnoozed(orgId: string | undefined): SnoozeMap {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(SNOOZE_STORAGE_KEY(orgId));
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as SnoozeMap;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveSnoozed(orgId: string | undefined, map: SnoozeMap) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(SNOOZE_STORAGE_KEY(orgId), JSON.stringify(map));
+  } catch {
+    /* ignore quota errors */
+  }
+}
+
+const SNOOZE_OPTIONS: { hours: number; ar: string; en: string }[] = [
+  { hours: 4, ar: "٤ ساعات", en: "4 hours" },
+  { hours: 24, ar: "يوم واحد", en: "1 day" },
+  { hours: 72, ar: "٣ أيام", en: "3 days" },
+  { hours: 168, ar: "أسبوع", en: "1 week" },
+];
+
+function formatUntil(untilMs: number, isAr: boolean): string {
+  const diff = untilMs - Date.now();
+  if (diff <= 0) return "";
+  const h = Math.round(diff / 3_600_000);
+  const d = Math.round(h / 24);
+  if (h < 24) return isAr ? `${h} س` : `${h}h`;
+  return isAr ? `${d} يوم` : `${d}d`;
 }
 
 type Tone = "info" | "warn" | "danger" | "success";
@@ -301,17 +352,85 @@ export function SmartRemindersPanel({
     });
   }, [allReminders, orgId]);
 
+  // Snooze state ---------------------------------------------------------
+  const [snoozed, setSnoozed] = useState<SnoozeMap>({});
+  const [nowTick, setNowTick] = useState(() => Date.now());
+
+  useEffect(() => {
+    setSnoozed(loadSnoozed(orgId));
+  }, [orgId]);
+
+  // Tick every minute so snoozes expire without a manual refresh.
+  useEffect(() => {
+    const t = window.setInterval(() => setNowTick(Date.now()), 60_000);
+    return () => window.clearInterval(t);
+  }, []);
+
+  // Prune expired snoozes and ones for reminders that no longer exist.
+  useEffect(() => {
+    if (!Object.keys(snoozed).length) return;
+    const live = new Set(allReminders.map((r) => r.id));
+    let changed = false;
+    const next: SnoozeMap = {};
+    for (const [id, until] of Object.entries(snoozed)) {
+      if (until > nowTick && (live.has(id) || allReminders.length === 0)) {
+        next[id] = until;
+      } else {
+        changed = true;
+      }
+    }
+    if (changed) {
+      setSnoozed(next);
+      saveSnoozed(orgId, next);
+    }
+  }, [snoozed, allReminders, nowTick, orgId]);
+
+  const snoozeReminder = useCallback(
+    (id: string, hours: number) => {
+      setSnoozed((prev) => {
+        const next = { ...prev, [id]: Date.now() + hours * 3_600_000 };
+        saveSnoozed(orgId, next);
+        return next;
+      });
+    },
+    [orgId],
+  );
+
+  const unsnoozeReminder = useCallback(
+    (id: string) => {
+      setSnoozed((prev) => {
+        if (!(id in prev)) return prev;
+        const next = { ...prev };
+        delete next[id];
+        saveSnoozed(orgId, next);
+        return next;
+      });
+    },
+    [orgId],
+  );
+
   const visibleReminders = useMemo(
     () =>
       allReminders
         .filter((r) => {
           if (readIds.has(r.id)) return false;
+          const until = snoozed[r.id];
+          if (until && until > nowTick) return false;
           const cat = categoryFromReminderId(r.id);
           if (cat && prefs.enabled[cat] === false) return false;
           return true;
         })
         .slice(0, 6),
-    [allReminders, readIds, prefs.enabled],
+    [allReminders, readIds, snoozed, nowTick, prefs.enabled],
+  );
+
+  const snoozedList = useMemo(
+    () =>
+      allReminders.filter((r) => {
+        const until = snoozed[r.id];
+        return until && until > nowTick;
+      }),
+    [allReminders, snoozed, nowTick],
   );
 
   const Chevron = isAr ? ChevronLeft : ChevronRight;
@@ -428,19 +547,59 @@ export function SmartRemindersPanel({
                       </div>
                     )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      markRead(r.id);
-                    }}
-                    aria-label={isAr ? "تمييز كمقروء" : "Mark as read"}
-                    title={isAr ? "تمييز كمقروء" : "Mark as read"}
-                    className={`absolute top-2 ${isAr ? "left-2" : "right-2"} grid size-6 place-items-center rounded-md border border-transparent bg-background/60 text-muted-foreground opacity-0 transition hover:border-border hover:bg-background hover:text-foreground focus:opacity-100 group-hover:opacity-100`}
+                  <div
+                    className={`absolute top-2 ${isAr ? "left-2" : "right-2"} flex items-center gap-1 opacity-0 transition group-hover:opacity-100 focus-within:opacity-100`}
                   >
-                    <Check className="size-3.5" />
-                  </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                          aria-label={isAr ? "غفوة التذكير" : "Snooze reminder"}
+                          title={isAr ? "غفوة" : "Snooze"}
+                          className="grid size-6 place-items-center rounded-md border border-transparent bg-background/60 text-muted-foreground transition hover:border-border hover:bg-background hover:text-foreground"
+                        >
+                          <BellOff className="size-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align={isAr ? "start" : "end"}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <DropdownMenuLabel className="text-[11px]">
+                          {isAr ? "غفوة لمدة" : "Snooze for"}
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {SNOOZE_OPTIONS.map((opt) => (
+                          <DropdownMenuItem
+                            key={opt.hours}
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              snoozeReminder(r.id, opt.hours);
+                            }}
+                          >
+                            {isAr ? opt.ar : opt.en}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        markRead(r.id);
+                      }}
+                      aria-label={isAr ? "تمييز كمقروء" : "Mark as read"}
+                      title={isAr ? "تمييز كمقروء" : "Mark as read"}
+                      className="grid size-6 place-items-center rounded-md border border-transparent bg-background/60 text-muted-foreground transition hover:border-border hover:bg-background hover:text-foreground"
+                    >
+                      <Check className="size-3.5" />
+                    </button>
+                  </div>
                 </div>
               );
               return (
@@ -464,6 +623,46 @@ export function SmartRemindersPanel({
             })}
           </AnimatePresence>
         </ul>
+      )}
+
+      {snoozedList.length > 0 && (
+        <div className="mt-3 rounded-lg border border-dashed border-border/70 bg-muted/20 p-2">
+          <div className="mb-1 flex items-center justify-between gap-2 px-1">
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+              <BellOff className="size-3" />
+              {isAr
+                ? `في وضع الغفوة (${snoozedList.length})`
+                : `Snoozed (${snoozedList.length})`}
+            </span>
+          </div>
+          <ul className="space-y-1">
+            {snoozedList.slice(0, 3).map((r) => {
+              const until = snoozed[r.id];
+              return (
+                <li
+                  key={r.id}
+                  className="flex items-center justify-between gap-2 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-background/60"
+                >
+                  <span className="truncate">
+                    {isAr ? r.titleAr : r.titleEn}
+                    <span className="ms-1 opacity-70">
+                      · {isAr ? "يعود بعد" : "back in"} {formatUntil(until, !!isAr)}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => unsnoozeReminder(r.id)}
+                    className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-background/70 px-1.5 py-0.5 font-semibold text-foreground/80 transition hover:bg-background"
+                    title={isAr ? "إلغاء الغفوة" : "Unsnooze"}
+                  >
+                    <Undo2 className="size-3" />
+                    {isAr ? "إعادة" : "Restore"}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
     </section>
   );
