@@ -110,6 +110,78 @@ export const listPaymentSchedules = createServerFn({ method: "GET" })
     return { items: rows ?? [] };
   });
 
+/**
+ * Ensure a `payments` (voucher) row exists for a schedule and link it back.
+ * Idempotent — returns the existing voucher when already linked. Uses the
+ * caller's supabase client so RLS applies.
+ */
+async function ensureVoucherForSchedule(
+  supabase: any,
+  scheduleId: string,
+  opts: { markPaid?: boolean } = {},
+): Promise<{ voucherId: string; created: boolean }> {
+  const { data: sched, error: sErr } = await supabase
+    .from("payment_schedules")
+    .select("id, org_id, contract_id, installment_no, due_date, total_amount, voucher_id, status, notes")
+    .eq("id", scheduleId)
+    .single();
+  if (sErr) throw new Error(sErr.message);
+  if (!sched) throw new Error("Schedule not found");
+  if (sched.status === "cancelled") throw new Error("Schedule is cancelled");
+
+  if (sched.voucher_id) {
+    if (opts.markPaid) {
+      await supabase
+        .from("payments")
+        .update({ status: "paid", paid_at: new Date().toISOString() })
+        .eq("id", sched.voucher_id);
+      await supabase
+        .from("payment_schedules")
+        .update({ status: "paid" })
+        .eq("id", scheduleId);
+    }
+    return { voucherId: sched.voucher_id, created: false };
+  }
+
+  const paidAtIso = opts.markPaid
+    ? new Date().toISOString()
+    : new Date(`${sched.due_date}T00:00:00Z`).toISOString();
+
+  const { data: pay, error: pErr } = await supabase
+    .from("payments")
+    .insert({
+      org_id: sched.org_id,
+      contract_id: sched.contract_id,
+      amount: sched.total_amount,
+      currency_code: "SAR",
+      reference: `INST-${sched.installment_no}`,
+      paid_at: paidAtIso,
+      status: opts.markPaid ? "paid" : "pending",
+      notes: sched.notes ?? `Installment #${sched.installment_no}`,
+    })
+    .select("id")
+    .single();
+  if (pErr) throw new Error(pErr.message);
+
+  const nextStatus = opts.markPaid ? "paid" : "invoiced";
+  const { error: uErr } = await supabase
+    .from("payment_schedules")
+    .update({ voucher_id: pay.id, status: nextStatus })
+    .eq("id", scheduleId);
+  if (uErr) throw new Error(uErr.message);
+
+  return { voucherId: pay.id, created: true };
+}
+
+const CreateVoucherSchema = z.object({ scheduleId: z.string().uuid() });
+export const createVoucherFromSchedule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => CreateVoucherSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const res = await ensureVoucherForSchedule(context.supabase, data.scheduleId);
+    return { ok: true, ...res };
+  });
+
 const MarkPaidSchema = z.object({
   scheduleId: z.string().uuid(),
   voucherId: z.string().uuid().optional(),
@@ -118,12 +190,22 @@ export const markInstallmentPaid = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => MarkPaidSchema.parse(data))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("payment_schedules")
-      .update({ status: "paid", voucher_id: data.voucherId ?? null })
-      .eq("id", data.scheduleId);
-    if (error) throw new Error(error.message);
-    return { ok: true };
+    if (data.voucherId) {
+      await context.supabase
+        .from("payments")
+        .update({ status: "paid", paid_at: new Date().toISOString() })
+        .eq("id", data.voucherId);
+      const { error } = await context.supabase
+        .from("payment_schedules")
+        .update({ status: "paid", voucher_id: data.voucherId })
+        .eq("id", data.scheduleId);
+      if (error) throw new Error(error.message);
+      return { ok: true, voucherId: data.voucherId, created: false };
+    }
+    const res = await ensureVoucherForSchedule(context.supabase, data.scheduleId, {
+      markPaid: true,
+    });
+    return { ok: true, ...res };
   });
 
 const CancelSchema = z.object({ scheduleId: z.string().uuid() });
@@ -137,4 +219,44 @@ export const cancelInstallment = createServerFn({ method: "POST" })
       .eq("id", data.scheduleId);
     if (error) throw new Error(error.message);
     return { ok: true };
+  });
+
+/**
+ * Batch-generate draft vouchers for every pending/overdue installment due
+ * on/before `throughDate` (defaults to today). Idempotent — skips schedules
+ * already linked to a voucher. Intended for both manual UI use and cron.
+ */
+const GenerateDueSchema = z.object({
+  orgId: z.string().uuid().optional(),
+  throughDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  limit: z.number().int().min(1).max(500).default(200),
+});
+export const generateDueVouchers = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => GenerateDueSchema.parse(data ?? {}))
+  .handler(async ({ data, context }) => {
+    const through = data.throughDate ?? new Date().toISOString().slice(0, 10);
+    let q = context.supabase
+      .from("payment_schedules")
+      .select("id")
+      .is("voucher_id", null)
+      .in("status", ["pending", "overdue"])
+      .lte("due_date", through)
+      .order("due_date", { ascending: true })
+      .limit(data.limit);
+    if (data.orgId) q = q.eq("org_id", data.orgId);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+
+    let created = 0;
+    const errors: Array<{ id: string; message: string }> = [];
+    for (const r of rows ?? []) {
+      try {
+        const res = await ensureVoucherForSchedule(context.supabase, r.id);
+        if (res.created) created += 1;
+      } catch (e) {
+        errors.push({ id: r.id, message: (e as Error).message });
+      }
+    }
+    return { ok: true, scanned: rows?.length ?? 0, created, errors };
   });

@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Download, Ban, Check, RefreshCw } from "lucide-react";
+import { Download, Ban, Check, RefreshCw, Receipt, Zap } from "lucide-react";
 import { HijriDateBadge } from "@/components/ui/hijri-date-badge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,8 @@ import {
   listPaymentSchedules,
   markInstallmentPaid,
   cancelInstallment,
+  createVoucherFromSchedule,
+  generateDueVouchers,
 } from "@/lib/payment-schedules.functions";
 import { listMyOrganizations } from "@/lib/organizations.functions";
 
@@ -96,6 +98,35 @@ function PaymentSchedulesPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const voucherMut = useMutation({
+    mutationFn: (id: string) => createVoucherFromSchedule({ data: { scheduleId: id } }),
+    onSuccess: (res) => {
+      toast.success(
+        res.created
+          ? (isAr ? "تم إنشاء سند الدفع" : "Voucher created")
+          : (isAr ? "السند موجود مسبقاً" : "Voucher already exists"),
+      );
+      qc.invalidateQueries({ queryKey: ["payment-schedules"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const generateAllMut = useMutation({
+    mutationFn: () =>
+      generateDueVouchers({
+        data: { orgId: orgId === "all" ? undefined : orgId },
+      }),
+    onSuccess: (res) => {
+      toast.success(
+        isAr
+          ? `تم إنشاء ${res.created} سند من أصل ${res.scanned}`
+          : `Created ${res.created} of ${res.scanned} due vouchers`,
+      );
+      qc.invalidateQueries({ queryKey: ["payment-schedules"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const rows = (listQ.data?.items ?? []) as Row[];
 
   const summary = useMemo(() => {
@@ -143,10 +174,21 @@ function PaymentSchedulesPage() {
               : "Contract, deal, and commission installments with Hijri support."}
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={exportCsv}>
-          <Download className="h-4 w-4 me-1" />
-          {isAr ? "تصدير CSV" : "Export CSV"}
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => generateAllMut.mutate()}
+            disabled={generateAllMut.isPending}
+          >
+            <Zap className="h-4 w-4 me-1" />
+            {isAr ? "توليد سندات الأقساط المستحقة" : "Generate due vouchers"}
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportCsv}>
+            <Download className="h-4 w-4 me-1" />
+            {isAr ? "تصدير CSV" : "Export CSV"}
+          </Button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -260,6 +302,15 @@ function PaymentSchedulesPage() {
                     </Badge>
                   </td>
                   <td className="p-3 text-end space-x-1 rtl:space-x-reverse">
+                    <Button
+                      size="sm" variant="outline"
+                      disabled={disabled || Boolean(r.voucher_id) || voucherMut.isPending}
+                      onClick={() => voucherMut.mutate(r.id)}
+                      title={isAr ? "إنشاء سند" : "Create voucher"}
+                    >
+                      <Receipt className="h-3.5 w-3.5 me-1" />
+                      {isAr ? "سند" : "Voucher"}
+                    </Button>
                     <Button
                       size="sm" variant="outline"
                       disabled={disabled || payMut.isPending}
