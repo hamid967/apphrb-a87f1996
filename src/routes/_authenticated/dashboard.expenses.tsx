@@ -30,6 +30,7 @@ import {
   listExpenses,
   updateExpense,
 } from "@/lib/accounting.functions";
+import { listMyRecentClaims } from "@/lib/expense-claims.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ReceiptCameraButton } from "@/components/receipt-camera-button";
