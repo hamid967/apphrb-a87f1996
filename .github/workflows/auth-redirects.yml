@@ -1,0 +1,81 @@
+name: Auth Redirects (unit + WebView E2E)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Guards the redirect surface that email links + WebView deep links depend on:
+#   - src/lib/app-url.ts + tests → email/OAuth redirect origins stay https
+#   - src/routes/auth.tsx safeRedirect → no open redirect, no /auth loop
+#   - tests/e2e/webview-auth-redirects.spec.py → /onboarding/wizard, /reset-password
+#     and /forgot-password behave correctly in a WebView-like context.
+# A regression here can silently break sign-up, password recovery, or the
+# native shell without a build error, so this workflow runs on every PR.
+
+jobs:
+  unit:
+    name: Unit (app-url + safeRedirect)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Vitest — redirect helpers
+        run: bunx vitest run src/lib/app-url.test.ts src/routes/auth.redirect.test.ts
+
+  webview-e2e:
+    name: E2E (WebView-simulated redirects)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright + Chromium
+        run: |
+          python -m pip install --no-cache-dir playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Start dev server
+        run: |
+          bun run dev > /tmp/dev-server.log 2>&1 &
+          echo $! > /tmp/dev-server.pid
+          for i in $(seq 1 45); do
+            if curl -sf http://localhost:8080 > /dev/null; then
+              echo "dev server ready"; exit 0
+            fi
+            sleep 2
+          done
+          echo "dev server failed to start"; tail -n 200 /tmp/dev-server.log; exit 1
+
+      - name: Run WebView redirect spec
+        run: python tests/e2e/webview-auth-redirects.spec.py
+
+      - name: Stop dev server
+        if: always()
+        run: kill "$(cat /tmp/dev-server.pid)" 2>/dev/null || true
+
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: webview-auth-redirects-artifacts
+          path: |
+            /tmp/browser/webview-redirects
+            /tmp/dev-server.log
+          if-no-files-found: warn
