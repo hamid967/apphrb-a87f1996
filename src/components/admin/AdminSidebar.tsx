@@ -22,6 +22,13 @@ import {
   Activity,
   Radio,
   Gavel,
+  Package,
+  LifeBuoy,
+  DatabaseBackup,
+  Mail,
+  MessageSquare,
+  Landmark,
+  Inbox,
 } from "lucide-react";
 import {
   Sidebar,
@@ -70,7 +77,30 @@ const GROUPS: Group[] = [
       { to: "/admin/companies", icon: Building2, ar: "المنشآت", en: "Companies" },
       { to: "/admin/subscriptions", icon: CreditCard, ar: "طلبات الاشتراك", en: "Subscription Requests" },
       { to: "/admin/subscription-payments", icon: CreditCard, ar: "الإيصالات", en: "Receipts" },
+      { to: "/admin/plans", icon: Package, ar: "الباقات", en: "Plans" },
       { to: "/admin/billing-metrics", icon: LineChart, ar: "مؤشرات الفوترة", en: "Billing KPIs" },
+    ],
+  },
+  {
+    id: "platform",
+    icon: Cog,
+    ar: "إعدادات المنصة",
+    en: "Platform Settings",
+    items: [
+      { to: "/admin/email-providers", icon: Mail, ar: "مزودو البريد", en: "Email Providers" },
+      { to: "/admin/sms-providers", icon: MessageSquare, ar: "مزودو الرسائل", en: "SMS Providers" },
+      { to: "/admin/banks", icon: Landmark, ar: "البنوك", en: "Banks" },
+      { to: "/admin/backups", icon: DatabaseBackup, ar: "النسخ الاحتياطي", en: "Backups" },
+    ],
+  },
+  {
+    id: "support",
+    icon: LifeBuoy,
+    ar: "الدعم والتفاعل",
+    en: "Support & Engagement",
+    items: [
+      { to: "/admin/support", icon: LifeBuoy, ar: "تذاكر الدعم", en: "Support Tickets" },
+      { to: "/admin/demo-requests", icon: Inbox, ar: "طلبات العرض", en: "Demo Requests" },
     ],
   },
   {

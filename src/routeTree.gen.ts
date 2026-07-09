@@ -133,8 +133,10 @@ import { Route as AuthenticatedAssistantThreadIdRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminTelemetryEmailsRouteImport } from './routes/_authenticated/admin.telemetry-emails'
 import { Route as AuthenticatedAdminTelemetryRouteImport } from './routes/_authenticated/admin.telemetry'
+import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminSubscriptionPaymentsRouteImport } from './routes/_authenticated/admin.subscription-payments'
+import { Route as AuthenticatedAdminSmsProvidersRouteImport } from './routes/_authenticated/admin.sms-providers'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminSearchInsightsRouteImport } from './routes/_authenticated/admin.search-insights'
 import { Route as AuthenticatedAdminRolesRouteImport } from './routes/_authenticated/admin.roles'
@@ -143,12 +145,17 @@ import { Route as AuthenticatedAdminReportBrandingRouteImport } from './routes/_
 import { Route as AuthenticatedAdminRealtimeDiagnosticsRouteImport } from './routes/_authenticated/admin.realtime-diagnostics'
 import { Route as AuthenticatedAdminPortalInvitationsRouteImport } from './routes/_authenticated/admin.portal-invitations'
 import { Route as AuthenticatedAdminPoliciesRouteImport } from './routes/_authenticated/admin.policies'
+import { Route as AuthenticatedAdminPlansRouteImport } from './routes/_authenticated/admin.plans'
 import { Route as AuthenticatedAdminNotificationsQueueRouteImport } from './routes/_authenticated/admin.notifications-queue'
 import { Route as AuthenticatedAdminIntroAnalyticsRouteImport } from './routes/_authenticated/admin.intro-analytics'
 import { Route as AuthenticatedAdminFilterAnalyticsRouteImport } from './routes/_authenticated/admin.filter-analytics'
+import { Route as AuthenticatedAdminEmailProvidersRouteImport } from './routes/_authenticated/admin.email-providers'
+import { Route as AuthenticatedAdminDemoRequestsRouteImport } from './routes/_authenticated/admin.demo-requests'
 import { Route as AuthenticatedAdminDecisionLogRouteImport } from './routes/_authenticated/admin.decision-log'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 import { Route as AuthenticatedAdminBillingMetricsRouteImport } from './routes/_authenticated/admin.billing-metrics'
+import { Route as AuthenticatedAdminBanksRouteImport } from './routes/_authenticated/admin.banks'
+import { Route as AuthenticatedAdminBackupsRouteImport } from './routes/_authenticated/admin.backups'
 import { Route as AuthenticatedAdminAuditLogRouteImport } from './routes/_authenticated/admin.audit-log'
 import { Route as AuthenticatedAccountingVatRouteImport } from './routes/_authenticated/accounting.vat'
 import { Route as AuthenticatedAccountingPnlRouteImport } from './routes/_authenticated/accounting.pnl'
@@ -912,6 +919,12 @@ const AuthenticatedAdminTelemetryRoute =
     path: '/telemetry',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminSupportRoute =
+  AuthenticatedAdminSupportRouteImport.update({
+    id: '/support',
+    path: '/support',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSubscriptionsRoute =
   AuthenticatedAdminSubscriptionsRouteImport.update({
     id: '/subscriptions',
@@ -922,6 +935,12 @@ const AuthenticatedAdminSubscriptionPaymentsRoute =
   AuthenticatedAdminSubscriptionPaymentsRouteImport.update({
     id: '/subscription-payments',
     path: '/subscription-payments',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSmsProvidersRoute =
+  AuthenticatedAdminSmsProvidersRouteImport.update({
+    id: '/sms-providers',
+    path: '/sms-providers',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminSettingsRoute =
@@ -971,6 +990,11 @@ const AuthenticatedAdminPoliciesRoute =
     path: '/policies',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPlansRoute = AuthenticatedAdminPlansRouteImport.update({
+  id: '/plans',
+  path: '/plans',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminNotificationsQueueRoute =
   AuthenticatedAdminNotificationsQueueRouteImport.update({
     id: '/notifications-queue',
@@ -989,6 +1013,18 @@ const AuthenticatedAdminFilterAnalyticsRoute =
     path: '/filter-analytics',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminEmailProvidersRoute =
+  AuthenticatedAdminEmailProvidersRouteImport.update({
+    id: '/email-providers',
+    path: '/email-providers',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminDemoRequestsRoute =
+  AuthenticatedAdminDemoRequestsRouteImport.update({
+    id: '/demo-requests',
+    path: '/demo-requests',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminDecisionLogRoute =
   AuthenticatedAdminDecisionLogRouteImport.update({
     id: '/decision-log',
@@ -1005,6 +1041,17 @@ const AuthenticatedAdminBillingMetricsRoute =
   AuthenticatedAdminBillingMetricsRouteImport.update({
     id: '/billing-metrics',
     path: '/billing-metrics',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBanksRoute = AuthenticatedAdminBanksRouteImport.update({
+  id: '/banks',
+  path: '/banks',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminBackupsRoute =
+  AuthenticatedAdminBackupsRouteImport.update({
+    id: '/backups',
+    path: '/backups',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminAuditLogRoute =
@@ -1461,12 +1508,17 @@ export interface FileRoutesByFullPath {
   '/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
   '/accounting/vat': typeof AuthenticatedAccountingVatRoute
   '/admin/audit-log': typeof AuthenticatedAdminAuditLogRoute
+  '/admin/backups': typeof AuthenticatedAdminBackupsRoute
+  '/admin/banks': typeof AuthenticatedAdminBanksRoute
   '/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
+  '/admin/demo-requests': typeof AuthenticatedAdminDemoRequestsRoute
+  '/admin/email-providers': typeof AuthenticatedAdminEmailProvidersRoute
   '/admin/filter-analytics': typeof AuthenticatedAdminFilterAnalyticsRoute
   '/admin/intro-analytics': typeof AuthenticatedAdminIntroAnalyticsRoute
   '/admin/notifications-queue': typeof AuthenticatedAdminNotificationsQueueRoute
+  '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/policies': typeof AuthenticatedAdminPoliciesRoute
   '/admin/portal-invitations': typeof AuthenticatedAdminPortalInvitationsRoute
   '/admin/realtime-diagnostics': typeof AuthenticatedAdminRealtimeDiagnosticsRoute
@@ -1475,8 +1527,10 @@ export interface FileRoutesByFullPath {
   '/admin/roles': typeof AuthenticatedAdminRolesRoute
   '/admin/search-insights': typeof AuthenticatedAdminSearchInsightsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/sms-providers': typeof AuthenticatedAdminSmsProvidersRoute
   '/admin/subscription-payments': typeof AuthenticatedAdminSubscriptionPaymentsRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/admin/telemetry': typeof AuthenticatedAdminTelemetryRoute
   '/admin/telemetry-emails': typeof AuthenticatedAdminTelemetryEmailsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -1668,12 +1722,17 @@ export interface FileRoutesByTo {
   '/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
   '/accounting/vat': typeof AuthenticatedAccountingVatRoute
   '/admin/audit-log': typeof AuthenticatedAdminAuditLogRoute
+  '/admin/backups': typeof AuthenticatedAdminBackupsRoute
+  '/admin/banks': typeof AuthenticatedAdminBanksRoute
   '/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
+  '/admin/demo-requests': typeof AuthenticatedAdminDemoRequestsRoute
+  '/admin/email-providers': typeof AuthenticatedAdminEmailProvidersRoute
   '/admin/filter-analytics': typeof AuthenticatedAdminFilterAnalyticsRoute
   '/admin/intro-analytics': typeof AuthenticatedAdminIntroAnalyticsRoute
   '/admin/notifications-queue': typeof AuthenticatedAdminNotificationsQueueRoute
+  '/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/admin/policies': typeof AuthenticatedAdminPoliciesRoute
   '/admin/portal-invitations': typeof AuthenticatedAdminPortalInvitationsRoute
   '/admin/realtime-diagnostics': typeof AuthenticatedAdminRealtimeDiagnosticsRoute
@@ -1682,8 +1741,10 @@ export interface FileRoutesByTo {
   '/admin/roles': typeof AuthenticatedAdminRolesRoute
   '/admin/search-insights': typeof AuthenticatedAdminSearchInsightsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/sms-providers': typeof AuthenticatedAdminSmsProvidersRoute
   '/admin/subscription-payments': typeof AuthenticatedAdminSubscriptionPaymentsRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/support': typeof AuthenticatedAdminSupportRoute
   '/admin/telemetry': typeof AuthenticatedAdminTelemetryRoute
   '/admin/telemetry-emails': typeof AuthenticatedAdminTelemetryEmailsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -1879,12 +1940,17 @@ export interface FileRoutesById {
   '/_authenticated/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
   '/_authenticated/accounting/vat': typeof AuthenticatedAccountingVatRoute
   '/_authenticated/admin/audit-log': typeof AuthenticatedAdminAuditLogRoute
+  '/_authenticated/admin/backups': typeof AuthenticatedAdminBackupsRoute
+  '/_authenticated/admin/banks': typeof AuthenticatedAdminBanksRoute
   '/_authenticated/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
   '/_authenticated/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
+  '/_authenticated/admin/demo-requests': typeof AuthenticatedAdminDemoRequestsRoute
+  '/_authenticated/admin/email-providers': typeof AuthenticatedAdminEmailProvidersRoute
   '/_authenticated/admin/filter-analytics': typeof AuthenticatedAdminFilterAnalyticsRoute
   '/_authenticated/admin/intro-analytics': typeof AuthenticatedAdminIntroAnalyticsRoute
   '/_authenticated/admin/notifications-queue': typeof AuthenticatedAdminNotificationsQueueRoute
+  '/_authenticated/admin/plans': typeof AuthenticatedAdminPlansRoute
   '/_authenticated/admin/policies': typeof AuthenticatedAdminPoliciesRoute
   '/_authenticated/admin/portal-invitations': typeof AuthenticatedAdminPortalInvitationsRoute
   '/_authenticated/admin/realtime-diagnostics': typeof AuthenticatedAdminRealtimeDiagnosticsRoute
@@ -1893,8 +1959,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/roles': typeof AuthenticatedAdminRolesRoute
   '/_authenticated/admin/search-insights': typeof AuthenticatedAdminSearchInsightsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/sms-providers': typeof AuthenticatedAdminSmsProvidersRoute
   '/_authenticated/admin/subscription-payments': typeof AuthenticatedAdminSubscriptionPaymentsRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
   '/_authenticated/admin/telemetry': typeof AuthenticatedAdminTelemetryRoute
   '/_authenticated/admin/telemetry-emails': typeof AuthenticatedAdminTelemetryEmailsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
@@ -2093,12 +2161,17 @@ export interface FileRouteTypes {
     | '/accounting/pnl'
     | '/accounting/vat'
     | '/admin/audit-log'
+    | '/admin/backups'
+    | '/admin/banks'
     | '/admin/billing-metrics'
     | '/admin/companies'
     | '/admin/decision-log'
+    | '/admin/demo-requests'
+    | '/admin/email-providers'
     | '/admin/filter-analytics'
     | '/admin/intro-analytics'
     | '/admin/notifications-queue'
+    | '/admin/plans'
     | '/admin/policies'
     | '/admin/portal-invitations'
     | '/admin/realtime-diagnostics'
@@ -2107,8 +2180,10 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/admin/search-insights'
     | '/admin/settings'
+    | '/admin/sms-providers'
     | '/admin/subscription-payments'
     | '/admin/subscriptions'
+    | '/admin/support'
     | '/admin/telemetry'
     | '/admin/telemetry-emails'
     | '/admin/users'
@@ -2300,12 +2375,17 @@ export interface FileRouteTypes {
     | '/accounting/pnl'
     | '/accounting/vat'
     | '/admin/audit-log'
+    | '/admin/backups'
+    | '/admin/banks'
     | '/admin/billing-metrics'
     | '/admin/companies'
     | '/admin/decision-log'
+    | '/admin/demo-requests'
+    | '/admin/email-providers'
     | '/admin/filter-analytics'
     | '/admin/intro-analytics'
     | '/admin/notifications-queue'
+    | '/admin/plans'
     | '/admin/policies'
     | '/admin/portal-invitations'
     | '/admin/realtime-diagnostics'
@@ -2314,8 +2394,10 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/admin/search-insights'
     | '/admin/settings'
+    | '/admin/sms-providers'
     | '/admin/subscription-payments'
     | '/admin/subscriptions'
+    | '/admin/support'
     | '/admin/telemetry'
     | '/admin/telemetry-emails'
     | '/admin/users'
@@ -2510,12 +2592,17 @@ export interface FileRouteTypes {
     | '/_authenticated/accounting/pnl'
     | '/_authenticated/accounting/vat'
     | '/_authenticated/admin/audit-log'
+    | '/_authenticated/admin/backups'
+    | '/_authenticated/admin/banks'
     | '/_authenticated/admin/billing-metrics'
     | '/_authenticated/admin/companies'
     | '/_authenticated/admin/decision-log'
+    | '/_authenticated/admin/demo-requests'
+    | '/_authenticated/admin/email-providers'
     | '/_authenticated/admin/filter-analytics'
     | '/_authenticated/admin/intro-analytics'
     | '/_authenticated/admin/notifications-queue'
+    | '/_authenticated/admin/plans'
     | '/_authenticated/admin/policies'
     | '/_authenticated/admin/portal-invitations'
     | '/_authenticated/admin/realtime-diagnostics'
@@ -2524,8 +2611,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/roles'
     | '/_authenticated/admin/search-insights'
     | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/sms-providers'
     | '/_authenticated/admin/subscription-payments'
     | '/_authenticated/admin/subscriptions'
+    | '/_authenticated/admin/support'
     | '/_authenticated/admin/telemetry'
     | '/_authenticated/admin/telemetry-emails'
     | '/_authenticated/admin/users'
@@ -3606,6 +3695,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTelemetryRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/support': {
+      id: '/_authenticated/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AuthenticatedAdminSupportRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/subscriptions': {
       id: '/_authenticated/admin/subscriptions'
       path: '/subscriptions'
@@ -3618,6 +3714,13 @@ declare module '@tanstack/react-router' {
       path: '/subscription-payments'
       fullPath: '/admin/subscription-payments'
       preLoaderRoute: typeof AuthenticatedAdminSubscriptionPaymentsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/sms-providers': {
+      id: '/_authenticated/admin/sms-providers'
+      path: '/sms-providers'
+      fullPath: '/admin/sms-providers'
+      preLoaderRoute: typeof AuthenticatedAdminSmsProvidersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/settings': {
@@ -3676,6 +3779,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPoliciesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/plans': {
+      id: '/_authenticated/admin/plans'
+      path: '/plans'
+      fullPath: '/admin/plans'
+      preLoaderRoute: typeof AuthenticatedAdminPlansRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/notifications-queue': {
       id: '/_authenticated/admin/notifications-queue'
       path: '/notifications-queue'
@@ -3697,6 +3807,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminFilterAnalyticsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/email-providers': {
+      id: '/_authenticated/admin/email-providers'
+      path: '/email-providers'
+      fullPath: '/admin/email-providers'
+      preLoaderRoute: typeof AuthenticatedAdminEmailProvidersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/demo-requests': {
+      id: '/_authenticated/admin/demo-requests'
+      path: '/demo-requests'
+      fullPath: '/admin/demo-requests'
+      preLoaderRoute: typeof AuthenticatedAdminDemoRequestsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/decision-log': {
       id: '/_authenticated/admin/decision-log'
       path: '/decision-log'
@@ -3716,6 +3840,20 @@ declare module '@tanstack/react-router' {
       path: '/billing-metrics'
       fullPath: '/admin/billing-metrics'
       preLoaderRoute: typeof AuthenticatedAdminBillingMetricsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/banks': {
+      id: '/_authenticated/admin/banks'
+      path: '/banks'
+      fullPath: '/admin/banks'
+      preLoaderRoute: typeof AuthenticatedAdminBanksRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/backups': {
+      id: '/_authenticated/admin/backups'
+      path: '/backups'
+      fullPath: '/admin/backups'
+      preLoaderRoute: typeof AuthenticatedAdminBackupsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/audit-log': {
@@ -4240,12 +4378,17 @@ const AuthenticatedAccountingRouteWithChildren =
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAuditLogRoute: typeof AuthenticatedAdminAuditLogRoute
+  AuthenticatedAdminBackupsRoute: typeof AuthenticatedAdminBackupsRoute
+  AuthenticatedAdminBanksRoute: typeof AuthenticatedAdminBanksRoute
   AuthenticatedAdminBillingMetricsRoute: typeof AuthenticatedAdminBillingMetricsRoute
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
   AuthenticatedAdminDecisionLogRoute: typeof AuthenticatedAdminDecisionLogRoute
+  AuthenticatedAdminDemoRequestsRoute: typeof AuthenticatedAdminDemoRequestsRoute
+  AuthenticatedAdminEmailProvidersRoute: typeof AuthenticatedAdminEmailProvidersRoute
   AuthenticatedAdminFilterAnalyticsRoute: typeof AuthenticatedAdminFilterAnalyticsRoute
   AuthenticatedAdminIntroAnalyticsRoute: typeof AuthenticatedAdminIntroAnalyticsRoute
   AuthenticatedAdminNotificationsQueueRoute: typeof AuthenticatedAdminNotificationsQueueRoute
+  AuthenticatedAdminPlansRoute: typeof AuthenticatedAdminPlansRoute
   AuthenticatedAdminPoliciesRoute: typeof AuthenticatedAdminPoliciesRoute
   AuthenticatedAdminPortalInvitationsRoute: typeof AuthenticatedAdminPortalInvitationsRoute
   AuthenticatedAdminRealtimeDiagnosticsRoute: typeof AuthenticatedAdminRealtimeDiagnosticsRoute
@@ -4254,8 +4397,10 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminRolesRoute: typeof AuthenticatedAdminRolesRoute
   AuthenticatedAdminSearchInsightsRoute: typeof AuthenticatedAdminSearchInsightsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminSmsProvidersRoute: typeof AuthenticatedAdminSmsProvidersRoute
   AuthenticatedAdminSubscriptionPaymentsRoute: typeof AuthenticatedAdminSubscriptionPaymentsRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
+  AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
   AuthenticatedAdminTelemetryRoute: typeof AuthenticatedAdminTelemetryRoute
   AuthenticatedAdminTelemetryEmailsRoute: typeof AuthenticatedAdminTelemetryEmailsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
@@ -4264,14 +4409,19 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAuditLogRoute: AuthenticatedAdminAuditLogRoute,
+  AuthenticatedAdminBackupsRoute: AuthenticatedAdminBackupsRoute,
+  AuthenticatedAdminBanksRoute: AuthenticatedAdminBanksRoute,
   AuthenticatedAdminBillingMetricsRoute: AuthenticatedAdminBillingMetricsRoute,
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
   AuthenticatedAdminDecisionLogRoute: AuthenticatedAdminDecisionLogRoute,
+  AuthenticatedAdminDemoRequestsRoute: AuthenticatedAdminDemoRequestsRoute,
+  AuthenticatedAdminEmailProvidersRoute: AuthenticatedAdminEmailProvidersRoute,
   AuthenticatedAdminFilterAnalyticsRoute:
     AuthenticatedAdminFilterAnalyticsRoute,
   AuthenticatedAdminIntroAnalyticsRoute: AuthenticatedAdminIntroAnalyticsRoute,
   AuthenticatedAdminNotificationsQueueRoute:
     AuthenticatedAdminNotificationsQueueRoute,
+  AuthenticatedAdminPlansRoute: AuthenticatedAdminPlansRoute,
   AuthenticatedAdminPoliciesRoute: AuthenticatedAdminPoliciesRoute,
   AuthenticatedAdminPortalInvitationsRoute:
     AuthenticatedAdminPortalInvitationsRoute,
@@ -4282,9 +4432,11 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminRolesRoute: AuthenticatedAdminRolesRoute,
   AuthenticatedAdminSearchInsightsRoute: AuthenticatedAdminSearchInsightsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminSmsProvidersRoute: AuthenticatedAdminSmsProvidersRoute,
   AuthenticatedAdminSubscriptionPaymentsRoute:
     AuthenticatedAdminSubscriptionPaymentsRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
+  AuthenticatedAdminSupportRoute: AuthenticatedAdminSupportRoute,
   AuthenticatedAdminTelemetryRoute: AuthenticatedAdminTelemetryRoute,
   AuthenticatedAdminTelemetryEmailsRoute:
     AuthenticatedAdminTelemetryEmailsRoute,
@@ -4968,3 +5120,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
