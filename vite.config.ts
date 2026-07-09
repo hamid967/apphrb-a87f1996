@@ -21,6 +21,7 @@ const ANALYZE = process.env.ANALYZE === "true";
 export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
+    routeFileIgnorePattern: "\\.test\\.",
   },
   vite: {
     plugins: [
