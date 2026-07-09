@@ -144,6 +144,9 @@ type Reminder = {
   ctaEn?: string;
   timeAgoMs?: number;
   claimNumber?: string;
+  claimId?: string;
+  claimIsDraft?: boolean;
+  canAttachReceipt?: boolean;
   reasonAr?: string;
   reasonEn?: string;
   missing?: ReminderDetail[];
