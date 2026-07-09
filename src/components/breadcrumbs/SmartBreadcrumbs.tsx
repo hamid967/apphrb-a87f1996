@@ -149,6 +149,8 @@ export function SmartBreadcrumbs({
                 ) : (
                   <Link
                     to={c.href}
+                    activeOptions={{ exact: true }}
+                    aria-current={"false"}
                     aria-label={i === 0 ? (isAr ? ariaHome.ar : ariaHome.en) : undefined}
                     className="max-w-[12rem] truncate rounded-md px-2 py-1 font-medium text-muted-foreground outline-none transition-colors hover:bg-primary/10 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
@@ -220,6 +222,8 @@ function MobileScrollStrip({
           ) : (
             <Link
               to={first.href}
+              activeOptions={{ exact: true }}
+                    aria-current={"false"}
               aria-label={isAr ? ariaHome.ar : ariaHome.en}
               className="inline-flex items-center rounded-md px-1.5 py-1 text-muted-foreground outline-none transition-colors hover:bg-primary/10 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50"
             >
@@ -245,7 +249,8 @@ function MobileScrollStrip({
                 <DropdownMenuContent align={isAr ? "end" : "start"} className="min-w-[10rem]">
                   {middle.map((c) => (
                     <DropdownMenuItem key={c.href} asChild>
-                      <Link to={c.href} className="cursor-pointer">
+                      <Link to={c.href} activeOptions={{ exact: true }}
+                    aria-current={"false"} className="cursor-pointer">
                         {c.label}
                       </Link>
                     </DropdownMenuItem>
@@ -264,6 +269,8 @@ function MobileScrollStrip({
             </span>
             <Link
               to={c.href}
+              activeOptions={{ exact: true }}
+                    aria-current={"false"}
               className="inline-flex max-w-[8rem] items-center truncate rounded-md px-1.5 py-0.5 font-medium text-muted-foreground outline-none transition-colors hover:bg-primary/10 hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50"
             >
               {c.label}
