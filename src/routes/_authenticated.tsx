@@ -40,6 +40,7 @@ import { motion } from "motion/react";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 import { IdleLogout } from "@/components/security/IdleLogout";
+import { CoachMarks } from "@/components/dashboard/CoachMarks";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
