@@ -76,6 +76,7 @@ import { DashboardHero } from "@/components/dashboard/DashboardHero";
 import { AutoDashboardPanel } from "@/components/dashboard/AutoDashboardPanel";
 import { QuickExpenseWidget } from "@/components/dashboard/QuickExpenseWidget";
 import { ServicesGrid } from "@/components/dashboard/ServicesGrid";
+import { WelcomeChecklist } from "@/components/dashboard/WelcomeChecklist";
 import { PendingApprovalsPanel } from "@/components/dashboard/PendingApprovalsPanel";
 import { SmartRemindersPanel } from "@/components/dashboard/SmartRemindersPanel";
 import {
@@ -407,6 +408,10 @@ function Dashboard() {
       className="mx-auto max-w-6xl px-4 py-8 sm:px-6"
     >
       <DashboardHero orgName={org?.name} canCreate={canCreate} isAr={isAr} />
+
+      <div className="mt-6">
+        <WelcomeChecklist isAr={isAr} />
+      </div>
 
       <div className="mt-6">
         <ServicesGrid isAr={isAr} />
