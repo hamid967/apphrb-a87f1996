@@ -1208,3 +1208,97 @@ html.theme-tech [class*="font-mono"] {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
+
+/* ============================================================
+   theme-tech overrides for the legacy luxe-styled shell chrome
+   (DashboardTopbar + MobileDashboardTabbar). Those components
+   hardcode navy/gold colors inline; we neutralize them here so
+   the tech theme reads as a cohesive Slate & Steel surface
+   instead of a gold-on-tech mashup. Structural rules (layout,
+   sticky, safe-area padding) are left untouched.
+   ============================================================ */
+
+/* Sticky desktop topbar wrapper */
+html.theme-tech header.sticky {
+  background: color-mix(in oklab, var(--color-card) 92%, transparent) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+  box-shadow: 0 1px 0 0 oklch(1 0 0 / 4%) inset !important;
+  backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* Luxe gold divider between sections in the topbar */
+html.theme-tech .bg-\[rgba\(212\,175\,55\,0\.25\)\] {
+  background-color: var(--color-border) !important;
+}
+
+/* Luxe icon buttons / pills → tech surface */
+html.theme-tech .luxe-icon-btn,
+html.theme-tech .luxe-pill {
+  color: var(--color-foreground);
+  background: color-mix(in oklab, var(--color-card) 60%, transparent);
+  border-color: var(--color-border);
+  backdrop-filter: none;
+}
+html.theme-tech .luxe-icon-btn:hover,
+html.theme-tech .luxe-pill:hover {
+  color: var(--color-primary);
+  border-color: color-mix(in oklab, var(--color-primary) 50%, var(--color-border));
+  background: color-mix(in oklab, var(--color-primary) 8%, var(--color-card));
+  box-shadow: none;
+  transform: none;
+}
+
+/* Search input inside topbar (hardcoded amber border + white/[0.04] bg) */
+html.theme-tech header.sticky input {
+  background-color: color-mix(in oklab, var(--color-input) 70%, transparent) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-foreground) !important;
+}
+html.theme-tech header.sticky input::placeholder {
+  color: var(--color-muted-foreground) !important;
+}
+
+/* Gold "AI Search" chip → signal blue */
+html.theme-tech header.sticky button[type="button"][class*="from-amber"],
+html.theme-tech header.sticky button[style*="D4AF37"] {
+  background: var(--color-primary) !important;
+  color: var(--color-primary-foreground) !important;
+  box-shadow: none !important;
+}
+
+/* MobileDashboardTabbar wrapper (bg-slate-950/85 + amber border inline) */
+html.theme-tech nav[aria-label] > div.mx-2 {
+  background-color: color-mix(in oklab, var(--color-card) 92%, transparent) !important;
+  border-color: var(--color-border) !important;
+  box-shadow: 0 -12px 32px -20px oklch(0 0 0 / 60%);
+}
+
+/* Active tab: replace amber gradient with tech signal */
+html.theme-tech nav[aria-label] a[aria-current="page"] {
+  background: color-mix(in oklab, var(--color-primary) 14%, transparent) !important;
+  color: var(--color-foreground) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-primary) 45%, transparent) !important;
+}
+html.theme-tech nav[aria-label] a[aria-current="page"] svg {
+  color: var(--color-primary) !important;
+}
+
+/* Inactive tabs — tone slate-300/400 to the theme muted */
+html.theme-tech nav[aria-label] a:not([aria-current="page"]) {
+  color: var(--color-muted-foreground);
+}
+html.theme-tech nav[aria-label] a:not([aria-current="page"]) svg {
+  color: var(--color-muted-foreground) !important;
+}
+html.theme-tech nav[aria-label] a:not([aria-current="page"]):hover {
+  color: var(--color-foreground);
+}
+html.theme-tech nav[aria-label] a:not([aria-current="page"]):hover svg {
+  color: var(--color-foreground) !important;
+}
+
+/* The 2px gold underline on the active mobile tab (inline gradient) */
+html.theme-tech nav[aria-label] a[aria-current="page"] > span[aria-hidden="true"]:last-child {
+  background: var(--color-primary) !important;
+  box-shadow: 0 0 8px color-mix(in oklab, var(--color-primary) 60%, transparent) !important;
+}
