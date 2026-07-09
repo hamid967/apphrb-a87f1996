@@ -71,6 +71,180 @@ bun run mobile:release:android   # cap sync android && cap open android
 2. أنشئ keystore جديد (احتفظ به بأمان — لا يمكن استبداله بعد النشر).
 3. ارفع الملف الناتج إلى Google Play Console.
 
+---
+
+## توقيع التطبيق — أين تُخزَّن الشهادات وكيف تُستخدم
+
+**تحذير أمني:** ملفات التوقيع (`.p12`, `.mobileprovision`, `.jks`, `.keystore`) وكلمات مرورها **لا تُرفع أبداً إلى Git ولا إلى Lovable Cloud**. تُخزَّن محلياً على جهاز البناء، وفي CI عبر متغيرات بيئة مشفّرة (GitHub Actions Secrets / Bitrise / Codemagic).
+
+### 1) هيكل مجلد الشهادات المحلي
+
+أنشئ هذا المجلد **خارج المستودع** (مثلاً في `~/.aqari-signing/`) أو داخله ضمن `signing/` مع `.gitignore` صارم:
+
+```
+signing/                         ← مضاف إلى .gitignore
+├── ios/
+│   ├── AqariDistribution.p12           # شهادة التوزيع (Apple)
+│   ├── Aqari_AppStore.mobileprovision  # ملف provisioning للنشر
+│   └── ExportOptions.plist             # خيارات التصدير من Xcode
+└── android/
+    ├── aqari-release.keystore          # مفتاح توقيع Google Play
+    └── keystore.properties             # كلمات المرور (خارج Git)
+```
+
+أضف السطور التالية إلى `.gitignore` في جذر المشروع:
+
+```gitignore
+# Native signing — never commit
+signing/
+ios/App/App.xcworkspace/xcuserdata/
+ios/App/Pods/
+android/keystore.properties
+android/app/*.keystore
+android/app/*.jks
+android/.gradle/
+*.p12
+*.mobileprovision
+*.jks
+*.keystore
+```
+
+### 2) iOS — إعداد التوقيع
+
+#### أ) الحصول على الشهادات (مرة واحدة)
+
+من **Apple Developer Portal** → Certificates, Identifiers & Profiles:
+1. أنشئ **iOS Distribution Certificate** → صدّرها من Keychain كـ `.p12` بكلمة مرور قوية.
+2. سجّل **App ID** = `app.hrhbs.aqari`.
+3. أنشئ **App Store Provisioning Profile** → نزّله كـ `.mobileprovision`.
+4. احفظ الملفَين داخل `signing/ios/`.
+
+#### ب) متغيرات البيئة المطلوبة (للـCI أو fastlane)
+
+| المتغير | الوصف | مثال |
+|---|---|---|
+| `IOS_P12_BASE64` | شهادة التوزيع مُرمَّزة base64 | `base64 -i AqariDistribution.p12 \| pbcopy` |
+| `IOS_P12_PASSWORD` | كلمة مرور ملف `.p12` | `••••••••` |
+| `IOS_PROVISIONING_PROFILE_BASE64` | ملف provisioning مُرمَّز | `base64 -i Aqari_AppStore.mobileprovision \| pbcopy` |
+| `IOS_TEAM_ID` | معرّف فريق Apple Developer | `A1B2C3D4E5` |
+| `IOS_BUNDLE_ID` | معرّف الحزمة | `app.hrhbs.aqari` |
+| `APPLE_ID` | إيميل حساب Apple للنشر | `admin@hrhbs.com` |
+| `APPLE_APP_SPECIFIC_PASSWORD` | كلمة مرور خاصة بالتطبيق ([appleid.apple.com](https://appleid.apple.com) → Security) | `xxxx-xxxx-xxxx-xxxx` |
+| `ASC_KEY_ID` | App Store Connect API Key ID | `ABCD1234` |
+| `ASC_ISSUER_ID` | App Store Connect Issuer ID | UUID |
+| `ASC_KEY_BASE64` | `.p8` API Key مُرمَّز base64 | ملف من App Store Connect |
+
+#### ج) التوقيع اليدوي في Xcode
+
+1. افتح `ios/App/App.xcworkspace`.
+2. Signing & Capabilities → **Automatically manage signing** = ON.
+3. Team = فريقك، Bundle Identifier = `app.hrhbs.aqari`.
+4. Product → Archive → Distribute App → App Store Connect.
+
+### 3) Android — إعداد التوقيع
+
+#### أ) إنشاء keystore (مرة واحدة، احفظه للأبد)
+
+```bash
+keytool -genkey -v \
+  -keystore signing/android/aqari-release.keystore \
+  -alias aqari \
+  -keyalg RSA -keysize 2048 -validity 10000
+```
+
+**تحذير:** فقدان الـkeystore = عدم القدرة على تحديث التطبيق على Google Play إلى الأبد. خذ نسخة احتياطية مشفّرة في مكانين مختلفين (مثلاً 1Password + قرص خارجي).
+
+#### ب) ملف `signing/android/keystore.properties`
+
+```properties
+storeFile=../../signing/android/aqari-release.keystore
+storePassword=YOUR_STORE_PASSWORD
+keyAlias=aqari
+keyPassword=YOUR_KEY_PASSWORD
+```
+
+#### ج) ربط `android/app/build.gradle` بالـkeystore
+
+بعد `bun run cap:add:android`، عدّل `android/app/build.gradle`:
+
+```gradle
+def keystorePropertiesFile = rootProject.file("../signing/android/keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    signingConfigs {
+        release {
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+        }
+    }
+}
+```
+
+#### د) متغيرات البيئة المطلوبة (للـCI)
+
+| المتغير | الوصف |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | ملف keystore مُرمَّز — `base64 -i aqari-release.keystore` |
+| `ANDROID_KEYSTORE_PASSWORD` | كلمة مرور الـkeystore |
+| `ANDROID_KEY_ALIAS` | `aqari` |
+| `ANDROID_KEY_PASSWORD` | كلمة مرور الـalias |
+| `GOOGLE_PLAY_JSON_KEY_BASE64` | Service Account JSON من Google Cloud Console (لرفع تلقائي عبر fastlane/Gradle Play Publisher) |
+
+#### هـ) البناء اليدوي
+
+```bash
+cd android
+./gradlew bundleRelease
+# الناتج: android/app/build/outputs/bundle/release/app-release.aab
+```
+
+ارفع `.aab` إلى Google Play Console → Production → Create new release.
+
+### 4) استخدام المتغيرات في GitHub Actions (اختياري)
+
+في `Repository → Settings → Secrets and variables → Actions` أضف كل المتغيرات أعلاه، ثم في workflow:
+
+```yaml
+- name: Restore iOS signing
+  run: |
+    echo "$IOS_P12_BASE64" | base64 -d > /tmp/dist.p12
+    echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 -d > /tmp/profile.mobileprovision
+    security import /tmp/dist.p12 -P "$IOS_P12_PASSWORD" -A
+  env:
+    IOS_P12_BASE64: ${{ secrets.IOS_P12_BASE64 }}
+    IOS_P12_PASSWORD: ${{ secrets.IOS_P12_PASSWORD }}
+    IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+
+- name: Restore Android keystore
+  run: echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > signing/android/aqari-release.keystore
+  env:
+    ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+```
+
+### 5) قائمة تحقق قبل أول نشر
+
+- [ ] `.gitignore` يحجب مجلد `signing/` و`*.keystore` و`*.p12`
+- [ ] نسخة احتياطية مشفّرة من الـkeystore محفوظة في مكانين
+- [ ] كلمات المرور محفوظة في مدير كلمات مرور (1Password/Bitwarden)
+- [ ] `IOS_TEAM_ID` و`IOS_BUNDLE_ID` مطابقان لما في Apple Developer
+- [ ] Google Play Console: تم إنشاء التطبيق بنفس `app.hrhbs.aqari`
+- [ ] Apple App Store Connect: تم إنشاء التطبيق بنفس Bundle ID
+- [ ] `Aqari` مضاف كـ App Name في المنصّتين
+
+
+
 ## أيقونات وشاشات البداية
 
 بعد `cap add`، ضع:
