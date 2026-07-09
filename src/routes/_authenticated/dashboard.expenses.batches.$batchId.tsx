@@ -344,6 +344,12 @@ function BatchDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      <ApprovalAuditTrail
+        entity="expense_batches"
+        entityId={batchId}
+        className="mt-6"
+      />
     </div>
   );
 }
