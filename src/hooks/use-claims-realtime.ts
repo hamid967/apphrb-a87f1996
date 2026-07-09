@@ -87,7 +87,20 @@ export function useClaimsRealtime(opts?: { isAr?: boolean }) {
             : status === "draft"
               ? toast.warning
               : toast;
-      if (isMine) (fn as any)(title, desc ? { description: desc } : undefined);
+      if (isMine) {
+        const action = {
+          label: isAr ? "فتح المصروفات" : "Open expenses",
+          onClick: () => {
+            if (typeof window !== "undefined") {
+              window.location.assign("/dashboard/expenses");
+            }
+          },
+        };
+        (fn as any)(title, {
+          ...(desc ? { description: desc } : {}),
+          action,
+        });
+      }
     };
 
     const claimsCh = supabase
