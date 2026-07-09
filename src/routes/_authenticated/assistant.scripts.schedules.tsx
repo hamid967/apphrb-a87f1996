@@ -253,8 +253,14 @@ function SchedulesPage() {
                               title={r.last_error ?? ""}
                             >
                               <AlertTriangle className="size-3" /> error
+                              {r.current_retry > 0 && (
+                                <span className="text-muted-foreground">
+                                  · {t("assistant.scripts.scheduleAttempt")} {r.current_retry}/{r.max_retries}
+                                </span>
+                              )}
                             </span>
                           ) : null}
+
                         </div>
                       ) : (
                         <span className="text-muted-foreground">{t("assistant.scripts.never")}</span>
