@@ -767,3 +767,135 @@ body::-webkit-scrollbar,
     animation: none !important;
   }
 }
+
+/* ============================================================
+   Holographic layer applied to dashboard/admin UI primitives.
+   Scope: everything EXCEPT the public `.theme-luxe` landing.
+   Contrast preserved — semantic bg/foreground tokens untouched;
+   effects live on borders, shadows, and decorative ::before/::after.
+   ============================================================ */
+
+/* --- Cards: iridescent hairline top edge + lift on hover -------- */
+:where(:not(.theme-luxe *)) [data-slot="card"] {
+  position: relative;
+  isolation: isolate;
+  transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
+}
+:where(:not(.theme-luxe *)) [data-slot="card"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--gradient-holo);
+  background-size: 200% 200%;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0.35;
+  pointer-events: none;
+  animation: holo-shift 12s ease-in-out infinite;
+}
+:where(:not(.theme-luxe *)) [data-slot="card"]:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-glow);
+}
+:where(:not(.theme-luxe *)) [data-slot="card"]:hover::before {
+  opacity: 0.7;
+}
+
+/* --- Primary buttons: chrome sheen + multi-color glow on hover --- */
+:where(:not(.theme-luxe *)) button.bg-primary,
+:where(:not(.theme-luxe *)) a.bg-primary,
+:where(:not(.theme-luxe *)) [role="button"].bg-primary {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition: box-shadow .25s ease, transform .2s ease;
+}
+:where(:not(.theme-luxe *)) button.bg-primary::after,
+:where(:not(.theme-luxe *)) a.bg-primary::after,
+:where(:not(.theme-luxe *)) [role="button"].bg-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(120deg,
+    transparent 30%,
+    color-mix(in oklab, #ffffff 45%, transparent) 50%,
+    transparent 70%);
+  background-size: 220% 100%;
+  background-position: 100% 0;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  transition: background-position .8s ease;
+}
+:where(:not(.theme-luxe *)) button.bg-primary:hover,
+:where(:not(.theme-luxe *)) a.bg-primary:hover,
+:where(:not(.theme-luxe *)) [role="button"].bg-primary:hover {
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-1px);
+}
+:where(:not(.theme-luxe *)) button.bg-primary:hover::after,
+:where(:not(.theme-luxe *)) a.bg-primary:hover::after,
+:where(:not(.theme-luxe *)) [role="button"].bg-primary:hover::after {
+  background-position: -20% 0;
+}
+
+/* --- Sidebar active item: iridescent edge + halo ---------------- */
+:where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"] {
+  position: relative;
+  isolation: isolate;
+  box-shadow: var(--shadow-glow);
+}
+:where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--gradient-holo);
+  background-size: 200% 200%;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  animation: holo-shift 10s ease-in-out infinite;
+}
+
+/* --- Menubar / Tabs list: subtle iridescent underline ----------- */
+:where(:not(.theme-luxe *)) [role="tablist"] {
+  position: relative;
+}
+:where(:not(.theme-luxe *)) [role="tablist"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--gradient-holo);
+  background-size: 200% 200%;
+  opacity: 0.4;
+  animation: holo-shift 14s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Reduced motion: keep the visual layer, drop the animations. */
+@media (prefers-reduced-motion: reduce) {
+  :where(:not(.theme-luxe *)) [data-slot="card"]::before,
+  :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"]::before,
+  :where(:not(.theme-luxe *)) [role="tablist"]::after,
+  :where(:not(.theme-luxe *)) button.bg-primary::after,
+  :where(:not(.theme-luxe *)) a.bg-primary::after {
+    animation: none !important;
+  }
+  :where(:not(.theme-luxe *)) [data-slot="card"]:hover,
+  :where(:not(.theme-luxe *)) button.bg-primary:hover,
+  :where(:not(.theme-luxe *)) a.bg-primary:hover {
+    transform: none !important;
+  }
+}
