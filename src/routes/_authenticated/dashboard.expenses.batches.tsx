@@ -48,6 +48,16 @@ function BatchesPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
+  // Auto-open the "new batch" dialog when arriving from the dashboard
+  // quick-action (`/dashboard/expenses/batches#new`) so the flow is 2 steps.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash === "#new") {
+      setOpen(true);
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+  }, []);
+
   const create = useMutation({
     mutationFn: createExpenseBatch,
     onSuccess: (row: { id: string }) => {
