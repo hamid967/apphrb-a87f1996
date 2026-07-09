@@ -304,7 +304,7 @@ export function Hero() {
   return (
     <section
       dir="ltr"
-      className="relative overflow-hidden pt-20 pb-10 sm:pt-24 sm:pb-14 lg:pt-28 lg:pb-16"
+      className="holo-aurora relative overflow-hidden pt-20 pb-10 sm:pt-24 sm:pb-14 lg:pt-28 lg:pb-16"
       style={{ background: HBS.bg }}
     >
       <div className="pointer-events-none absolute inset-0">
