@@ -182,6 +182,7 @@ import { Route as ApiPublicV1ContractsRouteImport } from './routes/api/public/v1
 import { Route as ApiPublicV1AuctionsRouteImport } from './routes/api/public/v1/auctions'
 import { Route as ApiPublicOgImageDotsvgRouteImport } from './routes/api/public/og/image[.]svg'
 import { Route as ApiPublicOgImageDotpngRouteImport } from './routes/api/public/og/image[.]png'
+import { Route as ApiPublicHooksRunScheduledScriptsRouteImport } from './routes/api/public/hooks/run-scheduled-scripts'
 import { Route as ApiPublicHooksRentRemindersRouteImport } from './routes/api/public/hooks/rent-reminders'
 import { Route as ApiPublicHooksDispatchNotificationsRouteImport } from './routes/api/public/hooks/dispatch-notifications'
 import { Route as ApiPublicHooksAuctionsTickRouteImport } from './routes/api/public/hooks/auctions-tick'
@@ -1203,6 +1204,12 @@ const ApiPublicOgImageDotpngRoute = ApiPublicOgImageDotpngRouteImport.update({
   path: '/api/public/og/image.png',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksRunScheduledScriptsRoute =
+  ApiPublicHooksRunScheduledScriptsRouteImport.update({
+    id: '/api/public/hooks/run-scheduled-scripts',
+    path: '/api/public/hooks/run-scheduled-scripts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksRentRemindersRoute =
   ApiPublicHooksRentRemindersRouteImport.update({
     id: '/api/public/hooks/rent-reminders',
@@ -1677,6 +1684,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/auctions-tick': typeof ApiPublicHooksAuctionsTickRoute
   '/api/public/hooks/dispatch-notifications': typeof ApiPublicHooksDispatchNotificationsRoute
   '/api/public/hooks/rent-reminders': typeof ApiPublicHooksRentRemindersRoute
+  '/api/public/hooks/run-scheduled-scripts': typeof ApiPublicHooksRunScheduledScriptsRoute
   '/api/public/og/image.png': typeof ApiPublicOgImageDotpngRoute
   '/api/public/og/image.svg': typeof ApiPublicOgImageDotsvgRoute
   '/api/public/v1/auctions': typeof ApiPublicV1AuctionsRouteWithChildren
@@ -1892,6 +1900,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/auctions-tick': typeof ApiPublicHooksAuctionsTickRoute
   '/api/public/hooks/dispatch-notifications': typeof ApiPublicHooksDispatchNotificationsRoute
   '/api/public/hooks/rent-reminders': typeof ApiPublicHooksRentRemindersRoute
+  '/api/public/hooks/run-scheduled-scripts': typeof ApiPublicHooksRunScheduledScriptsRoute
   '/api/public/og/image.png': typeof ApiPublicOgImageDotpngRoute
   '/api/public/og/image.svg': typeof ApiPublicOgImageDotsvgRoute
   '/api/public/v1/auctions': typeof ApiPublicV1AuctionsRouteWithChildren
@@ -2117,6 +2126,7 @@ export interface FileRoutesById {
   '/api/public/hooks/auctions-tick': typeof ApiPublicHooksAuctionsTickRoute
   '/api/public/hooks/dispatch-notifications': typeof ApiPublicHooksDispatchNotificationsRoute
   '/api/public/hooks/rent-reminders': typeof ApiPublicHooksRentRemindersRoute
+  '/api/public/hooks/run-scheduled-scripts': typeof ApiPublicHooksRunScheduledScriptsRoute
   '/api/public/og/image.png': typeof ApiPublicOgImageDotpngRoute
   '/api/public/og/image.svg': typeof ApiPublicOgImageDotsvgRoute
   '/api/public/v1/auctions': typeof ApiPublicV1AuctionsRouteWithChildren
@@ -2342,6 +2352,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auctions-tick'
     | '/api/public/hooks/dispatch-notifications'
     | '/api/public/hooks/rent-reminders'
+    | '/api/public/hooks/run-scheduled-scripts'
     | '/api/public/og/image.png'
     | '/api/public/og/image.svg'
     | '/api/public/v1/auctions'
@@ -2557,6 +2568,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auctions-tick'
     | '/api/public/hooks/dispatch-notifications'
     | '/api/public/hooks/rent-reminders'
+    | '/api/public/hooks/run-scheduled-scripts'
     | '/api/public/og/image.png'
     | '/api/public/og/image.svg'
     | '/api/public/v1/auctions'
@@ -2781,6 +2793,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auctions-tick'
     | '/api/public/hooks/dispatch-notifications'
     | '/api/public/hooks/rent-reminders'
+    | '/api/public/hooks/run-scheduled-scripts'
     | '/api/public/og/image.png'
     | '/api/public/og/image.svg'
     | '/api/public/v1/auctions'
@@ -2861,6 +2874,7 @@ export interface RootRouteChildren {
   ApiPublicHooksAuctionsTickRoute: typeof ApiPublicHooksAuctionsTickRoute
   ApiPublicHooksDispatchNotificationsRoute: typeof ApiPublicHooksDispatchNotificationsRoute
   ApiPublicHooksRentRemindersRoute: typeof ApiPublicHooksRentRemindersRoute
+  ApiPublicHooksRunScheduledScriptsRoute: typeof ApiPublicHooksRunScheduledScriptsRoute
   ApiPublicOgImageDotpngRoute: typeof ApiPublicOgImageDotpngRoute
   ApiPublicOgImageDotsvgRoute: typeof ApiPublicOgImageDotsvgRoute
   ApiPublicV1AuctionsRoute: typeof ApiPublicV1AuctionsRouteWithChildren
@@ -4090,6 +4104,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicOgImageDotpngRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/run-scheduled-scripts': {
+      id: '/api/public/hooks/run-scheduled-scripts'
+      path: '/api/public/hooks/run-scheduled-scripts'
+      fullPath: '/api/public/hooks/run-scheduled-scripts'
+      preLoaderRoute: typeof ApiPublicHooksRunScheduledScriptsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/rent-reminders': {
       id: '/api/public/hooks/rent-reminders'
       path: '/api/public/hooks/rent-reminders'
@@ -5206,6 +5227,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksDispatchNotificationsRoute:
     ApiPublicHooksDispatchNotificationsRoute,
   ApiPublicHooksRentRemindersRoute: ApiPublicHooksRentRemindersRoute,
+  ApiPublicHooksRunScheduledScriptsRoute:
+    ApiPublicHooksRunScheduledScriptsRoute,
   ApiPublicOgImageDotpngRoute: ApiPublicOgImageDotpngRoute,
   ApiPublicOgImageDotsvgRoute: ApiPublicOgImageDotsvgRoute,
   ApiPublicV1AuctionsRoute: ApiPublicV1AuctionsRouteWithChildren,
