@@ -165,20 +165,26 @@ def slug(path: str) -> str:
     return path.strip("/").replace("/", "_") or "root"
 
 
-async def run_path(browser, path: str, budget: int) -> tuple[dict, list[str], Path]:
+async def run_path(
+    browser,
+    path: str,
+    viewport_name: str,
+    viewport: dict[str, int],
+    budget: int,
+) -> tuple[dict, list[str], Path]:
     """Load a path RUNS_PER_PATH times inside a dedicated context that records
-    video + HAR + Playwright trace. Returns (summary, failures, artifact_dir).
-    Caller decides whether to keep or delete the artifact dir based on pass/fail."""
-    artifact_dir = SCREENSHOTS / slug(path)
+    video + HAR + Playwright trace. One context per (path, viewport) so each
+    combination gets its own isolated diagnostics bundle."""
+    artifact_dir = SCREENSHOTS / slug(path) / viewport_name
     video_dir = artifact_dir / "video"
     video_dir.mkdir(parents=True, exist_ok=True)
     har_path = artifact_dir / "network.har"
     trace_path = artifact_dir / "trace.zip"
 
     context = await browser.new_context(
-        viewport={"width": 1280, "height": 1800},
+        viewport=viewport,
         record_video_dir=str(video_dir),
-        record_video_size={"width": 1280, "height": 900},
+        record_video_size=viewport,
         record_har_path=str(har_path),
         record_har_content="omit",
     )
@@ -192,7 +198,8 @@ async def run_path(browser, path: str, budget: int) -> tuple[dict, list[str], Pa
         for i in range(RUNS_PER_PATH):
             r = await measure(page, path)
             print(
-                f"  {path:22s} run {i + 1}: nav={r['navigation_ms']:>5}ms "
+                f"  [{viewport_name:7s}] {path:22s} run {i + 1}: "
+                f"nav={r['navigation_ms']:>5}ms "
                 f"interactive={r['interactive_ms']:>5}ms "
                 f"transfer={r['transfer_kb']:>6.1f}KB "
                 f"status={r['status']} ready={r['ready']}"
@@ -207,10 +214,11 @@ async def run_path(browser, path: str, budget: int) -> tuple[dict, list[str], Pa
 
     summary = summarize(runs)
     med = summary["interactive_ms_median"]
+    label = f"{path} @ {viewport_name}"
     if not summary["all_ready"]:
-        failures.append(f"{path}: never rendered ready selector")
+        failures.append(f"{label}: never rendered ready selector")
     if med > budget:
-        failures.append(f"{path}: interactive_ms median {med} > budget {budget}")
+        failures.append(f"{label}: interactive_ms median {med} > budget {budget}")
 
     return summary, failures, artifact_dir
 
@@ -230,6 +238,7 @@ async def main() -> int:
         print("      Sign in via the preview or run scripts/e2e-mint-admin-session.py")
         return 0
     print(f"Using auth source: {source}")
+
 
     report: dict = {"budgets_ms": BUDGETS_MS, "runs_per_path": RUNS_PER_PATH, "results": {}}
     all_failures: list[str] = []
