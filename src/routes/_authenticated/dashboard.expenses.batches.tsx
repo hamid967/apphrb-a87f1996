@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -47,6 +47,16 @@ function BatchesPage() {
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  // Auto-open the "new batch" dialog when arriving from the dashboard
+  // quick-action (`/dashboard/expenses/batches#new`) so the flow is 2 steps.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash === "#new") {
+      setOpen(true);
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+  }, []);
 
   const create = useMutation({
     mutationFn: createExpenseBatch,
