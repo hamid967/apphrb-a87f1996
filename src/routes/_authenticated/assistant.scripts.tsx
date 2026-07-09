@@ -260,7 +260,7 @@ function ScriptCard({
         </div>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           onClick={handleRun}
           disabled={running}
@@ -269,6 +269,19 @@ function ScriptCard({
           {running ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />}
           {t("assistant.scripts.run")}
         </button>
+        <Link
+          to="/assistant/scripts/$name"
+          params={{ name: script.name }}
+          search={Object.fromEntries(
+            script.fields
+              .map((f) => [f.name, values[f.name]] as const)
+              .filter(([, v]) => v !== undefined && v !== ""),
+          )}
+          className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs text-muted-foreground hover:bg-muted"
+        >
+          <ExternalLink className="size-3.5" />
+          {t("assistant.scripts.viewDetails")}
+        </Link>
         {(result || error) && (
           <button
             onClick={() => setOpen((o) => !o)}
