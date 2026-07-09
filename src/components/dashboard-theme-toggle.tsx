@@ -44,9 +44,14 @@ export function applyDashboardTheme(mode: DashboardThemeMode, animate = true) {
 export function DashboardThemeToggle({ className }: { className?: string }) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<DashboardThemeMode>(() => readDashboardTheme());
+  const firstRun = useRef(true);
 
   useEffect(() => {
-    applyDashboardTheme(mode);
+    // Skip the fade on the very first mount so we don't animate from the
+    // default palette into tech on page load — only user-triggered swaps
+    // should tween.
+    applyDashboardTheme(mode, !firstRun.current);
+    firstRun.current = false;
     try {
       window.localStorage.setItem(STORAGE_KEY, mode);
     } catch {
