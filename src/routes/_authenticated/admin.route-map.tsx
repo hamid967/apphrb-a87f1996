@@ -326,7 +326,7 @@ function RouteMapPage() {
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={isAr ? "ابحث عن مسار..." : "Filter by path..."}
+                placeholder={isAr ? "ابحث في المسار أو الوصف..." : "Filter path or description..."}
                 className="ps-9"
               />
             </div>
