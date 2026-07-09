@@ -903,6 +903,13 @@ function ModuleLauncher({ isAr }: { isAr: boolean }) {
       tone: "primary",
     },
     {
+      to: "/admin/route-map",
+      icon: <GitBranch className="size-5" />,
+      title: isAr ? "خريطة المسارات" : "Route map",
+      desc: isAr ? "مراجعة كل الروابط والوصول" : "Audit every URL & access",
+      tone: "sky",
+    },
+    {
       to: "/settings/import",
       icon: <GitBranch className="size-5" />,
       title: isAr ? "الاستيراد والتكامل" : "Imports & Integrations",

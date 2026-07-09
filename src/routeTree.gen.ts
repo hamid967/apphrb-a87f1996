@@ -139,6 +139,7 @@ import { Route as AuthenticatedAdminSubscriptionPaymentsRouteImport } from './ro
 import { Route as AuthenticatedAdminSmsProvidersRouteImport } from './routes/_authenticated/admin.sms-providers'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminSearchInsightsRouteImport } from './routes/_authenticated/admin.search-insights'
+import { Route as AuthenticatedAdminRouteMapRouteImport } from './routes/_authenticated/admin.route-map'
 import { Route as AuthenticatedAdminRolesRouteImport } from './routes/_authenticated/admin.roles'
 import { Route as AuthenticatedAdminReportIntroRouteImport } from './routes/_authenticated/admin.report-intro'
 import { Route as AuthenticatedAdminReportBrandingRouteImport } from './routes/_authenticated/admin.report-branding'
@@ -961,6 +962,12 @@ const AuthenticatedAdminSearchInsightsRoute =
     path: '/search-insights',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminRouteMapRoute =
+  AuthenticatedAdminRouteMapRouteImport.update({
+    id: '/route-map',
+    path: '/route-map',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminRolesRoute = AuthenticatedAdminRolesRouteImport.update({
   id: '/roles',
   path: '/roles',
@@ -1574,6 +1581,7 @@ export interface FileRoutesByFullPath {
   '/admin/report-branding': typeof AuthenticatedAdminReportBrandingRoute
   '/admin/report-intro': typeof AuthenticatedAdminReportIntroRoute
   '/admin/roles': typeof AuthenticatedAdminRolesRoute
+  '/admin/route-map': typeof AuthenticatedAdminRouteMapRoute
   '/admin/search-insights': typeof AuthenticatedAdminSearchInsightsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/sms-providers': typeof AuthenticatedAdminSmsProvidersRoute
@@ -1795,6 +1803,7 @@ export interface FileRoutesByTo {
   '/admin/report-branding': typeof AuthenticatedAdminReportBrandingRoute
   '/admin/report-intro': typeof AuthenticatedAdminReportIntroRoute
   '/admin/roles': typeof AuthenticatedAdminRolesRoute
+  '/admin/route-map': typeof AuthenticatedAdminRouteMapRoute
   '/admin/search-insights': typeof AuthenticatedAdminSearchInsightsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/sms-providers': typeof AuthenticatedAdminSmsProvidersRoute
@@ -2020,6 +2029,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/report-branding': typeof AuthenticatedAdminReportBrandingRoute
   '/_authenticated/admin/report-intro': typeof AuthenticatedAdminReportIntroRoute
   '/_authenticated/admin/roles': typeof AuthenticatedAdminRolesRoute
+  '/_authenticated/admin/route-map': typeof AuthenticatedAdminRouteMapRoute
   '/_authenticated/admin/search-insights': typeof AuthenticatedAdminSearchInsightsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/sms-providers': typeof AuthenticatedAdminSmsProvidersRoute
@@ -2248,6 +2258,7 @@ export interface FileRouteTypes {
     | '/admin/report-branding'
     | '/admin/report-intro'
     | '/admin/roles'
+    | '/admin/route-map'
     | '/admin/search-insights'
     | '/admin/settings'
     | '/admin/sms-providers'
@@ -2469,6 +2480,7 @@ export interface FileRouteTypes {
     | '/admin/report-branding'
     | '/admin/report-intro'
     | '/admin/roles'
+    | '/admin/route-map'
     | '/admin/search-insights'
     | '/admin/settings'
     | '/admin/sms-providers'
@@ -2693,6 +2705,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/report-branding'
     | '/_authenticated/admin/report-intro'
     | '/_authenticated/admin/roles'
+    | '/_authenticated/admin/route-map'
     | '/_authenticated/admin/search-insights'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/sms-providers'
@@ -3829,6 +3842,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSearchInsightsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/route-map': {
+      id: '/_authenticated/admin/route-map'
+      path: '/route-map'
+      fullPath: '/admin/route-map'
+      preLoaderRoute: typeof AuthenticatedAdminRouteMapRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/roles': {
       id: '/_authenticated/admin/roles'
       path: '/roles'
@@ -4536,6 +4556,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminReportBrandingRoute: typeof AuthenticatedAdminReportBrandingRoute
   AuthenticatedAdminReportIntroRoute: typeof AuthenticatedAdminReportIntroRoute
   AuthenticatedAdminRolesRoute: typeof AuthenticatedAdminRolesRoute
+  AuthenticatedAdminRouteMapRoute: typeof AuthenticatedAdminRouteMapRoute
   AuthenticatedAdminSearchInsightsRoute: typeof AuthenticatedAdminSearchInsightsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSmsProvidersRoute: typeof AuthenticatedAdminSmsProvidersRoute
@@ -4571,6 +4592,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminReportBrandingRoute: AuthenticatedAdminReportBrandingRoute,
   AuthenticatedAdminReportIntroRoute: AuthenticatedAdminReportIntroRoute,
   AuthenticatedAdminRolesRoute: AuthenticatedAdminRolesRoute,
+  AuthenticatedAdminRouteMapRoute: AuthenticatedAdminRouteMapRoute,
   AuthenticatedAdminSearchInsightsRoute: AuthenticatedAdminSearchInsightsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminSmsProvidersRoute: AuthenticatedAdminSmsProvidersRoute,
