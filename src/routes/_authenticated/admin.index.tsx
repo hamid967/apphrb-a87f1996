@@ -190,7 +190,8 @@ function AdminOverview() {
         <KpiCard
           icon={<Users2 className="size-5" />}
           label={isAr ? "إجمالي المستخدمين" : "Total users"}
-          value={nf.format(data.kpis.users)}
+          value={data.kpis.users}
+          format={(n) => nf.format(n)}
           sub={
             isAr
               ? `${nf.format(data.kpis.pending)} بانتظار الاعتماد`
@@ -201,7 +202,8 @@ function AdminOverview() {
         <KpiCard
           icon={<Building2 className="size-5" />}
           label={isAr ? "المؤسسات" : "Organizations"}
-          value={nf.format(data.kpis.orgs)}
+          value={data.kpis.orgs}
+          format={(n) => nf.format(n)}
           sub={
             isAr
               ? `${nf.format(data.kpis.activeContracts)} عقد نشط`
@@ -212,7 +214,8 @@ function AdminOverview() {
         <KpiCard
           icon={<ShieldCheck className="size-5" />}
           label={isAr ? "دخول ناجح (24س)" : "Successful logins (24h)"}
-          value={nf.format(data.kpis.loginSuccess24h)}
+          value={data.kpis.loginSuccess24h}
+          format={(n) => nf.format(n)}
           sub={
             isAr
               ? `${nf.format(data.kpis.loginFailed24h)} محاولة فاشلة`
@@ -223,7 +226,8 @@ function AdminOverview() {
         <KpiCard
           icon={<Activity className="size-5" />}
           label={isAr ? "أحداث التدقيق (24س)" : "Audit events (24h)"}
-          value={nf.format(data.kpis.events24h)}
+          value={data.kpis.events24h}
+          format={(n) => nf.format(n)}
           sub={isAr ? "من سجل التدقيق" : "from audit log"}
           tone="amber"
         />
@@ -239,39 +243,49 @@ function AdminOverview() {
         <KpiCard
           icon={<CreditCard className="size-5" />}
           label={isAr ? "اشتراكات نشطة" : "Active subs"}
-          value={nf.format(data.kpis.activeSubs)}
+          value={data.kpis.activeSubs}
+          format={(n) => nf.format(n)}
           tone="primary"
         />
         <KpiCard
           icon={<Sparkles className="size-5" />}
           label={isAr ? "تجارب" : "Trials"}
-          value={nf.format(data.kpis.trialSubs)}
+          value={data.kpis.trialSubs}
+          format={(n) => nf.format(n)}
           tone="primary"
         />
         <KpiCard
           icon={<Receipt className="size-5" />}
           label={isAr ? "إيصالات معلّقة" : "Pending receipts"}
-          value={nf.format(data.kpis.pendingReceipts)}
+          value={data.kpis.pendingReceipts}
+          format={(n) => nf.format(n)}
           tone={data.kpis.pendingReceipts > 0 ? "amber" : "emerald"}
         />
         <KpiCard
           icon={<TrendingUp className="size-5" />}
           label={isAr ? "MRR" : "MRR"}
-          value={`${nf.format(data.kpis.mrr)} ﷼`}
+          value={data.kpis.mrr}
+          format={(n) => nf.format(n)}
+          suffix=" ﷼"
           tone="emerald"
         />
         <KpiCard
           icon={<Wallet className="size-5" />}
           label={isAr ? "إيراد الشهر" : "Revenue MTD"}
-          value={`${nf.format(data.kpis.revenueMonth)} ﷼`}
+          value={data.kpis.revenueMonth}
+          format={(n) => nf.format(n)}
+          suffix=" ﷼"
           tone="sky"
         />
         <KpiCard
           icon={<Coins className="size-5" />}
           label={isAr ? "إيراد السنة" : "Revenue YTD"}
-          value={`${nf.format(data.kpis.revenueYear)} ﷼`}
+          value={data.kpis.revenueYear}
+          format={(n) => nf.format(n)}
+          suffix=" ﷼"
           tone="amber"
         />
+
       </motion.div>
 
       {/* Alerts + Revenue chart + Plan distribution */}
