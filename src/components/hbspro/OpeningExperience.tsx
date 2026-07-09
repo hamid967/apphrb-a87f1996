@@ -309,6 +309,11 @@ export function OpeningExperience() {
   const Arrow = ar ? ArrowLeft : ArrowRight;
   const [active, setActive] = useState<Service | null>(null);
   const [tourOpen, setTourOpen] = useState(false);
+  const reduceMotion = useReducedMotion();
+  // Motion tokens tuned for cards — respect prefers-reduced-motion.
+  const cardHover = reduceMotion ? {} : { y: -6, scale: 1.015 };
+  const cardTap = reduceMotion ? {} : { scale: 0.98 };
+  const cardSpring = { type: "spring" as const, stiffness: 320, damping: 24 };
 
   // Close on ESC
   useEffect(() => {
