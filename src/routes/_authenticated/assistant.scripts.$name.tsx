@@ -131,6 +131,15 @@ function ScriptDetailPage() {
   const [statusF, setStatusF] = useState<string | null>(null);
   const [estF, setEstF] = useState<string | null>(null);
 
+  // Run metadata.
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<number | null>(null);
+  const [lastDurationMs, setLastDurationMs] = useState<number | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const startedAtRef = useRef<number>(0);
+
+  const title = t(`assistant.scripts.items.${name}.title` as any, { defaultValue: name });
+
   const mutation = useMutation({
     mutationFn: async () => {
       const args: Record<string, unknown> = {};
@@ -139,10 +148,39 @@ function ScriptDetailPage() {
         const asNum = typeof v === "string" ? Number(v) : v;
         args[k] = Number.isFinite(asNum as number) && String(asNum) === String(v) ? asNum : v;
       }
+      startedAtRef.current = performance.now();
       const res = await runFn({ data: { name: name as any, args } });
       return res.result;
     },
+    onSuccess: () => {
+      const dur = Math.round(performance.now() - startedAtRef.current);
+      setLastDurationMs(dur);
+      setLastUpdatedAt(Date.now());
+      setProgress(100);
+      toast.success(t("assistant.scripts.ran", { title }));
+    },
+    onError: (e: any) => {
+      setProgress(0);
+      toast.error(e?.message ?? t("assistant.scripts.runFailed"));
+    },
   });
+
+  // Fake progress while running so users see motion even for long-running fns.
+  useEffect(() => {
+    if (!mutation.isPending) return;
+    setProgress(6);
+    const id = window.setInterval(() => {
+      setProgress((p) => (p < 90 ? p + Math.max(1, (90 - p) * 0.08) : p));
+    }, 250);
+    return () => window.clearInterval(id);
+  }, [mutation.isPending]);
+
+  // Reset progress after a moment of success so the bar hides.
+  useEffect(() => {
+    if (!mutation.isSuccess) return;
+    const id = window.setTimeout(() => setProgress(0), 700);
+    return () => window.clearTimeout(id);
+  }, [mutation.isSuccess, lastUpdatedAt]);
 
   // Auto-run on mount + when search args change.
   useEffect(() => {
@@ -150,7 +188,16 @@ function ScriptDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name, JSON.stringify(search)]);
 
-  const title = t(`assistant.scripts.items.${name}.title` as any, { defaultValue: name });
+  // Optional auto-refresh polling.
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const id = window.setInterval(() => {
+      if (!mutation.isPending) mutation.mutate();
+    }, 30_000);
+    return () => window.clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoRefresh, mutation.isPending]);
+
   const description = t(`assistant.scripts.items.${name}.desc` as any, { defaultValue: "" });
 
   const extracted = useMemo(() => extractRows(mutation.data), [mutation.data]);
