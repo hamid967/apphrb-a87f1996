@@ -147,24 +147,21 @@ async def test_google_oauth_redirect_uri(context) -> str | None:
     await page.evaluate(
         """
         window.__oauthCaptured = null;
+        const capture = (url) => { if (!window.__oauthCaptured) window.__oauthCaptured = String(url); };
         const origOpen = window.open;
-        window.open = (url, ...rest) => {
-          window.__oauthCaptured = String(url);
-          // Return a no-op window-like object so the caller doesn't crash.
+        window.open = (url) => {
+          capture(url);
           return { closed: false, close() {}, focus() {}, postMessage() {} };
         };
-        // Also intercept top-level navigations away from /auth in case the
-        // helper uses `window.location.href = ...` for full-page OAuth.
-        const origAssign = window.location.assign.bind(window.location);
-        Object.defineProperty(window.location, 'href', {
-          configurable: true,
-          set(v) { window.__oauthCaptured = String(v); },
-          get() { return document.location.pathname + document.location.search; },
-        });
-        window.location.assign = (v) => { window.__oauthCaptured = String(v); };
-        window.location.replace = (v) => { window.__oauthCaptured = String(v); };
+        try { window.location.assign = (v) => capture(v); } catch {}
+        try { window.location.replace = (v) => capture(v); } catch {}
         """
     )
+    # Also capture any full-page navigation the helper attempts.
+    captured_nav: list[str] = []
+    page.on("framenavigated", lambda frame: (
+        captured_nav.append(frame.url) if frame is page.main_frame and "/auth" not in frame.url else None
+    ))
 
     # SocialBtn renders label="Google" as accessible text.
     btn = page.get_by_role("button", name="Google").first
@@ -172,6 +169,8 @@ async def test_google_oauth_redirect_uri(context) -> str | None:
     # Give the helper time to call window.open / navigate.
     await page.wait_for_timeout(1500)
     captured = await page.evaluate("window.__oauthCaptured")
+    if not captured and captured_nav:
+        captured = captured_nav[0]
     await page.screenshot(path=str(SHOTS / "5_google_click.png"))
     await page.close()
 
