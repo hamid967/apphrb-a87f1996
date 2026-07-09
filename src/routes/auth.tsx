@@ -509,14 +509,14 @@ function AuthPage() {
                         onCheckedChange={(v) => setRemember(v === true)}
                         className="border-white/30"
                       />
-                      تذكرني على هذا الجهاز
+                      {t("auth.rememberMe")}
                     </label>
                     <Link
                       to="/forgot-password"
                       className="text-xs hover:underline"
                       style={{ color: HBS.goldSoft }}
                     >
-                      نسيت كلمة المرور؟
+                      {t("auth.forgotPassword")}
                     </Link>
                   </div>
                 )}
