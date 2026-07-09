@@ -204,14 +204,6 @@ def ensure_test_user(supabase_url: str, service_role_key: str, email: str,
         )
         if code not in (200, 201):
             sys.exit(f"ERROR: could not confirm E2E user email ({code}): {body}")
-        if code not in (200, 201):
-            sys.exit(f"ERROR: could not create E2E user ({code}): {body}")
-        try:
-            user_id = json.loads(body).get("id")
-        except Exception:
-            user_id = None
-        if not user_id:
-            sys.exit(f"ERROR: unexpected create-user response: {body}")
     # 3) Grant role (idempotent via ON CONFLICT-like Prefer)
     code, body = _pgrst(
         supabase_url, service_role_key, "POST",
