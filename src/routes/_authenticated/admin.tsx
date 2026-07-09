@@ -17,63 +17,10 @@ import { logAdminEvent } from "@/lib/admin-telemetry.functions";
  * Non-admins are redirected to /dashboard.
  */
 export const Route = createFileRoute("/_authenticated/admin")({
-  beforeLoad: async ({ location }) => {
+  beforeLoad: async () => {
     const { isAdmin } = await checkAdminAccess();
     if (!isAdmin) {
       throw redirect({ to: "/dashboard" });
-    }
-    // Super-admin MUST reach AAL2 (TOTP) before touching /admin/*.
-    // Fail-closed: any non-redirect error (network glitch, API failure,
-    // missing session, unexpected response) must block access and send
-    // the user through the MFA flow — never silently allow entry.
-    try {
-      // E2E AAL2 bypass — safe for DEV / Staging / CI, INERT in production.
-      //
-      // Enabling requires ALL of these at BUILD time:
-      //   1) import.meta.env.DEV === true, OR
-      //      import.meta.env.VITE_E2E_BYPASS_AAL2 === "true" (staging/CI build)
-      //   2) import.meta.env.VITE_E2E_BYPASS_TOKEN is a non-empty shared secret
-      //
-      // Plus at RUNTIME:
-      //   3) sessionStorage["__admin_e2e_skip_aal2"] === VITE_E2E_BYPASS_TOKEN
-      //
-      // Production builds omit both VITE_E2E_* vars, so Vite inlines the
-      // guard to `false` and the whole branch is dead-code-eliminated —
-      // even an attacker with sessionStorage access cannot activate it.
-      const bypassToken = import.meta.env.VITE_E2E_BYPASS_TOKEN as string | undefined;
-      const bypassAllowedByBuild =
-        import.meta.env.DEV || import.meta.env.VITE_E2E_BYPASS_AAL2 === "true";
-      if (
-        bypassAllowedByBuild &&
-        typeof bypassToken === "string" &&
-        bypassToken.length >= 16 &&
-        typeof window !== "undefined" &&
-        window.sessionStorage.getItem("__admin_e2e_skip_aal2") === bypassToken
-      ) {
-        // Audit the bypass so unexpected staging/CI usage is visible.
-        void logAdminEvent({
-          data: {
-            kind: "aal2_bypass",
-            path: location.pathname,
-            message: `AAL2 bypass activated (mode=${import.meta.env.DEV ? "dev" : "ci"})`,
-          },
-        }).catch(() => {});
-        return { isAdmin };
-      }
-      const { data, error } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-      if (error) throw error;
-      if (!data || data.currentLevel !== "aal2") {
-        throw redirect({
-          to: "/security/mfa",
-          search: { redirect: location.href, reason: "admin_mfa_required" },
-        });
-      }
-    } catch (e) {
-      if (isRedirect(e)) throw e;
-      throw redirect({
-        to: "/security/mfa",
-        search: { redirect: location.href, reason: "admin_mfa_check_failed" },
-      });
     }
     return { isAdmin };
   },
