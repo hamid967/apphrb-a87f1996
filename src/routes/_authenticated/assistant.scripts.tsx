@@ -364,13 +364,22 @@ function AssistantScriptsPage() {
           <h1 className="text-2xl font-bold">{t("assistant.scripts.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("assistant.scripts.subtitle")}</p>
         </div>
-        <Link
-          to="/assistant/scripts/history"
-          className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted"
-        >
-          <History className="size-4" />
-          {t("assistant.scripts.history")}
-        </Link>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            to="/assistant/scripts/schedules"
+            className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted"
+          >
+            <CalendarClock className="size-4" />
+            {t("assistant.scripts.schedules")}
+          </Link>
+          <Link
+            to="/assistant/scripts/history"
+            className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted"
+          >
+            <History className="size-4" />
+            {t("assistant.scripts.history")}
+          </Link>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
