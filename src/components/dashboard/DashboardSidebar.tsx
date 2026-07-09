@@ -14,7 +14,16 @@ import {
   LogOut,
   ClipboardList,
   BarChart3,
+  Home,
+  Wallet,
+  Target,
+  CheckSquare,
+  FolderOpen,
+  CalendarClock,
+  Gauge,
+  Handshake,
 } from "lucide-react";
+
 import {
   Sidebar,
   SidebarContent,
@@ -22,11 +31,13 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+
 import { Button } from "@/components/ui/button";
 
 const DASHBOARD_ROOT = "/dashboard";
@@ -51,24 +62,76 @@ export function DashboardSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
 
-  const items = [
-    { url: "/dashboard", icon: LayoutDashboard, ar: "الرئيسية", en: "Overview" },
+  const groups: {
+    labelAr: string;
+    labelEn: string;
+    items: readonly {
+      url: string;
+      icon: typeof Home;
+      ar: string;
+      en: string;
+      search?: { view: "smart" };
+    }[];
+  }[] = [
     {
-      url: "/dashboard",
-      search: { view: "smart" as const },
-      icon: Sparkles,
-      ar: "لوحة ذكية",
-      en: "Smart Dashboard",
+      labelAr: "الرئيسية",
+      labelEn: "Overview",
+      items: [
+        { url: "/dashboard", icon: LayoutDashboard, ar: "الرئيسية", en: "Overview" },
+        { url: "/dashboard", search: { view: "smart" }, icon: Sparkles, ar: "لوحة ذكية", en: "Smart Dashboard" },
+        { url: "/dashboard/reports", icon: BarChart3, ar: "التقارير", en: "Reports" },
+      ],
     },
-    { url: "/dashboard/units", icon: KeyRound, ar: "الوحدات", en: "Units" },
-    { url: "/dashboard/contracts", icon: FileText, ar: "العقود", en: "Contracts" },
-    { url: "/dashboard/payments", icon: Coins, ar: "المدفوعات", en: "Payments" },
-    { url: "/dashboard/expenses", icon: Receipt, ar: "المصروفات", en: "Expenses" },
-    { url: "/dashboard/tenants", icon: Users2, ar: "المستأجرون", en: "Tenants" },
-    { url: "/dashboard/applications", icon: ClipboardList, ar: "طلبات السكن", en: "Applications" },
-    { url: "/reports/builder", icon: BarChart3, ar: "منشئ التقارير", en: "Report Builder" },
-    { url: "/dashboard/settings", icon: Settings, ar: "الإعدادات", en: "Settings" },
-  ] as const;
+    {
+      labelAr: "العقارات",
+      labelEn: "Properties",
+      items: [
+        { url: "/dashboard/properties", icon: Home, ar: "العقارات", en: "Properties" },
+        { url: "/dashboard/units", icon: KeyRound, ar: "الوحدات", en: "Units" },
+        { url: "/dashboard/owners", icon: Users2, ar: "الملّاك", en: "Owners" },
+        { url: "/dashboard/valuations", icon: Gauge, ar: "التقييمات", en: "Valuations" },
+        { url: "/dashboard/viewings", icon: CalendarClock, ar: "المعاينات", en: "Viewings" },
+      ],
+    },
+    {
+      labelAr: "العقود والمالية",
+      labelEn: "Contracts & Finance",
+      items: [
+        { url: "/dashboard/contracts", icon: FileText, ar: "العقود", en: "Contracts" },
+        { url: "/dashboard/payments", icon: Coins, ar: "المدفوعات", en: "Payments" },
+        { url: "/dashboard/vouchers", icon: Wallet, ar: "السندات", en: "Vouchers" },
+        { url: "/dashboard/expenses", icon: Receipt, ar: "المصروفات", en: "Expenses" },
+        { url: "/dashboard/commissions", icon: Target, ar: "العمولات", en: "Commissions" },
+      ],
+    },
+    {
+      labelAr: "المستأجرون و CRM",
+      labelEn: "Tenants & CRM",
+      items: [
+        { url: "/dashboard/tenants", icon: Users2, ar: "المستأجرون", en: "Tenants" },
+        { url: "/dashboard/applications", icon: ClipboardList, ar: "طلبات السكن", en: "Applications" },
+        { url: "/dashboard/crm/leads", icon: Target, ar: "العملاء المحتملون", en: "Leads" },
+        { url: "/dashboard/crm/deals", icon: Handshake, ar: "الصفقات", en: "Deals" },
+        { url: "/dashboard/crm/meetings", icon: CalendarClock, ar: "الاجتماعات", en: "Meetings" },
+      ],
+    },
+    {
+      labelAr: "العمليات",
+      labelEn: "Operations",
+      items: [
+        { url: "/dashboard/tasks", icon: CheckSquare, ar: "المهام", en: "Tasks" },
+        { url: "/dashboard/documents", icon: FolderOpen, ar: "المستندات", en: "Documents" },
+        { url: "/dashboard/maintenance", icon: Settings, ar: "الصيانة", en: "Maintenance" },
+      ],
+    },
+    {
+      labelAr: "الإعدادات",
+      labelEn: "Settings",
+      items: [{ url: "/dashboard/settings", icon: Settings, ar: "الإعدادات", en: "Settings" }],
+    },
+  ];
+  const items = groups.flatMap((g) => g.items);
+
 
   const search = useRouterState({ select: (s) => s.location.search as Record<string, unknown> });
   const currentView = (search?.view as string | undefined) ?? "classic";
@@ -111,47 +174,55 @@ export function DashboardSidebar() {
         aria-label={isAr ? "أقسام لوحة التحكم" : "Dashboard sections"}
         className="relative z-10 px-1.5"
       >
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
-              {items.map((item) => {
-                const label = isAr ? item.ar : item.en;
-                const active = isActive(item);
-                return (
-                  <SidebarMenuItem
-                    key={item.url + ((item as { search?: { view?: string } }).search?.view ?? "")}
-                  >
-                    <SidebarMenuButton
-                      asChild
-                      isActive={active}
-                      tooltip={label}
-                      className={[
-                        "group relative h-11 rounded-xl px-3 text-sidebar-foreground/80 transition-colors duration-200",
-                        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                        "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:font-semibold",
-                      ].join(" ")}
+        {groups.map((group) => (
+          <SidebarGroup key={group.labelEn}>
+            {!collapsed && (
+              <SidebarGroupLabel className="px-3 pt-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                {isAr ? group.labelAr : group.labelEn}
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu className="gap-0.5">
+                {group.items.map((item) => {
+                  const label = isAr ? item.ar : item.en;
+                  const active = isActive(item);
+                  return (
+                    <SidebarMenuItem
+                      key={item.url + (item.search?.view ?? "")}
                     >
-                      <Link
-                        to={item.url}
-                        search={(item as { search?: Record<string, unknown> }).search as any}
-                        aria-label={label}
-                        aria-current={active ? "page" : undefined}
-                        className="flex items-center gap-3 focus-visible:outline-none min-w-0"
+                      <SidebarMenuButton
+                        asChild
+                        isActive={active}
+                        tooltip={label}
+                        className={[
+                          "group relative h-10 rounded-xl px-3 text-sidebar-foreground/80 transition-colors duration-200",
+                          "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                          "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:font-semibold",
+                        ].join(" ")}
                       >
-                        <item.icon
-                          className={`size-[18px] shrink-0 transition ${active ? "text-primary" : "text-sidebar-foreground/60 group-hover:text-primary"}`}
-                          aria-hidden="true"
-                          focusable="false"
-                        />
-                        <span className="truncate text-[13px]">{label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                        <Link
+                          to={item.url}
+                          search={item.search as any}
+                          aria-label={label}
+                          aria-current={active ? "page" : undefined}
+                          className="flex items-center gap-3 focus-visible:outline-none min-w-0"
+                        >
+                          <item.icon
+                            className={`size-[18px] shrink-0 transition ${active ? "text-primary" : "text-sidebar-foreground/60 group-hover:text-primary"}`}
+                            aria-hidden="true"
+                            focusable="false"
+                          />
+                          <span className="truncate text-[13px]">{label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+
       </SidebarContent>
 
       <SidebarFooter className="relative z-10 gap-3 p-3">
