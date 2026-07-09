@@ -2131,6 +2131,8 @@ const ar: typeof en = {
     establishmentMismatch: "رقم المنشأة غير صحيح أو لا ينتمي لهذا الحساب",
     rateLimited:
       "تم حظر الدخول مؤقتاً بسبب محاولات فاشلة متكررة. حاول بعد {{minutes}} دقيقة.",
+    devAccountCreated: "تم إنشاء حساب مطور: {{email}} — بيانات الدخول نُسخت للحافظة",
+    comingSoonLabel: "{{label}} — قريباً",
   },
   onboarding: {
     title: "أنشئ شركتك",
