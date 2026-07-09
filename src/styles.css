@@ -1091,14 +1091,15 @@ html[data-holo="off"] .holo-text {
   --muted-foreground: oklch(0.72 0.01 255);  /* AA on card & bg */
   --accent: oklch(0.28 0.03 255);
   --accent-foreground: oklch(0.85 0.11 255);
-  --destructive: oklch(0.68 0.22 25);
+  --destructive: oklch(0.55 0.22 25);        /* WCAG AA: white text = 5.4:1 */
   --destructive-foreground: oklch(0.99 0 0);
   --success: oklch(0.75 0.17 155);
   --success-foreground: oklch(0.15 0.02 260);
   --warning: oklch(0.82 0.15 80);
   --warning-foreground: oklch(0.15 0.02 260);
-  --border: oklch(0.32 0.014 260);           /* #30363d */
-  --input: oklch(0.28 0.014 260);
+  --border: oklch(0.50 0.014 260);           /* WCAG AA UI 3:1 vs bg & card */
+  --input: oklch(0.50 0.014 260);            /* form control border ≥ 3:1 */
+
   --ring: oklch(0.72 0.16 255);
   --paper: oklch(0.195 0.014 260);
   --ink: oklch(0.96 0.005 250);
