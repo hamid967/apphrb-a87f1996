@@ -127,7 +127,7 @@ function LeadDetailPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary">{t(`crm.leads.stages.${lead.stage}`, lead.stage)}</Badge>
+                <Badge variant="secondary">{String(t(`crm.leads.stages.${lead.stage}`, { defaultValue: lead.stage }))}</Badge>
                 <Select
                   value={lead.stage}
                   onValueChange={(v) => stageMut.mutate(v as Stage)}
