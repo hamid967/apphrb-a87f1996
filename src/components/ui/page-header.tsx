@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import { isValidElement, createElement, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
@@ -40,14 +40,17 @@ export function PageHeader({
   const resolvedTitle = title ?? (isAr ? ar : en) ?? ar ?? en ?? "";
   const resolvedDesc = description ?? (isAr ? descriptionAr : descriptionEn);
 
-  // Support either a LucideIcon component or an already-rendered node.
-  const iconNode =
-    typeof icon === "function"
-      ? (() => {
-          const Icon = icon as LucideIcon;
-          return <Icon className="size-5" aria-hidden />;
-        })()
-      : icon;
+  // Support either a component reference (LucideIcon = forwardRef object, or
+  // a plain function component) or an already-rendered ReactNode.
+  // Note: lucide icons are forwardRef objects, so `typeof === "function"`
+  // is false — check isValidElement first, then treat everything else as a
+  // component reference to instantiate.
+  const iconNode = icon == null
+    ? null
+    : isValidElement(icon)
+      ? icon
+      : createElement(icon as LucideIcon, { className: "size-5", "aria-hidden": true });
+
 
   return (
     <header
