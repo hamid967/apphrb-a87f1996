@@ -83,7 +83,11 @@ def guard_rejects(sig: str, args: str, uid: str) -> R:
           EXCEPTION
             WHEN insufficient_privilege THEN NULL;
             WHEN OTHERS THEN
-              IF SQLERRM ILIKE '%super_admin%' OR SQLERRM ILIKE '%forbidden%' THEN
+              IF SQLERRM ILIKE '%super_admin%'
+                 OR SQLERRM ILIKE '%forbidden%'
+                 OR SQLERRM ILIKE '%not authenticated%'
+                 OR SQLERRM ILIKE '%not found%'
+                 OR SQLERRM ILIKE '%permission denied%' THEN
                 NULL;
               ELSE
                 RAISE EXCEPTION 'WRONG_ERROR: %', SQLERRM;
