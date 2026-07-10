@@ -135,6 +135,7 @@ import { Route as AuthenticatedDashboardOwnersRouteImport } from './routes/_auth
 import { Route as AuthenticatedDashboardNotificationsRouteImport } from './routes/_authenticated/dashboard.notifications'
 import { Route as AuthenticatedDashboardMaintenanceLogRouteImport } from './routes/_authenticated/dashboard.maintenance-log'
 import { Route as AuthenticatedDashboardMaintenanceRouteImport } from './routes/_authenticated/dashboard.maintenance'
+import { Route as AuthenticatedDashboardInboxRouteImport } from './routes/_authenticated/dashboard.inbox'
 import { Route as AuthenticatedDashboardExpensesRouteImport } from './routes/_authenticated/dashboard.expenses'
 import { Route as AuthenticatedDashboardDocumentsRouteImport } from './routes/_authenticated/dashboard.documents'
 import { Route as AuthenticatedDashboardCrmRouteImport } from './routes/_authenticated/dashboard.crm'
@@ -954,6 +955,12 @@ const AuthenticatedDashboardMaintenanceRoute =
   AuthenticatedDashboardMaintenanceRouteImport.update({
     id: '/maintenance',
     path: '/maintenance',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardInboxRoute =
+  AuthenticatedDashboardInboxRouteImport.update({
+    id: '/inbox',
+    path: '/inbox',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardExpensesRoute =
@@ -1828,6 +1835,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/crm': typeof AuthenticatedDashboardCrmRouteWithChildren
   '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
   '/dashboard/expenses': typeof AuthenticatedDashboardExpensesRouteWithChildren
+  '/dashboard/inbox': typeof AuthenticatedDashboardInboxRoute
   '/dashboard/maintenance': typeof AuthenticatedDashboardMaintenanceRouteWithChildren
   '/dashboard/maintenance-log': typeof AuthenticatedDashboardMaintenanceLogRoute
   '/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
@@ -2080,6 +2088,7 @@ export interface FileRoutesByTo {
   '/dashboard/commissions': typeof AuthenticatedDashboardCommissionsRoute
   '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
   '/dashboard/expenses': typeof AuthenticatedDashboardExpensesRouteWithChildren
+  '/dashboard/inbox': typeof AuthenticatedDashboardInboxRoute
   '/dashboard/maintenance': typeof AuthenticatedDashboardMaintenanceRouteWithChildren
   '/dashboard/maintenance-log': typeof AuthenticatedDashboardMaintenanceLogRoute
   '/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
@@ -2338,6 +2347,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/crm': typeof AuthenticatedDashboardCrmRouteWithChildren
   '/_authenticated/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
   '/_authenticated/dashboard/expenses': typeof AuthenticatedDashboardExpensesRouteWithChildren
+  '/_authenticated/dashboard/inbox': typeof AuthenticatedDashboardInboxRoute
   '/_authenticated/dashboard/maintenance': typeof AuthenticatedDashboardMaintenanceRouteWithChildren
   '/_authenticated/dashboard/maintenance-log': typeof AuthenticatedDashboardMaintenanceLogRoute
   '/_authenticated/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
@@ -2598,6 +2608,7 @@ export interface FileRouteTypes {
     | '/dashboard/crm'
     | '/dashboard/documents'
     | '/dashboard/expenses'
+    | '/dashboard/inbox'
     | '/dashboard/maintenance'
     | '/dashboard/maintenance-log'
     | '/dashboard/notifications'
@@ -2850,6 +2861,7 @@ export interface FileRouteTypes {
     | '/dashboard/commissions'
     | '/dashboard/documents'
     | '/dashboard/expenses'
+    | '/dashboard/inbox'
     | '/dashboard/maintenance'
     | '/dashboard/maintenance-log'
     | '/dashboard/notifications'
@@ -3107,6 +3119,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/crm'
     | '/_authenticated/dashboard/documents'
     | '/_authenticated/dashboard/expenses'
+    | '/_authenticated/dashboard/inbox'
     | '/_authenticated/dashboard/maintenance'
     | '/_authenticated/dashboard/maintenance-log'
     | '/_authenticated/dashboard/notifications'
@@ -4216,6 +4229,13 @@ declare module '@tanstack/react-router' {
       path: '/maintenance'
       fullPath: '/dashboard/maintenance'
       preLoaderRoute: typeof AuthenticatedDashboardMaintenanceRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/inbox': {
+      id: '/_authenticated/dashboard/inbox'
+      path: '/inbox'
+      fullPath: '/dashboard/inbox'
+      preLoaderRoute: typeof AuthenticatedDashboardInboxRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/expenses': {
@@ -5488,6 +5508,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardCrmRoute: typeof AuthenticatedDashboardCrmRouteWithChildren
   AuthenticatedDashboardDocumentsRoute: typeof AuthenticatedDashboardDocumentsRoute
   AuthenticatedDashboardExpensesRoute: typeof AuthenticatedDashboardExpensesRouteWithChildren
+  AuthenticatedDashboardInboxRoute: typeof AuthenticatedDashboardInboxRoute
   AuthenticatedDashboardMaintenanceRoute: typeof AuthenticatedDashboardMaintenanceRouteWithChildren
   AuthenticatedDashboardMaintenanceLogRoute: typeof AuthenticatedDashboardMaintenanceLogRoute
   AuthenticatedDashboardNotificationsRoute: typeof AuthenticatedDashboardNotificationsRoute
@@ -5540,6 +5561,7 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardDocumentsRoute: AuthenticatedDashboardDocumentsRoute,
     AuthenticatedDashboardExpensesRoute:
       AuthenticatedDashboardExpensesRouteWithChildren,
+    AuthenticatedDashboardInboxRoute: AuthenticatedDashboardInboxRoute,
     AuthenticatedDashboardMaintenanceRoute:
       AuthenticatedDashboardMaintenanceRouteWithChildren,
     AuthenticatedDashboardMaintenanceLogRoute:
