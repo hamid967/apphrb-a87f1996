@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Loader2, Minimize2, Phone, PhoneOff, RotateCcw, Send, Settings2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Activity, ArrowRight, CheckCircle2, Loader2, Minimize2, Phone, PhoneOff, RotateCcw, Send, Settings2, XCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { askHamidAgent } from "@/lib/hamid-agent.functions";
 import {
@@ -8,6 +8,21 @@ import {
   type HamidVoiceSettings,
 } from "@/lib/hamid-voice-settings";
 import { cn } from "@/lib/utils";
+
+type LogLevel = "info" | "warn" | "error" | "ok";
+type LogEntry = { id: number; ts: number; level: LogLevel; msg: string; hint?: string };
+type DiagCheck = { name: string; status: "ok" | "warn" | "error"; detail: string; fix?: string };
+
+let __logId = 0;
+const __logListeners = new Set<(entry: LogEntry) => void>();
+function pushLog(level: LogLevel, msg: string, hint?: string) {
+  const entry: LogEntry = { id: ++__logId, ts: Date.now(), level, msg, hint };
+  __logListeners.forEach((l) => l(entry));
+  const tag = "[Hamid]";
+  if (level === "error") console.error(tag, msg, hint ?? "");
+  else if (level === "warn") console.warn(tag, msg, hint ?? "");
+  else console.log(tag, msg, hint ?? "");
+}
 
 type SpeechRecognitionCtor = new () => SpeechRecognition;
 
