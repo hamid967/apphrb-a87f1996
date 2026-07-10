@@ -1,3 +1,29 @@
+# robots.txt — HBSpro (hrhbs.com)
+
+# Search engines — allow marketing pages, block auth & private areas
+User-agent: Googlebot
+Allow: /
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /invite/
+Disallow: /onboarding/
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /security/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /auth
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /invite/
+Disallow: /onboarding/
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /security/
+
+# Default rules for all other crawlers
 User-agent: *
 Allow: /
 Disallow: /auth
@@ -8,5 +34,24 @@ Disallow: /onboarding/
 Disallow: /dashboard
 Disallow: /admin
 Disallow: /security/
+
+# Block aggressive AI training scrapers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
 
 Sitemap: https://hrhbs.com/sitemap.xml
