@@ -49,6 +49,7 @@
   "dependencies": {
     "@ai-sdk/openai-compatible": "^3.0.2",
     "@ai-sdk/react": "^4.0.5",
+    "@block65/webcrypto-web-push": "^1.0.2",
     "@capacitor/android": "^8.4.1",
     "@capacitor/cli": "^8.4.1",
     "@capacitor/core": "^8.4.1",
