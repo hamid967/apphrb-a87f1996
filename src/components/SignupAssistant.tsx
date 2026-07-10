@@ -24,32 +24,32 @@ import ReactMarkdown from "react-markdown";
 type Lang = "auto" | "ar" | "en";
 
 const WELCOME_TEXT: Record<Lang, string> = {
-  auto: "أهلاً، أنا حامد 👋 مساعد HBSpro. اسألني بالعربية أو الإنجليزية. / Hi, I'm Hamid — ask me anything about the platform or how to sign up.",
-  ar: "أهلاً، أنا حامد 👋 مساعد منصة HBSpro. كيف أقدر أساعدك؟ (نبذة عن النظام، إنشاء حساب، أو تسجيل الدخول)",
-  en: "Hi, I'm Hamid 👋 — assistant for HBSpro. How can I help? (platform overview, new account, or sign-in)",
+  auto: "أهلاً، أنا حامد. أساعدك في فهم HBSpro وتشغيل محفظتك العقارية: التحصيل، الشغور، العقود، الصيانة، التقارير، أو التسجيل. / Hi, I'm Hamid. Ask me about HBSpro operations, reports, or signup.",
+  ar: "أهلاً، أنا حامد — مساعد HBSpro التشغيلي. اسألني عن التحصيل، الشغور، العقود، الصيانة، التقارير، أو إنشاء حساب.",
+  en: "Hi, I'm Hamid — HBSpro's operations assistant. Ask about collections, vacancies, contracts, maintenance, reports, or signup.",
 };
 
 const QUICK: Record<Lang, string[]> = {
   auto: [
-    "ابدأ الخطوة 1: إنشاء الحساب",
-    "Step 2: Verify my email",
-    "الخطوة 3: صفحة الترحيب",
-    "Step 4: Profile setup",
-    "الخطوة 5: الشركة ومساحة العمل",
+    "ما الذي تظهره لوحة صباح مدير المحفظة؟",
+    "How do I reduce vacant units?",
+    "كيف أتابع المتأخرات والتحصيل؟",
+    "What does Hamid recommend for maintenance tickets?",
+    "ابدأ إنشاء حساب جديد",
   ],
   ar: [
-    "الخطوة 1: إنشاء الحساب",
-    "الخطوة 2: تأكيد البريد",
-    "الخطوة 3: صفحة الترحيب",
-    "الخطوة 4: إعداد الملف الشخصي",
-    "الخطوة 5: الشركة ومساحة العمل",
+    "ما الذي تظهره لوحة صباح مدير المحفظة؟",
+    "كيف أتابع المتأخرات والتحصيل؟",
+    "كيف أقلل الوحدات الشاغرة؟",
+    "ما خطة متابعة بلاغات الصيانة؟",
+    "ابدأ إنشاء حساب جديد",
   ],
   en: [
-    "Step 1: Create account",
-    "Step 2: Verify email",
-    "Step 3: Welcome page",
-    "Step 4: Profile setup",
-    "Step 5: Company & workspace",
+    "What does the morning portfolio brief show?",
+    "How do I reduce vacant units?",
+    "How do I track arrears and collections?",
+    "What is the maintenance ticket workflow?",
+    "Start a new account",
   ],
 };
 
@@ -68,8 +68,8 @@ const LABELS: Record<
 > = {
   auto: {
     title: "حامد · Hamid",
-    subtitle: "مساعد HBSpro — AR + EN",
-    placeholder: "اسأل بأي لغة… / Ask in any language…",
+    subtitle: "تشغيل عقاري + تسجيل — AR + EN",
+    placeholder: "اسأل عن محفظتك أو التسجيل… / Ask about operations or signup…",
     typing: "يكتب… / typing…",
     error: "حدث خطأ. / Something went wrong.",
     close: "إغلاق / Close",
@@ -78,8 +78,8 @@ const LABELS: Record<
   },
   ar: {
     title: "حامد — مساعد HBSpro",
-    subtitle: "بالعربية",
-    placeholder: "اسأل حامد…",
+    subtitle: "تشغيل عقاري وتسجيل",
+    placeholder: "اسأل عن التحصيل، الشغور، الصيانة…",
     typing: "حامد يكتب…",
     error: "حدث خطأ. حاول مرة أخرى.",
     close: "إغلاق",
@@ -88,8 +88,8 @@ const LABELS: Record<
   },
   en: {
     title: "Hamid — HBSpro Assistant",
-    subtitle: "English",
-    placeholder: "Ask Hamid…",
+    subtitle: "Operations and signup",
+    placeholder: "Ask about collections, vacancies, maintenance…",
     typing: "Hamid is typing…",
     error: "Something went wrong. Please try again.",
     close: "Close",
