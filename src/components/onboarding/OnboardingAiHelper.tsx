@@ -315,6 +315,44 @@ export function OnboardingAiHelper({
             {voice.state === "transcribing" && (
               <p className="mt-1 text-[11px] text-muted-foreground">جارٍ تحويل الصوت إلى نص…</p>
             )}
+            {pendingTranscript !== null && (
+              <div className="mt-2 rounded-md border border-primary/30 bg-primary/5 p-2">
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-[11px] font-medium text-primary">
+                    راجع النص قبل الإضافة
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    عدّل ثم اضغط «إضافة»
+                  </span>
+                </div>
+                <Textarea
+                  value={pendingTranscript}
+                  onChange={(e) => setPendingTranscript(e.target.value)}
+                  rows={3}
+                  autoFocus
+                  className="resize-none text-sm"
+                  dir="auto"
+                />
+                <div className="mt-2 flex items-center justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={discardTranscript}
+                  >
+                    تجاهل
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={confirmTranscript}
+                    disabled={!pendingTranscript.trim()}
+                  >
+                    إضافة إلى النص
+                  </Button>
+                </div>
+              </div>
+            )}
             <div className="mt-2 flex items-center justify-end gap-2">
               <Button
                 type="button"
