@@ -347,19 +347,39 @@ export function PushStatusCard() {
             </Button>
           )}
           {supported && subscribed && (
-            <Button
-              size="sm"
-              variant="destructive"
-              disabled={busy !== null}
-              onClick={disable}
-            >
-              {busy === "disable" ? (
-                <Loader2 className="size-4 me-2 animate-spin" />
-              ) : (
-                <BellOff className="size-4 me-2" />
-              )}
-              {isAr ? "إلغاء التفعيل" : "Disable"}
-            </Button>
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy !== null}
+                onClick={sendTest}
+                title={
+                  isAr
+                    ? "إرسال إشعار تجريبي لأحدث مخالفة سياسة (يفتح رابط العنصر)"
+                    : "Send a test push for the latest policy violation (opens deep link)"
+                }
+              >
+                {busy === "test" ? (
+                  <Loader2 className="size-4 me-2 animate-spin" />
+                ) : (
+                  <Send className="size-4 me-2" />
+                )}
+                {isAr ? "إرسال تجريبي" : "Send test"}
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                disabled={busy !== null}
+                onClick={disable}
+              >
+                {busy === "disable" ? (
+                  <Loader2 className="size-4 me-2 animate-spin" />
+                ) : (
+                  <BellOff className="size-4 me-2" />
+                )}
+                {isAr ? "إلغاء التفعيل" : "Disable"}
+              </Button>
+            </>
           )}
         </div>
       </div>
