@@ -44,7 +44,7 @@ export function PushStatusCard() {
   const [permission, setPermission] = useState<PermState>("default");
   const [subscribed, setSubscribed] = useState(false);
   const [endpoint, setEndpoint] = useState<string | null>(null);
-  const [busy, setBusy] = useState<null | "enable" | "disable" | "refresh">(null);
+  const [busy, setBusy] = useState<null | "enable" | "disable" | "refresh" | "test">(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [helpReason, setHelpReason] = useState<"denied" | "dismissed" | "unsupported">("denied");
 
