@@ -163,7 +163,7 @@ function getLocalIntent(text: string, _history: Turn[]): HamidIntent {
   };
 }
 
-function pickArabicVoice() {
+function pickArabicVoice(gender: HamidVoiceSettings["gender"]) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
@@ -171,12 +171,16 @@ function pickArabicVoice() {
   if (!ar.length) return null;
   const isMale = (n: string) =>
     /male|majed|maged|naayf|nayf|tarik|hamed|hamid|salman|khalid|abdul|رجل|ذكر/i.test(n) &&
-    !/female|امرأة|أنثى/i.test(n);
-  // Prefer Saudi male → Saudi any → male Arabic → any Arabic
+    !/female|امرأة|أنثى|amira|noura|hala|salma/i.test(n);
+  const isFemale = (n: string) =>
+    /female|امرأة|أنثى|amira|noura|nora|hala|salma|maha|reem/i.test(n) &&
+    !/male/i.test(n);
+  const wantMale = gender === "male";
+  const genderMatch = (n: string) => (wantMale ? isMale(n) : isFemale(n));
   return (
-    ar.find((v) => v.lang === "ar-SA" && isMale(v.name)) ??
+    ar.find((v) => v.lang === "ar-SA" && genderMatch(v.name)) ??
+    ar.find((v) => genderMatch(v.name)) ??
     ar.find((v) => v.lang === "ar-SA") ??
-    ar.find((v) => isMale(v.name)) ??
     ar[0]
   );
 }
@@ -212,15 +216,15 @@ function stopSpeaking() {
   window.speechSynthesis?.cancel();
 }
 
-function speakBrowserFallback(text: string) {
+function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(prepareArabicForSpeech(text));
   u.lang = "ar-SA";
-  u.rate = 0.9;
-  u.pitch = 0.85;
+  u.rate = settings.rate;
+  u.pitch = settings.pitch;
   u.volume = 1;
-  const v = pickArabicVoice();
+  const v = pickArabicVoice(settings.gender);
   if (v) u.voice = v;
   window.speechSynthesis.speak(u);
   return true;
@@ -232,6 +236,7 @@ function speakBrowserFallback(text: string) {
  */
 async function speakSaudi(
   text: string,
+  settings: HamidVoiceSettings,
   onStart?: () => void,
   onEnd?: () => void,
 ): Promise<boolean> {
@@ -241,7 +246,11 @@ async function speakSaudi(
     const res = await fetch("/api/hamid-tts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: clean }),
+      body: JSON.stringify({
+        text: clean,
+        voice: settings.serverVoice,
+        speed: settings.rate,
+      }),
     });
     if (!res.ok) throw new Error(`tts ${res.status}`);
     const blob = await res.blob();
@@ -259,16 +268,11 @@ async function speakSaudi(
     await audio.play();
     return true;
   } catch {
-    const ok = speakBrowserFallback(text);
-    return ok;
+    return speakBrowserFallback(text, settings);
   }
 }
 
-// Legacy synchronous helper kept for the initial greeting fire-and-forget.
-function speakLocally(text: string) {
-  void speakSaudi(text);
-  return true;
-}
+
 
 
 function goTo(path: string) {
