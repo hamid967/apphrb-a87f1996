@@ -554,7 +554,16 @@ export function HamidVoiceAssistant() {
       return true;
     }
     lastSpeakRef.current = { text: t, at: now };
-    void speakSaudi(t, settingsRef.current);
+    void speakSaudi(t, settingsRef.current, {
+      onStart: (src) => {
+        setVoiceSource(src);
+        setSpeaking(true);
+      },
+      onEnd: () => {
+        setSpeaking(false);
+        setVoiceSource(null);
+      },
+    });
     return true;
   };
 
