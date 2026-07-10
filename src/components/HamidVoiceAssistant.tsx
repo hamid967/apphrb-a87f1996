@@ -748,7 +748,11 @@ export function HamidVoiceAssistant() {
         {reply && (
           <div className="w-full space-y-2 rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-700 dark:bg-slate-900/60 dark:text-slate-200">
             <div>
-              <span className="font-semibold text-slate-900 dark:text-white">حامد:</span> {reply.text}
+              <span className="font-semibold text-slate-900 dark:text-white">حامد:</span>{" "}
+              <span>{spokenText || reply.text}</span>
+              {spokenText && spokenText.length < reply.text.length && (
+                <span className="ms-0.5 inline-block h-3 w-[2px] animate-pulse bg-slate-500 align-middle" aria-hidden />
+              )}
             </div>
             {reply.actionLabel && reply.actionPath && (
               <button
