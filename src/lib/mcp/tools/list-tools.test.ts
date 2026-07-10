@@ -164,7 +164,7 @@ beforeEach(() => {
 describe("list_properties MCP tool", () => {
   const invoke = (args: Record<string, unknown>) =>
     // deno-lint-ignore no-explicit-any
-    (listProperties.handler as any)(args, ctx()) as Promise<ListPayload>;
+    (listProperties.handler as any)(parseArgs(listProperties, args), ctx()) as Promise<ListPayload>;
 
   it("returns the unified item shape for each row", async () => {
     listResults.set("properties", {
@@ -260,7 +260,7 @@ describe("list_properties MCP tool", () => {
 describe("list_branches MCP tool", () => {
   const invoke = (args: Record<string, unknown>) =>
     // deno-lint-ignore no-explicit-any
-    (listBranches.handler as any)(args, ctx()) as Promise<ListPayload>;
+    (listBranches.handler as any)(parseArgs(listBranches, args), ctx()) as Promise<ListPayload>;
 
   it("returns the unified shape and embeds departments in meta", async () => {
     listResults.set("branches", {
@@ -314,7 +314,7 @@ describe("list_branches MCP tool", () => {
 describe("list_pending_tickets MCP tool", () => {
   const invoke = (args: Record<string, unknown>) =>
     // deno-lint-ignore no-explicit-any
-    (listPendingTickets.handler as any)(args, ctx()) as Promise<ListPayload>;
+    (listPendingTickets.handler as any)(parseArgs(listPendingTickets, args), ctx()) as Promise<ListPayload>;
 
   it("maps support rows to the unified shape", async () => {
     listResults.set("tickets", {
