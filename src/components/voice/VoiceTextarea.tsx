@@ -99,25 +99,46 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
       }
     };
 
-    // Elapsed-seconds timer, driven by phase.
-    const startedAtRef = useRef<number | null>(null);
+    // Elapsed-seconds timer that pauses when phase is "paused".
+    const accumulatedRef = useRef(0);
+    const segmentStartRef = useRef<number | null>(null);
     useEffect(() => {
-      if (phase !== "recording") {
-        startedAtRef.current = null;
+      if (phase === "starting") {
+        accumulatedRef.current = 0;
+        segmentStartRef.current = null;
+        setElapsed(0);
         return;
       }
-      startedAtRef.current = Date.now();
-      setElapsed(0);
-      const id = window.setInterval(() => {
-        if (startedAtRef.current != null) {
-          setElapsed(Math.floor((Date.now() - startedAtRef.current) / 1000));
+      if (phase === "recording") {
+        segmentStartRef.current = Date.now();
+        const id = window.setInterval(() => {
+          const start = segmentStartRef.current;
+          if (start != null) {
+            setElapsed(
+              Math.floor((accumulatedRef.current + (Date.now() - start)) / 1000),
+            );
+          }
+        }, 250);
+        return () => window.clearInterval(id);
+      }
+      if (phase === "paused") {
+        const start = segmentStartRef.current;
+        if (start != null) {
+          accumulatedRef.current += Date.now() - start;
+          segmentStartRef.current = null;
+          setElapsed(Math.floor(accumulatedRef.current / 1000));
         }
-      }, 250);
-      return () => window.clearInterval(id);
+        return;
+      }
+      // idle / done / error / transcribing → reset baseline
+      if (phase === "idle" || phase === "done" || phase === "error") {
+        accumulatedRef.current = 0;
+        segmentStartRef.current = null;
+      }
     }, [phase]);
 
     const handleMic = async () => {
-      if (voice.state === "recording") {
+      if (voice.state === "recording" || voice.state === "paused") {
         try {
           setPhase("transcribing");
           const heard = (await voice.stop()).trim();
@@ -145,6 +166,16 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
         } catch {
           setPhase("error");
         }
+      }
+    };
+
+    const togglePause = () => {
+      if (phase === "recording") {
+        voice.pause();
+        setPhase("paused");
+      } else if (phase === "paused") {
+        voice.resume();
+        setPhase("recording");
       }
     };
 
