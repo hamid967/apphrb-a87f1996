@@ -125,7 +125,7 @@ function ClaimsReviewPage() {
     if (!focusClaimId || rows.length === 0) return;
     const el = document.getElementById(`claim-row-${focusClaimId}`);
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.scrollIntoView({ behavior: scrollBehavior, block: "center" });
       el.classList.add("ring-2", "ring-primary/60");
       const timer = window.setTimeout(() => {
         el.classList.remove("ring-2", "ring-primary/60");
