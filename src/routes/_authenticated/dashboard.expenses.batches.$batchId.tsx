@@ -129,13 +129,19 @@ function BatchDetailPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  if (q.isLoading || !q.data) {
+  if (q.isLoading || q.isError || !q.data) {
     return (
-      <div className="grid place-items-center p-16">
-        <Loader2 className="size-5 animate-spin text-muted-foreground" />
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+        <ListState
+          isLoading={q.isLoading}
+          isError={q.isError || (!q.isLoading && !q.data)}
+          errorMessage={q.error instanceof Error ? q.error.message : null}
+          onRetry={() => q.refetch()}
+        />
       </div>
     );
   }
+
 
   const { batch, claims } = q.data;
   const isDraft = batch.status === "draft" || batch.status === "rejected";
