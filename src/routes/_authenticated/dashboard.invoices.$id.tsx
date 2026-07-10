@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
-  ShieldCheck, RefreshCw, Copy, Download, FileCode, QrCode, ChevronLeft, Lock,
+  ShieldCheck, RefreshCw, Copy, Download, FileCode, QrCode, ChevronLeft, Lock, Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
