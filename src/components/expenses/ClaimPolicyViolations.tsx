@@ -185,7 +185,11 @@ export function ClaimPolicyViolations({ claimId }: Props) {
                 const busyOverride =
                   clearMut.isPending && clearMut.variables?.data.violation_id === r.id;
                 return (
-                  <TableRow key={r.id} className={isOverridden ? "opacity-75" : ""}>
+                  <TableRow
+                    key={r.id}
+                    id={`violation-${r.id}`}
+                    className={`scroll-mt-24 ${isOverridden ? "opacity-75" : ""}`}
+                  >
                     <TableCell>
                       <div className="font-medium text-sm truncate">{policyName}</div>
                       {r.policy?.category && (
