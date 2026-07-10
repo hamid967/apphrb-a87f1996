@@ -198,6 +198,10 @@ function InvoiceDetailPage() {
         </div>
       </header>
 
+      <InvoiceDetailsCard bundle={b} isAr={isAr} />
+
+
+
 
       <Card className="p-4 md:p-6 space-y-4 border-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
