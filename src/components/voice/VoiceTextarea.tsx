@@ -61,10 +61,22 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
       },
     });
 
-    // Track elapsed seconds while recording.
-    if (typeof window !== "undefined") {
-      // simple derived interval via effect below is cleaner:
-    }
+    // Elapsed-seconds timer, driven by phase.
+    const startedAtRef = useRef<number | null>(null);
+    useEffect(() => {
+      if (phase !== "recording") {
+        startedAtRef.current = null;
+        return;
+      }
+      startedAtRef.current = Date.now();
+      setElapsed(0);
+      const id = window.setInterval(() => {
+        if (startedAtRef.current != null) {
+          setElapsed(Math.floor((Date.now() - startedAtRef.current) / 1000));
+        }
+      }, 250);
+      return () => window.clearInterval(id);
+    }, [phase]);
 
     const handleMic = async () => {
       if (voice.state === "recording") {
@@ -89,27 +101,11 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
       if (voice.state === "idle") {
         setPending(null);
         setPhase("starting");
-        setElapsed(0);
-        const startedAt = Date.now();
-        const tick = window.setInterval(() => {
-          setElapsed(Math.floor((Date.now() - startedAt) / 1000));
-        }, 250);
         try {
           await voice.start();
           setPhase("recording");
-        } finally {
-          // stop ticker when phase leaves recording via a fallback timeout
-          const stopTicker = () => window.clearInterval(tick);
-          // clear on next macrotask cycles by watching phase changes cheaply:
-          const watch = window.setInterval(() => {
-            // when recorder no longer active, clear
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const active = (voice as any).state === "recording";
-            if (!active) {
-              stopTicker();
-              window.clearInterval(watch);
-            }
-          }, 300);
+        } catch {
+          setPhase("error");
         }
       }
     };
