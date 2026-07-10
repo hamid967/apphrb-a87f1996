@@ -5593,6 +5593,60 @@ export type Database = {
         }
         Relationships: []
       }
+      signup_requests: {
+        Row: {
+          activity_type: string | null
+          city: string | null
+          company_name: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          notes: string | null
+          phone: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source: string
+          status: Database["public"]["Enums"]["signup_request_status"]
+          updated_at: string
+        }
+        Insert: {
+          activity_type?: string | null
+          city?: string | null
+          company_name?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          notes?: string | null
+          phone: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["signup_request_status"]
+          updated_at?: string
+        }
+        Update: {
+          activity_type?: string | null
+          city?: string | null
+          company_name?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          notes?: string | null
+          phone?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["signup_request_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sms_providers: {
         Row: {
           active: boolean
@@ -7595,6 +7649,7 @@ export type Database = {
       report_intro_preset: "custom" | "financial" | "operational" | "technical"
       report_run_status: "queued" | "ready" | "failed"
       report_type: "trip" | "project" | "general"
+      signup_request_status: "pending" | "approved" | "rejected"
       subscription_payment_status:
         | "pending"
         | "approved"
@@ -7844,6 +7899,7 @@ export const Constants = {
       report_intro_preset: ["custom", "financial", "operational", "technical"],
       report_run_status: ["queued", "ready", "failed"],
       report_type: ["trip", "project", "general"],
+      signup_request_status: ["pending", "approved", "rejected"],
       subscription_payment_status: [
         "pending",
         "approved",

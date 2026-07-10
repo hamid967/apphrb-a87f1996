@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Loader2, Minimize2, Phone, PhoneOff, RotateCcw, Send, Settings2 } from "lucide-react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Activity, ArrowRight, CheckCircle2, Loader2, Minimize2, Phone, PhoneOff, RotateCcw, Send, Settings2, UserPlus, XCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { askHamidAgent } from "@/lib/hamid-agent.functions";
 import {
@@ -8,6 +8,25 @@ import {
   type HamidVoiceSettings,
 } from "@/lib/hamid-voice-settings";
 import { cn } from "@/lib/utils";
+import { HamidSignupWizard } from "@/components/hamid/HamidSignupWizard";
+const HamidCore3D = lazy(() => import("@/components/hamid/HamidCore3D").then((m) => ({ default: m.HamidCore3D })));
+
+const SIGNUP_INTENT = /(اب[يى]|ابغ[ىا]|ودي|ابدا)?\s*(اسج[لّ]|تسجيل|فتح\s*حساب|انشا[ءا]?\s*حساب|اشترك|طلب\s*تسجيل|signup|register|sign\s*up)/i;
+
+type LogLevel = "info" | "warn" | "error" | "ok";
+type LogEntry = { id: number; ts: number; level: LogLevel; msg: string; hint?: string };
+type DiagCheck = { name: string; status: "ok" | "warn" | "error"; detail: string; fix?: string };
+
+let __logId = 0;
+const __logListeners = new Set<(entry: LogEntry) => void>();
+function pushLog(level: LogLevel, msg: string, hint?: string) {
+  const entry: LogEntry = { id: ++__logId, ts: Date.now(), level, msg, hint };
+  __logListeners.forEach((l) => l(entry));
+  const tag = "[Hamid]";
+  if (level === "error") console.error(tag, msg, hint ?? "");
+  else if (level === "warn") console.warn(tag, msg, hint ?? "");
+  else console.log(tag, msg, hint ?? "");
+}
 
 type SpeechRecognitionCtor = new () => SpeechRecognition;
 
@@ -20,7 +39,7 @@ type SpeechRecognition = EventTarget & {
   abort: () => void;
   onresult: ((event: SpeechRecognitionEvent) => void) | null;
   onend: (() => void) | null;
-  onerror: (() => void) | null;
+  onerror: ((event: { error: string; message?: string }) => void) | null;
 };
 
 type SpeechRecognitionEvent = {
@@ -215,52 +234,45 @@ function stopSpeaking() {
   window.speechSynthesis?.cancel();
 }
 
-function speakBrowserFallback(
-  text: string,
-  settings: HamidVoiceSettings,
-  onStart?: () => void,
-  onProgress?: (ratio: number) => void,
-  onEnd?: () => void,
-) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;
+function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+    pushLog("error", "Web Speech API غير متاحة في هذا المتصفح", "استعمل Chrome أو Edge على سطح المكتب.");
+    return false;
+  }
   window.speechSynthesis.cancel();
-  const spoken = prepareArabicForSpeech(text);
-  const u = new SpeechSynthesisUtterance(spoken);
+  const u = new SpeechSynthesisUtterance(prepareArabicForSpeech(text));
   u.lang = "ar-SA";
   u.rate = settings.rate;
   u.pitch = settings.pitch;
   u.volume = 1;
   const v = pickArabicVoice(settings.gender);
-  if (v) u.voice = v;
-  u.onstart = () => onStart?.();
-  u.onboundary = (ev) => {
-    // Char-level progress from the engine — synchronizes typed text with speech.
-    const ratio = Math.max(0, Math.min(1, ev.charIndex / Math.max(1, spoken.length)));
-    onProgress?.(ratio);
+  if (v) {
+    u.voice = v;
+    pushLog("info", `تشغيل صوت المتصفح: ${v.name} (${v.lang})`);
+  } else {
+    pushLog("warn", "لا يوجد صوت عربي مثبت في النظام", "سيُستخدم الصوت الافتراضي. ثبّت حزمة صوت ar-SA من إعدادات نظامك.");
+  }
+  u.onerror = (e: SpeechSynthesisErrorEvent) => {
+    pushLog("error", `فشل نطق المتصفح: ${e.error}`, "قد يكون بسبب حظر التشغيل التلقائي. تفاعل مع الصفحة أولاً.");
   };
-  u.onend = () => {
-    onProgress?.(1);
-    onEnd?.();
-  };
-  u.onerror = () => {
-    onProgress?.(1);
-    onEnd?.();
-  };
-  window.speechSynthesis.speak(u);
-  return true;
+  try {
+    window.speechSynthesis.speak(u);
+    return true;
+  } catch (err) {
+    pushLog("error", "SpeechSynthesis.speak رمى استثناء", String(err));
+    return false;
+  }
 }
 
 /**
  * Speak with the Lovable AI Saudi-tuned TTS route; fall back to the browser
  * SpeechSynthesis engine when the network call fails or audio can't play.
- * Emits `onProgress(0..1)` so the caller can reveal text in sync with audio.
  */
 async function speakSaudi(
   text: string,
   settings: HamidVoiceSettings,
   onStart?: () => void,
   onEnd?: () => void,
-  onProgress?: (ratio: number) => void,
 ): Promise<boolean> {
   const clean = prepareArabicForSpeech(text);
   stopSpeaking();
@@ -274,29 +286,39 @@ async function speakSaudi(
         speed: settings.rate,
       }),
     });
-    if (!res.ok) throw new Error(`tts ${res.status}`);
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      pushLog("warn", `خادم TTS رجّع ${res.status}`, body.slice(0, 140) || "سنستخدم صوت المتصفح الاحتياطي.");
+      throw new Error(`tts ${res.status}`);
+    }
     const blob = await res.blob();
+    if (!blob.size) {
+      pushLog("warn", "استجابة TTS فارغة", "التبديل لصوت المتصفح.");
+      throw new Error("empty tts");
+    }
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
     currentAudio = audio;
-    audio.onplay = () => onStart?.();
-    audio.ontimeupdate = () => {
-      const d = audio.duration;
-      if (!Number.isFinite(d) || d <= 0) return;
-      onProgress?.(Math.max(0, Math.min(1, audio.currentTime / d)));
+    audio.onplay = () => {
+      pushLog("ok", "تشغيل صوت الخادم (Lovable AI TTS)");
+      onStart?.();
     };
     const cleanup = () => {
       URL.revokeObjectURL(url);
       if (currentAudio === audio) currentAudio = null;
-      onProgress?.(1);
       onEnd?.();
     };
     audio.onended = cleanup;
-    audio.onerror = cleanup;
+    audio.onerror = () => {
+      pushLog("error", "فشل تشغيل ملف الصوت من الخادم", "قد يكون صيغة MP3 محظورة. سنجرّب صوت المتصفح.");
+      cleanup();
+      speakBrowserFallback(text, settings);
+    };
     await audio.play();
     return true;
-  } catch {
-    return speakBrowserFallback(text, settings, onStart, onProgress, onEnd);
+  } catch (err) {
+    pushLog("warn", "تعذّر استخدام TTS الخادم — تحويل لصوت المتصفح", String((err as Error).message ?? err));
+    return speakBrowserFallback(text, settings);
   }
 }
 
@@ -408,6 +430,10 @@ function MiniOrb({ size = 44 }: { size?: number }) {
 export function HamidVoiceAssistant() {
   const [open, setOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [diagOpen, setDiagOpen] = useState(false);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [checks, setChecks] = useState<DiagCheck[]>([]);
+  const [checking, setChecking] = useState(false);
   const [callActive, setCallActive] = useState(false);
   const [listening, setListening] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -415,31 +441,16 @@ export function HamidVoiceAssistant() {
   const [textInput, setTextInput] = useState("");
   const [history, setHistory] = useState<Turn[]>([]);
   const [reply, setReply] = useState<HamidIntent | null>(null);
-  const [spokenText, setSpokenText] = useState(""); // portion of reply revealed in sync with audio
   const [error, setError] = useState<string | null>(null);
   const [speaking, setSpeaking] = useState(false);
+  const [signupMode, setSignupMode] = useState(false);
   const { settings, update, reset } = useHamidVoiceSettings();
   const settingsRef = useRef(settings);
   useEffect(() => {
     settingsRef.current = settings;
   }, [settings]);
-  /**
-   * Speak `text` and reveal it on screen in sync with the audio.
-   * Keeps a floor of ~1 char at play start so the bubble never sits empty
-   * while audio is buffering, and always flushes the full text on end.
-   */
   const speak = (text: string) => {
-    setSpokenText("");
-    void speakSaudi(
-      text,
-      settingsRef.current,
-      () => setSpokenText(text.slice(0, 1)),
-      () => setSpokenText(text),
-      (ratio) => {
-        const chars = Math.max(1, Math.ceil(ratio * text.length));
-        setSpokenText(text.slice(0, chars));
-      },
-    );
+    void speakSaudi(text, settingsRef.current);
     return true;
   };
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -461,12 +472,121 @@ export function HamidVoiceAssistant() {
     };
   }, [synthesisSupported]);
 
+  // Subscribe to global voice/log stream
+  useEffect(() => {
+    const on = (e: LogEntry) => setLogs((prev) => [...prev.slice(-49), e]);
+    __logListeners.add(on);
+    return () => {
+      __logListeners.delete(on);
+    };
+  }, []);
+
+  const runDiagnostics = useCallback(async () => {
+    setChecking(true);
+    const results: DiagCheck[] = [];
+
+    // 1. Secure context
+    const secure = typeof window !== "undefined" && (window.isSecureContext || location.hostname === "localhost");
+    results.push({
+      name: "سياق آمن (HTTPS)",
+      status: secure ? "ok" : "error",
+      detail: secure ? "الصفحة آمنة" : "المتصفح يمنع المايك على HTTP",
+      fix: secure ? undefined : "افتح الموقع عبر HTTPS.",
+    });
+
+    // 2. SpeechRecognition
+    results.push({
+      name: "التعرف الصوتي (Web Speech)",
+      status: speechSupported ? "ok" : "error",
+      detail: speechSupported ? "مدعوم" : "غير متاح في هذا المتصفح",
+      fix: speechSupported ? undefined : "استعمل Chrome أو Edge على سطح المكتب.",
+    });
+
+    // 3. SpeechSynthesis
+    results.push({
+      name: "نطق المتصفح (SpeechSynthesis)",
+      status: synthesisSupported ? "ok" : "warn",
+      detail: synthesisSupported ? "مدعوم" : "غير متاح",
+      fix: synthesisSupported ? undefined : "سيُعتمد على صوت الخادم فقط.",
+    });
+
+    // 4. Arabic voice availability
+    if (synthesisSupported) {
+      const voices = window.speechSynthesis.getVoices();
+      const arVoices = voices.filter((v) => v.lang?.toLowerCase().startsWith("ar"));
+      results.push({
+        name: "صوت عربي مثبت",
+        status: arVoices.length ? "ok" : "warn",
+        detail: arVoices.length ? `${arVoices.length} صوت عربي: ${arVoices.slice(0, 3).map((v) => v.name).join("، ")}` : "لا يوجد صوت عربي",
+        fix: arVoices.length ? undefined : "سنستخدم صوت الخادم Lovable AI تلقائياً كحل بديل.",
+      });
+    }
+
+    // 5. Mic permission
+    if (navigator.mediaDevices?.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((t) => t.stop());
+        results.push({ name: "إذن المايكروفون", status: "ok", detail: "ممنوح" });
+      } catch (e) {
+        results.push({
+          name: "إذن المايكروفون",
+          status: "error",
+          detail: `مرفوض: ${(e as Error).name}`,
+          fix: "افتح قفل العنوان في المتصفح → أذونات الموقع → فعّل المايكروفون.",
+        });
+      }
+    }
+
+    // 6. TTS endpoint
+    try {
+      const res = await fetch("/api/hamid-tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: "اختبار", voice: settingsRef.current.serverVoice, speed: 1 }),
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        results.push({
+          name: "خادم النطق (Lovable AI TTS)",
+          status: blob.size > 0 ? "ok" : "warn",
+          detail: blob.size > 0 ? `يعمل — استُلم ${Math.round(blob.size / 1024)}KB` : "استجابة فارغة",
+        });
+      } else {
+        results.push({
+          name: "خادم النطق (Lovable AI TTS)",
+          status: "error",
+          detail: `HTTP ${res.status}`,
+          fix: "سيتم التبديل تلقائياً لصوت المتصفح.",
+        });
+      }
+    } catch (e) {
+      results.push({
+        name: "خادم النطق (Lovable AI TTS)",
+        status: "error",
+        detail: `فشل الشبكة: ${(e as Error).message}`,
+        fix: "سيتم التبديل تلقائياً لصوت المتصفح.",
+      });
+    }
+
+    setChecks(results);
+    setChecking(false);
+    pushLog("info", `اكتمل التشخيص — ${results.filter((r) => r.status === "ok").length}/${results.length} نجاح`);
+  }, [speechSupported, synthesisSupported]);
 
   const callAgent = useServerFn(askHamidAgent);
 
   const answer = async (text: string) => {
     const clean = text.trim();
     if (!clean || loading) return;
+    // Intercept signup intent: switch to voice signup wizard flow
+    if (SIGNUP_INTENT.test(clean)) {
+      setTranscript(clean);
+      setReply(null);
+      setSignupMode(true);
+      speak("أبشر، بنسجّل طلبك ويوصل للأدمن للموافقة. نبدأ بالاسم الكامل.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -510,9 +630,21 @@ export function HamidVoiceAssistant() {
       setTranscript(t);
       void answer(t);
     };
-    r.onerror = () => {
+    r.onerror = (e) => {
       setListening(false);
-      setError("لم أستطع سماعك بوضوح. جرّب مرة ثانية.");
+      const code = e?.error ?? "unknown";
+      const map: Record<string, { msg: string; hint: string }> = {
+        "no-speech": { msg: "لم يُلتقط أي صوت", hint: "قرّب المايك وتحدّث بعد الضغط مباشرة." },
+        "audio-capture": { msg: "لا يوجد مايكروفون متاح", hint: "تأكد من توصيل المايك واختياره في إعدادات النظام." },
+        "not-allowed": { msg: "إذن المايكروفون مرفوض", hint: "افتح إعدادات الموقع في المتصفح وفعّل الوصول للمايك." },
+        "service-not-allowed": { msg: "خدمة التعرف الصوتي محظورة", hint: "استخدم HTTPS وChrome/Edge حديث." },
+        "network": { msg: "فشل الاتصال بخدمة التعرف الصوتي", hint: "تحقّق من الإنترنت وأعد المحاولة." },
+        "aborted": { msg: "أُلغيت جلسة التعرف", hint: "" },
+        "language-not-supported": { msg: "اللغة العربية غير مدعومة هنا", hint: "استخدم Chrome على سطح المكتب." },
+      };
+      const info = map[code] ?? { msg: `خطأ التعرف الصوتي: ${code}`, hint: "" };
+      pushLog("error", info.msg, info.hint);
+      setError(info.msg + (info.hint ? ` — ${info.hint}` : ""));
     };
     r.onend = () => setListening(false);
     recognitionRef.current = r;
@@ -542,8 +674,6 @@ export function HamidVoiceAssistant() {
     stopSpeaking();
     setCallActive(false);
     setSpeaking(false);
-    // Flush the on-screen reveal so the last spoken words don't stay half-shown.
-    setSpokenText((prev) => (reply ? reply.text : prev));
   };
 
   const submitText = (e: React.FormEvent) => {
@@ -581,6 +711,44 @@ export function HamidVoiceAssistant() {
           <span>العربية</span>
         </div>
         <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => {
+              setSignupMode(true);
+              speak("أبشر، بنسجّل طلبك ويوصل للأدمن للموافقة. نبدأ بالاسم الكامل.");
+            }}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold transition",
+              signupMode
+                ? "bg-sky-500 text-white"
+                : "bg-sky-500/10 text-sky-600 hover:bg-sky-500/20 dark:text-sky-300",
+            )}
+            aria-label="طلب تسجيل"
+            aria-pressed={signupMode}
+          >
+            <UserPlus className="h-3 w-3" />
+            <span>طلب تسجيل</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setDiagOpen((v) => !v);
+              if (!diagOpen && !checks.length) void runDiagnostics();
+            }}
+            className={cn(
+              "relative rounded-full p-2 transition",
+              diagOpen
+                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700",
+            )}
+            aria-label="تشخيص الصوت"
+            aria-pressed={diagOpen}
+          >
+            <Activity className="h-3.5 w-3.5" />
+            {logs.some((l) => l.level === "error") && (
+              <span className="absolute -end-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500" />
+            )}
+          </button>
           <button
             type="button"
             onClick={() => setSettingsOpen((v) => !v)}
@@ -720,8 +888,104 @@ export function HamidVoiceAssistant() {
         </div>
       )}
 
+      {diagOpen && (
+        <div className="mx-4 mb-3 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-700 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-200">
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] font-semibold text-slate-900 dark:text-white">تشخيص الصوت</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setLogs([])}
+                className="rounded-full bg-white px-2 py-1 text-[11px] font-medium text-slate-600 shadow-sm hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300"
+              >
+                مسح السجل
+              </button>
+              <button
+                type="button"
+                onClick={() => void runDiagnostics()}
+                disabled={checking}
+                className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white disabled:opacity-50 dark:bg-white dark:text-slate-900"
+              >
+                {checking ? <Loader2 className="h-3 w-3 animate-spin" /> : <RotateCcw className="h-3 w-3" />}
+                إعادة الفحص
+              </button>
+            </div>
+          </div>
 
-      {/* Orb stage */}
+          {checks.length > 0 && (
+            <ul className="space-y-1.5">
+              {checks.map((c) => (
+                <li key={c.name} className="rounded-lg bg-white p-2 dark:bg-slate-900">
+                  <div className="flex items-start gap-2">
+                    {c.status === "ok" ? (
+                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                    ) : c.status === "warn" ? (
+                      <Activity className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
+                    ) : (
+                      <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-500" />
+                    )}
+                    <div className="flex-1">
+                      <div className="font-medium text-slate-800 dark:text-slate-100">{c.name}</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">{c.detail}</div>
+                      {c.fix && (
+                        <div className="mt-1 rounded-md bg-slate-50 px-2 py-1 text-[11px] text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                          💡 {c.fix}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div>
+            <div className="mb-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              سجل الأحداث ({logs.length})
+            </div>
+            <div className="max-h-40 overflow-y-auto rounded-lg bg-white p-2 font-mono text-[10px] leading-relaxed dark:bg-slate-900">
+              {logs.length === 0 ? (
+                <div className="text-slate-400">لا توجد أحداث بعد. جرّب مكالمة أو معاينة صوت.</div>
+              ) : (
+                logs
+                  .slice()
+                  .reverse()
+                  .map((l) => (
+                    <div
+                      key={l.id}
+                      className={cn(
+                        "border-b border-slate-100 py-1 last:border-b-0 dark:border-slate-800",
+                        l.level === "error" && "text-red-600 dark:text-red-400",
+                        l.level === "warn" && "text-amber-600 dark:text-amber-400",
+                        l.level === "ok" && "text-emerald-600 dark:text-emerald-400",
+                      )}
+                    >
+                      <span className="text-slate-400">
+                        {new Date(l.ts).toLocaleTimeString("ar-SA", { hour12: false })}
+                      </span>{" "}
+                      {l.msg}
+                      {l.hint && <div className="ps-4 text-slate-500 dark:text-slate-400">↳ {l.hint}</div>}
+                    </div>
+                  ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
+
+      {signupMode && (
+        <HamidSignupWizard
+          speak={(t) => {
+            void speak(t);
+          }}
+          onClose={() => setSignupMode(false)}
+        />
+      )}
+
+      {/* 3D Command Core */}
       <div className="flex flex-col items-center gap-4 px-5 pb-4 pt-2">
         <button
           type="button"
@@ -729,7 +993,16 @@ export function HamidVoiceAssistant() {
           className="group relative outline-none"
           aria-label={callActive ? "إنهاء المكالمة" : "بدء مكالمة مع حامد"}
         >
-          <VoiceOrb size={200} active={callActive} speaking={speaking || listening} />
+          <Suspense
+            fallback={<VoiceOrb size={200} active={callActive} speaking={speaking || listening} />}
+          >
+            <HamidCore3D
+              size={220}
+              active={callActive || signupMode}
+              listening={listening}
+              speaking={speaking}
+            />
+          </Suspense>
         </button>
 
         <p className="max-w-[280px] text-center text-sm leading-relaxed text-slate-600 dark:text-slate-300">
@@ -750,11 +1023,7 @@ export function HamidVoiceAssistant() {
         {reply && (
           <div className="w-full space-y-2 rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-700 dark:bg-slate-900/60 dark:text-slate-200">
             <div>
-              <span className="font-semibold text-slate-900 dark:text-white">حامد:</span>{" "}
-              <span>{spokenText || reply.text}</span>
-              {spokenText && spokenText.length < reply.text.length && (
-                <span className="ms-0.5 inline-block h-3 w-[2px] animate-pulse bg-slate-500 align-middle" aria-hidden />
-              )}
+              <span className="font-semibold text-slate-900 dark:text-white">حامد:</span> {reply.text}
             </div>
             {reply.actionLabel && reply.actionPath && (
               <button

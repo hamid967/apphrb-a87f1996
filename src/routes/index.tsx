@@ -14,7 +14,8 @@ import {
   Footer,
   DemoModalRoot,
 } from "@/components/hbspro/sections";
-import { EmeraldSplitHero, PortfolioCommandCenter } from "@/components/hbspro/EmeraldSplitHero";
+import { PortfolioCommandCenter } from "@/components/hbspro/EmeraldSplitHero";
+import { CinematicIntro } from "@/components/hbspro/CinematicIntro";
 import { SignupAssistant } from "@/components/SignupAssistant";
 
 export const Route = createFileRoute("/")({
@@ -79,15 +80,8 @@ function HBSproHome() {
     <div className="theme-luxe min-h-screen font-sans antialiased bg-[#043927] text-[#f5f0e0]">
       <Navbar />
       <main>
-        <EmeraldSplitHero />
+        <CinematicIntro />
         <PortfolioCommandCenter />
-        <div
-          aria-hidden
-          className="h-24"
-          style={{
-            background: "linear-gradient(180deg, #043927 0%, #043927 100%)",
-          }}
-        />
         <Stats />
         <Features />
         <AISection />
