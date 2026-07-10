@@ -253,12 +253,14 @@ function speakBrowserFallback(
 /**
  * Speak with the Lovable AI Saudi-tuned TTS route; fall back to the browser
  * SpeechSynthesis engine when the network call fails or audio can't play.
+ * Emits `onProgress(0..1)` so the caller can reveal text in sync with audio.
  */
 async function speakSaudi(
   text: string,
   settings: HamidVoiceSettings,
   onStart?: () => void,
   onEnd?: () => void,
+  onProgress?: (ratio: number) => void,
 ): Promise<boolean> {
   const clean = prepareArabicForSpeech(text);
   stopSpeaking();
@@ -278,9 +280,15 @@ async function speakSaudi(
     const audio = new Audio(url);
     currentAudio = audio;
     audio.onplay = () => onStart?.();
+    audio.ontimeupdate = () => {
+      const d = audio.duration;
+      if (!Number.isFinite(d) || d <= 0) return;
+      onProgress?.(Math.max(0, Math.min(1, audio.currentTime / d)));
+    };
     const cleanup = () => {
       URL.revokeObjectURL(url);
       if (currentAudio === audio) currentAudio = null;
+      onProgress?.(1);
       onEnd?.();
     };
     audio.onended = cleanup;
@@ -288,9 +296,10 @@ async function speakSaudi(
     await audio.play();
     return true;
   } catch {
-    return speakBrowserFallback(text, settings);
+    return speakBrowserFallback(text, settings, onStart, onProgress, onEnd);
   }
 }
+
 
 
 
