@@ -86,6 +86,17 @@
                 "sale"
               ],
               "description": "Filter by listing type: rent or sale."
+            },
+            "sort": {
+              "type": "string",
+              "enum": [
+                "created_at",
+                "price",
+                "city",
+                "status"
+              ],
+              "default": "created_at",
+              "description": "Column to sort by. Combined with the shared `order` (asc/desc)."
             }
           },
           "additionalProperties": false,
