@@ -40,7 +40,7 @@ const RULE_KEYS = [
   "max_per_period",
 ] as const;
 
-export function ClaimPolicyViolations({ claimId }: Props) {
+export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const qc = useQueryClient();
