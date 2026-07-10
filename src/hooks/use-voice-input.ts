@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { transcribeVoice } from "@/lib/voice-transcribe.functions";
 
-type State = "idle" | "recording" | "transcribing";
+type State = "idle" | "recording" | "paused" | "transcribing";
 
 const PREFERRED_MIME_TYPES = [
   "audio/webm;codecs=opus",
@@ -172,7 +172,31 @@ export function useVoiceInput({
     setState("idle");
   }, [cleanup]);
 
+  const pause = useCallback(() => {
+    const rec = recorderRef.current;
+    if (rec && rec.state === "recording") {
+      try {
+        rec.pause();
+        setState("paused");
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []);
+
+  const resume = useCallback(() => {
+    const rec = recorderRef.current;
+    if (rec && rec.state === "paused") {
+      try {
+        rec.resume();
+        setState("recording");
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []);
+
   useEffect(() => () => cancel(), [cancel]);
 
-  return { state, supported, start, stop, cancel };
+  return { state, supported, start, stop, cancel, pause, resume };
 }

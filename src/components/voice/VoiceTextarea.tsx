@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, forwardRef, type TextareaHTMLAttributes } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { AlertCircle, Check, Globe, Loader2, Mic, MicOff, RotateCcw, Square, X } from "lucide-react";
+import { AlertCircle, Check, Globe, Loader2, Mic, MicOff, Pause, Play, RotateCcw, Square, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useVoiceInput } from "@/hooks/use-voice-input";
@@ -42,12 +42,13 @@ type VoiceTextareaProps = Omit<
   separator?: string;
 };
 
-type Phase = "idle" | "starting" | "recording" | "transcribing" | "done" | "error";
+type Phase = "idle" | "starting" | "recording" | "paused" | "transcribing" | "done" | "error";
 
 const PHASE_STYLES: Record<Phase, string> = {
   idle: "",
   starting: "bg-primary/10 text-primary border-primary/30",
   recording: "bg-destructive/10 text-destructive border-destructive/30",
+  paused: "bg-amber-500/10 text-amber-600 border-amber-500/30 dark:text-amber-400",
   transcribing: "bg-primary/10 text-primary border-primary/30",
   done: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:text-emerald-400",
   error: "bg-destructive/10 text-destructive border-destructive/30",
@@ -57,6 +58,7 @@ const PHASE_LABEL: Record<Phase, string> = {
   idle: "",
   starting: "جارٍ بدء التسجيل…",
   recording: "جارٍ التسجيل",
+  paused: "التسجيل متوقف مؤقتًا",
   transcribing: "جارٍ تحويل الصوت إلى نص…",
   done: "تم التحويل — راجع النص",
   error: "تعذّر تسجيل الصوت",
@@ -97,25 +99,46 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
       }
     };
 
-    // Elapsed-seconds timer, driven by phase.
-    const startedAtRef = useRef<number | null>(null);
+    // Elapsed-seconds timer that pauses when phase is "paused".
+    const accumulatedRef = useRef(0);
+    const segmentStartRef = useRef<number | null>(null);
     useEffect(() => {
-      if (phase !== "recording") {
-        startedAtRef.current = null;
+      if (phase === "starting") {
+        accumulatedRef.current = 0;
+        segmentStartRef.current = null;
+        setElapsed(0);
         return;
       }
-      startedAtRef.current = Date.now();
-      setElapsed(0);
-      const id = window.setInterval(() => {
-        if (startedAtRef.current != null) {
-          setElapsed(Math.floor((Date.now() - startedAtRef.current) / 1000));
+      if (phase === "recording") {
+        segmentStartRef.current = Date.now();
+        const id = window.setInterval(() => {
+          const start = segmentStartRef.current;
+          if (start != null) {
+            setElapsed(
+              Math.floor((accumulatedRef.current + (Date.now() - start)) / 1000),
+            );
+          }
+        }, 250);
+        return () => window.clearInterval(id);
+      }
+      if (phase === "paused") {
+        const start = segmentStartRef.current;
+        if (start != null) {
+          accumulatedRef.current += Date.now() - start;
+          segmentStartRef.current = null;
+          setElapsed(Math.floor(accumulatedRef.current / 1000));
         }
-      }, 250);
-      return () => window.clearInterval(id);
+        return;
+      }
+      // idle / done / error / transcribing → reset baseline
+      if (phase === "idle" || phase === "done" || phase === "error") {
+        accumulatedRef.current = 0;
+        segmentStartRef.current = null;
+      }
     }, [phase]);
 
     const handleMic = async () => {
-      if (voice.state === "recording") {
+      if (voice.state === "recording" || voice.state === "paused") {
         try {
           setPhase("transcribing");
           const heard = (await voice.stop()).trim();
@@ -146,6 +169,16 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
       }
     };
 
+    const togglePause = () => {
+      if (phase === "recording") {
+        voice.pause();
+        setPhase("paused");
+      } else if (phase === "paused") {
+        voice.resume();
+        setPhase("recording");
+      }
+    };
+
     const confirm = () => {
       const heard = (pending ?? "").trim();
       if (heard) {
@@ -172,7 +205,7 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
             value={value}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
-            className={cn("pe-24", className)}
+            className={cn("pe-32", className)}
             {...rest}
           />
 
@@ -214,57 +247,94 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
             </DropdownMenu>
 
             {voice.supported ? (
-              <motion.div
-                initial={false}
-                animate={
-                  phase === "recording"
-                    ? { scale: [1, 1.06, 1] }
-                    : { scale: 1 }
-                }
-                transition={
-                  phase === "recording"
-                    ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
-                    : { duration: 0.2 }
-                }
-              >
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={phase === "recording" ? "destructive" : "outline"}
-                  onClick={handleMic}
-                  disabled={disabled || isBusy}
-                  aria-label={PHASE_LABEL[phase] || "إدخال صوتي"}
-                  title={PHASE_LABEL[phase] || "إدخال صوتي"}
-                  className={cn(
-                    "h-8 w-8 relative overflow-hidden",
-                    phase === "recording" &&
-                      "shadow-[0_0_0_0_hsl(var(--destructive)/0.5)] animate-[pulse_1.4s_ease-in-out_infinite]",
-                  )}
-                >
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.span
-                      key={phase}
-                      initial={{ opacity: 0, scale: 0.6, rotate: -15 }}
-                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                      exit={{ opacity: 0, scale: 0.6, rotate: 15 }}
+              <>
+                <AnimatePresence initial={false}>
+                  {(phase === "recording" || phase === "paused") && (
+                    <motion.div
+                      key="pause"
+                      initial={{ opacity: 0, scale: 0.7, width: 0 }}
+                      animate={{ opacity: 1, scale: 1, width: "auto" }}
+                      exit={{ opacity: 0, scale: 0.7, width: 0 }}
                       transition={{ duration: 0.18, ease: "easeOut" }}
-                      className="flex items-center justify-center"
                     >
-                      {phase === "transcribing" || phase === "starting" ? (
-                        <Loader2 className="size-4 animate-spin" />
-                      ) : phase === "done" ? (
-                        <Check className="size-4" />
-                      ) : phase === "error" ? (
-                        <AlertCircle className="size-4" />
-                      ) : phase === "recording" ? (
-                        <Square className="size-4" />
-                      ) : (
-                        <Mic className="size-4" />
-                      )}
-                    </motion.span>
-                  </AnimatePresence>
-                </Button>
-              </motion.div>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        onClick={togglePause}
+                        disabled={disabled}
+                        aria-label={phase === "paused" ? "استكمال التسجيل" : "إيقاف مؤقت"}
+                        title={phase === "paused" ? "استكمال التسجيل" : "إيقاف مؤقت"}
+                        className="h-8 w-8"
+                      >
+                        {phase === "paused" ? (
+                          <Play className="size-4" />
+                        ) : (
+                          <Pause className="size-4" />
+                        )}
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <motion.div
+                  initial={false}
+                  animate={
+                    phase === "recording"
+                      ? { scale: [1, 1.06, 1] }
+                      : { scale: 1 }
+                  }
+                  transition={
+                    phase === "recording"
+                      ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
+                      : { duration: 0.2 }
+                  }
+                >
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant={
+                      phase === "recording"
+                        ? "destructive"
+                        : phase === "paused"
+                          ? "secondary"
+                          : "outline"
+                    }
+                    onClick={handleMic}
+                    disabled={disabled || isBusy}
+                    aria-label={PHASE_LABEL[phase] || "إدخال صوتي"}
+                    title={PHASE_LABEL[phase] || "إدخال صوتي"}
+                    className={cn(
+                      "h-8 w-8 relative overflow-hidden",
+                      phase === "recording" &&
+                        "shadow-[0_0_0_0_hsl(var(--destructive)/0.5)] animate-[pulse_1.4s_ease-in-out_infinite]",
+                    )}
+                  >
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.span
+                        key={phase}
+                        initial={{ opacity: 0, scale: 0.6, rotate: -15 }}
+                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                        exit={{ opacity: 0, scale: 0.6, rotate: 15 }}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                        className="flex items-center justify-center"
+                      >
+                        {phase === "transcribing" || phase === "starting" ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : phase === "done" ? (
+                          <Check className="size-4" />
+                        ) : phase === "error" ? (
+                          <AlertCircle className="size-4" />
+                        ) : phase === "recording" || phase === "paused" ? (
+                          <Square className="size-4" />
+                        ) : (
+                          <Mic className="size-4" />
+                        )}
+                      </motion.span>
+                    </AnimatePresence>
+                  </Button>
+                </motion.div>
+              </>
             ) : (
               <div
                 className="flex h-8 w-8 items-center justify-center text-muted-foreground"
@@ -302,10 +372,11 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
               {(phase === "starting" || phase === "transcribing") && (
                 <Loader2 className="size-3 animate-spin" />
               )}
+              {phase === "paused" && <Pause className="size-3" />}
               {phase === "done" && <Check className="size-3" />}
               {phase === "error" && <AlertCircle className="size-3" />}
               <span>{PHASE_LABEL[phase]}</span>
-              {phase === "recording" && (
+              {(phase === "recording" || phase === "paused") && (
                 <span className="font-mono tabular-nums opacity-80">
                   {formatElapsed(elapsed)}
                 </span>
