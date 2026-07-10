@@ -1459,7 +1459,8 @@ export function Testimonials() {
     return (
       <motion.div
         whileHover={{ y: -6 }}
-        transition={{ duration: 0.3 }}
+        whileTap={{ scale: 0.98, transition: { duration: 0.12 } }}
+        transition={{ type: "spring", stiffness: 260, damping: 22 }}
         className={`${glass} group relative overflow-hidden p-6 transition-all duration-500`}
         style={{
           ...glassStyle,
