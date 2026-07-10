@@ -23,9 +23,9 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: "تواصل معنا — HBSpro" },
       { property: "og:description", content: "نموذج تواصل مباشر مع فريق مبيعات ودعم HBSpro." },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://apphrb.lovable.app/contact" },
+      { property: "og:url", content: "https://hrhbs.com/contact" },
     ],
-    links: [{ rel: "canonical", href: "https://apphrb.lovable.app/contact" }],
+    links: [{ rel: "canonical", href: "https://hrhbs.com/contact" }],
   }),
   component: ContactPage,
 });
