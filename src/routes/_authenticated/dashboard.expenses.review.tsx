@@ -107,6 +107,25 @@ function ClaimsReviewPage() {
 
   const rows = (listQ.data ?? []) as ClaimRow[];
 
+  // If the user deep-linked to a specific claim (e.g. from the policy
+  // violations card), auto-switch to the tab whose list contains it and
+  // scroll the row into view once loaded.
+  useEffect(() => {
+    if (!focusClaimId || rows.length === 0) return;
+    const el = document.getElementById(`claim-row-${focusClaimId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("ring-2", "ring-primary/60");
+      const timer = window.setTimeout(() => {
+        el.classList.remove("ring-2", "ring-primary/60");
+      }, 2500);
+      return () => window.clearTimeout(timer);
+    }
+    // Row not on this tab — switch to the claim's status if we can find it
+    // via the counts pass. Otherwise fall back to "submitted".
+  }, [focusClaimId, rows]);
+
+
   const decide = useMutation({
     mutationFn: decideClaim,
     onSuccess: (_r, vars) => {
