@@ -19,20 +19,29 @@ export const Route = createFileRoute("/api/public/hooks/rent-reminders")({
           });
         }
 
-        try {
-          const { enqueueRentReminders } = await import("@/lib/rent-reminders.server");
-          const summary = await enqueueRentReminders();
+        const { enqueueRentReminders } = await import("@/lib/rent-reminders.server");
+        const { runWithRetry } = await import("@/lib/cron-retry.server");
+        const outcome = await runWithRetry("rent-reminders", () => enqueueRentReminders());
+        if (outcome.ok) {
           return new Response(
-            JSON.stringify({ ok: true, ...summary, at: new Date().toISOString() }),
+            JSON.stringify({
+              ok: true,
+              attempts: outcome.attempts,
+              ...outcome.result,
+              at: new Date().toISOString(),
+            }),
             { headers: { "Content-Type": "application/json" } },
           );
-        } catch (err) {
-          console.error("rent-reminders failed", err);
-          return new Response(
-            JSON.stringify({ ok: false, error: (err as Error).message }),
-            { status: 500, headers: { "Content-Type": "application/json" } },
-          );
         }
+        return new Response(
+          JSON.stringify({
+            ok: false,
+            attempts: outcome.attempts,
+            error: outcome.error,
+            at: new Date().toISOString(),
+          }),
+          { status: 500, headers: { "Content-Type": "application/json" } },
+        );
       },
     },
   },
