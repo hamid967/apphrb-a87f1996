@@ -346,6 +346,12 @@ const en = {
     archive: "Archive",
     close: "Close",
     forbidden: "You don't have permission to access this.",
+    retry: "Retry",
+    errLoadTitle: "Something went wrong",
+    errLoadDesc: "We couldn't load this content. Please try again.",
+    unauthorizedTitle: "Access restricted",
+    unauthorizedDesc: "You don't have permission to view this content.",
+    emptyTitle: "Nothing here yet",
   },
   activity: {
     title: "Activity",
