@@ -17,8 +17,10 @@ import { QrImage } from "@/components/zatca/QrImage";
 import {
   generateZatcaInvoice,
   getZatcaBundle,
+  getInvoicePartiesForPdf,
   sealZatcaInvoice,
 } from "@/lib/invoices-zatca.functions";
+import { FileDown } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invoices/$id")({
   head: () => ({
