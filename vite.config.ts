@@ -104,6 +104,13 @@ export default defineConfig({
         output: {
           manualChunks(id: string) {
             if (!id.includes("node_modules")) return;
+            // React MUST be its own chunk loaded before Radix/TanStack. Otherwise
+            // Radix modules that read `React.useLayoutEffect` at top-level can crash
+            // with "Cannot read properties of undefined (reading 'useLayoutEffect')".
+            if (
+              /[\\/]node_modules[\\/](react|react-dom|scheduler|use-sync-external-store|react-is)[\\/]/.test(id)
+            )
+              return "vendor-react";
             if (id.includes("three") || id.includes("@react-three")) return "vendor-three";
             if (id.includes("recharts") || id.includes("d3-")) return "vendor-charts";
             if (id.includes("@tiptap") || id.includes("prosemirror")) return "vendor-editor";
