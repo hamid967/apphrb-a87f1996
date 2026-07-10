@@ -38,6 +38,7 @@ import { StatusBadge } from "./dashboard.expenses.batches";
 import { listPolicyViolationsForClaims } from "@/lib/policy-engine.functions";
 import { PolicyViolationsPanel } from "@/components/policy-violations-panel";
 import { ApprovalAuditTrail } from "@/components/expenses/ApprovalAuditTrail";
+import { ListState } from "@/components/common/ListState";
 
 export const Route = createFileRoute("/_authenticated/dashboard/expenses/batches/$batchId")({
   head: ({ params }) => detailHead({ entityAr: 'دفعة مصروفات', entityEn: 'Expense Batch', id: String(params.batchId), path: `/dashboard/expenses/batches/${params.batchId}`, kind: 'dashboard', section: 'accounting' }),
