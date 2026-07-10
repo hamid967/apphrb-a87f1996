@@ -84,6 +84,12 @@ function DealDetailPage() {
     queryKey: ["commissions", id],
     queryFn: () => listCommissions({ data: { deal_id: id } }),
   });
+  const leadId = (dealQ.data as any)?.lead_id as string | null | undefined;
+  const leadActivitiesQ = useQuery({
+    queryKey: ["lead-activities", leadId],
+    queryFn: () => listActivitiesForLead({ data: { lead_id: leadId! } }),
+    enabled: !!leadId,
+  });
 
   const [editOpen, setEditOpen] = useState(false);
   const [addCommOpen, setAddCommOpen] = useState(false);
