@@ -174,6 +174,7 @@ import { Route as AuthenticatedOwnerPortalIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardUnitsIndexRouteImport } from './routes/_authenticated/dashboard.units.index'
 import { Route as AuthenticatedDashboardTicketsIndexRouteImport } from './routes/_authenticated/dashboard.tickets.index'
 import { Route as AuthenticatedDashboardPropertiesIndexRouteImport } from './routes/_authenticated/dashboard.properties.index'
+import { Route as AuthenticatedDashboardInvoicesIndexRouteImport } from './routes/_authenticated/dashboard.invoices.index'
 import { Route as AuthenticatedDashboardCrmIndexRouteImport } from './routes/_authenticated/dashboard.crm.index'
 import { Route as AuthenticatedDashboardContractsIndexRouteImport } from './routes/_authenticated/dashboard.contracts.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
@@ -1177,6 +1178,12 @@ const AuthenticatedDashboardPropertiesIndexRoute =
     path: '/properties/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardInvoicesIndexRoute =
+  AuthenticatedDashboardInvoicesIndexRouteImport.update({
+    id: '/invoices/',
+    path: '/invoices/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardCrmIndexRoute =
   AuthenticatedDashboardCrmIndexRouteImport.update({
     id: '/',
@@ -1808,6 +1815,7 @@ export interface FileRoutesByFullPath {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dashboard/contracts/': typeof AuthenticatedDashboardContractsIndexRoute
   '/dashboard/crm/': typeof AuthenticatedDashboardCrmIndexRoute
+  '/dashboard/invoices/': typeof AuthenticatedDashboardInvoicesIndexRoute
   '/dashboard/properties/': typeof AuthenticatedDashboardPropertiesIndexRoute
   '/dashboard/tickets/': typeof AuthenticatedDashboardTicketsIndexRoute
   '/dashboard/units/': typeof AuthenticatedDashboardUnitsIndexRoute
@@ -2038,6 +2046,7 @@ export interface FileRoutesByTo {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dashboard/contracts': typeof AuthenticatedDashboardContractsIndexRoute
   '/dashboard/crm': typeof AuthenticatedDashboardCrmIndexRoute
+  '/dashboard/invoices': typeof AuthenticatedDashboardInvoicesIndexRoute
   '/dashboard/properties': typeof AuthenticatedDashboardPropertiesIndexRoute
   '/dashboard/tickets': typeof AuthenticatedDashboardTicketsIndexRoute
   '/dashboard/units': typeof AuthenticatedDashboardUnitsIndexRoute
@@ -2278,6 +2287,7 @@ export interface FileRoutesById {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/_authenticated/dashboard/contracts/': typeof AuthenticatedDashboardContractsIndexRoute
   '/_authenticated/dashboard/crm/': typeof AuthenticatedDashboardCrmIndexRoute
+  '/_authenticated/dashboard/invoices/': typeof AuthenticatedDashboardInvoicesIndexRoute
   '/_authenticated/dashboard/properties/': typeof AuthenticatedDashboardPropertiesIndexRoute
   '/_authenticated/dashboard/tickets/': typeof AuthenticatedDashboardTicketsIndexRoute
   '/_authenticated/dashboard/units/': typeof AuthenticatedDashboardUnitsIndexRoute
@@ -2518,6 +2528,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/dashboard/contracts/'
     | '/dashboard/crm/'
+    | '/dashboard/invoices/'
     | '/dashboard/properties/'
     | '/dashboard/tickets/'
     | '/dashboard/units/'
@@ -2748,6 +2759,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/dashboard/contracts'
     | '/dashboard/crm'
+    | '/dashboard/invoices'
     | '/dashboard/properties'
     | '/dashboard/tickets'
     | '/dashboard/units'
@@ -2987,6 +2999,7 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/_authenticated/dashboard/contracts/'
     | '/_authenticated/dashboard/crm/'
+    | '/_authenticated/dashboard/invoices/'
     | '/_authenticated/dashboard/properties/'
     | '/_authenticated/dashboard/tickets/'
     | '/_authenticated/dashboard/units/'
@@ -4227,6 +4240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardPropertiesIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/invoices/': {
+      id: '/_authenticated/dashboard/invoices/'
+      path: '/invoices'
+      fullPath: '/dashboard/invoices/'
+      preLoaderRoute: typeof AuthenticatedDashboardInvoicesIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/crm/': {
       id: '/_authenticated/dashboard/crm/'
       path: '/'
@@ -5109,6 +5129,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardTicketsNewRoute: typeof AuthenticatedDashboardTicketsNewRoute
   AuthenticatedDashboardUnitsIdRoute: typeof AuthenticatedDashboardUnitsIdRoute
   AuthenticatedDashboardContractsIndexRoute: typeof AuthenticatedDashboardContractsIndexRoute
+  AuthenticatedDashboardInvoicesIndexRoute: typeof AuthenticatedDashboardInvoicesIndexRoute
   AuthenticatedDashboardPropertiesIndexRoute: typeof AuthenticatedDashboardPropertiesIndexRoute
   AuthenticatedDashboardTicketsIndexRoute: typeof AuthenticatedDashboardTicketsIndexRoute
   AuthenticatedDashboardUnitsIndexRoute: typeof AuthenticatedDashboardUnitsIndexRoute
@@ -5174,6 +5195,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardUnitsIdRoute: AuthenticatedDashboardUnitsIdRoute,
     AuthenticatedDashboardContractsIndexRoute:
       AuthenticatedDashboardContractsIndexRoute,
+    AuthenticatedDashboardInvoicesIndexRoute:
+      AuthenticatedDashboardInvoicesIndexRoute,
     AuthenticatedDashboardPropertiesIndexRoute:
       AuthenticatedDashboardPropertiesIndexRoute,
     AuthenticatedDashboardTicketsIndexRoute:
