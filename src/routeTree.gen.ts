@@ -168,6 +168,7 @@ import { Route as AuthenticatedAdminFilterAnalyticsRouteImport } from './routes/
 import { Route as AuthenticatedAdminEmailProvidersRouteImport } from './routes/_authenticated/admin.email-providers'
 import { Route as AuthenticatedAdminDemoRequestsRouteImport } from './routes/_authenticated/admin.demo-requests'
 import { Route as AuthenticatedAdminDecisionLogRouteImport } from './routes/_authenticated/admin.decision-log'
+import { Route as AuthenticatedAdminCronRunsRouteImport } from './routes/_authenticated/admin.cron-runs'
 import { Route as AuthenticatedAdminCompaniesRouteImport } from './routes/_authenticated/admin.companies'
 import { Route as AuthenticatedAdminBillingMetricsRouteImport } from './routes/_authenticated/admin.billing-metrics'
 import { Route as AuthenticatedAdminBanksRouteImport } from './routes/_authenticated/admin.banks'
@@ -1148,6 +1149,12 @@ const AuthenticatedAdminDecisionLogRoute =
     path: '/decision-log',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminCronRunsRoute =
+  AuthenticatedAdminCronRunsRouteImport.update({
+    id: '/cron-runs',
+    path: '/cron-runs',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCompaniesRoute =
   AuthenticatedAdminCompaniesRouteImport.update({
     id: '/companies',
@@ -1730,6 +1737,7 @@ export interface FileRoutesByFullPath {
   '/admin/banks': typeof AuthenticatedAdminBanksRoute
   '/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
+  '/admin/cron-runs': typeof AuthenticatedAdminCronRunsRoute
   '/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
   '/admin/demo-requests': typeof AuthenticatedAdminDemoRequestsRoute
   '/admin/email-providers': typeof AuthenticatedAdminEmailProvidersRoute
@@ -1975,6 +1983,7 @@ export interface FileRoutesByTo {
   '/admin/banks': typeof AuthenticatedAdminBanksRoute
   '/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/admin/companies': typeof AuthenticatedAdminCompaniesRoute
+  '/admin/cron-runs': typeof AuthenticatedAdminCronRunsRoute
   '/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
   '/admin/demo-requests': typeof AuthenticatedAdminDemoRequestsRoute
   '/admin/email-providers': typeof AuthenticatedAdminEmailProvidersRoute
@@ -2224,6 +2233,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/banks': typeof AuthenticatedAdminBanksRoute
   '/_authenticated/admin/billing-metrics': typeof AuthenticatedAdminBillingMetricsRoute
   '/_authenticated/admin/companies': typeof AuthenticatedAdminCompaniesRoute
+  '/_authenticated/admin/cron-runs': typeof AuthenticatedAdminCronRunsRoute
   '/_authenticated/admin/decision-log': typeof AuthenticatedAdminDecisionLogRoute
   '/_authenticated/admin/demo-requests': typeof AuthenticatedAdminDemoRequestsRoute
   '/_authenticated/admin/email-providers': typeof AuthenticatedAdminEmailProvidersRoute
@@ -2476,6 +2486,7 @@ export interface FileRouteTypes {
     | '/admin/banks'
     | '/admin/billing-metrics'
     | '/admin/companies'
+    | '/admin/cron-runs'
     | '/admin/decision-log'
     | '/admin/demo-requests'
     | '/admin/email-providers'
@@ -2721,6 +2732,7 @@ export interface FileRouteTypes {
     | '/admin/banks'
     | '/admin/billing-metrics'
     | '/admin/companies'
+    | '/admin/cron-runs'
     | '/admin/decision-log'
     | '/admin/demo-requests'
     | '/admin/email-providers'
@@ -2969,6 +2981,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/banks'
     | '/_authenticated/admin/billing-metrics'
     | '/_authenticated/admin/companies'
+    | '/_authenticated/admin/cron-runs'
     | '/_authenticated/admin/decision-log'
     | '/_authenticated/admin/demo-requests'
     | '/_authenticated/admin/email-providers'
@@ -4344,6 +4357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDecisionLogRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/cron-runs': {
+      id: '/_authenticated/admin/cron-runs'
+      path: '/cron-runs'
+      fullPath: '/admin/cron-runs'
+      preLoaderRoute: typeof AuthenticatedAdminCronRunsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/companies': {
       id: '/_authenticated/admin/companies'
       path: '/companies'
@@ -5003,6 +5023,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminBanksRoute: typeof AuthenticatedAdminBanksRoute
   AuthenticatedAdminBillingMetricsRoute: typeof AuthenticatedAdminBillingMetricsRoute
   AuthenticatedAdminCompaniesRoute: typeof AuthenticatedAdminCompaniesRoute
+  AuthenticatedAdminCronRunsRoute: typeof AuthenticatedAdminCronRunsRoute
   AuthenticatedAdminDecisionLogRoute: typeof AuthenticatedAdminDecisionLogRoute
   AuthenticatedAdminDemoRequestsRoute: typeof AuthenticatedAdminDemoRequestsRoute
   AuthenticatedAdminEmailProvidersRoute: typeof AuthenticatedAdminEmailProvidersRoute
@@ -5036,6 +5057,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminBanksRoute: AuthenticatedAdminBanksRoute,
   AuthenticatedAdminBillingMetricsRoute: AuthenticatedAdminBillingMetricsRoute,
   AuthenticatedAdminCompaniesRoute: AuthenticatedAdminCompaniesRoute,
+  AuthenticatedAdminCronRunsRoute: AuthenticatedAdminCronRunsRoute,
   AuthenticatedAdminDecisionLogRoute: AuthenticatedAdminDecisionLogRoute,
   AuthenticatedAdminDemoRequestsRoute: AuthenticatedAdminDemoRequestsRoute,
   AuthenticatedAdminEmailProvidersRoute: AuthenticatedAdminEmailProvidersRoute,
