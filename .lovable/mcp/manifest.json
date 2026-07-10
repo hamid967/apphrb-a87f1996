@@ -189,7 +189,7 @@
       {
         "name": "list_pending_tickets",
         "title": "List pending tickets & claims",
-        "description": "List pending items for the signed-in user's company: support tickets, maintenance tickets, or expense claims. Supports text search over title/subject/number, pagination, filter by status or submission-date window, and `mine_only`. Returns a unified {id, title, subtitle, status, date} shape.",
+        "description": "List pending items for the signed-in user's company: support tickets, maintenance tickets, or expense claims. Supports text search, pagination, status filter, submission-date window, and `mine_only`. Returns a unified {id, title, subtitle, status, date, meta} shape.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
