@@ -12,7 +12,16 @@ import {
   Sparkles,
   Trash2,
   ExternalLink,
+  Download,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportRows } from "@/lib/export-rows";
+
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -155,9 +164,29 @@ function LeadDetailPage() {
           </div>
 
           <div className="surface-card p-5">
-            <h2 className="mb-3 text-lg font-semibold">
-              {t("crm.leads.activity", "Activity")}
-            </h2>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h2 className="text-lg font-semibold">
+                {t("crm.leads.activity", "Activity")}
+              </h2>
+              <ExportMenu
+                label={t("crm.leads.exportActivities")}
+                disabled={activities.length === 0}
+                onExport={(fmt) =>
+                  exportRows(
+                    `lead_${id}_activities`,
+                    activities.map((a: any) => ({
+                      created_at: a.created_at,
+                      type: a.activity_type,
+                      from_stage: a.from_stage ?? "",
+                      to_stage: a.to_stage ?? "",
+                      body: a.body ?? "",
+                    })),
+                    fmt,
+                  )
+                }
+              />
+            </div>
+
             <div className="mb-4 grid gap-2">
               <div className="flex gap-2">
                 <Select value={kind} onValueChange={(v) => setKind(v as Kind)}>
@@ -222,20 +251,44 @@ function LeadDetailPage() {
 
         <aside className="space-y-4">
           <div className="surface-card p-5">
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-semibold">
                 {t("crm.leads.matches", "Matches")}
               </h2>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={suggest.isPending}
-                onClick={() => suggest.mutate()}
-              >
-                <Sparkles className="me-1.5 size-3.5" />
-                {t("crm.leads.suggest", "Suggest")}
-              </Button>
+              <div className="flex items-center gap-2">
+                <ExportMenu
+                  label={t("crm.leads.exportMatches")}
+                  disabled={matches.length === 0}
+                  onExport={(fmt) =>
+                    exportRows(
+                      `lead_${id}_matches`,
+                      matches.map((m: any) => ({
+                        listing_id: m.listing?.id ?? "",
+                        title: m.listing?.title ?? "",
+                        price: m.listing?.price ?? "",
+                        currency: m.listing?.currency ?? "",
+                        city: m.listing?.city ?? "",
+                        bedrooms: m.listing?.bedrooms ?? "",
+                        bathrooms: m.listing?.bathrooms ?? "",
+                        area: m.listing?.area ?? "",
+                        status: m.status,
+                      })),
+                      fmt,
+                    )
+                  }
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={suggest.isPending}
+                  onClick={() => suggest.mutate()}
+                >
+                  <Sparkles className="me-1.5 size-3.5" />
+                  {t("crm.leads.suggest", "Suggest")}
+                </Button>
+              </div>
             </div>
+
             {matches.length === 0 && (
               <div className="text-sm text-muted-foreground">
                 {t("crm.leads.noMatches", "No matches yet")}
@@ -312,4 +365,29 @@ function iconFor(k: string) {
   if (k === "email") return <Mail className="size-3.5" />;
   if (k === "whatsapp" || k === "note") return <MessageSquare className="size-3.5" />;
   return <MessageSquare className="size-3.5" />;
+}
+
+function ExportMenu({
+  label,
+  disabled,
+  onExport,
+}: {
+  label: string;
+  disabled?: boolean;
+  onExport: (format: "csv" | "xlsx") => void;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button size="sm" variant="outline" disabled={disabled}>
+          <Download className="me-1.5 size-3.5" />
+          {label}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => onExport("csv")}>CSV</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onExport("xlsx")}>Excel</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }

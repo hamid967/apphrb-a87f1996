@@ -2,7 +2,15 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, Pencil, ArrowRight, ArrowLeft, Handshake, Upload, GripVertical } from "lucide-react";
+import { Plus, Trash2, Pencil, ArrowRight, ArrowLeft, Handshake, Upload, GripVertical, Download } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportRows } from "@/lib/export-rows";
+
 import { toast } from "sonner";
 import {
   DndContext,
@@ -102,6 +110,29 @@ function LeadsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Lead | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [stageFilter, setStageFilter] = useState<Stage | "__all__">("__all__");
+
+  const filteredLeads = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return ((leadsQ.data ?? []) as Lead[]).filter((l) => {
+      if (stageFilter !== "__all__" && l.stage !== stageFilter) return false;
+      if (!q) return true;
+      const hay = [
+        l.contact?.full_name,
+        l.contact?.email,
+        l.contact?.phone,
+        l.source,
+        l.notes,
+        l.property?.title_ar,
+        l.property?.title_en,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }, [leadsQ.data, search, stageFilter]);
 
   const grouped = useMemo(() => {
     const map: Record<Stage, Lead[]> = {
@@ -113,9 +144,31 @@ function LeadsPage() {
       won: [],
       lost: [],
     };
-    for (const l of (leadsQ.data ?? []) as Lead[]) map[l.stage]?.push(l);
+    for (const l of filteredLeads) map[l.stage]?.push(l);
     return map;
-  }, [leadsQ.data]);
+  }, [filteredLeads]);
+
+  const handleExport = (format: "csv" | "xlsx") => {
+    if (filteredLeads.length === 0) {
+      toast.error(t("crm.leads.nothingToExport"));
+      return;
+    }
+    const rows = filteredLeads.map((l) => ({
+      id: l.id,
+      contact: l.contact?.full_name ?? "",
+      email: l.contact?.email ?? "",
+      phone: l.contact?.phone ?? "",
+      stage: t(`crm.leads.stages.${l.stage}`, l.stage),
+      source: l.source ?? "",
+      budget_min: l.budget_min ?? "",
+      budget_max: l.budget_max ?? "",
+      currency: l.currency,
+      property: l.property ? (isAr ? l.property.title_ar : l.property.title_en) : "",
+      notes: l.notes ?? "",
+    }));
+    exportRows(`leads_${new Date().toISOString().slice(0, 10)}`, rows, format);
+  };
+
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["leads", org?.id] });
 
@@ -193,19 +246,59 @@ function LeadsPage() {
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
           {t("crm.leads.title")}
         </h1>
-        {canEdit && (
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setImportOpen(true)}>
-              <Upload className="me-2 size-4" /> {t("csv.importLeads")}
-            </Button>
-            <Button asChild>
-              <Link to="/leads/new">
-                <Plus className="me-2 size-4" /> {t("crm.leads.add")}
-              </Link>
-            </Button>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="me-2 size-4" /> {t("crm.leads.export")}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleExport("csv")}>
+                {t("crm.leads.exportCsv")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("xlsx")}>
+                {t("crm.leads.exportXlsx")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {canEdit && (
+            <>
+              <Button variant="outline" onClick={() => setImportOpen(true)}>
+                <Upload className="me-2 size-4" /> {t("csv.importLeads")}
+              </Button>
+              <Button asChild>
+                <Link to="/leads/new">
+                  <Plus className="me-2 size-4" /> {t("crm.leads.add")}
+                </Link>
+              </Button>
+            </>
+          )}
+        </div>
       </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t("crm.leads.search")}
+          className="max-w-xs"
+        />
+        <Select value={stageFilter} onValueChange={(v) => setStageFilter(v as Stage | "__all__")}>
+          <SelectTrigger className="w-44">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__all__">{t("crm.leads.filterStage")}</SelectItem>
+            {STAGES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {t(`crm.leads.stages.${s}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <div className="mt-6 grid gap-3 md:grid-cols-3 xl:grid-cols-7">

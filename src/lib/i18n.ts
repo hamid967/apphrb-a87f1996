@@ -269,7 +269,16 @@ const en = {
       convertTitle: "Convert lead to deal",
       convertHint: "Creates a deal from this lead and marks the lead as won.",
       needsProperty: "Attach a property to the lead first.",
+      search: "Search name, source, notes…",
+      filterStage: "All stages",
+      export: "Export",
+      exportCsv: "Export CSV",
+      exportXlsx: "Export Excel",
+      exportActivities: "Export activities",
+      exportMatches: "Export matches",
+      nothingToExport: "Nothing to export",
     },
+
     deals: {
       title: "Deals",
       add: "Add deal",
@@ -2541,7 +2550,16 @@ const ar: typeof en = {
       convertTitle: "تحويل العميل المحتمل إلى صفقة",
       convertHint: "سيتم إنشاء صفقة من هذا العميل ووضعه في مرحلة الفوز.",
       needsProperty: "أضف عقاراً إلى العميل المحتمل أولاً.",
+      search: "ابحث بالاسم أو المصدر أو الملاحظات…",
+      filterStage: "كل المراحل",
+      export: "تصدير",
+      exportCsv: "تصدير CSV",
+      exportXlsx: "تصدير Excel",
+      exportActivities: "تصدير الأنشطة",
+      exportMatches: "تصدير التطابقات",
+      nothingToExport: "لا يوجد بيانات للتصدير",
     },
+
     deals: {
       title: "الصفقات",
       add: "إضافة صفقة",
