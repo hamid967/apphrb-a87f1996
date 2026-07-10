@@ -102,6 +102,7 @@ import { Route as AuthenticatedLeadsNewRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedLeadsIdRouteImport } from './routes/_authenticated/leads.$id'
 import { Route as AuthenticatedDocumentsIdRouteImport } from './routes/_authenticated/documents.$id'
 import { Route as AuthenticatedDealsIdRouteImport } from './routes/_authenticated/deals.$id'
+import { Route as AuthenticatedDashboardZatcaCustomersRouteImport } from './routes/_authenticated/dashboard.zatca-customers'
 import { Route as AuthenticatedDashboardVouchersRouteImport } from './routes/_authenticated/dashboard.vouchers'
 import { Route as AuthenticatedDashboardViewingsRouteImport } from './routes/_authenticated/dashboard.viewings'
 import { Route as AuthenticatedDashboardValuationsRouteImport } from './routes/_authenticated/dashboard.valuations'
@@ -751,6 +752,12 @@ const AuthenticatedDealsIdRoute = AuthenticatedDealsIdRouteImport.update({
   path: '/deals/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDashboardZatcaCustomersRoute =
+  AuthenticatedDashboardZatcaCustomersRouteImport.update({
+    id: '/zatca-customers',
+    path: '/zatca-customers',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardVouchersRoute =
   AuthenticatedDashboardVouchersRouteImport.update({
     id: '/vouchers',
@@ -1707,6 +1714,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/valuations': typeof AuthenticatedDashboardValuationsRoute
   '/dashboard/viewings': typeof AuthenticatedDashboardViewingsRoute
   '/dashboard/vouchers': typeof AuthenticatedDashboardVouchersRoute
+  '/dashboard/zatca-customers': typeof AuthenticatedDashboardZatcaCustomersRoute
   '/deals/$id': typeof AuthenticatedDealsIdRoute
   '/documents/$id': typeof AuthenticatedDocumentsIdRoute
   '/leads/$id': typeof AuthenticatedLeadsIdRouteWithChildren
@@ -1940,6 +1948,7 @@ export interface FileRoutesByTo {
   '/dashboard/valuations': typeof AuthenticatedDashboardValuationsRoute
   '/dashboard/viewings': typeof AuthenticatedDashboardViewingsRoute
   '/dashboard/vouchers': typeof AuthenticatedDashboardVouchersRoute
+  '/dashboard/zatca-customers': typeof AuthenticatedDashboardZatcaCustomersRoute
   '/deals/$id': typeof AuthenticatedDealsIdRoute
   '/documents/$id': typeof AuthenticatedDocumentsIdRoute
   '/leads/$id': typeof AuthenticatedLeadsIdRouteWithChildren
@@ -2179,6 +2188,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/valuations': typeof AuthenticatedDashboardValuationsRoute
   '/_authenticated/dashboard/viewings': typeof AuthenticatedDashboardViewingsRoute
   '/_authenticated/dashboard/vouchers': typeof AuthenticatedDashboardVouchersRoute
+  '/_authenticated/dashboard/zatca-customers': typeof AuthenticatedDashboardZatcaCustomersRoute
   '/_authenticated/deals/$id': typeof AuthenticatedDealsIdRoute
   '/_authenticated/documents/$id': typeof AuthenticatedDocumentsIdRoute
   '/_authenticated/leads/$id': typeof AuthenticatedLeadsIdRouteWithChildren
@@ -2420,6 +2430,7 @@ export interface FileRouteTypes {
     | '/dashboard/valuations'
     | '/dashboard/viewings'
     | '/dashboard/vouchers'
+    | '/dashboard/zatca-customers'
     | '/deals/$id'
     | '/documents/$id'
     | '/leads/$id'
@@ -2653,6 +2664,7 @@ export interface FileRouteTypes {
     | '/dashboard/valuations'
     | '/dashboard/viewings'
     | '/dashboard/vouchers'
+    | '/dashboard/zatca-customers'
     | '/deals/$id'
     | '/documents/$id'
     | '/leads/$id'
@@ -2891,6 +2903,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/valuations'
     | '/_authenticated/dashboard/viewings'
     | '/_authenticated/dashboard/vouchers'
+    | '/_authenticated/dashboard/zatca-customers'
     | '/_authenticated/deals/$id'
     | '/_authenticated/documents/$id'
     | '/_authenticated/leads/$id'
@@ -3735,6 +3748,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/deals/$id'
       preLoaderRoute: typeof AuthenticatedDealsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard/zatca-customers': {
+      id: '/_authenticated/dashboard/zatca-customers'
+      path: '/zatca-customers'
+      fullPath: '/dashboard/zatca-customers'
+      preLoaderRoute: typeof AuthenticatedDashboardZatcaCustomersRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/vouchers': {
       id: '/_authenticated/dashboard/vouchers'
@@ -5119,6 +5139,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardValuationsRoute: typeof AuthenticatedDashboardValuationsRoute
   AuthenticatedDashboardViewingsRoute: typeof AuthenticatedDashboardViewingsRoute
   AuthenticatedDashboardVouchersRoute: typeof AuthenticatedDashboardVouchersRoute
+  AuthenticatedDashboardZatcaCustomersRoute: typeof AuthenticatedDashboardZatcaCustomersRoute
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedDashboardContractsIdRoute: typeof AuthenticatedDashboardContractsIdRoute
   AuthenticatedDashboardContractsNewRoute: typeof AuthenticatedDashboardContractsNewRoute
@@ -5178,6 +5199,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardValuationsRoute,
     AuthenticatedDashboardViewingsRoute: AuthenticatedDashboardViewingsRoute,
     AuthenticatedDashboardVouchersRoute: AuthenticatedDashboardVouchersRoute,
+    AuthenticatedDashboardZatcaCustomersRoute:
+      AuthenticatedDashboardZatcaCustomersRoute,
     AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
     AuthenticatedDashboardContractsIdRoute:
       AuthenticatedDashboardContractsIdRoute,
