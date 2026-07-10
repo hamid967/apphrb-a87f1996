@@ -294,7 +294,17 @@
             "mine_only": {
               "type": "boolean",
               "default": false,
-              "description": "Restrict to items owned by the signed-in user (requester/submitter/assignee)."
+              "description": "Restrict to items owned by the signed-in user. Shortcut for setting requester_id=me OR assignee_id=me."
+            },
+            "requester_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Filter by the requester/submitter/creator (support: requester_id, maintenance: created_by, expense_claim: submitted_by)."
+            },
+            "assignee_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Filter by the assignee/reviewer (support: assignee_id, maintenance: technician_id, expense_claim: reviewed_by)."
             },
             "sort": {
               "type": "string",

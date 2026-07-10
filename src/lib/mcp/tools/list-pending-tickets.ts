@@ -148,7 +148,23 @@ export default defineTool({
     mine_only: z
       .boolean()
       .default(false)
-      .describe("Restrict to items owned by the signed-in user (requester/submitter/assignee)."),
+      .describe(
+        "Restrict to items owned by the signed-in user. Shortcut for setting requester_id=me OR assignee_id=me.",
+      ),
+    requester_id: z
+      .string()
+      .uuid()
+      .optional()
+      .describe(
+        "Filter by the requester/submitter/creator (support: requester_id, maintenance: created_by, expense_claim: submitted_by).",
+      ),
+    assignee_id: z
+      .string()
+      .uuid()
+      .optional()
+      .describe(
+        "Filter by the assignee/reviewer (support: assignee_id, maintenance: technician_id, expense_claim: reviewed_by).",
+      ),
     sort: z
       .enum(["created_at", "status"])
       .default("created_at")
@@ -156,7 +172,20 @@ export default defineTool({
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async (
-    { q, page, page_size, type, status, since, until, mine_only, sort, order },
+    {
+      q,
+      page,
+      page_size,
+      type,
+      status,
+      since,
+      until,
+      mine_only,
+      requester_id,
+      assignee_id,
+      sort,
+      order,
+    },
     ctx,
   ) => {
     if (!ctx.isAuthenticated()) return errorContent("Not authenticated");
@@ -173,6 +202,14 @@ export default defineTool({
     const s = q ? escapeIlike(q) : null;
     const ascending = order === "asc";
 
+    // Per-type column mapping for the unified requester/assignee filters.
+    const cols: Record<TicketType, { requester: string; assignee: string }> = {
+      support: { requester: "requester_id", assignee: "assignee_id" },
+      maintenance: { requester: "created_by", assignee: "technician_id" },
+      expense_claim: { requester: "submitted_by", assignee: "reviewed_by" },
+    };
+    const { requester: requesterCol, assignee: assigneeCol } = cols[t];
+
     if (t === "support") {
       let qb = sb
         .from("tickets")
@@ -183,7 +220,10 @@ export default defineTool({
         .eq("org_id", orgId)
         .is("deleted_at", null)
         .in("status", statuses);
-      if (mine_only && userId) qb = qb.or(`requester_id.eq.${userId},assignee_id.eq.${userId}`);
+      if (mine_only && userId)
+        qb = qb.or(`${requesterCol}.eq.${userId},${assigneeCol}.eq.${userId}`);
+      if (requester_id) qb = qb.eq(requesterCol, requester_id);
+      if (assignee_id) qb = qb.eq(assigneeCol, assignee_id);
       if (s) qb = qb.or(`subject.ilike.%${s}%,ticket_number.ilike.%${s}%`);
       if (since) qb = qb.gte("created_at", since);
       if (until) qb = qb.lt("created_at", until);
@@ -209,7 +249,10 @@ export default defineTool({
         )
         .eq("org_id", orgId)
         .in("status", statuses);
-      if (mine_only && userId) qb = qb.eq("created_by", userId);
+      if (mine_only && userId)
+        qb = qb.or(`${requesterCol}.eq.${userId},${assigneeCol}.eq.${userId}`);
+      if (requester_id) qb = qb.eq(requesterCol, requester_id);
+      if (assignee_id) qb = qb.eq(assigneeCol, assignee_id);
       if (s) qb = qb.or(`title.ilike.%${s}%,ticket_no.ilike.%${s}%`);
       if (since) qb = qb.gte("created_at", since);
       if (until) qb = qb.lt("created_at", until);
@@ -236,7 +279,10 @@ export default defineTool({
       .eq("org_id", orgId)
       .is("deleted_at", null)
       .in("status", statuses);
-    if (mine_only && userId) qb = qb.eq("submitted_by", userId);
+    if (mine_only && userId)
+      qb = qb.or(`${requesterCol}.eq.${userId},${assigneeCol}.eq.${userId}`);
+    if (requester_id) qb = qb.eq(requesterCol, requester_id);
+    if (assignee_id) qb = qb.eq(assigneeCol, assignee_id);
     if (s) qb = qb.or(`title.ilike.%${s}%,claim_number.ilike.%${s}%`);
     if (since) qb = qb.gte("created_at", since);
     if (until) qb = qb.lt("created_at", until);
