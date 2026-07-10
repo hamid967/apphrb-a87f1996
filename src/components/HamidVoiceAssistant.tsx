@@ -299,8 +299,7 @@ function speakBrowserFallback(
 async function speakSaudi(
   text: string,
   settings: HamidVoiceSettings,
-  onStart?: () => void,
-  onEnd?: () => void,
+  cb?: SpeakCallbacks,
 ): Promise<boolean> {
   const clean = prepareArabicForSpeech(text);
   stopSpeaking();
@@ -318,7 +317,7 @@ async function speakSaudi(
       }),
       signal: controller.signal,
     });
-    if (mySeq !== ttsSeq) return false; // superseded
+    if (mySeq !== ttsSeq) return false;
     if (!res.ok) {
       const body = await res.text().catch(() => "");
       pushLog("warn", `خادم TTS رجّع ${res.status}`, body.slice(0, 140) || "سنستخدم صوت المتصفح الاحتياطي.");
@@ -330,8 +329,6 @@ async function speakSaudi(
       pushLog("warn", "استجابة TTS فارغة", "التبديل لصوت المتصفح.");
       throw new Error("empty tts");
     }
-    // Guard: if a newer speak() request has arrived while we were awaiting the
-    // blob, discard this audio entirely so it never plays late.
     if (mySeq !== ttsSeq) return false;
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
@@ -344,11 +341,9 @@ async function speakSaudi(
       finalized = true;
       URL.revokeObjectURL(url);
       if (currentAudio === audio) currentAudio = null;
-      onEnd?.();
+      cb?.onEnd?.();
     };
     audio.onplay = () => {
-      // Late-arrival guard: another speak() already superseded us between
-      // schedule and the actual play tick — silence this one immediately.
       if (mySeq !== ttsSeq) {
         try { audio.pause(); audio.src = ""; } catch { /* noop */ }
         cleanup();
@@ -356,12 +351,10 @@ async function speakSaudi(
       }
       started = true;
       pushLog("ok", "تشغيل صوت الخادم (Lovable AI TTS)");
-      onStart?.();
+      cb?.onStart?.("server");
     };
     audio.onended = cleanup;
     audio.onerror = () => {
-      // Only try the browser fallback if playback never actually started —
-      // otherwise the user would hear the same reply spoken twice.
       const shouldFallback = !started;
       pushLog(
         shouldFallback ? "error" : "warn",
@@ -369,21 +362,18 @@ async function speakSaudi(
         shouldFallback ? "سنجرّب صوت المتصفح." : "المقطع بدأ التشغيل — لن نكرر النطق.",
       );
       cleanup();
-      if (shouldFallback && mySeq === ttsSeq) speakBrowserFallback(text, settings);
+      if (shouldFallback && mySeq === ttsSeq) speakBrowserFallback(text, settings, cb);
     };
     try {
       await audio.play();
     } catch (playErr) {
-      // play() rejected (autoplay blocked, etc.) — treat like start failure.
       cleanup();
       if (mySeq === ttsSeq) {
         pushLog("warn", "تعذّر بدء تشغيل الصوت — تحويل لصوت المتصفح", String((playErr as Error).message ?? playErr));
-        return speakBrowserFallback(text, settings);
+        return speakBrowserFallback(text, settings, cb);
       }
       return false;
     }
-    // Final post-play guard: a request that superseded us between the play()
-    // resolve and the first onplay tick should still be silenced.
     if (mySeq !== ttsSeq) {
       try { audio.pause(); audio.src = ""; } catch { /* noop */ }
       cleanup();
@@ -393,7 +383,7 @@ async function speakSaudi(
   } catch (err) {
     if ((err as Error).name === "AbortError" || mySeq !== ttsSeq) return false;
     pushLog("warn", "تعذّر استخدام TTS الخادم — تحويل لصوت المتصفح", String((err as Error).message ?? err));
-    return speakBrowserFallback(text, settings);
+    return speakBrowserFallback(text, settings, cb);
   } finally {
     if (currentTtsAbort === controller) currentTtsAbort = null;
   }
