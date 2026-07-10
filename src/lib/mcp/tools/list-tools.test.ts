@@ -96,9 +96,19 @@ process.env.SUPABASE_PUBLISHABLE_KEY = "test-anon-key";
 const ORG_ID = "00000000-0000-0000-0000-000000000001";
 const USER_ID = "11111111-1111-1111-1111-111111111111";
 
+import { z } from "zod";
 import listProperties from "./list-properties";
 import listBranches from "./list-branches";
 import listPendingTickets from "./list-pending-tickets";
+
+// Parse args through each tool's inputSchema so zod defaults (sort, order,
+// page, page_size, mine_only) match what the runtime feeds the handler.
+function parseArgs(
+  tool: { inputSchema?: Record<string, z.ZodTypeAny> },
+  args: Record<string, unknown>,
+) {
+  return z.object(tool.inputSchema ?? {}).parse(args);
+}
 
 type Ctx = {
   isAuthenticated: () => boolean;
