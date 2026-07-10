@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { HBS } from "@/components/hbspro/tokens";
 import {
   Navbar,
   Stats,
@@ -15,8 +14,9 @@ import {
   Footer,
   DemoModalRoot,
 } from "@/components/hbspro/sections";
-import { OpeningExperience } from "@/components/hbspro/OpeningExperience";
+import { EmeraldSplitHero } from "@/components/hbspro/EmeraldSplitHero";
 import { SignupAssistant } from "@/components/SignupAssistant";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
