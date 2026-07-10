@@ -351,7 +351,8 @@ async function speakSaudi(
       }
       started = true;
       pushLog("ok", "تشغيل صوت الخادم (Lovable AI TTS)");
-      cb?.onStart?.("server");
+      const dur = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : undefined;
+      cb?.onStart?.("server", dur);
     };
     audio.onended = cleanup;
     audio.onerror = () => {
