@@ -229,9 +229,28 @@ function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
   return true;
 }
 
+/** Sleep helper for retry backoff. */
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Classify a failure: retriable transient vs. terminal (immediate fallback). */
+function isRetriableTtsError(err: unknown, status?: number): boolean {
+  if (status !== undefined) {
+    // 4xx (except 408/429) is terminal: bad request, no credits, disabled.
+    if (status === 408 || status === 429) return true;
+    if (status >= 500) return true;
+    return false;
+  }
+  // Network / abort / audio decoding errors are worth one retry.
+  const msg = String((err as Error)?.message ?? err ?? "").toLowerCase();
+  if (msg.includes("abort")) return false;
+  return true;
+}
+
 /**
- * Speak with the Lovable AI Saudi-tuned TTS route; fall back to the browser
- * SpeechSynthesis engine when the network call fails or audio can't play.
+ * Try the Lovable AI Saudi-tuned TTS route. On the first failure, retry once
+ * with a short backoff (only for transient errors); if it still fails, switch
+ * automatically to the browser SpeechSynthesis fallback so the user always
+ * hears a reply.
  */
 async function speakSaudi(
   text: string,
@@ -241,35 +260,83 @@ async function speakSaudi(
 ): Promise<boolean> {
   const clean = prepareArabicForSpeech(text);
   stopSpeaking();
-  try {
-    const res = await fetch("/api/hamid-tts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        text: clean,
-        voice: settings.serverVoice,
-        speed: settings.rate,
-      }),
-    });
-    if (!res.ok) throw new Error(`tts ${res.status}`);
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-    currentAudio = audio;
-    audio.onplay = () => onStart?.();
-    const cleanup = () => {
-      URL.revokeObjectURL(url);
-      if (currentAudio === audio) currentAudio = null;
-      onEnd?.();
-    };
-    audio.onended = cleanup;
-    audio.onerror = cleanup;
-    await audio.play();
-    return true;
-  } catch {
-    return speakBrowserFallback(text, settings);
+
+  const MAX_ATTEMPTS = 2;
+  let lastError: unknown = null;
+
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch("/api/hamid-tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: clean,
+          voice: settings.serverVoice,
+          speed: settings.rate,
+        }),
+      });
+      if (!res.ok) {
+        const status = res.status;
+        console.warn(`[Hamid] TTS attempt ${attempt} failed: HTTP ${status}`);
+        if (attempt < MAX_ATTEMPTS && isRetriableTtsError(null, status)) {
+          await sleep(400 * attempt);
+          continue;
+        }
+        throw new Error(`tts ${status}`);
+      }
+      const blob = await res.blob();
+      if (!blob.size) {
+        console.warn(`[Hamid] TTS attempt ${attempt} returned empty body`);
+        if (attempt < MAX_ATTEMPTS) {
+          await sleep(400 * attempt);
+          continue;
+        }
+        throw new Error("tts empty");
+      }
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      currentAudio = audio;
+      audio.onplay = () => onStart?.();
+      const cleanup = () => {
+        URL.revokeObjectURL(url);
+        if (currentAudio === audio) currentAudio = null;
+        onEnd?.();
+      };
+      audio.onended = cleanup;
+      let playbackFailed = false;
+      audio.onerror = () => {
+        playbackFailed = true;
+        cleanup();
+      };
+      try {
+        await audio.play();
+      } catch (playErr) {
+        console.warn(`[Hamid] audio.play() rejected on attempt ${attempt}`, playErr);
+        playbackFailed = true;
+      }
+      if (playbackFailed) {
+        if (attempt < MAX_ATTEMPTS) {
+          await sleep(300);
+          continue;
+        }
+        throw new Error("audio playback failed");
+      }
+      return true;
+    } catch (err) {
+      lastError = err;
+      if (attempt < MAX_ATTEMPTS && isRetriableTtsError(err)) {
+        await sleep(400 * attempt);
+        continue;
+      }
+      break;
+    }
   }
+
+  console.warn("[Hamid] TTS failed after retries — switching to local browser voice", lastError);
+  return speakBrowserFallback(text, settings);
 }
+
+
 
 
 
