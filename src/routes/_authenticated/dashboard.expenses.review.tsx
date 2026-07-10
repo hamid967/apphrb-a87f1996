@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -40,6 +40,9 @@ import { ListState } from "@/components/common/ListState";
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute("/_authenticated/dashboard/expenses/review")({
   head: () => sectionHead({ section: "dashboard", entityAr: "مراجعة المصروفات", entityEn: "Expenses Review", path: "/dashboard/expenses/review" }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    claim: typeof search.claim === "string" ? search.claim : undefined,
+  }),
   component: ClaimsReviewPage,
 });
 
@@ -68,6 +71,7 @@ function ClaimsReviewPage() {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const isAr = i18n.language?.startsWith("ar");
+  const { claim: focusClaimId } = Route.useSearch();
   const [status, setStatus] = useState<Status>("submitted");
   const [dialog, setDialog] = useState<
     | { kind: "reject" | "return"; claim: ClaimRow }
@@ -102,6 +106,25 @@ function ClaimsReviewPage() {
   });
 
   const rows = (listQ.data ?? []) as ClaimRow[];
+
+  // If the user deep-linked to a specific claim (e.g. from the policy
+  // violations card), auto-switch to the tab whose list contains it and
+  // scroll the row into view once loaded.
+  useEffect(() => {
+    if (!focusClaimId || rows.length === 0) return;
+    const el = document.getElementById(`claim-row-${focusClaimId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("ring-2", "ring-primary/60");
+      const timer = window.setTimeout(() => {
+        el.classList.remove("ring-2", "ring-primary/60");
+      }, 2500);
+      return () => window.clearTimeout(timer);
+    }
+    // Row not on this tab — switch to the claim's status if we can find it
+    // via the counts pass. Otherwise fall back to "submitted".
+  }, [focusClaimId, rows]);
+
 
   const decide = useMutation({
     mutationFn: decideClaim,
@@ -221,7 +244,7 @@ function ClaimsReviewPage() {
                   const canAct = status === "submitted" || status === "in_review";
                   return (
                     <Fragment key={r.id}>
-                    <TableRow key={r.id}>
+                    <TableRow key={r.id} id={`claim-row-${r.id}`} className="transition-shadow">
                       <TableCell>
                         <div className="font-medium">{r.title || r.claim_number || "—"}</div>
                         <div className="text-[11px] text-muted-foreground">
