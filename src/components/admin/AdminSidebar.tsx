@@ -105,6 +105,7 @@ const GROUPS: Group[] = [
     items: [
       { to: "/admin/support", icon: LifeBuoy, ar: "تذاكر الدعم", en: "Support Tickets" },
       { to: "/admin/demo-requests", icon: Inbox, ar: "طلبات العرض", en: "Demo Requests" },
+      { to: "/admin/signup-requests", icon: Inbox, ar: "طلبات تسجيل حامد", en: "Voice Signup Requests" },
     ],
   },
   {
