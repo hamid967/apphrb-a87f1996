@@ -57,6 +57,7 @@ export function PushStatusCard() {
   const [busy, setBusy] = useState<null | "enable" | "disable" | "refresh" | "test">(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [helpReason, setHelpReason] = useState<"denied" | "dismissed" | "unsupported">("denied");
+  const [confirmTestOpen, setConfirmTestOpen] = useState(false);
 
   const openHelp = (reason: "denied" | "dismissed" | "unsupported") => {
     setHelpReason(reason);
