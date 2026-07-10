@@ -52,7 +52,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
-          name: "Aqari Aqari",
+          name: "HBSpro",
           applicationCategory: "BusinessApplication",
           operatingSystem: "Web",
           url: "https://hrhbs.com/",

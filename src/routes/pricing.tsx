@@ -14,13 +14,13 @@ const CONTACT_PHONE = "+966500000000";
 export const Route = createFileRoute("/pricing")({
   head: () => ({
     meta: [
-      { title: "الاشتراك — عقاري Aqari" },
+      { title: "الاشتراك — HBSpro" },
       {
         name: "description",
         content:
-          "باقة موحّدة واحدة تشمل جميع خدمات عقاري Aqari. سجّل الآن وسيتم التواصل معك لتفعيل اشتراكك.",
+          "باقة موحّدة واحدة تشمل جميع خدمات HBSpro. سجّل الآن وسيتم التواصل معك لتفعيل اشتراكك.",
       },
-      { property: "og:title", content: "الاشتراك — عقاري Aqari" },
+      { property: "og:title", content: "الاشتراك — HBSpro" },
       {
         property: "og:description",
         content: "باقة واحدة شاملة لكل خدمات المنصة — التفعيل يتم بعد التواصل مع فريقنا.",
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/pricing")({
       { property: "og:url", content: "https://hrhbs.com/pricing" },
       { property: "og:image", content: OG_PRICING },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "الاشتراك — عقاري Aqari" },
+      { name: "twitter:title", content: "الاشتراك — HBSpro" },
       {
         name: "twitter:description",
         content: "باقة موحّدة تشمل كل الخدمات. تواصل معنا للتفعيل.",

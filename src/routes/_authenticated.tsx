@@ -46,7 +46,7 @@ export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "لوحة التحكم — Aqari by HRHBS" },
+      { title: "لوحة التحكم — HBSpro" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),

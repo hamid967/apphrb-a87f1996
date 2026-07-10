@@ -33,7 +33,7 @@ const KIND_LABEL: Record<string, { title: string; badge: string; color: string }
 };
 
 const Email = ({
-  siteName = "Aqari",
+  siteName = "HBSpro",
   kind = "render_error",
   path = null,
   message = null,
@@ -116,12 +116,12 @@ export const template = {
   subject: (data: Record<string, unknown>) => {
     const kind = String(data.kind ?? "event");
     const path = data.path ? ` — ${String(data.path)}` : "";
-    const site = String(data.siteName ?? "Aqari");
+    const site = String(data.siteName ?? "HBSpro");
     return `[${site}] Admin alert: ${kind}${path}`;
   },
   displayName: "Admin telemetry alert",
   previewData: {
-    siteName: "Aqari",
+    siteName: "HBSpro",
     kind: "render_error",
     path: "/admin/telemetry",
     message: 'TypeError: Cannot read properties of undefined (reading "map")',

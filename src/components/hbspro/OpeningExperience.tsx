@@ -23,7 +23,7 @@ import {
 
 /**
  * OpeningExperience — a "services theater" landing intro that opens the app
- * with a dramatic split-screen presentation of every service Aqari offers.
+ * with a dramatic split-screen presentation of every service HBSpro offers.
  * Clicking any service card opens a detailed modal with key features + how to start.
  *
  * Palette (locked, direction v2): Emerald Prestige
@@ -336,7 +336,7 @@ export function OpeningExperience() {
   }, [active]);
 
   const T = {
-    badge: "Aqari by HRHBS",
+    badge: "HBSpro",
     heroLine1: ar ? "نهضة عقارية" : "A property renaissance",
     heroLine2: ar ? "بلمسة ذكية" : "with intelligent finesse",
     heroBody: ar
@@ -350,8 +350,8 @@ export function OpeningExperience() {
     trust2Sub: ar ? "وحدة مُدارة" : "Managed units",
     joinTitle: ar ? "انضم لرواد العقار" : "Join the property leaders",
     joinSub: ar
-      ? "أكثر من ١٠٠٠ شريك نجاح يثقون بـ Aqari"
-      : "Over 1,000 partners already trust Aqari",
+      ? "أكثر من ١٠٠٠ شريك نجاح يثقون بـ HBSpro"
+      : "Over 1,000 partners already trust HBSpro",
     servicesEyebrow: ar ? "خدمات المنصة" : "Platform services",
     tapHint: ar ? "اضغط للتفاصيل" : "Tap for details",
     modalFeatures: ar ? "الميزات الرئيسية" : "Key features",

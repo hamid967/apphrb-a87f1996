@@ -19,7 +19,7 @@ import type {
   ApplicationUpdateEvent,
 } from "@/lib/email-templates/application-update";
 
-const SITE_NAME = "Aqari";
+const SITE_NAME = "HBSpro";
 const SENDER_DOMAIN = "notify.hrhbs.com";
 const FROM_DOMAIN = "hrhbs.com";
 

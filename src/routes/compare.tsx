@@ -43,32 +43,32 @@ import {
 // ---------- Bilingual content ----------
 const COPY = {
   ar: {
-    metaTitle: "مقارنة Aqari بمنصات إدارة العقارات في السعودية | Aqari vs Mogod / Nozol / Simaat",
+    metaTitle: "مقارنة HBSpro بمنصات إدارة العقارات في السعودية | HBSpro vs Mogod / Nozol / Simaat",
     metaDesc:
-      "قارن Aqari (عقاري) مع أبرز منصات إدارة الأملاك في السعودية والخليج: موجود، نزل، سمات، أساس. لوحة سوبر أدمن، تحويلات بنكية يدوية، مساعد ذكي حسب الدور، وأدوار غير محدودة.",
-    heroKicker: "لماذا Aqari",
+      "قارن HBSpro (عقاري) مع أبرز منصات إدارة الأملاك في السعودية والخليج: موجود، نزل، سمات، أساس. لوحة سوبر أدمن، تحويلات بنكية يدوية، مساعد ذكي حسب الدور، وأدوار غير محدودة.",
+    heroKicker: "لماذا HBSpro",
     heroTitle: "المنصة الوحيدة التي تجمع كل ما تحتاجه فرق العقارات — دون تنازلات.",
     heroSub:
       "أجرينا مقارنة مباشرة مع أبرز منصات إدارة الأملاك في السوق السعودي والخليجي. النتائج تكشف فجوات حقيقية.",
     ctaPrimary: "ابدأ مجانًا",
     ctaSecondary: "استعرض الأسعار",
     gapsTitle: "الفجوات التي نُغطّيها ولا يُغطّيها المنافسون",
-    gapsSub: "سبع مزايا حاسمة تُميّز Aqari عن أقرب البدائل في السوق.",
+    gapsSub: "سبع مزايا حاسمة تُميّز HBSpro عن أقرب البدائل في السوق.",
     tableTitle: "مقارنة مباشرة بالمزايا",
     tableSub: "بيانات جُمعت من مواقع المنتجات الرسمية ومراجعات العملاء (2026).",
-    us: "Aqari",
+    us: "HBSpro",
     yes: "متوفر",
     no: "غير متوفر",
     partial: "جزئي",
     footNote:
       "المقارنات مبنية على المعلومات المتاحة علنًا في مواقع المنتجات وقت النشر. تختلف حزم الخطط بين المزوّدين.",
     ctaBottomTitle: "جاهز للانتقال إلى منصة بلا تنازلات؟",
-    ctaBottomSub: "جرّب Aqari الآن أو تحدّث مع فريقنا لتخصيص عرض يناسب حجم أعمالك.",
+    ctaBottomSub: "جرّب HBSpro الآن أو تحدّث مع فريقنا لتخصيص عرض يناسب حجم أعمالك.",
     videoTitle: "شاهد كيف تختار خطتك في 30 ثانية",
     videoSub: "جولة سريعة على المقارنة والخطط — من الفكرة إلى الاشتراك.",
     videoPlay: "شغّل فيديو المقارنة",
     videoDuration: "٠٠:٣٠ · فيديو تعريفي",
-    videoDialog: "فيديو مقارنة Aqari",
+    videoDialog: "فيديو مقارنة HBSpro",
     showcaseTitle: "شاهد المقارنة بلغتك",
     showcaseSub: "لقطات حقيقية من صفحة المقارنة بواجهتين عربية وإنجليزية.",
     showcaseAr: "الواجهة العربية (RTL)",
@@ -233,10 +233,10 @@ const COPY = {
     ],
   },
   en: {
-    metaTitle: "Aqari vs Saudi Property Management Platforms | Aqary Comparison",
+    metaTitle: "HBSpro vs Saudi Property Management Platforms | Aqary Comparison",
     metaDesc:
-      "Compare Aqari (Aqary) with leading Saudi/GCC property management platforms: Mogod, Nozol, Simaat, Asaas. Super-admin panel, manual bank transfers, role-aware AI, unlimited RBAC.",
-    heroKicker: "Why Aqari",
+      "Compare HBSpro with leading Saudi/GCC property management platforms: Mogod, Nozol, Simaat, Asaas. Super-admin panel, manual bank transfers, role-aware AI, unlimited RBAC.",
+    heroKicker: "Why HBSpro",
     heroTitle:
       "The only platform that combines everything real-estate teams need — with no compromises.",
     heroSub:
@@ -244,22 +244,22 @@ const COPY = {
     ctaPrimary: "Start free",
     ctaSecondary: "See pricing",
     gapsTitle: "Gaps we cover — that competitors don't",
-    gapsSub: "Seven decisive advantages that set Aqari apart from the closest alternatives.",
+    gapsSub: "Seven decisive advantages that set HBSpro apart from the closest alternatives.",
     tableTitle: "Direct feature comparison",
     tableSub: "Data gathered from official product sites and customer reviews (2026).",
-    us: "Aqari",
+    us: "HBSpro",
     yes: "Yes",
     no: "No",
     partial: "Partial",
     footNote:
       "Comparisons are based on publicly available information on product sites at publish time. Plan bundles vary by vendor.",
     ctaBottomTitle: "Ready to move to a no-compromise platform?",
-    ctaBottomSub: "Try Aqari now or talk to our team to tailor a plan for your business.",
+    ctaBottomSub: "Try HBSpro now or talk to our team to tailor a plan for your business.",
     videoTitle: "See how to pick your plan in 30 seconds",
     videoSub: "A quick tour of the comparison and plans — from idea to signup.",
     videoPlay: "Play comparison video",
     videoDuration: "00:30 · Intro video",
-    videoDialog: "Aqari comparison video",
+    videoDialog: "HBSpro comparison video",
     showcaseTitle: "See the comparison in your language",
     showcaseSub: "Real screenshots of the comparison page in Arabic and English.",
     showcaseAr: "Arabic UI (RTL)",
@@ -433,8 +433,8 @@ const COPY = {
 } as const;
 
 const OG = buildOgImageUrl({
-  title: "قارن Aqari بأنظمة أخرى",
-  subtitle: "Aqari · Compare",
+  title: "قارن HBSpro بأنظمة أخرى",
+  subtitle: "HBSpro · Compare",
   kind: "page",
   lang: "ar",
 });
@@ -450,7 +450,7 @@ export const Route = createFileRoute("/compare")({
       { property: "og:url", content: "https://hrhbs.com/compare" },
       { property: "og:image", content: OG },
       { name: "twitter:image", content: OG },
-      { property: "og:image:alt", content: "Aqari — Compare" },
+      { property: "og:image:alt", content: "HBSpro — Compare" },
       { property: "og:image:secure_url", content: OG },
       { property: "og:locale", content: "ar_SA" },
       { property: "og:locale:alternate", content: "en_US" },

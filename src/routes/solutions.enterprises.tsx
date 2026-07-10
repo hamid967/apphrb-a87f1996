@@ -5,13 +5,13 @@ import { Building2, ShieldCheck, Users2, BarChart3, Database, Lock } from "lucid
 export const Route = createFileRoute("/solutions/enterprises")({
   head: () => ({
     meta: [
-      { title: "حلول الشركات الكبرى — Aqari | Enterprise Solutions" },
+      { title: "حلول الشركات الكبرى — HBSpro | Enterprise Solutions" },
       {
         name: "description",
         content:
-          "Aqari للمؤسسات: دعم متعدد الفروع، صلاحيات دقيقة (RBAC)، تكامل ZATCA، وSSO — بمستوى أمان مؤسسي.",
+          "HBSpro للمؤسسات: دعم متعدد الفروع، صلاحيات دقيقة (RBAC)، تكامل ZATCA، وSSO — بمستوى أمان مؤسسي.",
       },
-      { property: "og:title", content: "حلول الشركات الكبرى — Aqari" },
+      { property: "og:title", content: "حلول الشركات الكبرى — HBSpro" },
       {
         property: "og:description",
         content: "متعدد الفروع، صلاحيات مؤسسية، تكامل ZATCA، وSSO لشركات العقارات الكبرى.",

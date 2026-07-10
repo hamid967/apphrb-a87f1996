@@ -58,7 +58,7 @@ export function HBSAuthShell({
                   <Building2 className="size-4 text-white" />
                 </span>
                 <span>
-                  Aqari <span style={{ color: HBS.gold }}>AI</span>
+                  HBSpro <span style={{ color: HBS.gold }}>AI</span>
                 </span>
               </Link>
               {eyebrow && (

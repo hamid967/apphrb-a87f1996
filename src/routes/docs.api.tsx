@@ -4,21 +4,21 @@ import { ogImageMeta } from "@/lib/og-image";
 export const Route = createFileRoute("/docs/api")({
   head: () => ({
     meta: [
-      { title: "Aqari API Docs — Aqari" },
+      { title: "HBSpro API Docs — HBSpro" },
       {
         name: "description",
         content:
           "Public REST API for properties, units, contracts, invoices, payments, and auctions (create, update, place bids). Bearer authentication, scoped API keys, 60 req/min rate limit.",
       },
-      { property: "og:title", content: "Aqari API Docs" },
+      { property: "og:title", content: "HBSpro API Docs" },
       {
         property: "og:description",
-        content: "OpenAPI 3.1 reference for the Aqari real-estate cloud.",
+        content: "OpenAPI 3.1 reference for the HBSpro real-estate cloud.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://hrhbs.com/docs/api" },
       ...ogImageMeta({
-        title: "Aqari API",
+        title: "HBSpro API",
         subtitle: "OpenAPI 3.1 · REST reference",
         kind: "docs",
         lang: "en",
@@ -44,7 +44,7 @@ function ApiDocs() {
       />
       <noscript>
         <div className="p-6">
-          <h1 className="text-2xl font-semibold">Aqari API</h1>
+          <h1 className="text-2xl font-semibold">HBSpro API</h1>
           <p className="mt-2 text-muted-foreground">
             Enable JavaScript to view interactive docs, or fetch the raw spec at{" "}
             <a className="underline" href="/api/public/v1/openapi.json">

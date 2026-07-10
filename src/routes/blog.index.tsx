@@ -13,13 +13,13 @@ const postsQuery = queryOptions({
 export const Route = createFileRoute("/blog/")({
   head: () => ({
     meta: [
-      { title: "المدونة — عقاري Aqari | Blog" },
+      { title: "المدونة — HBSpro | Blog" },
       {
         name: "description",
         content: "مقالات وأدلة حول إدارة العقارات، التقنية العقارية، والفوترة الإلكترونية في السعودية.",
       },
-      { property: "og:title", content: "المدونة — عقاري Aqari" },
-      { property: "og:description", content: "أحدث المقالات من فريق عقاري Aqari." },
+      { property: "og:title", content: "المدونة — HBSpro" },
+      { property: "og:description", content: "أحدث المقالات من فريق HBSpro." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://hrhbs.com/blog" },
     ],
@@ -40,7 +40,7 @@ function BlogIndex() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2 font-bold">
             <Building2 className="h-5 w-5" />
-            <span>Aqari</span>
+            <span>HBSpro</span>
           </Link>
         </div>
       </header>
@@ -52,8 +52,8 @@ function BlogIndex() {
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-muted-foreground">
             {isAr
-              ? "أفكار، أدلة، وأخبار من فريق عقاري Aqari."
-              : "Ideas, guides, and updates from the Aqari team."}
+              ? "أفكار، أدلة، وأخبار من فريق HBSpro."
+              : "Ideas, guides, and updates from the HBSpro team."}
           </p>
         </div>
 

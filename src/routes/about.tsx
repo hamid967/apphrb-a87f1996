@@ -7,17 +7,17 @@ import { Building2, Target, Heart, Users2, Sparkles, ShieldCheck } from "lucide-
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "من نحن — عقاري Aqari | About Aqari" },
+      { title: "من نحن — HBSpro | About HBSpro" },
       {
         name: "description",
         content:
-          "تعرّف على قصة عقاري Aqari من HRHBS: منصة سحابية سعودية لإدارة العقارات بالذكاء الاصطناعي، ورؤيتنا لتحويل قطاع العقارات.",
+          "تعرّف على قصة HBSpro من HRHBS: منصة سحابية سعودية لإدارة العقارات بالذكاء الاصطناعي، ورؤيتنا لتحويل قطاع العقارات.",
       },
-      { property: "og:title", content: "من نحن — عقاري Aqari" },
+      { property: "og:title", content: "من نحن — HBSpro" },
       {
         property: "og:description",
         content:
-          "قصة عقاري Aqari، رؤيتنا ورسالتنا، والفريق الذي يبني نظام التشغيل الذكي للعقار السعودي.",
+          "قصة HBSpro، رؤيتنا ورسالتنا، والفريق الذي يبني نظام التشغيل الذكي للعقار السعودي.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://hrhbs.com/about" },
@@ -68,7 +68,7 @@ function AboutPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2 font-bold">
             <Building2 className="h-5 w-5" />
-            <span>Aqari</span>
+            <span>HBSpro</span>
           </Link>
           <div className="flex items-center gap-3 text-sm">
             <Link to="/services" className="text-muted-foreground hover:text-foreground">
@@ -91,8 +91,8 @@ function AboutPage() {
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
             {isAr
-              ? "عقاري Aqari منتج من HRHBS يجمع إدارة العقارات، العقود، المدفوعات، المستأجرين، والتقارير في منصة واحدة مدعومة بالذكاء الاصطناعي."
-              : "Aqari by HRHBS unifies property, contracts, payments, tenants, and reporting into a single AI-powered workspace."}
+              ? "HBSpro منتج من HRHBS يجمع إدارة العقارات، العقود، المدفوعات، المستأجرين، والتقارير في منصة واحدة مدعومة بالذكاء الاصطناعي."
+              : "HBSpro unifies property, contracts, payments, tenants, and reporting into a single AI-powered workspace."}
           </p>
         </div>
       </section>

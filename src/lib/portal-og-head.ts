@@ -20,7 +20,7 @@ const BASE = "https://hrhbs.com";
 
 export function portalHead(input: PortalHeadInput) {
   const { titleAr, titleEn, descAr, path } = input;
-  const fullTitle = `${titleAr} — محطات Aqari`;
+  const fullTitle = `${titleAr} — محطات HBSpro`;
   const url = path ? `${BASE}${path}` : undefined;
 
   return {
@@ -32,7 +32,7 @@ export function portalHead(input: PortalHeadInput) {
       { property: "og:description", content: descAr },
       ...ogImageMeta({
         title: titleAr,
-        subtitle: `${titleEn} · محطات Aqari`,
+        subtitle: `${titleEn} · محطات HBSpro`,
         kind: "dashboard",
         lang: "ar",
         url,

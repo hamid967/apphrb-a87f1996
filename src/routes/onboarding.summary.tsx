@@ -23,7 +23,7 @@ export const Route = createFileRoute("/onboarding/summary")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "ملخّص التفعيل — Aqari" },
+      { title: "ملخّص التفعيل — HBSpro" },
       { name: "robots", content: "noindex" },
     ],
   }),

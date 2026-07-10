@@ -13,7 +13,7 @@ import {
 export const Route = createFileRoute("/portal-invite/$token")({
   ssr: false,
   head: () => ({
-    meta: [{ title: "Accept portal invitation — Aqari" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Accept portal invitation — HBSpro" }, { name: "robots", content: "noindex" }],
   }),
   component: AcceptPage,
 });

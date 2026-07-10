@@ -17,7 +17,7 @@ const auditQuery = queryOptions({
 export const Route = createFileRoute("/_authenticated/admin/zatca-log")({
   head: () => ({
     meta: [
-      { title: "سجل تسلسل ZATCA — Aqari" },
+      { title: "سجل تسلسل ZATCA — HBSpro" },
       { name: "description", content: "تدقيق سلاسل هاش فواتير ZATCA وعدّاداتها لكل منظمة، مع رصد أي فجوات أو انقطاعات." },
     ],
   }),

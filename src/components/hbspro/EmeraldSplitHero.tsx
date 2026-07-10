@@ -67,7 +67,7 @@ export function EmeraldSplitHero() {
                 className="text-[#C5A059] text-sm font-medium tracking-wide uppercase"
                 style={{ fontFamily: "'Fira Sans', sans-serif" }}
               >
-                Aqari by HRHBS
+                HBSpro
               </span>
             </div>
 

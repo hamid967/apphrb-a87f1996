@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/unsubscribe")({
   component: UnsubscribePage,
-  head: () => ({ meta: [{ title: "Unsubscribe — Aqari" }] }),
+  head: () => ({ meta: [{ title: "Unsubscribe — HBSpro" }] }),
 });
 
 type State = "loading" | "valid" | "invalid" | "already" | "success" | "error";

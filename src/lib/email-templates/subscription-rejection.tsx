@@ -18,7 +18,7 @@ interface Props {
   actionUrl?: string;
 }
 
-const Email = ({ siteName = "Aqari", recipientName = "", reason = "", actionUrl = "#" }: Props) => (
+const Email = ({ siteName = "HBSpro", recipientName = "", reason = "", actionUrl = "#" }: Props) => (
   <Html lang="ar" dir="rtl">
     <Head />
     <Preview>تعذّر اعتماد إيصال اشتراكك في {siteName}</Preview>
@@ -44,7 +44,7 @@ export const template = {
   subject: "لم يتم اعتماد إيصال الاشتراك",
   displayName: "Subscription rejected",
   previewData: {
-    siteName: "Aqari",
+    siteName: "HBSpro",
     recipientName: "حامد",
     reason: "المبلغ لا يطابق قيمة الباقة",
     actionUrl: "https://hrhbs.com/dashboard/subscription",

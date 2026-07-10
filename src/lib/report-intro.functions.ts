@@ -298,7 +298,7 @@ function renderHtml(opts: {
       : ""
   }
 
-  <footer>Aqari by HRHBS · ${escapeHtml(opts.generatedAt)}</footer>
+  <footer>HBSpro · ${escapeHtml(opts.generatedAt)}</footer>
 </div>
 </body>
 </html>`;

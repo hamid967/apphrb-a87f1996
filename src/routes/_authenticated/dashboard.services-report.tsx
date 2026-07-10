@@ -365,7 +365,7 @@ function ServicesReportPage() {
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
           {isAr
             ? "جميع خدمات منصة عقاري في مكان واحد"
-            : "All Aqari services in one place"}
+            : "All HBSpro services in one place"}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           {isAr

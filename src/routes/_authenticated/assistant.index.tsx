@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_authenticated/assistant/")({
       section: "assistant",
       entityAr: "المحادثات",
       entityEn: "Conversations",
-      descAr: "اسأل، حلّل، وأنجز مهامك عبر مساعد Aqari الذكي بلغة عربية طبيعية.",
+      descAr: "اسأل، حلّل، وأنجز مهامك عبر مساعد HBSpro الذكي بلغة عربية طبيعية.",
       path: "/assistant",
     }),
 });

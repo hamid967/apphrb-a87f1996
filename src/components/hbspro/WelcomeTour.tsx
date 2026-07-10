@@ -166,7 +166,7 @@ export function WelcomeTour({
 
   const T = {
     eyebrow: ar ? "جولة ترحيبية" : "Welcome tour",
-    heading: ar ? "خطواتك الأولى مع Aqari" : "Your first steps with Aqari",
+    heading: ar ? "خطواتك الأولى مع HBSpro" : "Your first steps with HBSpro",
     sub: ar
       ? "اختر دورك واستعرض الخطوات الأربع الأولى في أقل من دقيقة."
       : "Pick your role and walk through the first four moves in under a minute.",

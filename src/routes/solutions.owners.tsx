@@ -5,13 +5,13 @@ import { Home, Wallet, FileText, BarChart3, Bell, ShieldCheck } from "lucide-rea
 export const Route = createFileRoute("/solutions/owners")({
   head: () => ({
     meta: [
-      { title: "حلول ملاك العقارات — Aqari | Solutions for Owners" },
+      { title: "حلول ملاك العقارات — HBSpro | Solutions for Owners" },
       {
         name: "description",
         content:
-          "بوابة الملاك في عقاري Aqari: كشوف حساب شهرية، تتبع الإيرادات، وتقارير الأداء لكل عقار — من مكان واحد.",
+          "بوابة الملاك في HBSpro: كشوف حساب شهرية، تتبع الإيرادات، وتقارير الأداء لكل عقار — من مكان واحد.",
       },
-      { property: "og:title", content: "حلول ملاك العقارات — Aqari" },
+      { property: "og:title", content: "حلول ملاك العقارات — HBSpro" },
       {
         property: "og:description",
         content: "بوابة الملاك، كشوف حساب، وتقارير أداء العقارات في مكان واحد.",
