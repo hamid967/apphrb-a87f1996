@@ -11,6 +11,8 @@ import {
   FileText,
   MessageSquare,
 } from "lucide-react";
+import { PublicNav } from "@/components/marketing/PublicNav";
+
 
 const TOPICS = [
   {
