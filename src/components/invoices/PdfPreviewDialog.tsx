@@ -6,7 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import type { InvoicePdfInput, PdfVerifyReport } from "@/lib/zatca/pdf-invoice.client";
+// Types are duplicated here (not imported) because pdf-invoice.client.ts
+// is a browser-only module blocked from the SSR module graph.
+type InvoicePdfInput = Parameters<
+  typeof import("@/lib/zatca/pdf-invoice.client")["generateInvoicePdf"]
+>[0];
+type PdfVerifyReport = Awaited<
+  ReturnType<typeof import("@/lib/zatca/pdf-invoice.client")["verifyInvoicePdf"]>
+>;
 
 type Props = {
   open: boolean;
