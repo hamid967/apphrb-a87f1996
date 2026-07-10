@@ -141,11 +141,18 @@ const GROUPS: Group[] = [
         en: "Notifications Queue",
       },
       {
+        to: "/admin/cron-runs",
+        icon: Activity,
+        ar: "مهام الجدولة (cron)",
+        en: "Scheduled jobs (cron)",
+      },
+      {
         to: "/admin/realtime-diagnostics",
         icon: Radio,
         ar: "تشخيص الاتصال المباشر",
         en: "Realtime Diagnostics",
       },
+
       { to: "/admin/telemetry-emails", icon: MailCheck, ar: "تليمتري البريد", en: "Email Telemetry" },
       { to: "/admin/route-map", icon: Map, ar: "خريطة المسارات", en: "Route Map" },
       { to: "/admin/settings", icon: Cog, ar: "الإعدادات", en: "Settings" },
