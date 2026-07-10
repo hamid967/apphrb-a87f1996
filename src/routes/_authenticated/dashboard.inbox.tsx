@@ -12,7 +12,7 @@ import {
   markAllMyNotificationsRead,
   markMyNotificationRead,
 } from "@/lib/notifications.functions";
-import { PushEnableButton } from "@/components/notifications/PushEnableButton";
+import { PushStatusCard } from "@/components/notifications/PushStatusCard";
 
 export const Route = createFileRoute("/_authenticated/dashboard/inbox")({
   head: () =>
