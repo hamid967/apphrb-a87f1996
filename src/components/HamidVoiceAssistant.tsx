@@ -317,6 +317,9 @@ async function speakSaudi(
       pushLog("warn", "استجابة TTS فارغة", "التبديل لصوت المتصفح.");
       throw new Error("empty tts");
     }
+    // Guard: if a newer speak() request has arrived while we were awaiting the
+    // blob, discard this audio entirely so it never plays late.
+    if (mySeq !== ttsSeq) return false;
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
     audio.playbackRate = settings.rate;
@@ -324,6 +327,13 @@ async function speakSaudi(
     let started = false;
     let finalized = false;
     audio.onplay = () => {
+      // Late-arrival guard: another speak() already superseded us between
+      // schedule and the actual play tick — silence this one immediately.
+      if (mySeq !== ttsSeq) {
+        try { audio.pause(); audio.src = ""; } catch { /* noop */ }
+        cleanup();
+        return;
+      }
       started = true;
       pushLog("ok", "تشغيل صوت الخادم (Lovable AI TTS)");
       onStart?.();
@@ -357,6 +367,13 @@ async function speakSaudi(
         pushLog("warn", "تعذّر بدء تشغيل الصوت — تحويل لصوت المتصفح", String((playErr as Error).message ?? playErr));
         return speakBrowserFallback(text, settings);
       }
+      return false;
+    }
+    // Final post-play guard: a request that superseded us between the play()
+    // resolve and the first onplay tick should still be silenced.
+    if (mySeq !== ttsSeq) {
+      try { audio.pause(); audio.src = ""; } catch { /* noop */ }
+      cleanup();
       return false;
     }
     return true;
