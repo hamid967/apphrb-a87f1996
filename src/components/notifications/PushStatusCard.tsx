@@ -7,13 +7,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { BellPlus, BellOff, HelpCircle, Loader2, RefreshCw, ShieldAlert } from "lucide-react";
+import { BellPlus, BellOff, HelpCircle, Loader2, RefreshCw, Send, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   deletePushSubscription,
   getVapidKey,
   savePushSubscription,
+  sendTestPushNotification,
 } from "@/lib/push.functions";
 import { PushPermissionHelpDialog } from "@/components/notifications/PushPermissionHelpDialog";
 
@@ -43,7 +44,7 @@ export function PushStatusCard() {
   const [permission, setPermission] = useState<PermState>("default");
   const [subscribed, setSubscribed] = useState(false);
   const [endpoint, setEndpoint] = useState<string | null>(null);
-  const [busy, setBusy] = useState<null | "enable" | "disable" | "refresh">(null);
+  const [busy, setBusy] = useState<null | "enable" | "disable" | "refresh" | "test">(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [helpReason, setHelpReason] = useState<"denied" | "dismissed" | "unsupported">("denied");
 
@@ -166,6 +167,46 @@ export function PushStatusCard() {
       setBusy(null);
     }
   };
+
+  const sendTest = async () => {
+    setBusy("test");
+    try {
+      const res = await sendTestPushNotification({ data: {} });
+      if (res.delivered === 0 && res.removed === 0 && res.failed === 0) {
+        toast.error(
+          isAr
+            ? "لا يوجد اشتراك نشط لهذا المستخدم — فعّل Push أولًا."
+            : "No active subscription — enable push first.",
+        );
+        return;
+      }
+      if (res.delivered > 0) {
+        toast.success(
+          isAr
+            ? `أُرسل الإشعار التجريبي (${res.delivered}). اضغطه لفتح: ${res.link}`
+            : `Test push sent (${res.delivered}). Click it to open: ${res.link}`,
+        );
+      } else if (res.removed > 0) {
+        toast.error(
+          isAr
+            ? "الاشتراك منتهي وتم حذفه — أعد التفعيل."
+            : "Subscription expired and was removed — re-enable it.",
+        );
+        await refresh();
+      } else {
+        toast.error(
+          isAr
+            ? `فشل الإرسال (${res.failed}). راجع السجل.`
+            : `Delivery failed (${res.failed}). Check logs.`,
+        );
+      }
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  };
+
 
   const statusLabel = !supported
     ? isAr
@@ -306,19 +347,39 @@ export function PushStatusCard() {
             </Button>
           )}
           {supported && subscribed && (
-            <Button
-              size="sm"
-              variant="destructive"
-              disabled={busy !== null}
-              onClick={disable}
-            >
-              {busy === "disable" ? (
-                <Loader2 className="size-4 me-2 animate-spin" />
-              ) : (
-                <BellOff className="size-4 me-2" />
-              )}
-              {isAr ? "إلغاء التفعيل" : "Disable"}
-            </Button>
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy !== null}
+                onClick={sendTest}
+                title={
+                  isAr
+                    ? "إرسال إشعار تجريبي لأحدث مخالفة سياسة (يفتح رابط العنصر)"
+                    : "Send a test push for the latest policy violation (opens deep link)"
+                }
+              >
+                {busy === "test" ? (
+                  <Loader2 className="size-4 me-2 animate-spin" />
+                ) : (
+                  <Send className="size-4 me-2" />
+                )}
+                {isAr ? "إرسال تجريبي" : "Send test"}
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                disabled={busy !== null}
+                onClick={disable}
+              >
+                {busy === "disable" ? (
+                  <Loader2 className="size-4 me-2 animate-spin" />
+                ) : (
+                  <BellOff className="size-4 me-2" />
+                )}
+                {isAr ? "إلغاء التفعيل" : "Disable"}
+              </Button>
+            </>
           )}
         </div>
       </div>
