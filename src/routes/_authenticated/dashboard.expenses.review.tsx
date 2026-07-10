@@ -35,6 +35,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ApprovalAuditTrail } from "@/components/expenses/ApprovalAuditTrail";
+import { ClaimPolicyViolations } from "@/components/expenses/ClaimPolicyViolations";
 import { ListState } from "@/components/common/ListState";
 
 import { sectionHead } from "@/lib/section-og-head";
