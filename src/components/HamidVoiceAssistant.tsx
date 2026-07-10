@@ -309,16 +309,17 @@ export function HamidVoiceAssistant() {
   useEffect(() => {
     if (!synthesisSupported) return;
     const s = window.speechSynthesis;
-    const onStart = () => setSpeaking(true);
-    const onEnd = () => setSpeaking(false);
-    // no direct global events; poll speaking state
-    const iv = window.setInterval(() => setSpeaking(s.speaking), 300);
+    // Warm up voice list (Chrome loads voices async)
+    s.getVoices();
+    const onVoices = () => s.getVoices();
+    s.addEventListener?.("voiceschanged", onVoices);
+    const iv = window.setInterval(() => setSpeaking(s.speaking), 250);
     return () => {
       window.clearInterval(iv);
-      onStart;
-      onEnd;
+      s.removeEventListener?.("voiceschanged", onVoices);
     };
   }, [synthesisSupported]);
+
 
   const callAgent = useServerFn(askHamidAgent);
 
