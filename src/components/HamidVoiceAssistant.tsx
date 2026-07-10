@@ -423,8 +423,23 @@ export function HamidVoiceAssistant() {
   useEffect(() => {
     settingsRef.current = settings;
   }, [settings]);
+  /**
+   * Speak `text` and reveal it on screen in sync with the audio.
+   * Keeps a floor of ~1 char at play start so the bubble never sits empty
+   * while audio is buffering, and always flushes the full text on end.
+   */
   const speak = (text: string) => {
-    void speakSaudi(text, settingsRef.current);
+    setSpokenText("");
+    void speakSaudi(
+      text,
+      settingsRef.current,
+      () => setSpokenText(text.slice(0, 1)),
+      () => setSpokenText(text),
+      (ratio) => {
+        const chars = Math.max(1, Math.ceil(ratio * text.length));
+        setSpokenText(text.slice(0, chars));
+      },
+    );
     return true;
   };
   const recognitionRef = useRef<SpeechRecognition | null>(null);
