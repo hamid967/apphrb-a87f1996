@@ -17,6 +17,7 @@
     "seed:core-system:dry": "psql \"$DATABASE_URL\" -v dry_run=1 -f supabase/seeds/core_system.sql",
     "test:seed": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f scripts/test-seed-idempotency.sql",
     "test:server-fn": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f scripts/test-server-fn-queries.sql",
+    "test:pv-notify": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f scripts/test-policy-violation-notifications.sql",
     "verify:seed": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f scripts/verify-seed-totals.sql",
     "audit:i18n": "node scripts/i18n-audit.mjs",
     "audit:i18n:keys": "node scripts/i18n-keys-audit.mjs",
