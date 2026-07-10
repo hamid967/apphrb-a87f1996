@@ -474,7 +474,7 @@ export function HamidVoiceAssistant() {
 
   const endCall = () => {
     stopListening();
-    window.speechSynthesis?.cancel();
+    stopSpeaking();
     setCallActive(false);
     setSpeaking(false);
   };
