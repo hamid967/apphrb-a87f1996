@@ -63,15 +63,43 @@ type PdfVerifyReport = {
   issues: string[];
 };
 
+type CacheEntry = { bytes: Uint8Array; report: PdfVerifyReport };
+const PDF_CACHE = new Map<string, CacheEntry>();
+const PDF_CACHE_MAX = 12;
+function cacheGet(key: string): CacheEntry | undefined {
+  const v = PDF_CACHE.get(key);
+  if (!v) return undefined;
+  PDF_CACHE.delete(key);
+  PDF_CACHE.set(key, v);
+  return v;
+}
+function cacheSet(key: string, entry: CacheEntry) {
+  PDF_CACHE.set(key, entry);
+  while (PDF_CACHE.size > PDF_CACHE_MAX) {
+    const firstKey = PDF_CACHE.keys().next().value;
+    if (firstKey === undefined) break;
+    PDF_CACHE.delete(firstKey);
+  }
+}
+/** Invalidate cached PDFs. Call after regenerate/seal/edit. */
+export function invalidatePdfCache(prefix?: string) {
+  if (!prefix) { PDF_CACHE.clear(); return; }
+  for (const k of Array.from(PDF_CACHE.keys())) {
+    if (k.startsWith(prefix)) PDF_CACHE.delete(k);
+  }
+}
+
 type Props = {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   filename: string;
-  /** Called lazily to build the PDF input when the dialog opens. */
+  /** Stable signature — same key ⇒ reuse cached PDF instead of rebuilding. */
+  cacheKey?: string;
+  /** Called lazily to build the PDF input when the dialog opens (cache miss only). */
   buildInput: () => Promise<InvoicePdfInput>;
 };
 
-export function PdfPreviewDialog({ open, onOpenChange, filename, buildInput }: Props) {
+export function PdfPreviewDialog({ open, onOpenChange, filename, cacheKey, buildInput }: Props) {
   const { i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const [loading, setLoading] = useState(false);
@@ -79,40 +107,59 @@ export function PdfPreviewDialog({ open, onOpenChange, filename, buildInput }: P
   const [url, setUrl] = useState<string | null>(null);
   const [bytes, setBytes] = useState<Uint8Array | null>(null);
   const [report, setReport] = useState<PdfVerifyReport | null>(null);
+  const [fromCache, setFromCache] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     let revoked: string | null = null;
-    setLoading(true);
+    let cancelled = false;
     setError(null);
-    setReport(null);
-    setUrl(null);
-    setBytes(null);
 
-    (async () => {
-      try {
-        const input = await buildInput();
-        const { generateInvoicePdf, verifyInvoicePdf } = await import("@/lib/zatca/pdf-invoice");
-        const b = await generateInvoicePdf(input);
-        const r = await verifyInvoicePdf(b, input);
-        const blob = new Blob([b as BlobPart], { type: "application/pdf" });
-        const u = URL.createObjectURL(blob);
-        revoked = u;
-        setBytes(b);
-        setUrl(u);
-        setReport(r);
-      } catch (e) {
-        setError((e as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    })();
+    const hit = cacheKey ? cacheGet(cacheKey) : undefined;
+    if (hit) {
+      const blob = new Blob([hit.bytes as BlobPart], { type: "application/pdf" });
+      const u = URL.createObjectURL(blob);
+      revoked = u;
+      setBytes(hit.bytes);
+      setUrl(u);
+      setReport(hit.report);
+      setFromCache(true);
+      setLoading(false);
+    } else {
+      setLoading(true);
+      setReport(null);
+      setUrl(null);
+      setBytes(null);
+      setFromCache(false);
+
+      (async () => {
+        try {
+          const input = await buildInput();
+          const { generateInvoicePdf, verifyInvoicePdf } = await import("@/lib/zatca/pdf-invoice");
+          const b = await generateInvoicePdf(input);
+          const r = await verifyInvoicePdf(b, input);
+          if (cancelled) return;
+          if (cacheKey) cacheSet(cacheKey, { bytes: b, report: r });
+          const blob = new Blob([b as BlobPart], { type: "application/pdf" });
+          const u = URL.createObjectURL(blob);
+          revoked = u;
+          setBytes(b);
+          setUrl(u);
+          setReport(r);
+        } catch (e) {
+          if (!cancelled) setError((e as Error).message);
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
+      })();
+    }
 
     return () => {
+      cancelled = true;
       if (revoked) URL.revokeObjectURL(revoked);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, cacheKey]);
 
   const download = () => {
     if (!bytes) return;
