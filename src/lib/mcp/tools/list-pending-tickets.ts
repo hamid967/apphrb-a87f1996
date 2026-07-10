@@ -115,10 +115,10 @@ export default defineTool({
 
     return buildListResponse(
       `${type} items`,
-      data ?? [],
+      (data ?? []) as unknown as Array<Record<string, unknown> & { id: string }>,
       { q, page, page_size },
       count ?? null,
-      (row: Record<string, unknown>) => {
+      (row) => {
         if (type === "support") {
           return {
             id: String(row.id),
