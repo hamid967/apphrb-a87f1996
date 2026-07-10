@@ -80,11 +80,18 @@ function ClaimsReviewPage() {
   >(null);
   const [reason, setReason] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [activeViolationId, setActiveViolationId] = useState<string | null>(null);
   const toggleExpanded = (id: string) =>
     setExpanded((s) => {
       const next = new Set(s);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+        // Collapsing the parent claim clears any persistent violation
+        // highlight scoped to it — user asked to stop the marker on close.
+        if (focusClaimId === id) setActiveViolationId(null);
+      } else {
+        next.add(id);
+      }
       return next;
     });
 
