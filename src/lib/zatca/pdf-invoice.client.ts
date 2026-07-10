@@ -67,6 +67,8 @@ export type InvoicePdfInput = {
     xml_ubl?: string | null;
     notes?: string | null;
   };
+  docKind?: "invoice" | "credit_note" | "debit_note";
+  reference?: { number: string; issue_date?: string | null; reason?: string | null } | null;
   seller: {
     name_ar: string;
     name_en?: string;
@@ -171,15 +173,24 @@ export async function generateInvoicePdf(input: InvoicePdfInput): Promise<Uint8A
   const { w, h } = { w: A4.w, h: A4.h };
 
   // -------------------- Header band --------------------
-  page.drawRectangle({
-    x: 0, y: h - 90, width: w, height: 90,
-    color: rgb(0.06, 0.09, 0.13),
-  });
+  // header rectangle drawn below with docKind-aware color
 
-  drawLeftText(page, "TAX INVOICE", M, h - 45, { font: arBold, size: 22, color: rgb(1, 1, 1) });
-  drawLeftText(page, "Fatoora — ZATCA Phase 2", M, h - 65, { font: ar, size: 10, color: rgb(0.7, 0.78, 0.9) });
-  drawRightText(page, shape("فاتورة ضريبية"), w - M, h - 45, { font: arBold, size: 22, color: rgb(1, 1, 1) });
-  drawRightText(page, shape("متوافقة مع هيئة الزكاة والضريبة والجمارك"), w - M, h - 65, { font: ar, size: 10, color: rgb(0.7, 0.78, 0.9) });
+  const kind = input.docKind ?? "invoice";
+  const titles = {
+    invoice: { en: "TAX INVOICE", ar: "فاتورة ضريبية", sub_en: "Fatoora — ZATCA Phase 2", sub_ar: "متوافقة مع هيئة الزكاة والضريبة والجمارك" },
+    credit_note: { en: "CREDIT NOTE", ar: "إشعار دائن", sub_en: "Linked to original tax invoice", sub_ar: "مرتبط بفاتورة ضريبية أصلية" },
+    debit_note: { en: "DEBIT NOTE", ar: "إشعار مدين", sub_en: "Linked to original tax invoice", sub_ar: "مرتبط بفاتورة ضريبية أصلية" },
+  }[kind];
+  const bandColor = kind === "credit_note"
+    ? rgb(0.55, 0.15, 0.15)
+    : kind === "debit_note"
+      ? rgb(0.15, 0.35, 0.55)
+      : rgb(0.06, 0.09, 0.13);
+  page.drawRectangle({ x: 0, y: h - 90, width: w, height: 90, color: bandColor });
+  drawLeftText(page, titles.en, M, h - 45, { font: arBold, size: 22, color: rgb(1, 1, 1) });
+  drawLeftText(page, titles.sub_en, M, h - 65, { font: ar, size: 10, color: rgb(0.85, 0.88, 0.94) });
+  drawRightText(page, shape(titles.ar), w - M, h - 45, { font: arBold, size: 22, color: rgb(1, 1, 1) });
+  drawRightText(page, shape(titles.sub_ar), w - M, h - 65, { font: ar, size: 10, color: rgb(0.85, 0.88, 0.94) });
 
   // -------------------- Seller / Buyer blocks --------------------
   let y = h - 120;
@@ -239,9 +250,11 @@ export async function generateInvoicePdf(input: InvoicePdfInput): Promise<Uint8A
     drawLeftText(page, label, metaX + 8, metaY - dy, { font: ar, size: 9, color: rgb(0.4, 0.44, 0.5) });
     drawRightText(page, value, metaX + 200 - 8, metaY - dy, { font: arBold, size: 10 });
   };
-  metaLine("Invoice #", input.invoice.number, 12);
+  const numberLabel = kind === "credit_note" ? "Credit Note #" : kind === "debit_note" ? "Debit Note #" : "Invoice #";
+  metaLine(numberLabel, input.invoice.number, 12);
   metaLine("Issue date", input.invoice.issue_date, 28);
-  if (input.invoice.due_date) metaLine("Due date", input.invoice.due_date, 44);
+  if (input.reference?.number) metaLine("Ref. Invoice", input.reference.number, 44);
+  else if (input.invoice.due_date) metaLine("Due date", input.invoice.due_date, 44);
   if (input.invoice.zatca_counter) metaLine("ICV", `#${input.invoice.zatca_counter}`, 58);
 
   // -------------------- Line items table --------------------

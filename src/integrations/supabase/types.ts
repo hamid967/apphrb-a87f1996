@@ -2202,6 +2202,78 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_notes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          invoice_id: string
+          issue_date: string
+          note_type: Database["public"]["Enums"]["invoice_note_type"]
+          notes: string | null
+          number: string
+          org_id: string
+          reason: string
+          subtotal: number
+          total: number
+          updated_at: string
+          vat_amount: number
+          vat_rate: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          invoice_id: string
+          issue_date?: string
+          note_type: Database["public"]["Enums"]["invoice_note_type"]
+          notes?: string | null
+          number: string
+          org_id: string
+          reason: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          vat_amount?: number
+          vat_rate?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          invoice_id?: string
+          issue_date?: string
+          note_type?: Database["public"]["Enums"]["invoice_note_type"]
+          notes?: string | null
+          number?: string
+          org_id?: string
+          reason?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          vat_amount?: number
+          vat_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_notes_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_notes_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "v_ar_aging"
+            referencedColumns: ["invoice_id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           contact_id: string | null
@@ -7021,6 +7093,7 @@ export type Database = {
         | "approved"
         | "corrected"
       export_job_status: "queued" | "processing" | "completed" | "failed"
+      invoice_note_type: "credit" | "debit"
       invoice_status: "draft" | "sent" | "paid" | "overdue" | "cancelled"
       lead_stage:
         | "new"
@@ -7259,6 +7332,7 @@ export const Constants = {
         "corrected",
       ],
       export_job_status: ["queued", "processing", "completed", "failed"],
+      invoice_note_type: ["credit", "debit"],
       invoice_status: ["draft", "sent", "paid", "overdue", "cancelled"],
       lead_stage: [
         "new",
