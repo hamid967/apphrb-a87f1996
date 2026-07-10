@@ -1274,13 +1274,20 @@ export function HamidVoiceAssistant() {
         {reply && (
           <div className="w-full space-y-2 rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-700 dark:bg-slate-900/60 dark:text-slate-200">
             <div>
-              <span className="font-semibold text-slate-900 dark:text-white">حامد:</span> {reply.text}
+              <span className="font-semibold text-slate-900 dark:text-white">حامد:</span>{" "}
+              <span>{revealDone ? reply.text : revealText}</span>
+              {!revealDone && (
+                <span
+                  className="ms-0.5 inline-block h-3 w-[2px] translate-y-[2px] bg-sky-500 align-middle animate-pulse"
+                  aria-hidden
+                />
+              )}
             </div>
-            {reply.actionLabel && reply.actionPath && (
+            {reply.actionLabel && reply.actionPath && revealDone && (
               <button
                 type="button"
                 onClick={() => goTo(reply.actionPath!)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-900"
+                className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-900 animate-fade-in"
               >
                 {reply.actionLabel}
                 <ArrowRight className="h-3 w-3 rotate-180" />
