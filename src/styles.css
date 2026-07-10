@@ -74,11 +74,11 @@
                  0 4px 12px -6px color-mix(in oklab, var(--ink) 10%, transparent);
   --shadow-elevated: 0 4px 10px -4px color-mix(in oklab, var(--ink) 12%, transparent),
                      0 18px 40px -18px color-mix(in oklab, var(--ink) 20%, transparent);
-  /* Holographic multi-color glow — violet → pink → cyan → gold */
+  /* Premium emerald/gold glow for site and dashboard surfaces */
   --shadow-glow:
-    0  8px 24px -10px color-mix(in oklab, #c4b5fd 55%, transparent),
-    0 14px 40px -14px color-mix(in oklab, #f0abfc 45%, transparent),
-    0 20px 60px -18px color-mix(in oklab, #67e8f9 35%, transparent);
+    0  8px 24px -10px color-mix(in oklab, #0d7a5f 40%, transparent),
+    0 14px 40px -14px color-mix(in oklab, #c5a059 36%, transparent),
+    0 20px 60px -18px color-mix(in oklab, #043927 25%, transparent);
   /* Holographic / Chrome iridescent gradient — decorative borders/sheen. */
   --gradient-holo: linear-gradient(120deg,
                      #c4b5fd 0%,
@@ -90,59 +90,57 @@
                      color-mix(in oklab, #f0abfc 30%, transparent),
                      color-mix(in oklab, #67e8f9 30%, transparent),
                      color-mix(in oklab, #fde68a 30%, transparent));
-  /* Text-only iridescent gradient — every stop ≥ 4.5:1 on white (WCAG AA). */
+  /* Text-only premium gradient — every stop maintains strong contrast on white. */
   --gradient-holo-text: linear-gradient(120deg,
-                     #7c3aed 0%,     /* violet-600  */
-                     #c026d3 34%,    /* fuchsia-600 */
-                     #0e7490 68%,    /* cyan-700    */
-                     #b45309 100%);  /* amber-700   */
+                     #043927 0%,
+                     #0d7a5f 48%,
+                     #9a6b16 100%);
 }
 
 :root {
   --radius: 1rem; /* 16px — HBSpro design grid */
   --app-height: 100vh;
-  /* HRHBS dashboard — Violet primary on soft neutral surfaces (reference match). */
-  --background: oklch(0.985 0.003 285);         /* #F7F7FB app canvas */
-  --foreground: oklch(0.22 0.03 275);           /* #1F1E2E ink */
-  --card: oklch(1 0 0);                          /* pure white surfaces */
-  --card-foreground: oklch(0.22 0.03 275);
+  /* HBSpro 2030 — premium emerald/gold SaaS template. */
+  --background: oklch(0.985 0.012 95);          /* warm ivory app canvas */
+  --foreground: oklch(0.23 0.055 165);          /* deep emerald ink */
+  --card: oklch(1 0 0);                         /* clean white surfaces */
+  --card-foreground: oklch(0.23 0.055 165);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.03 275);
-  --primary: oklch(0.58 0.22 295);              /* #7C3AED — Violet 600 */
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.66 0.19 295);            /* #8B5CF6 — Violet 500 accent */
-  --secondary-foreground: oklch(0.99 0 0);
-  --muted: oklch(0.965 0.006 285);
-  --muted-foreground: oklch(0.5 0.02 280);
-  --accent: oklch(0.94 0.03 295);               /* soft violet tint for active nav */
-  --accent-foreground: oklch(0.42 0.2 295);
-  --destructive: oklch(0.63 0.24 27);           /* #EF4444 */
+  --popover-foreground: oklch(0.23 0.055 165);
+  --primary: oklch(0.34 0.095 165);             /* HBS emerald */
+  --primary-foreground: oklch(0.98 0.018 92);
+  --secondary: oklch(0.74 0.105 86);            /* luxe gold */
+  --secondary-foreground: oklch(0.23 0.055 165);
+  --muted: oklch(0.955 0.014 95);
+  --muted-foreground: oklch(0.48 0.035 165);
+  --accent: oklch(0.92 0.05 92);                /* champagne tint */
+  --accent-foreground: oklch(0.29 0.08 165);
+  --destructive: oklch(0.63 0.24 27);
   --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.72 0.19 150);              /* #22C55E */
+  --success: oklch(0.64 0.16 155);
   --success-foreground: oklch(0.99 0 0);
-  --warning: oklch(0.78 0.16 70);               /* #F59E0B */
-  --warning-foreground: oklch(0.22 0.03 275);
-  --border: oklch(0.93 0.005 285);
-  --input: oklch(0.93 0.005 285);
-  --ring: oklch(0.58 0.22 295);
-  --paper: oklch(0.985 0.003 285);
-  --ink: oklch(0.22 0.03 275);
-  /* Signature violet gradient — CTAs, hero highlight, KPI icons */
+  --warning: oklch(0.78 0.16 70);
+  --warning-foreground: oklch(0.23 0.055 165);
+  --border: oklch(0.88 0.026 95);
+  --input: oklch(0.90 0.022 95);
+  --ring: oklch(0.74 0.105 86);
+  --paper: oklch(0.985 0.012 95);
+  --ink: oklch(0.23 0.055 165);
   --gradient-brand: linear-gradient(135deg,
-                     oklch(0.66 0.22 295),       /* #8B5CF6 */
-                     oklch(0.52 0.24 295));      /* #6D28D9 */
+                     oklch(0.34 0.095 165),
+                     oklch(0.42 0.105 165));
   --gradient-surface: linear-gradient(180deg,
                        color-mix(in oklab, var(--card) 100%, transparent),
-                       color-mix(in oklab, var(--muted) 60%, transparent));
-  /* Sidebar — white surface, violet active */
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.35 0.03 280);
-  --sidebar-primary: oklch(0.58 0.22 295);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.94 0.03 295);
-  --sidebar-accent-foreground: oklch(0.42 0.2 295);
-  --sidebar-border: oklch(0.93 0.005 285);
-  --sidebar-ring: oklch(0.58 0.22 295);
+                       color-mix(in oklab, var(--muted) 72%, transparent));
+  --gradient-premium: linear-gradient(135deg, #043927 0%, #0d7a5f 52%, #c5a059 100%);
+  --sidebar: oklch(1 0 0 / 88%);
+  --sidebar-foreground: oklch(0.34 0.055 165);
+  --sidebar-primary: oklch(0.34 0.095 165);
+  --sidebar-primary-foreground: oklch(0.98 0.018 92);
+  --sidebar-accent: oklch(0.92 0.05 92);
+  --sidebar-accent-foreground: oklch(0.29 0.08 165);
+  --sidebar-border: oklch(0.88 0.026 95);
+  --sidebar-ring: oklch(0.74 0.105 86);
 }
 
 @supports (height: 100lvh) {
@@ -307,6 +305,70 @@
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: -0.02em;
+}
+
+/* ===== HBSpro 2030 page template primitives ===== */
+@utility page-shell {
+  min-height: var(--app-height);
+  background:
+    radial-gradient(70rem 42rem at 90% -10%, color-mix(in oklab, #c5a059 13%, transparent), transparent 58%),
+    radial-gradient(58rem 36rem at 0% 12%, color-mix(in oklab, #0d7a5f 12%, transparent), transparent 55%),
+    var(--color-background);
+}
+@utility page-band {
+  width: 100%;
+  padding-block: clamp(3rem, 7vw, 6rem);
+}
+@utility page-container {
+  width: min(100% - 2rem, 80rem);
+  margin-inline: auto;
+}
+@utility template-hero {
+  border-radius: var(--radius-3xl);
+  border: 1px solid color-mix(in oklab, #c5a059 28%, var(--color-border));
+  background:
+    linear-gradient(135deg, color-mix(in oklab, #043927 96%, transparent), color-mix(in oklab, #0d7a5f 82%, transparent)),
+    radial-gradient(circle at 18% 12%, color-mix(in oklab, #c5a059 26%, transparent), transparent 34%);
+  color: #f5f0e0;
+  box-shadow: 0 32px 80px -42px color-mix(in oklab, #043927 70%, transparent);
+}
+@utility template-card {
+  background: color-mix(in oklab, var(--color-card) 94%, transparent);
+  border: 1px solid color-mix(in oklab, #c5a059 22%, var(--color-border));
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 18px 52px -32px color-mix(in oklab, #043927 34%, transparent);
+}
+@utility template-card-hover {
+  transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease;
+  &:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in oklab, #c5a059 58%, var(--color-border));
+    box-shadow: 0 28px 70px -36px color-mix(in oklab, #043927 42%, transparent);
+  }
+}
+@utility template-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, #c5a059 35%, var(--color-border));
+  background: color-mix(in oklab, #c5a059 11%, var(--color-card));
+  color: color-mix(in oklab, #043927 88%, black);
+  padding: .5rem .875rem;
+  font-size: .8125rem;
+  font-weight: 700;
+}
+@utility template-cta {
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #c5a059, #f0d78c);
+  color: #043927;
+  box-shadow: 0 16px 40px -18px color-mix(in oklab, #c5a059 85%, transparent);
+  font-weight: 800;
+  transition: transform .2s ease, box-shadow .2s ease;
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 22px 52px -20px color-mix(in oklab, #c5a059 92%, transparent);
+  }
 }
 
 /* Polaroid-ish receipt frame */
