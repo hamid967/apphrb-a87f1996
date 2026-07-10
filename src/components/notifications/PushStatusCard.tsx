@@ -44,6 +44,13 @@ export function PushStatusCard() {
   const [subscribed, setSubscribed] = useState(false);
   const [endpoint, setEndpoint] = useState<string | null>(null);
   const [busy, setBusy] = useState<null | "enable" | "disable" | "refresh">(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpReason, setHelpReason] = useState<"denied" | "dismissed" | "unsupported">("denied");
+
+  const openHelp = (reason: "denied" | "dismissed" | "unsupported") => {
+    setHelpReason(reason);
+    setHelpOpen(true);
+  };
 
   const refresh = useCallback(async () => {
     if (typeof window === "undefined") return;
