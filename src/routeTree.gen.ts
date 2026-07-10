@@ -97,6 +97,7 @@ import { Route as AuthenticatedPortalAppointmentsRouteImport } from './routes/_a
 import { Route as AuthenticatedOwnersContractsRouteImport } from './routes/_authenticated/owners.contracts'
 import { Route as AuthenticatedOwnersIdRouteImport } from './routes/_authenticated/owners.$id'
 import { Route as AuthenticatedMaintenanceTechniciansRouteImport } from './routes/_authenticated/maintenance.technicians'
+import { Route as AuthenticatedLeadsNewRouteImport } from './routes/_authenticated/leads.new'
 import { Route as AuthenticatedLeadsIdRouteImport } from './routes/_authenticated/leads.$id'
 import { Route as AuthenticatedDocumentsIdRouteImport } from './routes/_authenticated/documents.$id'
 import { Route as AuthenticatedDealsIdRouteImport } from './routes/_authenticated/deals.$id'
@@ -199,6 +200,7 @@ import { Route as AuthenticatedPortalTenantMaintenanceRouteImport } from './rout
 import { Route as AuthenticatedPortalSettingsSecurityRouteImport } from './routes/_authenticated/portal.settings.security'
 import { Route as AuthenticatedPortalSettingsNotificationsRouteImport } from './routes/_authenticated/portal.settings.notifications'
 import { Route as AuthenticatedOwnersIdLedgerRouteImport } from './routes/_authenticated/owners.$id.ledger'
+import { Route as AuthenticatedLeadsIdEditRouteImport } from './routes/_authenticated/leads.$id.edit'
 import { Route as AuthenticatedDashboardUnitsIdRouteImport } from './routes/_authenticated/dashboard.units.$id'
 import { Route as AuthenticatedDashboardTicketsNewRouteImport } from './routes/_authenticated/dashboard.tickets.new'
 import { Route as AuthenticatedDashboardTicketsIdRouteImport } from './routes/_authenticated/dashboard.tickets.$id'
@@ -721,6 +723,11 @@ const AuthenticatedMaintenanceTechniciansRoute =
     path: '/maintenance/technicians',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedLeadsNewRoute = AuthenticatedLeadsNewRouteImport.update({
+  id: '/leads/new',
+  path: '/leads/new',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedLeadsIdRoute = AuthenticatedLeadsIdRouteImport.update({
   id: '/leads/$id',
   path: '/leads/$id',
@@ -1316,6 +1323,12 @@ const AuthenticatedOwnersIdLedgerRoute =
     path: '/ledger',
     getParentRoute: () => AuthenticatedOwnersIdRoute,
   } as any)
+const AuthenticatedLeadsIdEditRoute =
+  AuthenticatedLeadsIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AuthenticatedLeadsIdRoute,
+  } as any)
 const AuthenticatedDashboardUnitsIdRoute =
   AuthenticatedDashboardUnitsIdRouteImport.update({
     id: '/units/$id',
@@ -1682,7 +1695,8 @@ export interface FileRoutesByFullPath {
   '/dashboard/vouchers': typeof AuthenticatedDashboardVouchersRoute
   '/deals/$id': typeof AuthenticatedDealsIdRoute
   '/documents/$id': typeof AuthenticatedDocumentsIdRoute
-  '/leads/$id': typeof AuthenticatedLeadsIdRoute
+  '/leads/$id': typeof AuthenticatedLeadsIdRouteWithChildren
+  '/leads/new': typeof AuthenticatedLeadsNewRoute
   '/maintenance/technicians': typeof AuthenticatedMaintenanceTechniciansRoute
   '/owners/$id': typeof AuthenticatedOwnersIdRouteWithChildren
   '/owners/contracts': typeof AuthenticatedOwnersContractsRoute
@@ -1759,6 +1773,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/tickets/$id': typeof AuthenticatedDashboardTicketsIdRoute
   '/dashboard/tickets/new': typeof AuthenticatedDashboardTicketsNewRoute
   '/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
+  '/leads/$id/edit': typeof AuthenticatedLeadsIdEditRoute
   '/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
   '/portal/settings/notifications': typeof AuthenticatedPortalSettingsNotificationsRoute
   '/portal/settings/security': typeof AuthenticatedPortalSettingsSecurityRoute
@@ -1911,7 +1926,8 @@ export interface FileRoutesByTo {
   '/dashboard/vouchers': typeof AuthenticatedDashboardVouchersRoute
   '/deals/$id': typeof AuthenticatedDealsIdRoute
   '/documents/$id': typeof AuthenticatedDocumentsIdRoute
-  '/leads/$id': typeof AuthenticatedLeadsIdRoute
+  '/leads/$id': typeof AuthenticatedLeadsIdRouteWithChildren
+  '/leads/new': typeof AuthenticatedLeadsNewRoute
   '/maintenance/technicians': typeof AuthenticatedMaintenanceTechniciansRoute
   '/owners/$id': typeof AuthenticatedOwnersIdRouteWithChildren
   '/owners/contracts': typeof AuthenticatedOwnersContractsRoute
@@ -1986,6 +2002,7 @@ export interface FileRoutesByTo {
   '/dashboard/tickets/$id': typeof AuthenticatedDashboardTicketsIdRoute
   '/dashboard/tickets/new': typeof AuthenticatedDashboardTicketsNewRoute
   '/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
+  '/leads/$id/edit': typeof AuthenticatedLeadsIdEditRoute
   '/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
   '/portal/settings/notifications': typeof AuthenticatedPortalSettingsNotificationsRoute
   '/portal/settings/security': typeof AuthenticatedPortalSettingsSecurityRoute
@@ -2146,7 +2163,8 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/vouchers': typeof AuthenticatedDashboardVouchersRoute
   '/_authenticated/deals/$id': typeof AuthenticatedDealsIdRoute
   '/_authenticated/documents/$id': typeof AuthenticatedDocumentsIdRoute
-  '/_authenticated/leads/$id': typeof AuthenticatedLeadsIdRoute
+  '/_authenticated/leads/$id': typeof AuthenticatedLeadsIdRouteWithChildren
+  '/_authenticated/leads/new': typeof AuthenticatedLeadsNewRoute
   '/_authenticated/maintenance/technicians': typeof AuthenticatedMaintenanceTechniciansRoute
   '/_authenticated/owners/$id': typeof AuthenticatedOwnersIdRouteWithChildren
   '/_authenticated/owners/contracts': typeof AuthenticatedOwnersContractsRoute
@@ -2223,6 +2241,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/tickets/$id': typeof AuthenticatedDashboardTicketsIdRoute
   '/_authenticated/dashboard/tickets/new': typeof AuthenticatedDashboardTicketsNewRoute
   '/_authenticated/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
+  '/_authenticated/leads/$id/edit': typeof AuthenticatedLeadsIdEditRoute
   '/_authenticated/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
   '/_authenticated/portal/settings/notifications': typeof AuthenticatedPortalSettingsNotificationsRoute
   '/_authenticated/portal/settings/security': typeof AuthenticatedPortalSettingsSecurityRoute
@@ -2384,6 +2403,7 @@ export interface FileRouteTypes {
     | '/deals/$id'
     | '/documents/$id'
     | '/leads/$id'
+    | '/leads/new'
     | '/maintenance/technicians'
     | '/owners/$id'
     | '/owners/contracts'
@@ -2460,6 +2480,7 @@ export interface FileRouteTypes {
     | '/dashboard/tickets/$id'
     | '/dashboard/tickets/new'
     | '/dashboard/units/$id'
+    | '/leads/$id/edit'
     | '/owners/$id/ledger'
     | '/portal/settings/notifications'
     | '/portal/settings/security'
@@ -2613,6 +2634,7 @@ export interface FileRouteTypes {
     | '/deals/$id'
     | '/documents/$id'
     | '/leads/$id'
+    | '/leads/new'
     | '/maintenance/technicians'
     | '/owners/$id'
     | '/owners/contracts'
@@ -2687,6 +2709,7 @@ export interface FileRouteTypes {
     | '/dashboard/tickets/$id'
     | '/dashboard/tickets/new'
     | '/dashboard/units/$id'
+    | '/leads/$id/edit'
     | '/owners/$id/ledger'
     | '/portal/settings/notifications'
     | '/portal/settings/security'
@@ -2847,6 +2870,7 @@ export interface FileRouteTypes {
     | '/_authenticated/deals/$id'
     | '/_authenticated/documents/$id'
     | '/_authenticated/leads/$id'
+    | '/_authenticated/leads/new'
     | '/_authenticated/maintenance/technicians'
     | '/_authenticated/owners/$id'
     | '/_authenticated/owners/contracts'
@@ -2923,6 +2947,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/tickets/$id'
     | '/_authenticated/dashboard/tickets/new'
     | '/_authenticated/dashboard/units/$id'
+    | '/_authenticated/leads/$id/edit'
     | '/_authenticated/owners/$id/ledger'
     | '/_authenticated/portal/settings/notifications'
     | '/_authenticated/portal/settings/security'
@@ -3651,6 +3676,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMaintenanceTechniciansRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/leads/new': {
+      id: '/_authenticated/leads/new'
+      path: '/leads/new'
+      fullPath: '/leads/new'
+      preLoaderRoute: typeof AuthenticatedLeadsNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/leads/$id': {
       id: '/_authenticated/leads/$id'
       path: '/leads/$id'
@@ -4364,6 +4396,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/owners/$id/ledger'
       preLoaderRoute: typeof AuthenticatedOwnersIdLedgerRouteImport
       parentRoute: typeof AuthenticatedOwnersIdRoute
+    }
+    '/_authenticated/leads/$id/edit': {
+      id: '/_authenticated/leads/$id/edit'
+      path: '/edit'
+      fullPath: '/leads/$id/edit'
+      preLoaderRoute: typeof AuthenticatedLeadsIdEditRouteImport
+      parentRoute: typeof AuthenticatedLeadsIdRoute
     }
     '/_authenticated/dashboard/units/$id': {
       id: '/_authenticated/dashboard/units/$id'
@@ -5221,6 +5260,17 @@ const AuthenticatedPortalRouteChildren: AuthenticatedPortalRouteChildren = {
 const AuthenticatedPortalRouteWithChildren =
   AuthenticatedPortalRoute._addFileChildren(AuthenticatedPortalRouteChildren)
 
+interface AuthenticatedLeadsIdRouteChildren {
+  AuthenticatedLeadsIdEditRoute: typeof AuthenticatedLeadsIdEditRoute
+}
+
+const AuthenticatedLeadsIdRouteChildren: AuthenticatedLeadsIdRouteChildren = {
+  AuthenticatedLeadsIdEditRoute: AuthenticatedLeadsIdEditRoute,
+}
+
+const AuthenticatedLeadsIdRouteWithChildren =
+  AuthenticatedLeadsIdRoute._addFileChildren(AuthenticatedLeadsIdRouteChildren)
+
 interface AuthenticatedOwnersIdRouteChildren {
   AuthenticatedOwnersIdLedgerRoute: typeof AuthenticatedOwnersIdLedgerRoute
 }
@@ -5263,7 +5313,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCrmAnalyticsRoute: typeof AuthenticatedCrmAnalyticsRoute
   AuthenticatedDealsIdRoute: typeof AuthenticatedDealsIdRoute
   AuthenticatedDocumentsIdRoute: typeof AuthenticatedDocumentsIdRoute
-  AuthenticatedLeadsIdRoute: typeof AuthenticatedLeadsIdRoute
+  AuthenticatedLeadsIdRoute: typeof AuthenticatedLeadsIdRouteWithChildren
+  AuthenticatedLeadsNewRoute: typeof AuthenticatedLeadsNewRoute
   AuthenticatedMaintenanceTechniciansRoute: typeof AuthenticatedMaintenanceTechniciansRoute
   AuthenticatedOwnersIdRoute: typeof AuthenticatedOwnersIdRouteWithChildren
   AuthenticatedOwnersContractsRoute: typeof AuthenticatedOwnersContractsRoute
@@ -5309,7 +5360,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCrmAnalyticsRoute: AuthenticatedCrmAnalyticsRoute,
   AuthenticatedDealsIdRoute: AuthenticatedDealsIdRoute,
   AuthenticatedDocumentsIdRoute: AuthenticatedDocumentsIdRoute,
-  AuthenticatedLeadsIdRoute: AuthenticatedLeadsIdRoute,
+  AuthenticatedLeadsIdRoute: AuthenticatedLeadsIdRouteWithChildren,
+  AuthenticatedLeadsNewRoute: AuthenticatedLeadsNewRoute,
   AuthenticatedMaintenanceTechniciansRoute:
     AuthenticatedMaintenanceTechniciansRoute,
   AuthenticatedOwnersIdRoute: AuthenticatedOwnersIdRouteWithChildren,

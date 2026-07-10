@@ -198,13 +198,10 @@ function LeadsPage() {
             <Button variant="outline" onClick={() => setImportOpen(true)}>
               <Upload className="me-2 size-4" /> {t("csv.importLeads")}
             </Button>
-            <Button
-              onClick={() => {
-                setEditing(null);
-                setOpen(true);
-              }}
-            >
-              <Plus className="me-2 size-4" /> {t("crm.leads.add")}
+            <Button asChild>
+              <Link to="/leads/new">
+                <Plus className="me-2 size-4" /> {t("crm.leads.add")}
+              </Link>
             </Button>
           </div>
         )}
@@ -303,15 +300,14 @@ function LeadsPage() {
                               </div>
                               <div className="flex gap-1">
                                 <Button
+                                  asChild
                                   size="sm"
                                   variant="ghost"
                                   className="h-7 px-2"
-                                  onClick={() => {
-                                    setEditing(lead);
-                                    setOpen(true);
-                                  }}
                                 >
-                                  <Pencil className="size-3.5" />
+                                  <Link to="/leads/$id/edit" params={{ id: lead.id }}>
+                                    <Pencil className="size-3.5" />
+                                  </Link>
                                 </Button>
                                 {canEdit &&
                                   lead.property_id &&
