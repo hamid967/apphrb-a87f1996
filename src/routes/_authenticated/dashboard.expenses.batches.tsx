@@ -93,17 +93,14 @@ function BatchesPage() {
       </div>
 
       <div className="mt-6">
-        {q.isLoading ? (
-          <div className="grid place-items-center p-16">
-            <Loader2 className="size-5 animate-spin text-muted-foreground" />
-          </div>
-        ) : rows.length === 0 ? (
-          <Card>
-            <CardContent className="p-10 text-center text-sm text-muted-foreground">
-              {t("expenseBatches.empty")}
-            </CardContent>
-          </Card>
-        ) : (
+        <ListState
+          isLoading={q.isLoading}
+          isError={q.isError}
+          errorMessage={q.error instanceof Error ? q.error.message : null}
+          isEmpty={rows.length === 0}
+          emptyText={t("expenseBatches.empty")}
+          onRetry={() => q.refetch()}
+        >
           <div className="grid gap-3">
             {rows.map((b) => (
               <Link
@@ -144,7 +141,8 @@ function BatchesPage() {
               </Link>
             ))}
           </div>
-        )}
+        </ListState>
+
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
