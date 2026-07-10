@@ -14,6 +14,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -51,6 +52,8 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAccountingRouteImport } from './routes/_authenticated/accounting'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedTeamIndexRouteImport } from './routes/_authenticated/team.index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks.index'
 import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports.index'
@@ -169,6 +172,8 @@ import { Route as AuthenticatedAdminAuditLogRouteImport } from './routes/_authen
 import { Route as AuthenticatedAccountingVatRouteImport } from './routes/_authenticated/accounting.vat'
 import { Route as AuthenticatedAccountingPnlRouteImport } from './routes/_authenticated/accounting.pnl'
 import { Route as AuthenticatedAccountingExpensesRouteImport } from './routes/_authenticated/accounting.expenses'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedTenantPortalIndexRouteImport } from './routes/_authenticated/tenant.portal.index'
 import { Route as AuthenticatedPortalTenantIndexRouteImport } from './routes/_authenticated/portal.tenant.index'
 import { Route as AuthenticatedPortalSettingsIndexRouteImport } from './routes/_authenticated/portal.settings.index'
@@ -273,6 +278,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -460,6 +470,18 @@ const AuthenticatedAccountingRoute = AuthenticatedAccountingRouteImport.update({
   path: '/accounting',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedTeamIndexRoute = AuthenticatedTeamIndexRouteImport.update({
   id: '/team/',
   path: '/team/',
@@ -1149,6 +1171,17 @@ const AuthenticatedAccountingExpensesRoute =
     path: '/expenses',
     getParentRoute: () => AuthenticatedAccountingRoute,
   } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedTenantPortalIndexRoute =
   AuthenticatedTenantPortalIndexRouteImport.update({
     id: '/tenant/portal/',
@@ -1623,11 +1656,14 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/mcp': typeof McpRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/accounting': typeof AuthenticatedAccountingRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/assistant': typeof AuthenticatedAssistantRouteWithChildren
@@ -1656,6 +1692,8 @@ export interface FileRoutesByFullPath {
   '/solutions/owners': typeof SolutionsOwnersRoute
   '/blog/': typeof BlogIndexRoute
   '/listings/': typeof ListingsIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/accounting/expenses': typeof AuthenticatedAccountingExpensesRoute
   '/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
   '/accounting/vat': typeof AuthenticatedAccountingVatRoute
@@ -1864,11 +1902,14 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/mcp': typeof McpRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/leasing': typeof AuthenticatedLeasingRoute
   '/meetings': typeof AuthenticatedMeetingsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -1892,6 +1933,8 @@ export interface FileRoutesByTo {
   '/solutions/owners': typeof SolutionsOwnersRoute
   '/blog': typeof BlogIndexRoute
   '/listings': typeof ListingsIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/accounting/expenses': typeof AuthenticatedAccountingExpensesRoute
   '/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
   '/accounting/vat': typeof AuthenticatedAccountingVatRoute
@@ -2099,11 +2142,14 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/mcp': typeof McpRoute
   '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/accounting': typeof AuthenticatedAccountingRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/assistant': typeof AuthenticatedAssistantRouteWithChildren
@@ -2132,6 +2178,8 @@ export interface FileRoutesById {
   '/solutions/owners': typeof SolutionsOwnersRoute
   '/blog/': typeof BlogIndexRoute
   '/listings/': typeof ListingsIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/accounting/expenses': typeof AuthenticatedAccountingExpensesRoute
   '/_authenticated/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
   '/_authenticated/accounting/vat': typeof AuthenticatedAccountingVatRoute
@@ -2342,11 +2390,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/forgot-password'
+    | '/mcp'
     | '/pricing'
     | '/reset-password'
     | '/services'
     | '/sitemap.xml'
     | '/unsubscribe'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/accounting'
     | '/admin'
     | '/assistant'
@@ -2375,6 +2426,8 @@ export interface FileRouteTypes {
     | '/solutions/owners'
     | '/blog/'
     | '/listings/'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/accounting/expenses'
     | '/accounting/pnl'
     | '/accounting/vat'
@@ -2583,11 +2636,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/forgot-password'
+    | '/mcp'
     | '/pricing'
     | '/reset-password'
     | '/services'
     | '/sitemap.xml'
     | '/unsubscribe'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/leasing'
     | '/meetings'
     | '/onboarding'
@@ -2611,6 +2667,8 @@ export interface FileRouteTypes {
     | '/solutions/owners'
     | '/blog'
     | '/listings'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/accounting/expenses'
     | '/accounting/pnl'
     | '/accounting/vat'
@@ -2817,11 +2875,14 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/forgot-password'
+    | '/mcp'
     | '/pricing'
     | '/reset-password'
     | '/services'
     | '/sitemap.xml'
     | '/unsubscribe'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/_authenticated/accounting'
     | '/_authenticated/admin'
     | '/_authenticated/assistant'
@@ -2850,6 +2911,8 @@ export interface FileRouteTypes {
     | '/solutions/owners'
     | '/blog/'
     | '/listings/'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/accounting/expenses'
     | '/_authenticated/accounting/pnl'
     | '/_authenticated/accounting/vat'
@@ -3060,11 +3123,14 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  McpRoute: typeof McpRoute
   PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DevBreadcrumbsTestRoute: typeof DevBreadcrumbsTestRoute
   DevVerifyRoute: typeof DevVerifyRoute
@@ -3084,6 +3150,8 @@ export interface RootRouteChildren {
   SolutionsOwnersRoute: typeof SolutionsOwnersRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ListingsIndexRoute: typeof ListingsIndexRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiAssistantChatRoute: typeof ApiAssistantChatRoute
   ApiPublicFilterAnalyticsBeaconRoute: typeof ApiPublicFilterAnalyticsBeaconRoute
   ApiPublicPdfReportRoute: typeof ApiPublicPdfReportRoute
@@ -3144,6 +3212,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -3404,6 +3479,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/accounting'
       preLoaderRoute: typeof AuthenticatedAccountingRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/team/': {
       id: '/_authenticated/team/'
@@ -4230,6 +4319,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/accounting/expenses'
       preLoaderRoute: typeof AuthenticatedAccountingExpensesRouteImport
       parentRoute: typeof AuthenticatedAccountingRoute
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/tenant/portal/': {
       id: '/_authenticated/tenant/portal/'
@@ -5593,11 +5696,15 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  McpRoute: McpRoute,
   PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UnsubscribeRoute: UnsubscribeRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   BlogSlugRoute: BlogSlugRoute,
   DevBreadcrumbsTestRoute: DevBreadcrumbsTestRoute,
   DevVerifyRoute: DevVerifyRoute,
@@ -5617,6 +5724,8 @@ const rootRouteChildren: RootRouteChildren = {
   SolutionsOwnersRoute: SolutionsOwnersRoute,
   BlogIndexRoute: BlogIndexRoute,
   ListingsIndexRoute: ListingsIndexRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiAssistantChatRoute: ApiAssistantChatRoute,
   ApiPublicFilterAnalyticsBeaconRoute: ApiPublicFilterAnalyticsBeaconRoute,
   ApiPublicPdfReportRoute: ApiPublicPdfReportRoute,
@@ -5646,3 +5755,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
