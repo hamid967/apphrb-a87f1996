@@ -317,23 +317,33 @@ async function speakSaudi(
       pushLog("warn", "استجابة TTS فارغة", "التبديل لصوت المتصفح.");
       throw new Error("empty tts");
     }
+    // Guard: if a newer speak() request has arrived while we were awaiting the
+    // blob, discard this audio entirely so it never plays late.
+    if (mySeq !== ttsSeq) return false;
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
     audio.playbackRate = settings.rate;
     currentAudio = audio;
     let started = false;
     let finalized = false;
-    audio.onplay = () => {
-      started = true;
-      pushLog("ok", "تشغيل صوت الخادم (Lovable AI TTS)");
-      onStart?.();
-    };
     const cleanup = () => {
       if (finalized) return;
       finalized = true;
       URL.revokeObjectURL(url);
       if (currentAudio === audio) currentAudio = null;
       onEnd?.();
+    };
+    audio.onplay = () => {
+      // Late-arrival guard: another speak() already superseded us between
+      // schedule and the actual play tick — silence this one immediately.
+      if (mySeq !== ttsSeq) {
+        try { audio.pause(); audio.src = ""; } catch { /* noop */ }
+        cleanup();
+        return;
+      }
+      started = true;
+      pushLog("ok", "تشغيل صوت الخادم (Lovable AI TTS)");
+      onStart?.();
     };
     audio.onended = cleanup;
     audio.onerror = () => {
@@ -357,6 +367,13 @@ async function speakSaudi(
         pushLog("warn", "تعذّر بدء تشغيل الصوت — تحويل لصوت المتصفح", String((playErr as Error).message ?? playErr));
         return speakBrowserFallback(text, settings);
       }
+      return false;
+    }
+    // Final post-play guard: a request that superseded us between the play()
+    // resolve and the first onplay tick should still be silenced.
+    if (mySeq !== ttsSeq) {
+      try { audio.pause(); audio.src = ""; } catch { /* noop */ }
+      cleanup();
       return false;
     }
     return true;
@@ -520,10 +537,23 @@ export function HamidVoiceAssistant() {
   useEffect(() => {
     settingsRef.current = settings;
   }, [settings]);
+  // Guard against rapid duplicate speak() calls (double-clicks, StrictMode,
+  // repeated identical intents). Same text within 900ms is dropped silently.
+  const lastSpeakRef = useRef<{ text: string; at: number }>({ text: "", at: 0 });
   const speak = (text: string) => {
-    void speakSaudi(text, settingsRef.current);
+    const t = (text ?? "").trim();
+    if (!t) return false;
+    const now = Date.now();
+    const last = lastSpeakRef.current;
+    if (t === last.text && now - last.at < 900) {
+      pushLog("info", "تم تجاهل طلب نطق مكرر خلال أقل من ثانية");
+      return true;
+    }
+    lastSpeakRef.current = { text: t, at: now };
+    void speakSaudi(t, settingsRef.current);
     return true;
   };
+
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const Recognition = useMemo(getSpeechRecognition, []);
   const speechSupported = Boolean(Recognition);
