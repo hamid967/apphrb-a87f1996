@@ -11,6 +11,15 @@ Disallow: /onboarding/
 Disallow: /dashboard
 Disallow: /admin
 Disallow: /security/
+Disallow: /portal
+Disallow: /owner
+Disallow: /tenant
+Disallow: /accounting
+Disallow: /reports
+Disallow: /properties
+Disallow: /maintenance
+Disallow: /settings
+Disallow: /api/assistant
 
 User-agent: Bingbot
 Allow: /
@@ -22,6 +31,15 @@ Disallow: /onboarding/
 Disallow: /dashboard
 Disallow: /admin
 Disallow: /security/
+Disallow: /portal
+Disallow: /owner
+Disallow: /tenant
+Disallow: /accounting
+Disallow: /reports
+Disallow: /properties
+Disallow: /maintenance
+Disallow: /settings
+Disallow: /api/assistant
 
 # Default rules for all other crawlers
 User-agent: *
@@ -34,6 +52,15 @@ Disallow: /onboarding/
 Disallow: /dashboard
 Disallow: /admin
 Disallow: /security/
+Disallow: /portal
+Disallow: /owner
+Disallow: /tenant
+Disallow: /accounting
+Disallow: /reports
+Disallow: /properties
+Disallow: /maintenance
+Disallow: /settings
+Disallow: /api/assistant
 
 # Block aggressive AI training scrapers
 User-agent: GPTBot
