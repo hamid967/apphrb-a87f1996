@@ -299,10 +299,10 @@ function CorrectionWizard() {
 
               <div className="space-y-2">
                 <Label htmlFor="c-notes">{t("expenseClaim.notes")}</Label>
-                <Textarea
+                <VoiceTextarea
                   id="c-notes"
                   value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                  onChange={setNotes}
                   rows={3}
                   maxLength={2000}
                 />
