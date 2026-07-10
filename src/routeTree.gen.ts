@@ -17,6 +17,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ConnectRouteImport } from './routes/connect'
@@ -295,6 +296,11 @@ const McpRoute = McpRouteImport.update({
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -1668,6 +1674,7 @@ export interface FileRoutesByFullPath {
   '/connect': typeof ConnectRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
@@ -1916,6 +1923,7 @@ export interface FileRoutesByTo {
   '/connect': typeof ConnectRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
@@ -2158,6 +2166,7 @@ export interface FileRoutesById {
   '/connect': typeof ConnectRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
+  '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
@@ -2408,6 +2417,7 @@ export interface FileRouteTypes {
     | '/connect'
     | '/contact'
     | '/faq'
+    | '/features'
     | '/forgot-password'
     | '/mcp'
     | '/platform'
@@ -2656,6 +2666,7 @@ export interface FileRouteTypes {
     | '/connect'
     | '/contact'
     | '/faq'
+    | '/features'
     | '/forgot-password'
     | '/mcp'
     | '/platform'
@@ -2897,6 +2908,7 @@ export interface FileRouteTypes {
     | '/connect'
     | '/contact'
     | '/faq'
+    | '/features'
     | '/forgot-password'
     | '/mcp'
     | '/platform'
@@ -3147,6 +3159,7 @@ export interface RootRouteChildren {
   ConnectRoute: typeof ConnectRoute
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
+  FeaturesRoute: typeof FeaturesRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   McpRoute: typeof McpRoute
   PlatformRoute: typeof PlatformRoute
@@ -3259,6 +3272,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -5736,6 +5756,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConnectRoute: ConnectRoute,
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
+  FeaturesRoute: FeaturesRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   McpRoute: McpRoute,
   PlatformRoute: PlatformRoute,
