@@ -11,16 +11,17 @@ import os, subprocess, sys, uuid
 PSQL = ["psql", "-v", "ON_ERROR_STOP=1", "-X", "-q", "-t", "-A"]
 
 M3_FUNCTIONS = [
-    ("tenant_pay_charge",           "uuid, uuid"),
-    ("generate_owner_statement",    "uuid, date, numeric"),
-    ("generate_rent_charges",       "uuid, integer"),
-    ("approve_rental_application",  "uuid, uuid, date, date, numeric"),
-    ("submit_rental_application",   "uuid, text, text, text, numeric, text, date, boolean"),
-    ("submit_rental_application",   "uuid, text, text, text, numeric, text, date, boolean, text, text, text, smallint, numeric"),
-    ("next_org_sequence",           "uuid, text"),
-    ("log_assistant_access",        "uuid, text, jsonb"),
-    ("my_permissions",              "uuid"),
-    ("my_access_status",            ""),
+    # (name, pg_get_function_identity_arguments-format, privilege-format)
+    ("tenant_pay_charge",          "_charge_id uuid, _method_id uuid",                                                              "uuid, uuid"),
+    ("generate_owner_statement",   "_owner_id uuid, _month date, _mgmt_pct numeric",                                                "uuid, date, numeric"),
+    ("generate_rent_charges",      "_contract_id uuid, _months integer",                                                            "uuid, integer"),
+    ("approve_rental_application", "_app_id uuid, _unit_id uuid, _start_date date, _end_date date, _monthly_rent numeric",          "uuid, uuid, date, date, numeric"),
+    ("submit_rental_application",  "_listing_id uuid, _applicant_name text, _email text, _phone text, _monthly_income numeric, _employer text, _move_in_date date, _credit_check_consent boolean", "uuid, text, text, text, numeric, text, date, boolean"),
+    ("submit_rental_application",  "_listing_id uuid, _applicant_name text, _email text, _phone text, _monthly_income numeric, _employer text, _move_in_date date, _credit_check_consent boolean, _national_id text, _id_type text, _employment_type text, _dependents smallint, _current_rent numeric", "uuid, text, text, text, numeric, text, date, boolean, text, text, text, smallint, numeric"),
+    ("next_org_sequence",          "_org uuid, _kind text",                                                                         "uuid, text"),
+    ("log_assistant_access",       "_org uuid, _action text, _diff jsonb",                                                          "uuid, text, jsonb"),
+    ("my_permissions",             "_org uuid",                                                                                     "uuid"),
+    ("my_access_status",           "",                                                                                              ""),
 ]
 
 # Must still be DEFINER (RLS helpers – converting would break RLS recursion)
