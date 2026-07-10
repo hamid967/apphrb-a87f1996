@@ -74,23 +74,30 @@ function OnboardingWizardPage() {
   const register = useServerFn(registerCompany);
   const getCtx = useServerFn(getMyAccessContext);
   const createProp = useServerFn(createProperty);
+  const createBranch = useServerFn(createOnboardingBranch);
   const markStep = useServerFn(setOnboardingStep);
 
-  const [step, setStep] = useState<0 | 1 | 2>(0);
+  const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
   const [checking, setChecking] = useState(true);
   const [orgId, setOrgId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  // Step 1: profile
+  // Step 0: profile
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [jobTitle, setJobTitle] = useState("");
   const [reason, setReason] = useState("");
 
-  // Step 2: company
+  // Step 1: company
   const [wsName, setWsName] = useState("");
   const [wsPhone, setWsPhone] = useState("");
+
+  // Step 2: branch + departments (optional)
+  const [brName, setBrName] = useState("");
+  const [brPhone, setBrPhone] = useState("");
+  const [brAddress, setBrAddress] = useState("");
+  const [brDepartments, setBrDepartments] = useState<string>("");
 
   // Step 3: property (all optional)
   const [propTitle, setPropTitle] = useState("");
