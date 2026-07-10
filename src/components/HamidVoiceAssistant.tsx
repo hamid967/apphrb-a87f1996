@@ -439,12 +439,12 @@ export function HamidVoiceAssistant() {
       };
       setReply(next);
       setHistory((h) => [...h.slice(-6), { user: clean, assistant: next.text, mode: next.mode }]);
-      const spoken = speakLocally(next.text);
+      const spoken = speak(next.text);
       if (!spoken) setError("الصوت المحلي غير مدعوم في هذا المتصفح.");
     } catch (err) {
       const fallback = getLocalIntent(clean, history);
       setReply(fallback);
-      speakLocally(fallback.text);
+      speak(fallback.text);
       setError("تعذّر الاتصال بحامد الآن، تم استخدام الرد المحلي.");
       void err;
     } finally {
@@ -487,7 +487,7 @@ export function HamidVoiceAssistant() {
       confidence: "high",
       mode: "coach",
     });
-    speakLocally("هلا والله! معك حامد. قل لي وش تبي وأنا على طول أخدمك.");
+    speak("هلا والله! معك حامد. قل لي وش تبي وأنا على طول أخدمك.");
     if (speechSupported) startListening();
   };
 
