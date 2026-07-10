@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { motion } from "framer-motion";
 import { FileText, Users, Gavel, BarChart3, ArrowLeft } from "lucide-react";
 
 /**
