@@ -35,19 +35,16 @@ SELECT
        ELSE 'FAIL: authenticated missing EXECUTE on register_company'
   END AS grant_check;
 
--- Fixture: pick two existing profile ids that do NOT already own/admin an org.
--- register_company rejects users who already belong; we need clean principals.
+-- Fixture: pick two existing profiles and clear their memberships INSIDE this
+-- txn (rolled back at the end) so register_company's "already belong" guard
+-- doesn't block the happy path. This mirrors what a brand-new signup looks like.
 DO $$
 DECLARE u1 uuid; u2 uuid;
 BEGIN
-  SELECT id INTO u1 FROM public.profiles
-    WHERE id NOT IN (SELECT user_id FROM public.organization_members WHERE role IN ('owner','admin'))
-    LIMIT 1;
-  SELECT id INTO u2 FROM public.profiles
-    WHERE id NOT IN (SELECT user_id FROM public.organization_members WHERE role IN ('owner','admin'))
-      AND id <> u1
-    LIMIT 1;
-  IF u1 IS NULL OR u2 IS NULL THEN RAISE EXCEPTION 'Need >=2 unaffiliated profiles'; END IF;
+  SELECT id INTO u1 FROM public.profiles ORDER BY created_at LIMIT 1;
+  SELECT id INTO u2 FROM public.profiles WHERE id <> u1 ORDER BY created_at LIMIT 1;
+  IF u1 IS NULL OR u2 IS NULL THEN RAISE EXCEPTION 'Need >=2 profiles'; END IF;
+  DELETE FROM public.organization_members WHERE user_id IN (u1, u2);
   PERFORM set_config('test.uid', u1::text, false);
   PERFORM set_config('test.uid2', u2::text, false);
 END $$;
