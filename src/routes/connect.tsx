@@ -1,8 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, Check, ExternalLink } from "lucide-react";
+import { Copy, Check, ExternalLink, Loader2, AlertCircle, CheckCircle2, PlugZap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+type TestState =
+  | { status: "idle" }
+  | { status: "running" }
+  | { status: "ok"; toolCount: number; serverName?: string }
+  | { status: "error"; title: string; detail: string };
+
 
 function ConnectPage() {
   const [mcpUrl, setMcpUrl] = useState("");
