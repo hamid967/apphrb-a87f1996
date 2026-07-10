@@ -1,5 +1,5 @@
-import { lazy, Suspense } from "react";
-import { Link, ClientOnly } from "@tanstack/react-router";
+import { lazy, Suspense, useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowLeft, Building2, Sparkles, ShieldCheck, Wand2 } from "lucide-react";
 
@@ -12,6 +12,12 @@ const proof = [
 ];
 
 export function CinematicIntro() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <section
       dir="rtl"
@@ -22,11 +28,13 @@ export function CinematicIntro() {
       <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(rgba(245,240,224,0.5)_1px,transparent_1px),linear-gradient(90deg,rgba(245,240,224,0.5)_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <div className="absolute inset-0 z-0">
-        <ClientOnly fallback={<div className="h-full w-full bg-[#043927]" />}>
+        {mounted ? (
           <Suspense fallback={<div className="h-full w-full bg-[#043927]" />}>
             <HeroCanvas />
           </Suspense>
-        </ClientOnly>
+        ) : (
+          <div className="h-full w-full bg-[#043927]" />
+        )}
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-48 bg-gradient-to-t from-[#043927] via-[#043927]/80 to-transparent" />
