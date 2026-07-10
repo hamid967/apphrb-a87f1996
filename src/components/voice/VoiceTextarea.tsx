@@ -79,10 +79,12 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
     const [elapsed, setElapsed] = useState(0);
     const [lang, setLang] = useState<LangChoice>(language);
 
+    const toastId = useId();
+
     const voice = useVoiceInput({
       language: lang === "auto" ? undefined : lang,
       onError: (msg) => {
-        toast.error(msg);
+        toast.error("فشل الإدخال الصوتي", { id: toastId, description: msg });
         setPhase("error");
         // No auto-clear — the user dismisses via retry or by starting a new
         // recording. The pending transcript (if any) is intentionally kept.
@@ -92,8 +94,10 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
     const retry = async () => {
       setPhase("starting");
       try {
+        toast.loading("إعادة بدء التسجيل…", { id: toastId });
         await voice.start();
         setPhase("recording");
+        toast.success("جارٍ التسجيل", { id: toastId, description: "تحدّث الآن — اضغط الإيقاف عند الانتهاء." });
       } catch {
         setPhase("error");
       }
