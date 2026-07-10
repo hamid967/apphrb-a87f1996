@@ -669,6 +669,7 @@ export function Features() {
                 ease: "easeOut",
               }}
               whileHover={{ y: -8 }}
+              whileTap={{ scale: 0.97, transition: { duration: 0.12 } }}
               className={`${glass} group relative overflow-hidden p-6 transition-colors`}
               style={glassStyle}
             >
