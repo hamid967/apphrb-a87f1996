@@ -387,13 +387,14 @@ export function HamidVoiceAssistant() {
   const startCall = async () => {
     setCallActive(true);
     setReply({
-      text: "أهلاً بك، أنا حامد. تفضّل تكلم أو اكتب طلبك وسأنفذه فوراً.",
+      text: "هلا والله! معك حامد. قل لي وش تبي وأنا على طول أخدمك.",
       confidence: "high",
       mode: "coach",
     });
-    speakLocally("أهلاً بك، أنا حامد. تفضّل تكلم أو اكتب طلبك.");
+    speakLocally("هلا والله! معك حامد. قل لي وش تبي وأنا على طول أخدمك.");
     if (speechSupported) startListening();
   };
+
 
   const endCall = () => {
     stopListening();
