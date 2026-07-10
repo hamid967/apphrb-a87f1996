@@ -205,7 +205,7 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
             value={value}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
-            className={cn("pe-24", className)}
+            className={cn("pe-32", className)}
             {...rest}
           />
 
