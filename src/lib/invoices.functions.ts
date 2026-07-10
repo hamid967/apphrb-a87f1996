@@ -60,9 +60,9 @@ export const listInvoices = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .limit(data.limit ?? 300);
 
-    if (data.status && data.status !== "all") q = q.eq("status", data.status);
+    if (data.status && data.status !== "all") q = q.eq("status", data.status as never);
     if (data.zatca_status && data.zatca_status !== "all")
-      q = q.eq("zatca_status", data.zatca_status);
+      q = q.eq("zatca_status", data.zatca_status as never);
     if (data.from) q = q.gte("issue_date", data.from);
     if (data.to) q = q.lte("issue_date", data.to);
     if (data.q && data.q.trim()) {
