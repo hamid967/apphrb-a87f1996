@@ -321,3 +321,129 @@ function RespRow({ r, locale }: { r: CronHttpResponse; locale: string }) {
     </tr>
   );
 }
+
+function EditScheduleButton({ isAr, job }: { isAr: boolean; job: CronJobSummary }) {
+  const qc = useQueryClient();
+  const updateFn = useServerFn(updateCronSchedule);
+  const [open, setOpen] = useState(false);
+  const [schedule, setSchedule] = useState(job.schedule);
+  const [active, setActive] = useState(job.active);
+
+  const mutation = useMutation({
+    mutationFn: (input: { schedule: string; active: boolean }) =>
+      updateFn({ data: { jobname: job.jobname, schedule: input.schedule, active: input.active } }),
+    onSuccess: () => {
+      toast.success(isAr ? "تم تحديث الجدولة" : "Schedule updated");
+      qc.invalidateQueries({ queryKey: ["admin-cron-runs"] });
+      setOpen(false);
+    },
+    onError: (e: unknown) => {
+      const msg = e instanceof Error ? e.message : String(e);
+      toast.error((isAr ? "فشل التحديث: " : "Update failed: ") + msg);
+    },
+  });
+
+  const parts = schedule.trim().split(/\s+/);
+  const valid = parts.length === 5;
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        setOpen(o);
+        if (o) {
+          setSchedule(job.schedule);
+          setActive(job.active);
+        }
+      }}
+    >
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
+        <Pencil className="me-2 size-4" />
+        {isAr ? "تعديل الجدولة" : "Edit schedule"}
+      </Button>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>
+            {isAr ? "تعديل جدولة " : "Edit schedule for "}
+            <span className="font-mono" dir="ltr">
+              {job.jobname}
+            </span>
+          </DialogTitle>
+          <DialogDescription>
+            {isAr
+              ? "أدخل تعبير cron المكوّن من 5 حقول (بتوقيت UTC)."
+              : "Enter a 5-field cron expression (UTC)."}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="cron-expr">{isAr ? "تعبير cron" : "Cron expression"}</Label>
+            <Input
+              id="cron-expr"
+              value={schedule}
+              onChange={(e) => setSchedule(e.target.value)}
+              className="font-mono"
+              dir="ltr"
+              placeholder="* * * * *"
+            />
+            {!valid && (
+              <p className="text-xs text-destructive">
+                {isAr ? "يجب أن يتكون من 5 حقول." : "Must have exactly 5 fields."}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+              {isAr ? "قوالب سريعة" : "Presets"}
+            </Label>
+            <div className="flex flex-wrap gap-2">
+              {PRESETS.map((p) => (
+                <Button
+                  key={p.expr}
+                  type="button"
+                  size="sm"
+                  variant={schedule.trim() === p.expr ? "default" : "outline"}
+                  onClick={() => setSchedule(p.expr)}
+                >
+                  <span className="me-2">{isAr ? p.ar : p.en}</span>
+                  <span className="font-mono text-[10px] opacity-70" dir="ltr">
+                    {p.expr}
+                  </span>
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between rounded-md border p-3">
+            <div>
+              <div className="text-sm font-medium">
+                {isAr ? "تفعيل المهمّة" : "Job active"}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {isAr
+                  ? "عند الإيقاف لن يتم تشغيل المهمّة حتى إعادة تفعيلها."
+                  : "When paused, the job will not run until re-enabled."}
+              </div>
+            </div>
+            <Switch checked={active} onCheckedChange={setActive} />
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => setOpen(false)} disabled={mutation.isPending}>
+            {isAr ? "إلغاء" : "Cancel"}
+          </Button>
+          <Button
+            onClick={() => mutation.mutate({ schedule: schedule.trim(), active })}
+            disabled={!valid || mutation.isPending}
+          >
+            {mutation.isPending && <Loader2 className="me-2 size-4 animate-spin" />}
+            {isAr ? "حفظ" : "Save"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
