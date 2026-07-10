@@ -177,21 +177,24 @@ function JobCard({ isAr, job }: { isAr: boolean; job: CronJobSummary }) {
               )}
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-xs text-muted-foreground">
-              {isAr ? "آخر رمز HTTP" : "Last HTTP code"}
-            </div>
-            <div
-              className={
-                "text-2xl font-semibold tabular-nums " +
-                (job.stats.last_status_code === null
-                  ? "text-muted-foreground"
-                  : job.stats.last_status_code >= 400
-                    ? "text-destructive"
-                    : "text-emerald-600")
-              }
-            >
-              {job.stats.last_status_code ?? "—"}
+          <div className="flex items-start gap-3">
+            {isEditable(job.jobname) && <EditScheduleButton isAr={isAr} job={job} />}
+            <div className="text-right">
+              <div className="text-xs text-muted-foreground">
+                {isAr ? "آخر رمز HTTP" : "Last HTTP code"}
+              </div>
+              <div
+                className={
+                  "text-2xl font-semibold tabular-nums " +
+                  (job.stats.last_status_code === null
+                    ? "text-muted-foreground"
+                    : job.stats.last_status_code >= 400
+                      ? "text-destructive"
+                      : "text-emerald-600")
+                }
+              >
+                {job.stats.last_status_code ?? "—"}
+              </div>
             </div>
           </div>
         </div>
