@@ -347,8 +347,23 @@ function OnboardingWizardPage() {
             </div>
           ) : step === 0 ? (
             <>
-              <h1 className="text-2xl font-semibold tracking-tight">أكمل بياناتك</h1>
-              <p className="mt-1 text-sm text-muted-foreground">لن تستغرق دقيقة — لتخصيص تجربتك.</p>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h1 className="text-2xl font-semibold tracking-tight">أكمل بياناتك</h1>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    لن تستغرق دقيقة — لتخصيص تجربتك.
+                  </p>
+                </div>
+                <OnboardingAiHelper
+                  step="profile"
+                  onApply={(f) => {
+                    if (f.full_name) setFullName(f.full_name);
+                    if (f.phone) setPhone(f.phone);
+                    if (f.job_title) setJobTitle(f.job_title);
+                    if (f.reason && REASONS.includes(f.reason)) setReason(f.reason);
+                  }}
+                />
+              </div>
               <form onSubmit={submitProfile} className="mt-6 space-y-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="fullName">الاسم الكامل *</Label>
@@ -402,13 +417,24 @@ function OnboardingWizardPage() {
             </>
           ) : step === 1 ? (
             <>
-              <h1 className="text-2xl font-semibold tracking-tight">جهّز مساحة العمل</h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                سنُنشئ المنظمة والفرع الافتراضي تلقائيًا — تجربة 14 يومًا مجانًا.
-              </p>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h1 className="text-2xl font-semibold tracking-tight">بيانات الشركة</h1>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    سنُنشئ المنظمة تلقائيًا — تجربة 14 يومًا مجانًا.
+                  </p>
+                </div>
+                <OnboardingAiHelper
+                  step="company"
+                  onApply={(f) => {
+                    if (f.name) setWsName(f.name);
+                    if (f.phone) setWsPhone(f.phone);
+                  }}
+                />
+              </div>
               <form onSubmit={submitCompany} className="mt-6 space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="ws-name">اسم مساحة العمل *</Label>
+                  <Label htmlFor="ws-name">اسم الشركة *</Label>
                   <Input
                     id="ws-name"
                     value={wsName}
@@ -451,12 +477,110 @@ function OnboardingWizardPage() {
                 </div>
               </form>
             </>
+          ) : step === 2 ? (
+            <>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h1 className="text-2xl font-semibold tracking-tight">
+                    الفرع والأقسام (اختياري)
+                  </h1>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    أضف فرعك الرئيسي وأقسامه الأساسية — يمكنك إضافة المزيد لاحقًا من الإعدادات.
+                  </p>
+                </div>
+                <OnboardingAiHelper
+                  step="branch"
+                  onApply={(f) => {
+                    if (f.name) setBrName(f.name);
+                    if (f.phone) setBrPhone(f.phone);
+                    if (f.address) setBrAddress(f.address);
+                    if (Array.isArray(f.departments) && f.departments.length)
+                      setBrDepartments(f.departments.join("، "));
+                  }}
+                />
+              </div>
+              <form onSubmit={submitBranch} className="mt-6 space-y-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="br-name">اسم الفرع *</Label>
+                  <Input
+                    id="br-name"
+                    value={brName}
+                    onChange={(e) => setBrName(e.target.value)}
+                    minLength={2}
+                    maxLength={120}
+                    autoFocus
+                    placeholder="مثال: الفرع الرئيسي — الرياض"
+                  />
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="br-phone">هاتف الفرع</Label>
+                    <Input
+                      id="br-phone"
+                      type="tel"
+                      dir="ltr"
+                      value={brPhone}
+                      onChange={(e) => setBrPhone(e.target.value)}
+                      placeholder="+9665XXXXXXXX"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="br-address">العنوان</Label>
+                    <Input
+                      id="br-address"
+                      value={brAddress}
+                      onChange={(e) => setBrAddress(e.target.value)}
+                      maxLength={240}
+                      placeholder="حي، شارع، مدينة"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="br-depts">
+                    الأقسام <span className="text-muted-foreground">(افصل بينها بفاصلة)</span>
+                  </Label>
+                  <Input
+                    id="br-depts"
+                    value={brDepartments}
+                    onChange={(e) => setBrDepartments(e.target.value)}
+                    placeholder="المبيعات، الإيجارات، الصيانة، المحاسبة"
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <Button type="button" variant="ghost" onClick={skipBranch} disabled={busy}>
+                    تخطّي
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="h-11 flex-1 rounded-xl bg-gradient-to-r from-primary to-teal-500 text-primary-foreground"
+                    disabled={busy}
+                  >
+                    {busy && <Loader2 className="me-2 size-4 animate-spin" />} حفظ ومتابعة
+                  </Button>
+                </div>
+              </form>
+            </>
           ) : (
             <>
-              <h1 className="text-2xl font-semibold tracking-tight">أضف أول عقار (اختياري)</h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                ابدأ فورًا بأحد عقاراتك، أو تخطَّ هذه الخطوة وأضفه لاحقًا.
-              </p>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h1 className="text-2xl font-semibold tracking-tight">
+                    أضف أول عقار (اختياري)
+                  </h1>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    ابدأ فورًا بأحد عقاراتك، أو تخطَّ هذه الخطوة وأضفه لاحقًا.
+                  </p>
+                </div>
+                <OnboardingAiHelper
+                  step="property"
+                  onApply={(f) => {
+                    if (f.title) setPropTitle(f.title);
+                    if (f.property_type) setPropType(f.property_type);
+                    if (f.city) setPropCity(f.city);
+                    if (typeof f.price === "number") setPropPrice(String(f.price));
+                  }}
+                />
+              </div>
               <form onSubmit={submitProperty} className="mt-6 space-y-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="p-title">اسم العقار *</Label>
