@@ -364,8 +364,12 @@ function FeaturesPage() {
         );
       })}
 
+      {/* Deep-dive sections */}
+      <DeepDives isAr={isAr} />
+
       {/* CTA */}
       <section className="border-t border-border/40 py-20">
+
         <div className="mx-auto max-w-3xl px-4 text-center">
           <h2 className="text-3xl font-bold text-foreground md:text-4xl">
             {isAr ? "جاهز لتجربة المزايا بنفسك؟" : "Ready to try every feature yourself?"}
