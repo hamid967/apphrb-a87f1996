@@ -174,7 +174,7 @@ function OnboardingWizardPage() {
         setChecking(false);
       }
     })();
-  }, [ready, user, nav, getCtx]);
+  }, [ready, user, nav, getCtx, search.step]);
 
   const goDashboard = () => nav({ to: "/dashboard", replace: true });
 
