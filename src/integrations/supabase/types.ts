@@ -1760,6 +1760,53 @@ export type Database = {
         }
         Relationships: []
       }
+      expense_claim_approvals: {
+        Row: {
+          claim_id: string
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          decision: string | null
+          id: string
+          level: number
+          org_id: string
+          reason: string | null
+          required_role: string
+        }
+        Insert: {
+          claim_id: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision?: string | null
+          id?: string
+          level: number
+          org_id: string
+          reason?: string | null
+          required_role: string
+        }
+        Update: {
+          claim_id?: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          decision?: string | null
+          id?: string
+          level?: number
+          org_id?: string
+          reason?: string | null
+          required_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_claim_approvals_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "expense_claims"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expense_claims: {
         Row: {
           amount: number
@@ -1771,6 +1818,7 @@ export type Database = {
           correction_reason: string | null
           created_at: string
           currency: string
+          current_level: number
           deleted_at: string | null
           description: string | null
           expense_id: string | null
@@ -1780,6 +1828,7 @@ export type Database = {
           original_claim_id: string | null
           receipt_url: string | null
           rejection_reason: string | null
+          required_levels: number
           reviewed_at: string | null
           reviewed_by: string | null
           status: Database["public"]["Enums"]["expense_claim_status"]
@@ -1798,6 +1847,7 @@ export type Database = {
           correction_reason?: string | null
           created_at?: string
           currency?: string
+          current_level?: number
           deleted_at?: string | null
           description?: string | null
           expense_id?: string | null
@@ -1807,6 +1857,7 @@ export type Database = {
           original_claim_id?: string | null
           receipt_url?: string | null
           rejection_reason?: string | null
+          required_levels?: number
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["expense_claim_status"]
@@ -1825,6 +1876,7 @@ export type Database = {
           correction_reason?: string | null
           created_at?: string
           currency?: string
+          current_level?: number
           deleted_at?: string | null
           description?: string | null
           expense_id?: string | null
@@ -1834,6 +1886,7 @@ export type Database = {
           original_claim_id?: string | null
           receipt_url?: string | null
           rejection_reason?: string | null
+          required_levels?: number
           reviewed_at?: string | null
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["expense_claim_status"]
@@ -7127,6 +7180,10 @@ export type Database = {
         }[]
       }
       cleanup_expired_user_roles: { Args: never; Returns: undefined }
+      compute_expense_required_levels: {
+        Args: { _amount: number; _currency: string; _org_id: string }
+        Returns: number
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -7136,6 +7193,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      expense_level_role: { Args: { _level: number }; Returns: string }
       finalize_expired_auctions: {
         Args: never
         Returns: {
