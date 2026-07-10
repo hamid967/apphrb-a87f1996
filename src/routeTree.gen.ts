@@ -18,6 +18,7 @@ import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ConnectRouteImport } from './routes/connect'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AccessDeniedRouteImport } from './routes/access-denied'
@@ -298,6 +299,11 @@ const FaqRoute = FaqRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConnectRoute = ConnectRouteImport.update({
+  id: '/connect',
+  path: '/connect',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CompareRoute = CompareRouteImport.update({
@@ -1653,6 +1659,7 @@ export interface FileRoutesByFullPath {
   '/access-denied': typeof AccessDeniedRoute
   '/auth': typeof AuthRoute
   '/compare': typeof CompareRoute
+  '/connect': typeof ConnectRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -1899,6 +1906,7 @@ export interface FileRoutesByTo {
   '/access-denied': typeof AccessDeniedRoute
   '/auth': typeof AuthRoute
   '/compare': typeof CompareRoute
+  '/connect': typeof ConnectRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -2139,6 +2147,7 @@ export interface FileRoutesById {
   '/access-denied': typeof AccessDeniedRoute
   '/auth': typeof AuthRoute
   '/compare': typeof CompareRoute
+  '/connect': typeof ConnectRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -2387,6 +2396,7 @@ export interface FileRouteTypes {
     | '/access-denied'
     | '/auth'
     | '/compare'
+    | '/connect'
     | '/contact'
     | '/faq'
     | '/forgot-password'
@@ -2633,6 +2643,7 @@ export interface FileRouteTypes {
     | '/access-denied'
     | '/auth'
     | '/compare'
+    | '/connect'
     | '/contact'
     | '/faq'
     | '/forgot-password'
@@ -2872,6 +2883,7 @@ export interface FileRouteTypes {
     | '/access-denied'
     | '/auth'
     | '/compare'
+    | '/connect'
     | '/contact'
     | '/faq'
     | '/forgot-password'
@@ -3120,6 +3132,7 @@ export interface RootRouteChildren {
   AccessDeniedRoute: typeof AccessDeniedRoute
   AuthRoute: typeof AuthRoute
   CompareRoute: typeof CompareRoute
+  ConnectRoute: typeof ConnectRoute
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -3240,6 +3253,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/connect': {
+      id: '/connect'
+      path: '/connect'
+      fullPath: '/connect'
+      preLoaderRoute: typeof ConnectRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/compare': {
@@ -5693,6 +5713,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccessDeniedRoute: AccessDeniedRoute,
   AuthRoute: AuthRoute,
   CompareRoute: CompareRoute,
+  ConnectRoute: ConnectRoute,
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
