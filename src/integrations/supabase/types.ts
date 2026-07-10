@@ -1102,6 +1102,48 @@ export type Database = {
         }
         Relationships: []
       }
+      cron_hook_runs: {
+        Row: {
+          attempt: number
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          finished_at: string
+          hook_name: string
+          id: string
+          max_attempts: number
+          started_at: string
+          status: string
+          summary: Json | null
+        }
+        Insert: {
+          attempt?: number
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          finished_at?: string
+          hook_name: string
+          id?: string
+          max_attempts?: number
+          started_at?: string
+          status: string
+          summary?: Json | null
+        }
+        Update: {
+          attempt?: number
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          finished_at?: string
+          hook_name?: string
+          id?: string
+          max_attempts?: number
+          started_at?: string
+          status?: string
+          summary?: Json | null
+        }
+        Relationships: []
+      }
       currencies: {
         Row: {
           code: string
