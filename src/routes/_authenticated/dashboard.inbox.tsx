@@ -66,7 +66,7 @@ function extractBody(vars: Record<string, unknown> | null): string | null {
 }
 
 function InboxPage() {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar") ?? false;
   const [unreadOnly, setUnreadOnly] = useState(false);
   const qc = useQueryClient();
