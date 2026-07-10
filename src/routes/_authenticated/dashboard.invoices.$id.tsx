@@ -20,6 +20,7 @@ import {
   getInvoicePartiesForPdf,
   sealZatcaInvoice,
 } from "@/lib/invoices-zatca.functions";
+import { InvoiceNotesSection } from "@/components/invoices/InvoiceNotesSection";
 import { FileDown } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invoices/$id")({
