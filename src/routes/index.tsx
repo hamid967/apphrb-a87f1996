@@ -14,27 +14,26 @@ import {
   Footer,
   DemoModalRoot,
 } from "@/components/hbspro/sections";
-import { EmeraldSplitHero } from "@/components/hbspro/EmeraldSplitHero";
+import { EmeraldSplitHero, PortfolioCommandCenter } from "@/components/hbspro/EmeraldSplitHero";
 import { SignupAssistant } from "@/components/SignupAssistant";
-
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "HBSpro — إدارة عقارات بالذكاء الاصطناعي" },
+      { title: "HBSpro — مركز قيادة ذكي لإدارة الأملاك والعقارات" },
       {
         name: "description",
         content:
-          "عقاري من HBSpro — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
+          "HBSpro منصة سعودية ذكية لإدارة المحافظ العقارية: أملاك، وحدات، عقود، تحصيل، صيانة، تقارير تنفيذية، ومساعد ذكاء اصطناعي في نظام واحد.",
       },
       {
         property: "og:title",
-        content: "HBSpro — إدارة عقارات بالذكاء الاصطناعي",
+        content: "HBSpro — مركز قيادة ذكي لإدارة الأملاك والعقارات",
       },
       {
         property: "og:description",
         content:
-          "عقاري من HBSpro — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
+          "منصة عقارية متكاملة لإدارة المحافظ، التحصيل، الشغور، الصيانة، العقود، والتقارير الذكية للسوق السعودي.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://hrhbs.com/" },
@@ -43,7 +42,7 @@ export const Route = createFileRoute("/")({
       { property: "og:image:height", content: "630" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/aff05cce-c377-413e-bb68-ddcfed90d484" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#071320" },
+      { name: "theme-color", content: "#043927" },
     ],
     links: [{ rel: "canonical", href: "https://hrhbs.com/" }],
     scripts: [
@@ -57,6 +56,13 @@ export const Route = createFileRoute("/")({
           operatingSystem: "Web",
           url: "https://hrhbs.com/",
           inLanguage: ["ar", "en"],
+          featureList: [
+            "إدارة المحافظ العقارية",
+            "إدارة العقود والتحصيل",
+            "إدارة الصيانة والتذاكر",
+            "تقارير تنفيذية ذكية",
+            "مساعد ذكاء اصطناعي عقاري",
+          ],
           offers: {
             "@type": "Offer",
             price: "0",
@@ -81,11 +87,12 @@ function HBSproHome() {
       <Navbar />
       <main>
         <EmeraldSplitHero />
+        <PortfolioCommandCenter />
         <div
           aria-hidden
           className="h-24"
           style={{
-            background: "linear-gradient(180deg, #fdfcfb 0%, #043927 100%)",
+            background: "linear-gradient(180deg, #043927 0%, #043927 100%)",
           }}
         />
         <Stats />
@@ -105,4 +112,3 @@ function HBSproHome() {
     </div>
   );
 }
-
