@@ -77,10 +77,17 @@ export const Route = createFileRoute("/")({
 
 function HBSproHome() {
   return (
-    <div className="theme-luxe min-h-screen font-sans antialiased bg-[#fdfcfb] text-[#043927]">
+    <div className="theme-luxe min-h-screen font-sans antialiased bg-[#043927] text-[#f5f0e0]">
       <Navbar />
       <main>
         <EmeraldSplitHero />
+        <div
+          aria-hidden
+          className="h-24"
+          style={{
+            background: "linear-gradient(180deg, #fdfcfb 0%, #043927 100%)",
+          }}
+        />
         <Stats />
         <Features />
         <AISection />
