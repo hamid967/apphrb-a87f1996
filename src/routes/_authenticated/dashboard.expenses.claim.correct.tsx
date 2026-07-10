@@ -274,11 +274,11 @@ function CorrectionWizard() {
             <div className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="c-reason">{t("expenseClaimCorrection.reasonLabel")}</Label>
-                <Textarea
+                <VoiceTextarea
                   id="c-reason"
                   autoFocus
                   value={reason}
-                  onChange={(e) => setReason(e.target.value)}
+                  onChange={setReason}
                   placeholder={t("expenseClaimCorrection.reasonPlaceholder")}
                   rows={4}
                   maxLength={1000}
