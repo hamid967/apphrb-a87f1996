@@ -97,7 +97,7 @@ export const listZatcaCustomers = createServerFn({ method: "POST" })
         "id, full_name, email, phone, vat_number, cr_number, address_street, address_building_number, address_additional_number, address_district, address_city, address_postal_code, address_country_code",
       )
       .eq("org_id", orgId)
-      .eq("contact_type", "customer")
+      .eq("contact_type", "buyer")
       .order("full_name", { ascending: true })
       .limit(500);
 
@@ -160,7 +160,7 @@ export const upsertZatcaCustomer = createServerFn({ method: "POST" })
     const payload = {
       org_id: orgId,
       full_name: data.full_name,
-      contact_type: "customer" as const,
+      contact_type: "buyer" as const,
       email: clean(data.email),
       phone: clean(data.phone),
       vat_number: clean(data.vat_number),
