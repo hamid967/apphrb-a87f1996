@@ -28,6 +28,7 @@ import {
 import { PhoneVerifyInput } from "@/components/PhoneVerifyInput";
 import { OnboardingAiHelper } from "@/components/onboarding/OnboardingAiHelper";
 import { registerCompany, getMyAccessContext } from "@/lib/company.functions";
+import { describeCompanyCreateError } from "@/lib/company-errors";
 import { createProperty } from "@/lib/properties.functions";
 import { setOnboardingStep } from "@/lib/onboarding.functions";
 import { createOnboardingBranch } from "@/lib/onboarding-branches.functions";
@@ -228,7 +229,8 @@ function OnboardingWizardPage() {
       toast.success(`تم إنشاء مساحة العمل — تجربة مجانية ${res.trial_days} يومًا`);
       setStep(2);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "تعذّر الإنشاء");
+      const hint = describeCompanyCreateError(err);
+      toast.error(hint.title, { description: hint.description });
     } finally {
       setBusy(false);
     }
