@@ -274,6 +274,8 @@ export function SignupAssistant() {
       ...rest
     }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href?: string }) => {
       const isInternal = href && INTERNAL.test(href);
+      const isSafeExternal =
+        href?.startsWith("https://") || href?.startsWith("mailto:");
       if (isInternal) {
         return (
           <a
@@ -289,6 +291,9 @@ export function SignupAssistant() {
             {children}
           </a>
         );
+      }
+      if (!isSafeExternal) {
+        return <span>{children}</span>;
       }
       return (
         <a
