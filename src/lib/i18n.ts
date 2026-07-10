@@ -2633,6 +2633,12 @@ const ar: typeof en = {
     archive: "أرشفة",
     close: "إغلاق",
     forbidden: "ليست لديك صلاحية للوصول إلى هذا العنصر.",
+    retry: "إعادة المحاولة",
+    errLoadTitle: "حدث خطأ ما",
+    errLoadDesc: "تعذّر تحميل المحتوى. الرجاء المحاولة مرة أخرى.",
+    unauthorizedTitle: "الوصول مقيّد",
+    unauthorizedDesc: "ليست لديك صلاحية لعرض هذا المحتوى.",
+    emptyTitle: "لا توجد بيانات بعد",
   },
   activity: {
     title: "النشاط",
