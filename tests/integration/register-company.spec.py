@@ -125,6 +125,44 @@ SELECT unnest(ARRAY[
        ELSE 'FAIL: function no longer sets trial_ends_at' END
 ]) FROM src;
 
+-- 6) Linkage check — after register_company runs, the caller's identity must
+-- resolve to the new org via get_my_company_id() and their role via
+-- get_my_role(). We stand in as the existing owner (u_owner, whose membership
+-- was created previously by the real register_company flow) and assert both
+-- resolvers return the expected values. This is what the app depends on to
+-- know "which company am I in?" and "what can I do?".
+SELECT set_config('request.jwt.claims',
+  json_build_object('sub', current_setting('test.u_owner'), 'role','authenticated')::text, true);
+
+SELECT CASE
+  WHEN public.get_my_company_id() = (
+    SELECT org_id FROM public.organization_members
+      WHERE user_id = current_setting('test.u_owner')::uuid
+        AND role IN ('owner','admin')
+      ORDER BY CASE role WHEN 'owner' THEN 1 WHEN 'admin' THEN 2 ELSE 3 END
+      LIMIT 1)
+  THEN 'PASS: get_my_company_id resolves to the caller''s org'
+  ELSE 'FAIL: get_my_company_id does not resolve to owner''s org'
+END;
+
+SELECT CASE
+  WHEN public.get_my_role() IN ('company_owner','super_admin')
+  THEN 'PASS: get_my_role returns company_owner (or super_admin) for the caller'
+  ELSE 'FAIL: get_my_role returned ' || COALESCE(public.get_my_role(),'null')
+END;
+
+-- Extra: the organization_members row for that owner must reference an
+-- organization that actually exists — catches a broken FK / dangling link.
+SELECT CASE WHEN EXISTS (
+  SELECT 1
+    FROM public.organization_members m
+    JOIN public.organizations o ON o.id = m.org_id
+   WHERE m.user_id = current_setting('test.u_owner')::uuid
+     AND m.role = 'owner'
+) THEN 'PASS: owner membership links to an existing organization'
+  ELSE 'FAIL: owner membership has no matching organization row'
+END;
+
 ROLLBACK;
 """
 
@@ -140,7 +178,7 @@ def main() -> int:
     passed = sum(1 for ln in lines if "PASS:" in ln)
     failed = sum(1 for ln in lines if "FAIL:" in ln)
     print(f"\n{passed} passed, {failed} failed")
-    return 0 if failed == 0 and passed >= 8 else 1
+    return 0 if failed == 0 and passed >= 11 else 1
 
 
 if __name__ == "__main__":
