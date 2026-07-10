@@ -22,9 +22,9 @@ ROUTES = [
     ("/", "home"),
     ("/auth", "auth"),
     ("/pricing", "pricing"),
-    ("/features", "features"),
     ("/contact", "contact"),
 ]
+
 
 # أنماط أخطاء يجب رفضها
 FATAL_PATTERNS = [
