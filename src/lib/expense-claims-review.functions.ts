@@ -208,9 +208,12 @@ export const decideClaim = createServerFn({ method: "POST" })
 
     const { error: upErr } = await supabase
       .from("expense_claims")
-      .update(patch)
+      // Cast: patch is a partial with mixed types (status, level, nullable fields)
+      // that Postgrest's generated Update type narrows too aggressively.
+      .update(patch as never)
       .eq("id", data.claim_id);
     if (upErr) throw upErr;
+
 
     if (claim.submitted_by) {
       try {
