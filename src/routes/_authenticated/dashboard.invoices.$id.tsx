@@ -318,6 +318,8 @@ function InvoiceDetailPage() {
           </>
         )}
       </Card>
+
+      <InvoiceNotesSection invoiceId={id} invoiceNumber={b?.number ?? id} />
     </div>
   );
 }
