@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, forwardRef, type TextareaHTMLAttributes } from "react";
+import { useEffect, useId, useRef, useState, forwardRef, type KeyboardEvent, type TextareaHTMLAttributes } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { AlertCircle, Check, Globe, Loader2, Mic, MicOff, Pause, Play, RotateCcw, Square, X } from "lucide-react";
 import { toast } from "sonner";
@@ -197,6 +197,30 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
     const showBadge = phase !== "idle";
     const isBusy = phase === "starting" || phase === "transcribing";
 
+    const statusId = useId();
+    const hintId = useId();
+
+    const onTextareaKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+      const mod = e.ctrlKey || e.metaKey;
+      // Ctrl/⌘ + Shift + M → toggle start/stop recording
+      if (mod && e.shiftKey && (e.key === "m" || e.key === "M")) {
+        e.preventDefault();
+        if (!voice.supported || disabled) return;
+        void handleMic();
+        return;
+      }
+      // Ctrl/⌘ + Shift + P → pause / resume (only during recording)
+      if (mod && e.shiftKey && (e.key === "p" || e.key === "P")) {
+        if (phase === "recording" || phase === "paused") {
+          e.preventDefault();
+          togglePause();
+        }
+        return;
+      }
+      // Delegate to caller-provided onKeyDown, if any.
+      rest.onKeyDown?.(e);
+    };
+
     return (
       <div className="space-y-2">
         <div className="relative">
@@ -205,9 +229,15 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
             value={value}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
+            aria-describedby={cn(hintId, showBadge && statusId) || undefined}
+            aria-busy={isBusy || phase === "recording" || phase === "paused"}
             className={cn("pe-32", className)}
             {...rest}
+            onKeyDown={onTextareaKeyDown}
           />
+          <span id={hintId} className="sr-only">
+            اختصار لوحة المفاتيح: Ctrl أو ⌘ مع Shift و M لبدء أو إيقاف التسجيل، وShift مع P للإيقاف المؤقت والاستكمال.
+          </span>
 
           <div className="absolute end-2 bottom-2 flex items-center gap-1">
             {/* Language selector */}
@@ -264,7 +294,9 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
                         onClick={togglePause}
                         disabled={disabled}
                         aria-label={phase === "paused" ? "استكمال التسجيل" : "إيقاف مؤقت"}
-                        title={phase === "paused" ? "استكمال التسجيل" : "إيقاف مؤقت"}
+                        aria-pressed={phase === "paused"}
+                        aria-keyshortcuts="Control+Shift+P Meta+Shift+P"
+                        title={phase === "paused" ? "استكمال التسجيل (Ctrl+Shift+P)" : "إيقاف مؤقت (Ctrl+Shift+P)"}
                         className="h-8 w-8"
                       >
                         {phase === "paused" ? (
@@ -302,8 +334,14 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
                     }
                     onClick={handleMic}
                     disabled={disabled || isBusy}
-                    aria-label={PHASE_LABEL[phase] || "إدخال صوتي"}
-                    title={PHASE_LABEL[phase] || "إدخال صوتي"}
+                    aria-label={
+                      phase === "recording" || phase === "paused"
+                        ? "إيقاف التسجيل"
+                        : PHASE_LABEL[phase] || "بدء الإدخال الصوتي"
+                    }
+                    aria-pressed={phase === "recording" || phase === "paused"}
+                    aria-keyshortcuts="Control+Shift+M Meta+Shift+M"
+                    title={`${PHASE_LABEL[phase] || "إدخال صوتي"} (Ctrl+Shift+M)`}
                     className={cn(
                       "h-8 w-8 relative overflow-hidden",
                       phase === "recording" &&
@@ -359,8 +397,10 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
                 "inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[11px] font-medium",
                 PHASE_STYLES[phase],
               )}
-              role="status"
-              aria-live="polite"
+              id={statusId}
+              role={phase === "error" ? "alert" : "status"}
+              aria-live={phase === "error" ? "assertive" : "polite"}
+              aria-atomic="true"
             >
               {phase === "recording" && (
                 <motion.span
@@ -448,6 +488,9 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
               className="relative overflow-hidden rounded-full bg-primary/10"
+              role="progressbar"
+              aria-label="جارٍ تحويل الصوت إلى نص"
+              aria-valuetext="جارٍ التحويل"
             >
               <motion.span
                 className="absolute inset-y-0 w-1/3 rounded-full bg-primary/70"
@@ -468,6 +511,8 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="rounded-md border border-primary/30 bg-primary/5 p-2"
+              role="group"
+              aria-label="مراجعة النص المُفرَّغ"
             >
               <div className="mb-1 flex items-center justify-between">
                 <span className="text-[11px] font-medium text-primary">راجع النص قبل الإضافة</span>
@@ -480,6 +525,16 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
                 autoFocus
                 className="resize-none text-sm"
                 dir="auto"
+                aria-label="النص المُفرَّغ القابل للتعديل"
+                onKeyDown={(e) => {
+                  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                    e.preventDefault();
+                    if (pending.trim()) confirm();
+                  } else if (e.key === "Escape") {
+                    e.preventDefault();
+                    discard();
+                  }
+                }}
               />
               <div className="mt-2 flex items-center justify-end gap-2">
                 <Button type="button" variant="ghost" size="sm" onClick={discard}>
