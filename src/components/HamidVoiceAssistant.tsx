@@ -776,7 +776,7 @@ export function HamidVoiceAssistant() {
     } catch (err) {
       const fallback = getLocalIntent(clean, history);
       setReply(fallback);
-      speak(fallback.text);
+      speak(fallback.text, { syncText: fallback.text });
       setError("تعذّر الاتصال بحامد الآن، تم استخدام الرد المحلي.");
       void err;
     } finally {
