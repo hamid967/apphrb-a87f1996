@@ -71,6 +71,7 @@ function ClaimsReviewPage() {
   const { t, i18n } = useTranslation();
   const qc = useQueryClient();
   const isAr = i18n.language?.startsWith("ar");
+  const { claim: focusClaimId } = Route.useSearch();
   const [status, setStatus] = useState<Status>("submitted");
   const [dialog, setDialog] = useState<
     | { kind: "reject" | "return"; claim: ClaimRow }
