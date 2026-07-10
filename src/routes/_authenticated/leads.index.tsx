@@ -110,6 +110,29 @@ function LeadsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Lead | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [stageFilter, setStageFilter] = useState<Stage | "__all__">("__all__");
+
+  const filteredLeads = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return ((leadsQ.data ?? []) as Lead[]).filter((l) => {
+      if (stageFilter !== "__all__" && l.stage !== stageFilter) return false;
+      if (!q) return true;
+      const hay = [
+        l.contact?.full_name,
+        l.contact?.email,
+        l.contact?.phone,
+        l.source,
+        l.notes,
+        l.property?.title_ar,
+        l.property?.title_en,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return hay.includes(q);
+    });
+  }, [leadsQ.data, search, stageFilter]);
 
   const grouped = useMemo(() => {
     const map: Record<Stage, Lead[]> = {
@@ -121,9 +144,31 @@ function LeadsPage() {
       won: [],
       lost: [],
     };
-    for (const l of (leadsQ.data ?? []) as Lead[]) map[l.stage]?.push(l);
+    for (const l of filteredLeads) map[l.stage]?.push(l);
     return map;
-  }, [leadsQ.data]);
+  }, [filteredLeads]);
+
+  const handleExport = (format: "csv" | "xlsx") => {
+    if (filteredLeads.length === 0) {
+      toast.error(t("crm.leads.nothingToExport"));
+      return;
+    }
+    const rows = filteredLeads.map((l) => ({
+      id: l.id,
+      contact: l.contact?.full_name ?? "",
+      email: l.contact?.email ?? "",
+      phone: l.contact?.phone ?? "",
+      stage: t(`crm.leads.stages.${l.stage}`, l.stage),
+      source: l.source ?? "",
+      budget_min: l.budget_min ?? "",
+      budget_max: l.budget_max ?? "",
+      currency: l.currency,
+      property: l.property ? (isAr ? l.property.title_ar : l.property.title_en) : "",
+      notes: l.notes ?? "",
+    }));
+    exportRows(`leads_${new Date().toISOString().slice(0, 10)}`, rows, format);
+  };
+
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["leads", org?.id] });
 
