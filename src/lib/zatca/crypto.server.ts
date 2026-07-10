@@ -74,13 +74,23 @@ function getMasterKeyMaterial(): Uint8Array {
 
 async function importAesKey(): Promise<CryptoKey> {
   const material = getMasterKeyMaterial();
+  // Copy into a fresh ArrayBuffer to satisfy WebCrypto's BufferSource typing
+  // (Uint8Array<ArrayBufferLike> is not assignable to ArrayBufferView<ArrayBuffer>).
+  const buf = new ArrayBuffer(material.byteLength);
+  new Uint8Array(buf).set(material);
   return crypto.subtle.importKey(
     "raw",
-    material,
+    buf,
     { name: AES_ALGO },
     false,
     ["encrypt", "decrypt"],
   );
+}
+
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const buf = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(buf).set(bytes);
+  return buf;
 }
 
 /**
