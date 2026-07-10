@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { toast } from "sonner";
 import { Check, Loader2, RotateCcw, X, ArrowLeft, Receipt as ReceiptIcon, History, ChevronDown } from "lucide-react";
 
