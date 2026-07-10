@@ -9,7 +9,7 @@ import { createFileRoute } from "@tanstack/react-router";
 // trade-off for a zero-dependency, edge-safe implementation.
 // ---------------------------------------------------------------------------
 
-const BRAND = "HRHBS · HBSpro";
+const BRAND = "HBSpro";
 const DEFAULT_KIND = "page";
 const MAX_TITLE = 90;
 const MAX_SUB = 140;
@@ -178,7 +178,7 @@ export const Route = createFileRoute("/api/public/og/image.svg")({
       GET: async ({ request }) => {
         const url = new URL(request.url);
         const p = url.searchParams;
-        const title = (p.get("title") || "HRHBS — HBSpro").trim();
+        const title = (p.get("title") || "HBSpro").trim();
         const subtitle = (p.get("subtitle") || "").trim();
         const kindRaw = (p.get("kind") || DEFAULT_KIND).toLowerCase() as Kind;
         const kind: Kind = (
