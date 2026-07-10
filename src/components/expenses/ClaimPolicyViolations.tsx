@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { toast } from "sonner";
 import { AlertTriangle, CheckCircle2, FileText, Loader2, ShieldAlert, ShieldCheck, Undo2 } from "lucide-react";
 
