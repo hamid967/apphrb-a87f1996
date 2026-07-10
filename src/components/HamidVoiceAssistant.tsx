@@ -911,14 +911,40 @@ export function HamidVoiceAssistant() {
             </div>
             <input
               type="range"
-              min={0.7}
-              max={1.3}
+              min={1.0}
+              max={1.5}
               step={0.05}
               value={settings.rate}
               onChange={(e) => update({ rate: Number(e.target.value) })}
-              className="w-full accent-slate-900 dark:accent-white"
+              className="w-full accent-sky-500"
+              aria-label="معدل سرعة الصوت"
             />
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {[1.0, 1.15, 1.25, 1.4, 1.5].map((r) => {
+                const active = Math.abs(settings.rate - r) < 0.03;
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => update({ rate: r })}
+                    className={cn(
+                      "rounded-full px-2.5 py-0.5 text-[10px] font-semibold transition tabular-nums",
+                      active
+                        ? "bg-sky-500 text-white shadow-sm"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700",
+                    )}
+                    aria-pressed={active}
+                  >
+                    {r.toFixed(2)}×
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">
+              يُحفظ الإعداد تلقائياً على هذا المتصفح.
+            </p>
           </div>
+
 
           {/* Pitch (browser fallback only) */}
           <div>
