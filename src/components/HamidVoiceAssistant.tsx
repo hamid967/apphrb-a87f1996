@@ -857,6 +857,93 @@ export function HamidVoiceAssistant() {
         </div>
       )}
 
+      {diagOpen && (
+        <div className="mx-4 mb-3 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-700 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-200">
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] font-semibold text-slate-900 dark:text-white">تشخيص الصوت</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setLogs([])}
+                className="rounded-full bg-white px-2 py-1 text-[11px] font-medium text-slate-600 shadow-sm hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300"
+              >
+                مسح السجل
+              </button>
+              <button
+                type="button"
+                onClick={() => void runDiagnostics()}
+                disabled={checking}
+                className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white disabled:opacity-50 dark:bg-white dark:text-slate-900"
+              >
+                {checking ? <Loader2 className="h-3 w-3 animate-spin" /> : <RotateCcw className="h-3 w-3" />}
+                إعادة الفحص
+              </button>
+            </div>
+          </div>
+
+          {checks.length > 0 && (
+            <ul className="space-y-1.5">
+              {checks.map((c) => (
+                <li key={c.name} className="rounded-lg bg-white p-2 dark:bg-slate-900">
+                  <div className="flex items-start gap-2">
+                    {c.status === "ok" ? (
+                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                    ) : c.status === "warn" ? (
+                      <Activity className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
+                    ) : (
+                      <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-500" />
+                    )}
+                    <div className="flex-1">
+                      <div className="font-medium text-slate-800 dark:text-slate-100">{c.name}</div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">{c.detail}</div>
+                      {c.fix && (
+                        <div className="mt-1 rounded-md bg-slate-50 px-2 py-1 text-[11px] text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                          💡 {c.fix}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div>
+            <div className="mb-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              سجل الأحداث ({logs.length})
+            </div>
+            <div className="max-h-40 overflow-y-auto rounded-lg bg-white p-2 font-mono text-[10px] leading-relaxed dark:bg-slate-900">
+              {logs.length === 0 ? (
+                <div className="text-slate-400">لا توجد أحداث بعد. جرّب مكالمة أو معاينة صوت.</div>
+              ) : (
+                logs
+                  .slice()
+                  .reverse()
+                  .map((l) => (
+                    <div
+                      key={l.id}
+                      className={cn(
+                        "border-b border-slate-100 py-1 last:border-b-0 dark:border-slate-800",
+                        l.level === "error" && "text-red-600 dark:text-red-400",
+                        l.level === "warn" && "text-amber-600 dark:text-amber-400",
+                        l.level === "ok" && "text-emerald-600 dark:text-emerald-400",
+                      )}
+                    >
+                      <span className="text-slate-400">
+                        {new Date(l.ts).toLocaleTimeString("ar-SA", { hour12: false })}
+                      </span>{" "}
+                      {l.msg}
+                      {l.hint && <div className="ps-4 text-slate-500 dark:text-slate-400">↳ {l.hint}</div>}
+                    </div>
+                  ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
 
       {/* Orb stage */}
       <div className="flex flex-col items-center gap-4 px-5 pb-4 pt-2">
