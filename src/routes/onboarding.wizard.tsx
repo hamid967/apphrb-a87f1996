@@ -211,31 +211,66 @@ function OnboardingWizardPage() {
       ),
     ).slice(0, 20);
 
+  // Regex هاتف سعودي مرن: +9665XXXXXXXX أو 05XXXXXXXX أو 5XXXXXXXX
+  const SAUDI_PHONE_RE = /^(?:\+?966|0)?5\d{8}$/;
+  const normalizePhone = (raw: string): string | null => {
+    const d = raw.replace(/[\s-]/g, "");
+    if (!d) return null;
+    if (!SAUDI_PHONE_RE.test(d)) return "invalid";
+    const digits = d.replace(/^\+?966/, "").replace(/^0/, "");
+    return `+966${digits}`;
+  };
+
   const submitBranch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!orgId) return toast.error("مساحة العمل غير جاهزة");
-    if (brName.trim().length < 2) return toast.error("يرجى إدخال اسم الفرع");
+
+    const name = brName.trim();
+    if (name.length < 2) return toast.error("اسم الفرع قصير جدًا (حرفان على الأقل)");
+    if (name.length > 120) return toast.error("اسم الفرع طويل جدًا (حتى 120 حرفًا)");
+
+    let phone: string | null = null;
+    if (brPhone.trim()) {
+      const p = normalizePhone(brPhone);
+      if (p === "invalid") return toast.error("رقم الجوال غير صالح — استخدم صيغة 05XXXXXXXX");
+      phone = p;
+    }
+
+    const address = brAddress.trim();
+    if (address.length > 240) return toast.error("العنوان طويل جدًا (حتى 240 حرفًا)");
+
+    const departments = parseDepartments(brDepartments);
+    const rawCount = brDepartments
+      .split(/[،,\n]/g)
+      .map((s) => s.trim())
+      .filter(Boolean).length;
+    if (rawCount > 20) return toast.error("الحد الأقصى 20 قسمًا في هذه الخطوة");
+    const tooLong = brDepartments
+      .split(/[،,\n]/g)
+      .map((s) => s.trim())
+      .find((s) => s.length > 80);
+    if (tooLong) return toast.error(`اسم القسم "${tooLong.slice(0, 20)}…" طويل جدًا`);
+
     setBusy(true);
     try {
-      const departments = parseDepartments(brDepartments);
       const res = await createBranch({
         data: {
           org_id: orgId,
-          name: brName.trim(),
-          phone: brPhone.trim() || null,
-          address: brAddress.trim() || null,
+          name,
+          phone,
+          address: address || null,
           departments,
         },
       });
       await markStep({ data: { step: "branch", done: true } }).catch(() => {});
       toast.success(
         res.departments > 0
-          ? `تم إنشاء الفرع و${res.departments} قسمًا`
-          : "تم إنشاء الفرع",
+          ? `تم حفظ الفرع و${res.departments} قسمًا`
+          : "تم حفظ الفرع",
       );
       setStep(3);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "تعذّر إنشاء الفرع");
+      toast.error(err instanceof Error ? err.message : "تعذّر حفظ الفرع");
     } finally {
       setBusy(false);
     }
