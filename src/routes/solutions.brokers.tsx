@@ -17,9 +17,9 @@ export const Route = createFileRoute("/solutions/brokers")({
         content: "CRM، معاينات، عمولات، وأتمتة WhatsApp لوسطاء العقارات.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://apphrb.lovable.app/solutions/brokers" },
+      { property: "og:url", content: "https://hrhbs.com/solutions/brokers" },
     ],
-    links: [{ rel: "canonical", href: "https://apphrb.lovable.app/solutions/brokers" }],
+    links: [{ rel: "canonical", href: "https://hrhbs.com/solutions/brokers" }],
   }),
   component: () => (
     <SolutionPage

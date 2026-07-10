@@ -17,9 +17,9 @@ export const Route = createFileRoute("/solutions/enterprises")({
         content: "متعدد الفروع، صلاحيات مؤسسية، تكامل ZATCA، وSSO لشركات العقارات الكبرى.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://apphrb.lovable.app/solutions/enterprises" },
+      { property: "og:url", content: "https://hrhbs.com/solutions/enterprises" },
     ],
-    links: [{ rel: "canonical", href: "https://apphrb.lovable.app/solutions/enterprises" }],
+    links: [{ rel: "canonical", href: "https://hrhbs.com/solutions/enterprises" }],
   }),
   component: () => (
     <SolutionPage

@@ -17,9 +17,9 @@ export const Route = createFileRoute("/solutions/owners")({
         content: "بوابة الملاك، كشوف حساب، وتقارير أداء العقارات في مكان واحد.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://apphrb.lovable.app/solutions/owners" },
+      { property: "og:url", content: "https://hrhbs.com/solutions/owners" },
     ],
-    links: [{ rel: "canonical", href: "https://apphrb.lovable.app/solutions/owners" }],
+    links: [{ rel: "canonical", href: "https://hrhbs.com/solutions/owners" }],
   }),
   component: () => (
     <SolutionPage
