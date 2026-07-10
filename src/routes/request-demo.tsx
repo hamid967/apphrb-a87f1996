@@ -1,14 +1,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
 import "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle, BrandMark } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, Calendar, ArrowRight } from "lucide-react";
+import { CheckCircle2, Calendar, ArrowRight, Loader2, AlertCircle } from "lucide-react";
+
+const demoSchema = z.object({
+  name: z.string().trim().min(1).max(200),
+  email: z.string().trim().email().max(320),
+  company: z.string().trim().max(200).optional(),
+  phone: z.string().trim().max(40).optional(),
+  units: z.string().trim().max(100).optional(),
+  message: z.string().trim().max(4000).optional(),
+});
 
 const CANONICAL = "https://hrhbs.com/request-demo";
 
@@ -50,6 +61,8 @@ function RequestDemoPage() {
   const { i18n } = useTranslation();
   const isAr = i18n.language !== "en";
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const bullets = isAr
     ? [
@@ -142,47 +155,102 @@ function RequestDemoPage() {
           ) : (
             <form
               className="space-y-4"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
+                if (submitting) return;
+                setErrorMsg(null);
+                const fd = new FormData(e.currentTarget);
+                const raw = {
+                  name: String(fd.get("name") ?? ""),
+                  email: String(fd.get("email") ?? ""),
+                  company: String(fd.get("company") ?? ""),
+                  phone: String(fd.get("phone") ?? ""),
+                  units: String(fd.get("units") ?? ""),
+                  message: String(fd.get("notes") ?? ""),
+                };
+                const parsed = demoSchema.safeParse(raw);
+                if (!parsed.success) {
+                  setErrorMsg(
+                    isAr
+                      ? "يرجى مراجعة الحقول والمحاولة مرة أخرى."
+                      : "Please review the fields and try again.",
+                  );
+                  return;
+                }
+                setSubmitting(true);
+                const { error } = await supabase.from("demo_requests").insert({
+                  name: parsed.data.name,
+                  email: parsed.data.email,
+                  company: parsed.data.company || null,
+                  phone: parsed.data.phone || null,
+                  units: parsed.data.units || null,
+                  message: parsed.data.message || null,
+                  source: "request-demo",
+                });
+                setSubmitting(false);
+                if (error) {
+                  setErrorMsg(
+                    isAr
+                      ? "تعذّر إرسال الطلب. حاول لاحقاً."
+                      : "Could not submit your request. Please try again.",
+                  );
+                  return;
+                }
                 setSubmitted(true);
               }}
             >
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="name">{isAr ? "الاسم" : "Full name"}</Label>
-                  <Input id="name" required className="mt-1" />
+                  <Input id="name" name="name" required maxLength={200} className="mt-1" />
                 </div>
                 <div>
                   <Label htmlFor="company">{isAr ? "الشركة" : "Company"}</Label>
-                  <Input id="company" required className="mt-1" />
+                  <Input id="company" name="company" maxLength={200} className="mt-1" />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <Label htmlFor="email">{isAr ? "البريد" : "Work email"}</Label>
-                  <Input id="email" type="email" required className="mt-1" />
+                  <Input id="email" name="email" type="email" required maxLength={320} className="mt-1" />
                 </div>
                 <div>
                   <Label htmlFor="phone">{isAr ? "الجوال" : "Phone"}</Label>
-                  <Input id="phone" type="tel" className="mt-1" />
+                  <Input id="phone" name="phone" type="tel" maxLength={40} className="mt-1" />
                 </div>
               </div>
               <div>
                 <Label htmlFor="units">
                   {isAr ? "عدد الوحدات المُدارة" : "Units under management"}
                 </Label>
-                <Input id="units" type="number" min={1} className="mt-1" />
+                <Input id="units" name="units" type="number" min={1} className="mt-1" />
               </div>
               <div>
                 <Label htmlFor="notes">
                   {isAr ? "ماذا تريد أن ترى؟" : "What would you like to see?"}
                 </Label>
-                <Textarea id="notes" rows={3} className="mt-1" />
+                <Textarea id="notes" name="notes" rows={3} maxLength={4000} className="mt-1" />
               </div>
-              <Button type="submit" size="lg" className="w-full">
-                {isAr ? "احجز الآن" : "Book demo"}
-                <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" />
+              {errorMsg && (
+                <div className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+              <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+                {submitting ? (
+                  <>
+                    <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                    {isAr ? "جارٍ الإرسال…" : "Sending…"}
+                  </>
+                ) : (
+                  <>
+                    {isAr ? "احجز الآن" : "Book demo"}
+                    <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" />
+                  </>
+                )}
               </Button>
+
               <p className="text-center text-xs text-muted-foreground">
                 {isAr
                   ? "لا بطاقة ائتمانية · نرد خلال يوم عمل"
