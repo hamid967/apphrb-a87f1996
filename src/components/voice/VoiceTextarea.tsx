@@ -397,8 +397,10 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
                 "inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[11px] font-medium",
                 PHASE_STYLES[phase],
               )}
-              role="status"
-              aria-live="polite"
+              id={statusId}
+              role={phase === "error" ? "alert" : "status"}
+              aria-live={phase === "error" ? "assertive" : "polite"}
+              aria-atomic="true"
             >
               {phase === "recording" && (
                 <motion.span
