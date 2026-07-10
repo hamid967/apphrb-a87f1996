@@ -537,10 +537,23 @@ export function HamidVoiceAssistant() {
   useEffect(() => {
     settingsRef.current = settings;
   }, [settings]);
+  // Guard against rapid duplicate speak() calls (double-clicks, StrictMode,
+  // repeated identical intents). Same text within 900ms is dropped silently.
+  const lastSpeakRef = useRef<{ text: string; at: number }>({ text: "", at: 0 });
   const speak = (text: string) => {
-    void speakSaudi(text, settingsRef.current);
+    const t = (text ?? "").trim();
+    if (!t) return false;
+    const now = Date.now();
+    const last = lastSpeakRef.current;
+    if (t === last.text && now - last.at < 900) {
+      pushLog("info", "تم تجاهل طلب نطق مكرر خلال أقل من ثانية");
+      return true;
+    }
+    lastSpeakRef.current = { text: t, at: now };
+    void speakSaudi(t, settingsRef.current);
     return true;
   };
+
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const Recognition = useMemo(getSpeechRecognition, []);
   const speechSupported = Boolean(Recognition);
