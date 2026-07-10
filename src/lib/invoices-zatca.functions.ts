@@ -53,12 +53,22 @@ export const getZatcaBundle = createServerFn({ method: "GET" })
     const { data: inv, error } = await context.supabase
       .from("invoices")
       .select(
-        "id, org_id, number, zatca_uuid, zatca_hash, previous_hash, qr_tlv, xml_ubl, zatca_status, zatca_reported_at, zatca_counter, zatca_sealed_at, invoice_type, subtotal, vat_amount, vat_rate, total, currency, issue_date, due_date, description, notes, contact_id",
+        "id, org_id, number, zatca_uuid, zatca_hash, previous_hash, qr_tlv, xml_ubl, zatca_status, zatca_reported_at, zatca_counter, zatca_sealed_at, zatca_rejection_reason, invoice_type, subtotal, vat_amount, vat_rate, total, currency, issue_date, due_date, paid_at, status, description, notes, contact_id, created_at, updated_at",
       )
       .eq("id", data.invoiceId)
       .single();
     if (error || !inv) throw new Error(error?.message ?? "Invoice not found");
-    return inv;
+
+    let buyer: { full_name: string | null; email: string | null; phone: string | null; vat_number: string | null } | null = null;
+    if (inv.contact_id) {
+      const { data: c } = await context.supabase
+        .from("contacts")
+        .select("full_name, email, phone, vat_number")
+        .eq("id", inv.contact_id)
+        .maybeSingle();
+      buyer = (c as typeof buyer) ?? null;
+    }
+    return { ...inv, buyer };
   });
 
 /** Fetch seller (org) + buyer (contact) info for PDF rendering. */
