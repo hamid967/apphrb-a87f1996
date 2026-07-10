@@ -149,7 +149,7 @@ function getLocalIntent(text: string, _history: Turn[]): HamidIntent {
     };
   }
   return {
-    text: "حياك الله، أنا حامد مساعد HBSpro الصوتي. أقدر أساعدك في التسجيل، فتح الصفحات، وتجهيز مهام العقارات، التحصيل، الصيانة، العقود، التقارير، والعملاء.",
+    text: "هلا والله! أنا حامد، مساعدك في HBSpro. قل لي وش تبي: تسجيل، فتح صفحة، عقارات، تحصيل، صيانة، عقود، تقارير، أو عملاء.",
     actionLabel: "افتح لوحة التحكم",
     actionPath: "/dashboard",
     confidence: "low",
