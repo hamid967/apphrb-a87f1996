@@ -57,7 +57,7 @@ export function normalizeVoiceSettings(
   return {
     gender,
     serverVoice,
-    rate: clamp(Number(raw.rate ?? DEFAULT_HAMID_VOICE.rate), 0.7, 1.3),
+    rate: clamp(Number(raw.rate ?? DEFAULT_HAMID_VOICE.rate), 0.8, 1.8),
     pitch: clamp(Number(raw.pitch ?? DEFAULT_HAMID_VOICE.pitch), 0.5, 1.5),
   };
 }
