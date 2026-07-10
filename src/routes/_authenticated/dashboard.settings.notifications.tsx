@@ -428,8 +428,12 @@ function EventPrefsSection({ orgId }: { orgId: string }) {
   });
 
   const save = useMutation({
-    mutationFn: (v: { event_key: string; channel: EventChannel; enabled: boolean }) =>
-      saveFn({ data: { orgId, ...v } }),
+    mutationFn: (v: {
+      event_key: string;
+      channel: EventChannel;
+      enabled?: boolean;
+      frequency?: "instant" | "daily" | "weekly" | "off";
+    }) => saveFn({ data: { orgId, ...v } }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["user-event-prefs", orgId] });
     },
@@ -444,9 +448,23 @@ function EventPrefsSection({ orgId }: { orgId: string }) {
     );
 
   const key = (event_key: string, ch: EventChannel) => `${event_key}::${ch}`;
-  const map = new Map<string, boolean>();
-  for (const r of q.data ?? []) map.set(key(r.event_key, r.channel), r.enabled);
-  const isEnabled = (event_key: string, ch: EventChannel) => map.get(key(event_key, ch)) ?? true;
+  const enabledMap = new Map<string, boolean>();
+  const freqMap = new Map<string, "instant" | "daily" | "weekly" | "off">();
+  for (const r of q.data ?? []) {
+    enabledMap.set(key(r.event_key, r.channel), r.enabled);
+    freqMap.set(key(r.event_key, r.channel), (r.frequency ?? "instant") as "instant" | "daily" | "weekly" | "off");
+  }
+  const isEnabled = (event_key: string, ch: EventChannel) =>
+    enabledMap.get(key(event_key, ch)) ?? true;
+  const getFreq = (event_key: string, ch: EventChannel) =>
+    freqMap.get(key(event_key, ch)) ?? "instant";
+
+  const FREQ_LABEL: Record<"instant" | "daily" | "weekly" | "off", string> = {
+    instant: "فوري",
+    daily: "ملخّص يومي",
+    weekly: "ملخّص أسبوعي",
+    off: "إيقاف",
+  };
 
   const renderTable = (
     title: string,
@@ -462,7 +480,7 @@ function EventPrefsSection({ orgId }: { orgId: string }) {
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="overflow-x-auto">
-        <table className="w-full min-w-[520px] text-sm">
+        <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="border-b text-xs text-muted-foreground">
               <th className="py-2 text-start font-medium">الحدث</th>
@@ -475,22 +493,44 @@ function EventPrefsSection({ orgId }: { orgId: string }) {
           </thead>
           <tbody>
             {events.map((ev) => (
-              <tr key={ev.key} className="border-b last:border-0">
+              <tr key={ev.key} className="border-b last:border-0 align-top">
                 <td className="py-3 pe-3">
                   <div className="font-medium">{ev.label}</div>
                   <div className="text-xs text-muted-foreground">{ev.hint}</div>
                 </td>
                 {channels.map((ch) => {
                   const on = isEnabled(ev.key, ch);
+                  const freq = getFreq(ev.key, ch);
                   return (
                     <td key={ch} className="py-3 text-center">
-                      <Switch
-                        checked={on}
-                        onCheckedChange={(next) =>
-                          save.mutate({ event_key: ev.key, channel: ch, enabled: next })
-                        }
-                        aria-label={`${ev.label} — ${EVENT_CHANNEL_LABEL[ch]}`}
-                      />
+                      <div className="flex flex-col items-center gap-2">
+                        <Switch
+                          checked={on}
+                          onCheckedChange={(next) =>
+                            save.mutate({ event_key: ev.key, channel: ch, enabled: next })
+                          }
+                          aria-label={`${ev.label} — ${EVENT_CHANNEL_LABEL[ch]}`}
+                        />
+                        <select
+                          className="rounded-md border border-border bg-background px-2 py-1 text-xs disabled:opacity-50"
+                          disabled={!on}
+                          value={freq}
+                          onChange={(e) =>
+                            save.mutate({
+                              event_key: ev.key,
+                              channel: ch,
+                              frequency: e.target.value as "instant" | "daily" | "weekly" | "off",
+                            })
+                          }
+                          aria-label={`${ev.label} — ${EVENT_CHANNEL_LABEL[ch]} — التواتر`}
+                        >
+                          {(["instant", "daily", "weekly", "off"] as const).map((f) => (
+                            <option key={f} value={f}>
+                              {FREQ_LABEL[f]}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </td>
                   );
                 })}
@@ -501,6 +541,7 @@ function EventPrefsSection({ orgId }: { orgId: string }) {
       </CardContent>
     </Card>
   );
+
 
   return (
     <div className="grid gap-4">
