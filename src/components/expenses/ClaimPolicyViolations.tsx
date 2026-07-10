@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { toast } from "sonner";
 import { AlertTriangle, CheckCircle2, FileText, Loader2, ShieldAlert, ShieldCheck, Undo2 } from "lucide-react";
 
@@ -44,6 +45,7 @@ export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const qc = useQueryClient();
+  const reducedMotion = useReducedMotion();
 
   const [overrideTarget, setOverrideTarget] = useState<{ id: string } | null>(null);
   const [reason, setReason] = useState("");
@@ -57,12 +59,18 @@ export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
   // the viewport, not just on the initial scroll. If the reviewer scrolls
   // past it and comes back, the row briefly pulses again to re-anchor
   // attention. Persistent `.violation-active` styling stays put in between.
+  // When the user prefers reduced motion, we flash only once (on first
+  // entry) and keep the duration short via CSS media query.
   useEffect(() => {
     if (!activeViolationId || typeof window === "undefined") return;
     const el = document.getElementById(`violation-${activeViolationId}`);
     if (!el) return;
     let removeTimer: number | null = null;
+    let flashed = false;
+    const flashMs = reducedMotion ? 600 : 2600;
     const flash = () => {
+      if (reducedMotion && flashed) return;
+      flashed = true;
       el.classList.remove("violation-flash");
       // Force reflow so the animation restarts on repeated entries.
       void el.offsetWidth;
@@ -70,7 +78,7 @@ export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
       if (removeTimer != null) window.clearTimeout(removeTimer);
       removeTimer = window.setTimeout(() => {
         el.classList.remove("violation-flash");
-      }, 2600);
+      }, flashMs);
     };
     const io = new IntersectionObserver(
       (entries) => {
@@ -84,7 +92,8 @@ export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
       if (removeTimer != null) window.clearTimeout(removeTimer);
       el.classList.remove("violation-flash");
     };
-  }, [activeViolationId, q.data]);
+  }, [activeViolationId, q.data, reducedMotion]);
+
 
 
   const invalidate = () => {

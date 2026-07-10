@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { toast } from "sonner";
 import { Check, Loader2, RotateCcw, X, ArrowLeft, Receipt as ReceiptIcon, History, ChevronDown } from "lucide-react";
 
@@ -70,6 +71,8 @@ type ClaimRow = {
 
 function ClaimsReviewPage() {
   const { t, i18n } = useTranslation();
+  const reducedMotion = useReducedMotion();
+  const scrollBehavior: ScrollBehavior = reducedMotion ? "auto" : "smooth";
   const qc = useQueryClient();
   const isAr = i18n.language?.startsWith("ar");
   const { claim: focusClaimId } = Route.useSearch();
@@ -122,7 +125,7 @@ function ClaimsReviewPage() {
     if (!focusClaimId || rows.length === 0) return;
     const el = document.getElementById(`claim-row-${focusClaimId}`);
     if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.scrollIntoView({ behavior: scrollBehavior, block: "center" });
       el.classList.add("ring-2", "ring-primary/60");
       const timer = window.setTimeout(() => {
         el.classList.remove("ring-2", "ring-primary/60");
@@ -165,7 +168,7 @@ function ClaimsReviewPage() {
         if (cancelled) return;
         const el = document.getElementById(`violation-${violationId}`);
         if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.scrollIntoView({ behavior: scrollBehavior, block: "center" });
           el.classList.add("violation-flash");
           if (flashTimer != null) window.clearTimeout(flashTimer);
           flashTimer = window.setTimeout(() => {
@@ -192,7 +195,7 @@ function ClaimsReviewPage() {
       if (flashTimer != null) window.clearTimeout(flashTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusClaimId, rows]);
+  }, [focusClaimId, rows, scrollBehavior]);
 
 
 

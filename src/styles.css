@@ -2005,3 +2005,14 @@ html.theme-lux :where(:not(.theme-luxe *)) textarea:focus {
   box-shadow: inset 3px 0 0 0 hsl(var(--primary));
   scroll-margin-top: 6rem;
 }
+
+/* Respect prefers-reduced-motion: shorten the deep-link flash and drop the
+   smooth scroll animation so vestibular-sensitive users get a subtle cue
+   instead of a repeating pulse. The persistent .violation-active marker is
+   static styling and needs no adjustment. */
+@media (prefers-reduced-motion: reduce) {
+  .violation-flash {
+    animation-duration: 0.6s;
+    animation-timing-function: linear;
+  }
+}
