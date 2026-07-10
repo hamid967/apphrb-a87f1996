@@ -103,7 +103,7 @@ function InvoiceDetailPage() {
     mutationFn: async () => {
       if (!b) throw new Error("No invoice data");
       const parties = await getInvoicePartiesForPdf({ data: { invoiceId: id } });
-      const { generateInvoicePdf, downloadPdfBlob } = await import("@/lib/zatca/pdf-invoice.client");
+      const { generateInvoicePdf, downloadPdfBlob } = await import("@/lib/zatca/pdf-invoice");
       const bytes = await generateInvoicePdf({
         invoice: {
           number: b.number ?? id,

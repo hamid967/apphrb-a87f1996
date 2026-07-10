@@ -92,7 +92,7 @@ export function PdfPreviewDialog({ open, onOpenChange, filename, buildInput }: P
     (async () => {
       try {
         const input = await buildInput();
-        const { generateInvoicePdf, verifyInvoicePdf } = await import("@/lib/zatca/pdf-invoice.client");
+        const { generateInvoicePdf, verifyInvoicePdf } = await import("@/lib/zatca/pdf-invoice");
         const b = await generateInvoicePdf(input);
         const r = await verifyInvoicePdf(b, input);
         const blob = new Blob([b as BlobPart], { type: "application/pdf" });
