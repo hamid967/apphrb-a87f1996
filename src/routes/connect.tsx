@@ -211,6 +211,41 @@ function ConnectPage() {
             The assistant signs in with your Aqari account and acts as you. It only sees data
             you'd see when signed in.
           </p>
+
+          <div className="mt-4 flex flex-col gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={runTest}
+              disabled={!mcpUrl || test.status === "running"}
+              className="w-fit"
+            >
+              {test.status === "running" ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Testing…
+                </>
+              ) : (
+                <>
+                  <PlugZap className="h-4 w-4" /> Test connection
+                </>
+              )}
+            </Button>
+
+            {test.status === "ok" && (
+              <Alert>
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <AlertTitle>Connection successful</AlertTitle>
+                <AlertDescription>{test.serverName}</AlertDescription>
+              </Alert>
+            )}
+            {test.status === "error" && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>{test.title}</AlertTitle>
+                <AlertDescription>{test.detail}</AlertDescription>
+              </Alert>
+            )}
+          </div>
         </CardContent>
       </Card>
 
