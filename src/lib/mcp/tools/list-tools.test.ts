@@ -447,4 +447,47 @@ describe("list_pending_tickets MCP tool", () => {
     const call = calls.find((c) => c.table === "expense_claims")!;
     expect(call.range).toEqual([45, 59]);
   });
+
+  it("mine_only expands to an OR across per-type requester/assignee columns (support)", async () => {
+    listResults.set("tickets", { data: [], error: null, count: 0 });
+    await invoke({ type: "support", page: 1, page_size: 20, mine_only: true });
+    const call = calls.find((c) => c.table === "tickets")!;
+    expect(call.or).toContain(`requester_id.eq.${USER_ID},assignee_id.eq.${USER_ID}`);
+  });
+
+  it("mine_only maps to created_by OR technician_id for maintenance", async () => {
+    listResults.set("maintenance_tickets", { data: [], error: null, count: 0 });
+    await invoke({ type: "maintenance", page: 1, page_size: 20, mine_only: true });
+    const call = calls.find((c) => c.table === "maintenance_tickets")!;
+    expect(call.or).toContain(`created_by.eq.${USER_ID},technician_id.eq.${USER_ID}`);
+  });
+
+  it("requester_id/assignee_id filter to the right columns per type (expense_claim)", async () => {
+    listResults.set("expense_claims", { data: [], error: null, count: 0 });
+    const REQ = "22222222-2222-2222-2222-222222222222";
+    const REV = "33333333-3333-3333-3333-333333333333";
+    await invoke({
+      type: "expense_claim",
+      page: 1,
+      page_size: 20,
+      requester_id: REQ,
+      assignee_id: REV,
+    });
+    const call = calls.find((c) => c.table === "expense_claims")!;
+    expect(call.filters).toContainEqual(["eq", "submitted_by", REQ]);
+    expect(call.filters).toContainEqual(["eq", "reviewed_by", REV]);
+  });
+
+  it("requester_id maps to requester_id for support and created_by for maintenance", async () => {
+    const REQ = "44444444-4444-4444-4444-444444444444";
+    listResults.set("tickets", { data: [], error: null, count: 0 });
+    await invoke({ type: "support", page: 1, page_size: 20, requester_id: REQ });
+    const s = calls.find((c) => c.table === "tickets")!;
+    expect(s.filters).toContainEqual(["eq", "requester_id", REQ]);
+
+    listResults.set("maintenance_tickets", { data: [], error: null, count: 0 });
+    await invoke({ type: "maintenance", page: 1, page_size: 20, requester_id: REQ });
+    const m = calls.find((c) => c.table === "maintenance_tickets")!;
+    expect(m.filters).toContainEqual(["eq", "created_by", REQ]);
+  });
 });
