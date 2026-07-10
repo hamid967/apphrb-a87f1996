@@ -958,7 +958,7 @@ export function HamidVoiceAssistant() {
 
 
 
-      {/* Orb stage */}
+      {/* 3D Command Core */}
       <div className="flex flex-col items-center gap-4 px-5 pb-4 pt-2">
         <button
           type="button"
@@ -966,7 +966,16 @@ export function HamidVoiceAssistant() {
           className="group relative outline-none"
           aria-label={callActive ? "إنهاء المكالمة" : "بدء مكالمة مع حامد"}
         >
-          <VoiceOrb size={200} active={callActive} speaking={speaking || listening} />
+          <Suspense
+            fallback={<VoiceOrb size={200} active={callActive} speaking={speaking || listening} />}
+          >
+            <HamidCore3D
+              size={220}
+              active={callActive || signupMode}
+              listening={listening}
+              speaking={speaking}
+            />
+          </Suspense>
         </button>
 
         <p className="max-w-[280px] text-center text-sm leading-relaxed text-slate-600 dark:text-slate-300">
