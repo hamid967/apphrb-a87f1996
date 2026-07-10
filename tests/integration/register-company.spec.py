@@ -124,15 +124,7 @@ END $$;
 
 RESET role;
 
--- 5) Invalid name
-DO $$
-DECLARE u uuid := gen_random_uuid();
-BEGIN
-  INSERT INTO auth.users(id, email, aud, role, instance_id)
-    VALUES (u, 'rc2-'||substr(u::text,1,8)||'@test.local', 'authenticated','authenticated','00000000-0000-0000-0000-000000000000');
-  INSERT INTO public.profiles(id, full_name) VALUES (u, 'Bad Name Test');
-  PERFORM set_config('test.uid2', u::text, false);
-END $$;
+-- 5) Invalid name (reuse test.uid2, an unaffiliated profile)
 
 SET LOCAL role = 'authenticated';
 SELECT set_config('request.jwt.claims',
