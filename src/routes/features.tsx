@@ -381,8 +381,8 @@ function FeaturesPage() {
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button asChild size="lg">
-              <Link to="/auth">
-                {isAr ? "ابدأ الآن" : "Get started"}
+              <Link to="/request-demo">
+                {isAr ? "احجز عرضاً توضيحياً" : "Request a demo"}
                 <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" />
               </Link>
             </Button>
