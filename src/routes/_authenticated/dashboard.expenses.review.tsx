@@ -350,7 +350,8 @@ function ClaimsReviewPage() {
                     </TableRow>
                     {expanded.has(r.id) && (
                       <TableRow key={`${r.id}-audit`} className="bg-muted/20 hover:bg-muted/20">
-                        <TableCell colSpan={7} className="p-3">
+                        <TableCell colSpan={7} className="p-3 space-y-3">
+                          <ClaimPolicyViolations claimId={r.id} />
                           <ApprovalAuditTrail entity="expense_claims" entityId={r.id} />
                         </TableCell>
                       </TableRow>
