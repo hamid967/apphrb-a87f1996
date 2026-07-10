@@ -82,9 +82,20 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
       onError: (msg) => {
         toast.error(msg);
         setPhase("error");
-        window.setTimeout(() => setPhase((p) => (p === "error" ? "idle" : p)), 2200);
+        // No auto-clear — the user dismisses via retry or by starting a new
+        // recording. The pending transcript (if any) is intentionally kept.
       },
     });
+
+    const retry = async () => {
+      setPhase("starting");
+      try {
+        await voice.start();
+        setPhase("recording");
+      } catch {
+        setPhase("error");
+      }
+    };
 
     // Elapsed-seconds timer, driven by phase.
     const startedAtRef = useRef<number | null>(null);
