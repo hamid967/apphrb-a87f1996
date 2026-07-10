@@ -125,12 +125,44 @@ function isValidE164Digits(digits: string): boolean {
 }
 
 export async function tryDispatch(
-  channel: "whatsapp" | "sms" | "email",
+  channel: "whatsapp" | "sms" | "email" | "push" | "in_app",
   recipient: string,
   template: string,
   variables: Record<string, unknown>,
 ): Promise<DispatchResult> {
   try {
+    if (channel === "in_app") {
+      // In-app rows are surfaced by the inbox; nothing to send externally.
+      return { ok: true };
+    }
+    if (channel === "push") {
+      const { sendPushToUser } = await import("./push.server");
+      const title =
+        (variables.title as string | undefined) ??
+        (template === "policy_violation_submitter"
+          ? "مخالفة سياسة على مطالبتك"
+          : template === "policy_violation_approver"
+            ? "مطالبة تحتوي على مخالفة سياسة"
+            : "إشعار جديد");
+      const body =
+        (variables.reason as string | undefined) ??
+        (variables.body as string | undefined) ??
+        "";
+      const url =
+        (variables.link as string | undefined) ??
+        (variables.url as string | undefined) ??
+        "/dashboard/inbox";
+      const tag =
+        typeof variables.violation_id === "string"
+          ? `pv:${variables.violation_id}`
+          : undefined;
+      const res = await sendPushToUser(recipient, { title, body, url, tag });
+      if (res.delivered === 0 && res.failed > 0 && res.removed === 0) {
+        return { ok: false, error: `push failed: ${res.failed}` };
+      }
+      // 0 subs, or delivered/removed → treat as done to avoid pointless retries
+      return { ok: true };
+    }
     if (channel === "whatsapp") {
       const to = toE164(recipient);
       if (!to) return { ok: false, error: `Invalid phone for WhatsApp: ${recipient}` };
@@ -205,7 +237,7 @@ const MAX_ATTEMPTS = 5;
 
 type QueueRow = {
   id: string;
-  channel: "whatsapp" | "sms" | "email";
+  channel: "whatsapp" | "sms" | "email" | "push" | "in_app";
   recipient: string;
   template: string;
   variables: Record<string, unknown> | null;

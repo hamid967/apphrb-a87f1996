@@ -12,6 +12,7 @@ import {
   markAllMyNotificationsRead,
   markMyNotificationRead,
 } from "@/lib/notifications.functions";
+import { PushEnableButton } from "@/components/notifications/PushEnableButton";
 
 export const Route = createFileRoute("/_authenticated/dashboard/inbox")({
   head: () =>
@@ -112,7 +113,8 @@ function InboxPage() {
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <PushEnableButton />
           <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border/60 bg-muted/40 px-3 py-1.5 text-xs">
             <input
               type="checkbox"
