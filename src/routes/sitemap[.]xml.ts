@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { listPublishedPosts } from "@/lib/marketing.functions";
 
 const BASE_URL = "https://hrhbs.com";
 
 interface SitemapEntry {
   path: string;
+  lastmod?: string;
   changefreq?: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
   priority?: string;
 }
@@ -15,16 +17,35 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
+          { path: "/about", changefreq: "monthly", priority: "0.7" },
           { path: "/services", changefreq: "weekly", priority: "0.9" },
           { path: "/pricing", changefreq: "weekly", priority: "0.9" },
           { path: "/compare", changefreq: "monthly", priority: "0.7" },
           { path: "/listings", changefreq: "daily", priority: "0.9" },
+          { path: "/blog", changefreq: "weekly", priority: "0.8" },
+          { path: "/faq", changefreq: "monthly", priority: "0.6" },
+          { path: "/contact", changefreq: "monthly", priority: "0.6" },
         ];
+
+        try {
+          const res = await listPublishedPosts();
+          for (const post of res.posts ?? []) {
+            entries.push({
+              path: `/blog/${post.slug}`,
+              lastmod: post.published_at ?? undefined,
+              changefreq: "monthly",
+              priority: "0.6",
+            });
+          }
+        } catch {
+          // Ignore — omit dynamic entries if backend unavailable.
+        }
 
         const urls = entries.map((e) =>
           [
             `  <url>`,
             `    <loc>${BASE_URL}${e.path}</loc>`,
+            e.lastmod ? `    <lastmod>${e.lastmod}</lastmod>` : null,
             e.changefreq ? `    <changefreq>${e.changefreq}</changefreq>` : null,
             e.priority ? `    <priority>${e.priority}</priority>` : null,
             `  </url>`,
