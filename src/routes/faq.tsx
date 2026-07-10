@@ -20,21 +20,50 @@ const faqQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/faq")({
-  head: () => ({
-    meta: [
-      { title: "الأسئلة الشائعة — عقاري Aqari | FAQ" },
-      {
-        name: "description",
-        content:
-          "إجابات عن أكثر الأسئلة تكراراً حول عقاري Aqari: الاشتراك، الأمان، النسخ الاحتياطي، الفوترة الإلكترونية، وأكثر.",
-      },
-      { property: "og:title", content: "الأسئلة الشائعة — عقاري Aqari" },
-      { property: "og:description", content: "أسئلة شائعة حول منصة عقاري Aqari وإجاباتها." },
-      { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://apphrb.lovable.app/faq" },
-    ],
-    links: [{ rel: "canonical", href: "https://apphrb.lovable.app/faq" }],
-  }),
+  head: ({ loaderData }) => {
+    const entries = (loaderData as { entries?: Array<{ question_ar?: string | null; question_en?: string | null; answer_ar?: string | null; answer_en?: string | null }> } | undefined)?.entries ?? [];
+    const mainEntity = entries
+      .map((e) => {
+        const q = e.question_ar || e.question_en;
+        const a = e.answer_ar || e.answer_en;
+        if (!q || !a) return null;
+        return {
+          "@type": "Question",
+          name: q,
+          acceptedAnswer: { "@type": "Answer", text: a },
+        };
+      })
+      .filter(Boolean);
+    return {
+      meta: [
+        { title: "الأسئلة الشائعة — عقاري Aqari | FAQ" },
+        {
+          name: "description",
+          content:
+            "إجابات عن أكثر الأسئلة تكراراً حول عقاري Aqari: الاشتراك، الأمان، النسخ الاحتياطي، الفوترة الإلكترونية، وأكثر.",
+        },
+        { property: "og:title", content: "الأسئلة الشائعة — عقاري Aqari" },
+        { property: "og:description", content: "أسئلة شائعة حول منصة عقاري Aqari وإجاباتها." },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: "https://hrhbs.com/faq" },
+      ],
+      links: [{ rel: "canonical", href: "https://hrhbs.com/faq" }],
+      ...(mainEntity.length > 0
+        ? {
+            scripts: [
+              {
+                type: "application/ld+json",
+                children: JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "FAQPage",
+                  mainEntity,
+                }),
+              },
+            ],
+          }
+        : {}),
+    };
+  },
   loader: ({ context }) => context.queryClient.ensureQueryData(faqQuery),
   component: FaqPage,
 });
