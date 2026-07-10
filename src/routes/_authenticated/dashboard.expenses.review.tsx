@@ -137,22 +137,18 @@ function ClaimsReviewPage() {
   }, [focusClaimId, rows]);
 
   // Deep-link: URL hash like `#violation-<uuid>` (from push notifications
-  // or shared links). Auto-expand the parent claim's details row so the
-  // ClaimPolicyViolations table mounts, then poll for the target row,
-  // scroll it into view, play a short flash, AND set it as the persistent
-  // active row so it stays highlighted even after scrolling away — until
-  // the reviewer collapses the claim's details.
+  // or shared links). We only handle the *routing side* here: parse the
+  // hash, remember the active violation id, and ensure the parent claim's
+  // details row is expanded so <ClaimPolicyViolations> mounts and starts
+  // loading. The actual scroll + flash + "not found" retry happens inside
+  // that component, because only it knows when its data has finished
+  // loading and whether the id is visible to the current user.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const parseHash = () => {
       const m = /^#violation-([0-9a-fA-F-]{10,})$/.exec(window.location.hash);
       return m ? m[1] : null;
     };
-
-    let cancelled = false;
-    let attempts = 0;
-    let flashTimer: number | null = null;
-
     const activate = (violationId: string) => {
       setActiveViolationId(violationId);
       if (focusClaimId) {
@@ -163,39 +159,18 @@ function ClaimsReviewPage() {
           return next;
         });
       }
-      attempts = 0;
-      const tick = () => {
-        if (cancelled) return;
-        const el = document.getElementById(`violation-${violationId}`);
-        if (el) {
-          el.scrollIntoView({ behavior: scrollBehavior, block: "center" });
-          el.classList.add("violation-flash");
-          if (flashTimer != null) window.clearTimeout(flashTimer);
-          flashTimer = window.setTimeout(() => {
-            el.classList.remove("violation-flash");
-          }, 2600);
-          return;
-        }
-        if (attempts++ < 40) window.setTimeout(tick, 150); // up to ~6s
-      };
-      tick();
     };
-
     const initial = parseHash();
     if (initial) activate(initial);
-
     const onHash = () => {
       const id = parseHash();
       if (id) activate(id);
     };
     window.addEventListener("hashchange", onHash);
-    return () => {
-      cancelled = true;
-      window.removeEventListener("hashchange", onHash);
-      if (flashTimer != null) window.clearTimeout(flashTimer);
-    };
+    return () => window.removeEventListener("hashchange", onHash);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusClaimId, rows, scrollBehavior]);
+  }, [focusClaimId]);
+
 
 
 
