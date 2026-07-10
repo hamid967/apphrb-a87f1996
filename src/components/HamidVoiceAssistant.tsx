@@ -3,7 +3,6 @@ import { ArrowRight, Loader2, Minimize2, Phone, PhoneOff, RotateCcw, Send, Setti
 import { useServerFn } from "@tanstack/react-start";
 import { askHamidAgent } from "@/lib/hamid-agent.functions";
 import {
-  DEFAULT_HAMID_VOICE,
   HAMID_VOICE_PRESETS,
   useHamidVoiceSettings,
   type HamidVoiceSettings,
