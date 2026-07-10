@@ -599,18 +599,29 @@ export function HamidVoiceAssistant() {
     }
     lastSpeakRef.current = { text: t, at: now };
     const syncFull = extras?.syncText;
+    let watchdog: number | null = null;
     if (syncFull) {
-      // Hide the reply until the first audible chunk lands.
       setRevealText("");
       setRevealDone(false);
+      // Safety: if the audio pipeline never signals start within 3.5s,
+      // reveal the full text so the user is never left with an empty bubble.
+      watchdog = window.setTimeout(() => finishReveal(syncFull), 3500);
     }
+    const clearWatchdog = () => {
+      if (watchdog != null) {
+        window.clearTimeout(watchdog);
+        watchdog = null;
+      }
+    };
     void speakSaudi(t, settingsRef.current, {
       onStart: (src, dur) => {
+        clearWatchdog();
         setVoiceSource(src);
         setSpeaking(true);
         if (syncFull) startReveal(syncFull, dur);
       },
       onEnd: () => {
+        clearWatchdog();
         setSpeaking(false);
         setVoiceSource(null);
         if (syncFull) finishReveal(syncFull);
