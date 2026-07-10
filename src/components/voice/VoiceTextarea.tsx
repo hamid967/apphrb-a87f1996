@@ -42,12 +42,13 @@ type VoiceTextareaProps = Omit<
   separator?: string;
 };
 
-type Phase = "idle" | "starting" | "recording" | "transcribing" | "done" | "error";
+type Phase = "idle" | "starting" | "recording" | "paused" | "transcribing" | "done" | "error";
 
 const PHASE_STYLES: Record<Phase, string> = {
   idle: "",
   starting: "bg-primary/10 text-primary border-primary/30",
   recording: "bg-destructive/10 text-destructive border-destructive/30",
+  paused: "bg-amber-500/10 text-amber-600 border-amber-500/30 dark:text-amber-400",
   transcribing: "bg-primary/10 text-primary border-primary/30",
   done: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:text-emerald-400",
   error: "bg-destructive/10 text-destructive border-destructive/30",
@@ -57,6 +58,7 @@ const PHASE_LABEL: Record<Phase, string> = {
   idle: "",
   starting: "جارٍ بدء التسجيل…",
   recording: "جارٍ التسجيل",
+  paused: "التسجيل متوقف مؤقتًا",
   transcribing: "جارٍ تحويل الصوت إلى نص…",
   done: "تم التحويل — راجع النص",
   error: "تعذّر تسجيل الصوت",
