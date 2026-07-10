@@ -75,29 +75,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "Aqari" },
       { name: "application-name", content: "Aqari" },
       { name: "format-detection", content: "telephone=no" },
-      { title: "عقاري Aqari — إدارة عقارات بالذكاء الاصطناعي" },
+      { title: "HBSpro — إدارة عقارات بالذكاء الاصطناعي" },
       {
         name: "description",
         content:
-          "عقاري Aqari من HRHBS — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
+          "عقاري من HBSpro — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
       },
-      { property: "og:title", content: "عقاري Aqari — إدارة عقارات بالذكاء الاصطناعي" },
-      { name: "twitter:title", content: "عقاري Aqari — إدارة عقارات بالذكاء الاصطناعي" },
+      { property: "og:title", content: "HBSpro — إدارة عقارات بالذكاء الاصطناعي" },
+      { name: "twitter:title", content: "HBSpro — إدارة عقارات بالذكاء الاصطناعي" },
       {
         property: "og:description",
         content:
-          "عقاري Aqari من HRHBS — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
+          "عقاري من HBSpro — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
       },
       {
         name: "twitter:description",
         content:
-          "عقاري Aqari من HRHBS — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
+          "عقاري من HBSpro — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
       },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
       { name: "google-site-verification", content: "vKIb1ucLPoJXIOgTnQWbD22HsBcHVPd_CF0hsWKZpKI" },
-      { property: "og:image", content: "https://hrhbs.com/og-image.jpg" },
-      { name: "twitter:image", content: "https://hrhbs.com/og-image.jpg" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/aff05cce-c377-413e-bb68-ddcfed90d484" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/aff05cce-c377-413e-bb68-ddcfed90d484" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

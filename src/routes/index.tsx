@@ -21,27 +21,27 @@ import { SignupAssistant } from "@/components/SignupAssistant";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "عقاري Aqari — إدارة عقارات بالذكاء الاصطناعي" },
+      { title: "HBSpro — إدارة عقارات بالذكاء الاصطناعي" },
       {
         name: "description",
         content:
-          "عقاري Aqari من HRHBS — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
+          "عقاري من HBSpro — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
       },
       {
         property: "og:title",
-        content: "عقاري Aqari — إدارة عقارات بالذكاء الاصطناعي",
+        content: "HBSpro — إدارة عقارات بالذكاء الاصطناعي",
       },
       {
         property: "og:description",
         content:
-          "عقاري Aqari من HRHBS — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
+          "عقاري من HBSpro — نظام التشغيل الذكي لقطاع العقارات السعودي: عقارات، عقود، مستأجرون، محاسبة، وذكاء اصطناعي في منصة سحابية واحدة.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://hrhbs.com/" },
-      { property: "og:image", content: "https://hrhbs.com/og-image.jpg" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/aff05cce-c377-413e-bb68-ddcfed90d484" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
-      { name: "twitter:image", content: "https://hrhbs.com/og-image.jpg" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/aff05cce-c377-413e-bb68-ddcfed90d484" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#071320" },
     ],
