@@ -160,7 +160,19 @@ function getLocalIntent(text: string, _history: Turn[]): HamidIntent {
 function pickArabicVoice() {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
-  return voices.find((v) => v.lang === "ar-SA") ?? voices.find((v) => v.lang.startsWith("ar")) ?? null;
+  if (!voices.length) return null;
+  const ar = voices.filter((v) => v.lang?.toLowerCase().startsWith("ar"));
+  if (!ar.length) return null;
+  const isMale = (n: string) =>
+    /male|majed|maged|naayf|nayf|tarik|hamed|hamid|salman|khalid|abdul|رجل|ذكر/i.test(n) &&
+    !/female|امرأة|أنثى/i.test(n);
+  // Prefer Saudi male → Saudi any → male Arabic → any Arabic
+  return (
+    ar.find((v) => v.lang === "ar-SA" && isMale(v.name)) ??
+    ar.find((v) => v.lang === "ar-SA") ??
+    ar.find((v) => isMale(v.name)) ??
+    ar[0]
+  );
 }
 
 function speakLocally(text: string) {
@@ -168,8 +180,8 @@ function speakLocally(text: string) {
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "ar-SA";
-  u.rate = 0.95;
-  u.pitch = 0.98;
+  u.rate = 0.92;
+  u.pitch = 0.88;
   u.volume = 1;
   const v = pickArabicVoice();
   if (v) u.voice = v;
