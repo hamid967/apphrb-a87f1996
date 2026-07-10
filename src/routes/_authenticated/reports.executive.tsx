@@ -108,7 +108,7 @@ export const Route = createFileRoute("/_authenticated/reports/executive")({
   validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [
-      { title: "Executive Analytics 2026 — AQARY PRO" },
+      { title: "Executive Analytics 2026 — HBSpro" },
       {
         name: "description",
         content:
