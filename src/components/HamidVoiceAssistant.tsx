@@ -512,9 +512,21 @@ export function HamidVoiceAssistant() {
       setTranscript(t);
       void answer(t);
     };
-    r.onerror = () => {
+    r.onerror = (e) => {
       setListening(false);
-      setError("لم أستطع سماعك بوضوح. جرّب مرة ثانية.");
+      const code = e?.error ?? "unknown";
+      const map: Record<string, { msg: string; hint: string }> = {
+        "no-speech": { msg: "لم يُلتقط أي صوت", hint: "قرّب المايك وتحدّث بعد الضغط مباشرة." },
+        "audio-capture": { msg: "لا يوجد مايكروفون متاح", hint: "تأكد من توصيل المايك واختياره في إعدادات النظام." },
+        "not-allowed": { msg: "إذن المايكروفون مرفوض", hint: "افتح إعدادات الموقع في المتصفح وفعّل الوصول للمايك." },
+        "service-not-allowed": { msg: "خدمة التعرف الصوتي محظورة", hint: "استخدم HTTPS وChrome/Edge حديث." },
+        "network": { msg: "فشل الاتصال بخدمة التعرف الصوتي", hint: "تحقّق من الإنترنت وأعد المحاولة." },
+        "aborted": { msg: "أُلغيت جلسة التعرف", hint: "" },
+        "language-not-supported": { msg: "اللغة العربية غير مدعومة هنا", hint: "استخدم Chrome على سطح المكتب." },
+      };
+      const info = map[code] ?? { msg: `خطأ التعرف الصوتي: ${code}`, hint: "" };
+      pushLog("error", info.msg, info.hint);
+      setError(info.msg + (info.hint ? ` — ${info.hint}` : ""));
     };
     r.onend = () => setListening(false);
     recognitionRef.current = r;
