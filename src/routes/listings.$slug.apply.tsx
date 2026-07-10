@@ -41,8 +41,8 @@ export const Route = createFileRoute("/listings/$slug/apply")({
   head: ({ params, loaderData }) => {
     const l = loaderData as { title?: string } | null;
     const title = l?.title
-      ? `Apply for ${l.title} — Aqari`
-      : "Rental application — Aqari";
+      ? `Apply for ${l.title} — HBSpro`
+      : "Rental application — HBSpro";
     return {
       meta: [
         { title },

@@ -36,14 +36,14 @@ export const Route = createFileRoute("/faq")({
       .filter(Boolean);
     return {
       meta: [
-        { title: "الأسئلة الشائعة — عقاري Aqari | FAQ" },
+        { title: "الأسئلة الشائعة — HBSpro | FAQ" },
         {
           name: "description",
           content:
-            "إجابات عن أكثر الأسئلة تكراراً حول عقاري Aqari: الاشتراك، الأمان، النسخ الاحتياطي، الفوترة الإلكترونية، وأكثر.",
+            "إجابات عن أكثر الأسئلة تكراراً حول HBSpro: الاشتراك، الأمان، النسخ الاحتياطي، الفوترة الإلكترونية، وأكثر.",
         },
-        { property: "og:title", content: "الأسئلة الشائعة — عقاري Aqari" },
-        { property: "og:description", content: "أسئلة شائعة حول منصة عقاري Aqari وإجاباتها." },
+        { property: "og:title", content: "الأسئلة الشائعة — HBSpro" },
+        { property: "og:description", content: "أسئلة شائعة حول منصة HBSpro وإجاباتها." },
         { property: "og:type", content: "website" },
         { property: "og:url", content: "https://hrhbs.com/faq" },
       ],
@@ -101,7 +101,7 @@ function FaqPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2 font-bold">
             <Building2 className="h-5 w-5" />
-            <span>Aqari</span>
+            <span>HBSpro</span>
           </Link>
           <div className="flex items-center gap-3 text-sm">
             <Link to="/services" className="text-muted-foreground hover:text-foreground">

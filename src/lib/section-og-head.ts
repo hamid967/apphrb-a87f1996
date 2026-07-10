@@ -18,7 +18,7 @@ export const SECTION_LABELS: Record<SectionKey, Labels> = {
 };
 
 const BASE = "https://hrhbs.com";
-const BRAND = "Aqari";
+const BRAND = "HBSpro";
 
 export type SectionHeadInput = {
   section: SectionKey;

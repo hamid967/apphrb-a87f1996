@@ -46,7 +46,7 @@ export const Route = createFileRoute("/onboarding/wizard")({
       : {};
   },
   head: () => ({
-    meta: [{ title: "تفعيل الحساب — Aqari" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "تفعيل الحساب — HBSpro" }, { name: "robots", content: "noindex" }],
   }),
   component: OnboardingWizardPage,
 });

@@ -20,7 +20,7 @@ interface Props {
 }
 
 const Email = ({
-  siteName = "Aqari",
+  siteName = "HBSpro",
   recipientName = "",
   planName = "",
   amount = "",
@@ -51,7 +51,7 @@ export const template = {
   subject: "تم اعتماد اشتراكك",
   displayName: "Subscription approved",
   previewData: {
-    siteName: "Aqari",
+    siteName: "HBSpro",
     recipientName: "حامد",
     planName: "الاحترافية",
     amount: "499 SAR",

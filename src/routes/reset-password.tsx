@@ -18,7 +18,7 @@ import { HBS } from "@/components/hbspro/tokens";
 export const Route = createFileRoute("/reset-password")({
   ssr: false,
   head: () => ({
-    meta: [{ title: "Reset password — Aqari" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Reset password — HBSpro" }, { name: "robots", content: "noindex" }],
   }),
   component: ResetPasswordPage,
 });

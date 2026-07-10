@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { TEMPLATES } from "@/lib/email-templates/registry";
 import type { AdminAlertProps } from "@/lib/email-templates/admin-alert";
 
-const SITE_NAME = "Aqari";
+const SITE_NAME = "HBSpro";
 const SENDER_DOMAIN = "notify.hrhbs.com";
 const FROM_DOMAIN = "hrhbs.com";
 

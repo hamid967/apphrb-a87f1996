@@ -20,7 +20,7 @@ import { HBS } from "@/components/hbspro/tokens";
 export const Route = createFileRoute("/dev/verify")({
   ssr: false,
   head: () => ({
-    meta: [{ title: "تأكيد حساب المطوّر — Aqari" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "تأكيد حساب المطوّر — HBSpro" }, { name: "robots", content: "noindex" }],
   }),
   component: DevVerifyPage,
 });

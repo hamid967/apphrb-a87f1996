@@ -629,7 +629,7 @@ function ChannelCard({
           <Input
             value={senderName}
             onChange={(e) => setSenderName(e.target.value)}
-            placeholder={channel === "email" ? "Aqari Notifications" : "اسم يظهر للمستلم"}
+            placeholder={channel === "email" ? "HBSpro Notifications" : "اسم يظهر للمستلم"}
           />
         </div>
         {channel === "email" ? (

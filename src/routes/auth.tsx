@@ -363,7 +363,7 @@ function AuthPage() {
                     <Building2 className="size-4 text-white" />
                   </span>
                   <span className="text-white">
-                    Aqari <span style={{ color: HBS.gold }}>AI</span>
+                    HBSpro <span style={{ color: HBS.gold }}>AI</span>
                   </span>
                 </Link>
                 <div
@@ -379,7 +379,7 @@ function AuthPage() {
                   className="text-3xl font-bold leading-tight tracking-tight"
                   style={{ color: HBS.white }}
                 >
-                  {t("auth.welcome")} <span style={{ color: HBS.gold }}>Aqari</span>
+                  {t("auth.welcome")} <span style={{ color: HBS.gold }}>HBSpro</span>
                 </h1>
                 <p className="mt-2 text-sm" style={{ color: HBS.gray }}>
                   {t("auth.welcomeSubtitle")}

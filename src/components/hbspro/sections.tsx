@@ -766,7 +766,7 @@ export function DashboardPreview() {
                 >
                   <Building2 className="h-4 w-4" />
                 </div>
-                <span className="text-sm font-semibold">Aqari</span>
+                <span className="text-sm font-semibold">HBSpro</span>
               </div>
               {(
                 [
@@ -1917,7 +1917,7 @@ export function Footer() {
           className="mt-10 flex flex-col gap-3 border-t pt-6 text-xs sm:flex-row sm:items-center sm:justify-between"
           style={{ borderColor: HBS.border, color: HBS.gray }}
         >
-          <div>© {new Date().getFullYear()} Aqari · HRHBS. {t("hbspro.footer.rights")}</div>
+          <div>© {new Date().getFullYear()} HBSpro · HRHBS. {t("hbspro.footer.rights")}</div>
           <Link to="/connect" className="hover:text-white">
             {t("hbspro.footer.connectAi", { defaultValue: "Connect an AI assistant" })}
           </Link>

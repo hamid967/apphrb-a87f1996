@@ -257,7 +257,7 @@ function OwnerLedgerPage() {
   </table>
 
   <div class="footer">
-    <div>Aqari by HRHBS · عقاري</div>
+    <div>HBSpro · عقاري</div>
     <div>${esc(data.owner.full_name)} · ${esc(from)} → ${esc(to)}</div>
   </div>
   <script>window.addEventListener('load', () => setTimeout(() => window.print(), 300));</script>

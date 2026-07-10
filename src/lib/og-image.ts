@@ -32,7 +32,7 @@ export type OgParams = {
 };
 
 const DEFAULT_ORIGIN = "https://hrhbs.com";
-const DEFAULT_SITE_NAME = "HRHBS · Aqari";
+const DEFAULT_SITE_NAME = "HRHBS · HBSpro";
 const DEFAULT_TWITTER_SITE = "hrhbs";
 
 // Smart og:type per kind. Facebook's Open Graph spec: only a small set

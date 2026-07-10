@@ -30,7 +30,7 @@ export const Route = createFileRoute("/dev/breadcrumbs-test")({
   },
   head: () => ({
     meta: [
-      { title: "Breadcrumb harness — Aqari" },
+      { title: "Breadcrumb harness — HBSpro" },
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),

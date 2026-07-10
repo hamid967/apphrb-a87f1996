@@ -5,13 +5,13 @@ import { Users2, Target, MessageCircle, Handshake, Calendar, TrendingUp } from "
 export const Route = createFileRoute("/solutions/brokers")({
   head: () => ({
     meta: [
-      { title: "حلول الوسطاء العقاريين — Aqari | Solutions for Brokers" },
+      { title: "حلول الوسطاء العقاريين — HBSpro | Solutions for Brokers" },
       {
         name: "description",
         content:
-          "عقاري Aqari للوسطاء: CRM كامل للعملاء المحتملين، جدولة المعاينات، تتبع العمولات، وأتمتة المتابعة عبر WhatsApp.",
+          "HBSpro للوسطاء: CRM كامل للعملاء المحتملين، جدولة المعاينات، تتبع العمولات، وأتمتة المتابعة عبر WhatsApp.",
       },
-      { property: "og:title", content: "حلول الوسطاء — Aqari" },
+      { property: "og:title", content: "حلول الوسطاء — HBSpro" },
       {
         property: "og:description",
         content: "CRM، معاينات، عمولات، وأتمتة WhatsApp لوسطاء العقارات.",

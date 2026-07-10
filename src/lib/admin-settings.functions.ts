@@ -73,7 +73,7 @@ export const testSlackWebhook = createServerFn({ method: "POST" })
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: `:white_check_mark: *Aqari admin* — Slack webhook test at ${new Date().toISOString()}`,
+          text: `:white_check_mark: *HBSpro admin* — Slack webhook test at ${new Date().toISOString()}`,
         }),
         signal: ctrl.signal,
       });

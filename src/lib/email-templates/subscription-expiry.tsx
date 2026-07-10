@@ -20,7 +20,7 @@ interface Props {
 }
 
 const Email = ({
-  siteName = "Aqari",
+  siteName = "HBSpro",
   recipientName = "",
   daysRemaining = 0,
   expiryDate = "",
@@ -58,7 +58,7 @@ export const template = {
     (data?.daysRemaining ?? 0) <= 0 ? "انتهى اشتراكك" : "اشتراكك سينتهي قريبًا",
   displayName: "Subscription expiry",
   previewData: {
-    siteName: "Aqari",
+    siteName: "HBSpro",
     recipientName: "حامد",
     daysRemaining: 5,
     expiryDate: "2026-07-15",

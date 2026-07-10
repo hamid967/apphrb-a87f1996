@@ -54,7 +54,7 @@ const EVENT_COLOR: Record<ApplicationUpdateEvent, string> = {
 };
 
 const Email = ({
-  siteName = "Aqari",
+  siteName = "HBSpro",
   applicantName = "",
   listingTitle = null,
   event = "status_changed",
@@ -138,13 +138,13 @@ export const template = {
   component: Email,
   subject: (data: Record<string, unknown>) => {
     const event = String(data.event ?? "status_changed") as ApplicationUpdateEvent;
-    const site = String(data.siteName ?? "Aqari");
+    const site = String(data.siteName ?? "HBSpro");
     const listing = data.listingTitle ? ` — ${String(data.listingTitle)}` : "";
     return `[${site}] ${EVENT_TITLE[event] ?? EVENT_TITLE.status_changed}${listing}`;
   },
   displayName: "Rental application update",
   previewData: {
-    siteName: "Aqari",
+    siteName: "HBSpro",
     applicantName: "أحمد المطيري",
     listingTitle: "شقة بحي الياسمين",
     event: "status_changed",

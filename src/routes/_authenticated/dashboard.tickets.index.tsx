@@ -29,7 +29,7 @@ const listQuery = (filters: {
 export const Route = createFileRoute("/_authenticated/dashboard/tickets/")({
   head: () => ({
     meta: [
-      { title: "تذاكر الدعم — Aqari" },
+      { title: "تذاكر الدعم — HBSpro" },
       { name: "description", content: "إدارة تذاكر الدعم الفني والاستفسارات مع تتبع الأولوية وSLA." },
     ],
   }),

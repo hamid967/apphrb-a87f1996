@@ -35,7 +35,7 @@ const membersQuery = queryOptions({
 export const Route = createFileRoute("/_authenticated/dashboard/tickets/$id")({
   head: () => ({
     meta: [
-      { title: "تفاصيل تذكرة — Aqari" },
+      { title: "تفاصيل تذكرة — HBSpro" },
       { name: "description", content: "متابعة تذكرة دعم مع المحادثة والتحكم بالحالة والأولوية." },
     ],
   }),

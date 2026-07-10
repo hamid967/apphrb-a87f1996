@@ -72,8 +72,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "Aqari" },
-      { name: "application-name", content: "Aqari" },
+      { name: "apple-mobile-web-app-title", content: "HBSpro" },
+      { name: "application-name", content: "HBSpro" },
       { name: "format-detection", content: "telephone=no" },
       { title: "HBSpro — إدارة عقارات بالذكاء الاصطناعي" },
       {
@@ -121,7 +121,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "Aqari",
+          name: "HBSpro",
           url: "https://hrhbs.com",
           logo: "https://hrhbs.com/icon-512.png",
         }),
@@ -131,7 +131,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "Aqari",
+          name: "HBSpro",
           url: "https://hrhbs.com",
         }),
       },

@@ -24,9 +24,9 @@ import ReactMarkdown from "react-markdown";
 type Lang = "auto" | "ar" | "en";
 
 const WELCOME_TEXT: Record<Lang, string> = {
-  auto: "أهلاً، أنا حامد 👋 مساعد عقاري Aqari. اسألني بالعربية أو الإنجليزية. / Hi, I'm Hamid — ask me anything about the platform or how to sign up.",
-  ar: "أهلاً، أنا حامد 👋 مساعد منصة عقاري Aqari. كيف أقدر أساعدك؟ (نبذة عن النظام، إنشاء حساب، أو تسجيل الدخول)",
-  en: "Hi, I'm Hamid 👋 — assistant for Aqari by HRHBS. How can I help? (platform overview, new account, or sign-in)",
+  auto: "أهلاً، أنا حامد 👋 مساعد HBSpro. اسألني بالعربية أو الإنجليزية. / Hi, I'm Hamid — ask me anything about the platform or how to sign up.",
+  ar: "أهلاً، أنا حامد 👋 مساعد منصة HBSpro. كيف أقدر أساعدك؟ (نبذة عن النظام، إنشاء حساب، أو تسجيل الدخول)",
+  en: "Hi, I'm Hamid 👋 — assistant for HBSpro. How can I help? (platform overview, new account, or sign-in)",
 };
 
 const QUICK: Record<Lang, string[]> = {
@@ -68,7 +68,7 @@ const LABELS: Record<
 > = {
   auto: {
     title: "حامد · Hamid",
-    subtitle: "مساعد Aqari — AR + EN",
+    subtitle: "مساعد HBSpro — AR + EN",
     placeholder: "اسأل بأي لغة… / Ask in any language…",
     typing: "يكتب… / typing…",
     error: "حدث خطأ. / Something went wrong.",
@@ -77,7 +77,7 @@ const LABELS: Record<
     langLabel: "اللغة / Language",
   },
   ar: {
-    title: "حامد — مساعد Aqari",
+    title: "حامد — مساعد HBSpro",
     subtitle: "بالعربية",
     placeholder: "اسأل حامد…",
     typing: "حامد يكتب…",
@@ -87,7 +87,7 @@ const LABELS: Record<
     langLabel: "اللغة",
   },
   en: {
-    title: "Hamid — Aqari Assistant",
+    title: "Hamid — HBSpro Assistant",
     subtitle: "English",
     placeholder: "Ask Hamid…",
     typing: "Hamid is typing…",

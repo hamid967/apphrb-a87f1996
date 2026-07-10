@@ -15,10 +15,10 @@ const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "project-ref-unse
 
 export default defineMcp({
   name: "aqari-hrhbs-mcp",
-  title: "Aqari by HRHBS",
+  title: "HBSpro",
   version: "0.1.0",
   instructions:
-    "Tools for Aqari — a Saudi real-estate SaaS. Use these to inspect the signed-in user's company profile, list branches and properties, and create new properties. All calls act as the signed-in user and respect the app's row-level security.",
+    "Tools for HBSpro — a Saudi real-estate SaaS. Use these to inspect the signed-in user's company profile, list branches and properties, and create new properties. All calls act as the signed-in user and respect the app's row-level security.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",

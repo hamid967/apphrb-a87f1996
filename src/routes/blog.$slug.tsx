@@ -21,7 +21,7 @@ export const Route = createFileRoute("/blog/$slug")({
     if (!loaderData) {
       return {
         meta: [
-          { title: "غير موجود — Aqari" },
+          { title: "غير موجود — HBSpro" },
           { name: "robots", content: "noindex" },
         ],
       };
@@ -38,7 +38,7 @@ export const Route = createFileRoute("/blog/$slug")({
       : undefined;
     const published = loaderData.published_at || undefined;
     const modified = (loaderData as { updated_at?: string }).updated_at || published;
-    const authorName = (loaderData as { author_name?: string }).author_name || "Aqari Editorial";
+    const authorName = (loaderData as { author_name?: string }).author_name || "HBSpro Editorial";
 
     const blogPosting: Record<string, unknown> = {
       "@context": "https://schema.org",
@@ -55,7 +55,7 @@ export const Route = createFileRoute("/blog/$slug")({
       author: { "@type": "Organization", name: authorName, url: "https://hrhbs.com" },
       publisher: {
         "@type": "Organization",
-        name: "Aqari by HRHBS",
+        name: "HBSpro",
         url: "https://hrhbs.com",
         logo: { "@type": "ImageObject", url: "https://hrhbs.com/favicon.ico" },
       },
@@ -73,7 +73,7 @@ export const Route = createFileRoute("/blog/$slug")({
 
     return {
       meta: [
-        { title: `${title} — Aqari` },
+        { title: `${title} — HBSpro` },
         { name: "description", content: desc },
         { property: "og:title", content: title },
         { property: "og:description", content: desc },
@@ -113,7 +113,7 @@ function PostPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2 font-bold">
             <Building2 className="h-5 w-5" />
-            <span>Aqari</span>
+            <span>HBSpro</span>
           </Link>
           <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="me-1 inline h-4 w-4 rtl:rotate-180" />

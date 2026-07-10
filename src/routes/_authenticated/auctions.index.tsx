@@ -13,7 +13,7 @@ import { listAuctions } from "@/lib/auctions.functions";
 export const Route = createFileRoute("/_authenticated/auctions/")({
   head: () => ({
     meta: [
-      { title: "المزادات — Aqari" },
+      { title: "المزادات — HBSpro" },
       { name: "description", content: "مزادات عقارية مباشرة مع المزايدة اللحظية والعدّاد الزمني." },
     ],
   }),

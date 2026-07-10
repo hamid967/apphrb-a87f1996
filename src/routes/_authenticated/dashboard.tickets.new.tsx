@@ -17,7 +17,7 @@ import { createStaffTicket } from "@/lib/staff-tickets.functions";
 export const Route = createFileRoute("/_authenticated/dashboard/tickets/new")({
   head: () => ({
     meta: [
-      { title: "تذكرة جديدة — Aqari" },
+      { title: "تذكرة جديدة — HBSpro" },
       { name: "description", content: "إنشاء تذكرة دعم جديدة." },
     ],
   }),

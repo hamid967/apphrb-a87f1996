@@ -189,7 +189,7 @@ function ConnectPage() {
       <header className="mb-8">
         <h1 className="text-3xl font-semibold tracking-tight">Connect an AI assistant</h1>
         <p className="mt-2 text-muted-foreground">
-          Connect ChatGPT or Claude to Aqari so your assistant can work with your properties,
+          Connect ChatGPT or Claude to HBSpro so your assistant can work with your properties,
           tenants, and expenses on your behalf.
         </p>
       </header>
@@ -216,7 +216,7 @@ function ConnectPage() {
             </Button>
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            The assistant signs in with your Aqari account and acts as you. It only sees data
+            The assistant signs in with your HBSpro account and acts as you. It only sees data
             you'd see when signed in.
           </p>
 
@@ -281,9 +281,9 @@ function ConnectPage() {
             <li>
               Click <strong>Add sources</strong>, then <strong>Connect more</strong>.
             </li>
-            <li>Give the connector a name (e.g. "Aqari") and paste the MCP URL above.</li>
-            <li>Sign in with your Aqari account and approve the connection.</li>
-            <li>Ask ChatGPT something like "List my properties in Aqari".</li>
+            <li>Give the connector a name (e.g. "HBSpro") and paste the MCP URL above.</li>
+            <li>Sign in with your HBSpro account and approve the connection.</li>
+            <li>Ask ChatGPT something like "List my properties in HBSpro".</li>
           </ol>
         </CardContent>
       </Card>
@@ -306,10 +306,10 @@ function ConnectPage() {
               </a>
               .
             </li>
-            <li>Give the connector a name (e.g. "Aqari") and paste the MCP URL above.</li>
-            <li>Sign in with your Aqari account and approve the connection.</li>
+            <li>Give the connector a name (e.g. "HBSpro") and paste the MCP URL above.</li>
+            <li>Sign in with your HBSpro account and approve the connection.</li>
             <li>
-              Enable the connector from the chat composer, then ask Claude to use Aqari.
+              Enable the connector from the chat composer, then ask Claude to use HBSpro.
             </li>
           </ol>
         </CardContent>
@@ -527,16 +527,16 @@ function SavedServersCard() {
 export const Route = createFileRoute("/connect")({
   head: () => ({
     meta: [
-      { title: "Connect an AI assistant — Aqari" },
+      { title: "Connect an AI assistant — HBSpro" },
       {
         name: "description",
         content:
-          "Connect ChatGPT or Claude to your Aqari account so your AI assistant can manage properties, tenants, and expenses on your behalf.",
+          "Connect ChatGPT or Claude to your HBSpro account so your AI assistant can manage properties, tenants, and expenses on your behalf.",
       },
-      { property: "og:title", content: "Connect an AI assistant to Aqari" },
+      { property: "og:title", content: "Connect an AI assistant to HBSpro" },
       {
         property: "og:description",
-        content: "Step-by-step instructions to connect ChatGPT or Claude to Aqari via MCP.",
+        content: "Step-by-step instructions to connect ChatGPT or Claude to HBSpro via MCP.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

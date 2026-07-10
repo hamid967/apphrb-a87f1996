@@ -14,14 +14,14 @@ import { Building2, Mail, Phone, MessageCircle, MapPin } from "lucide-react";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "تواصل معنا — عقاري Aqari | Contact" },
+      { title: "تواصل معنا — HBSpro | Contact" },
       {
         name: "description",
         content:
-          "تواصل مع فريق عقاري Aqari عبر النموذج، البريد، أو واتساب. نرد خلال ساعات العمل الرسمية.",
+          "تواصل مع فريق HBSpro عبر النموذج، البريد، أو واتساب. نرد خلال ساعات العمل الرسمية.",
       },
-      { property: "og:title", content: "تواصل معنا — عقاري Aqari" },
-      { property: "og:description", content: "نموذج تواصل مباشر مع فريق مبيعات ودعم عقاري Aqari." },
+      { property: "og:title", content: "تواصل معنا — HBSpro" },
+      { property: "og:description", content: "نموذج تواصل مباشر مع فريق مبيعات ودعم HBSpro." },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://apphrb.lovable.app/contact" },
     ],
@@ -71,7 +71,7 @@ function ContactPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2 font-bold">
             <Building2 className="h-5 w-5" />
-            <span>Aqari</span>
+            <span>HBSpro</span>
           </Link>
           <div className="flex items-center gap-3 text-sm">
             <Link to="/about" className="text-muted-foreground hover:text-foreground">
