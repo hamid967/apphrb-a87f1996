@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { VoiceTextarea } from "@/components/voice/VoiceTextarea";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ReceiptCameraButton } from "@/components/receipt-camera-button";
