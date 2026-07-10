@@ -136,6 +136,36 @@ function PaymentSchedulesPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const invoiceMut = useMutation({
+    mutationFn: (id: string) => createInvoiceFromSchedule({ data: { scheduleId: id } }),
+    onSuccess: (res) => {
+      toast.success(
+        res.created
+          ? (isAr ? `تم إنشاء فاتورة ZATCA ${res.number}` : `Invoice ${res.number} created`)
+          : (isAr ? `الفاتورة موجودة (${res.number})` : `Invoice already exists (${res.number})`),
+      );
+      qc.invalidateQueries({ queryKey: ["payment-schedules"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const generateInvoicesMut = useMutation({
+    mutationFn: () =>
+      generateDueInvoices({
+        data: { orgId: orgId === "all" ? undefined : orgId },
+      }),
+    onSuccess: (res) => {
+      toast.success(
+        isAr
+          ? `تم إصدار ${res.created} فاتورة ZATCA من أصل ${res.scanned}`
+          : `Issued ${res.created} of ${res.scanned} ZATCA invoices`,
+      );
+      qc.invalidateQueries({ queryKey: ["payment-schedules"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
   const rows = (listQ.data?.items ?? []) as Row[];
 
   const summary = useMemo(() => {
