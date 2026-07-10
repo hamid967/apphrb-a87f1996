@@ -75,9 +75,10 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
     const [pending, setPending] = useState<string | null>(null);
     const [phase, setPhase] = useState<Phase>("idle");
     const [elapsed, setElapsed] = useState(0);
+    const [lang, setLang] = useState<LangChoice>(language);
 
     const voice = useVoiceInput({
-      language,
+      language: lang === "auto" ? undefined : lang,
       onError: (msg) => {
         toast.error(msg);
         setPhase("error");
