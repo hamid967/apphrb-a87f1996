@@ -295,6 +295,15 @@
               "type": "boolean",
               "default": false,
               "description": "Restrict to items owned by the signed-in user (requester/submitter/assignee)."
+            },
+            "sort": {
+              "type": "string",
+              "enum": [
+                "created_at",
+                "status"
+              ],
+              "default": "created_at",
+              "description": "Column to sort by. Combined with the shared `order` (asc/desc)."
             }
           },
           "additionalProperties": false,
