@@ -16,6 +16,7 @@ import {
 } from "@/components/hbspro/sections";
 import { EmeraldSplitHero, PortfolioCommandCenter } from "@/components/hbspro/EmeraldSplitHero";
 import { SignupAssistant } from "@/components/SignupAssistant";
+import { HamidVoiceAssistant } from "@/components/HamidVoiceAssistant";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -101,6 +102,7 @@ function HBSproHome() {
       </main>
       <Footer />
       <DemoModalRoot />
+      <HamidVoiceAssistant />
       <SignupAssistant />
     </div>
   );
