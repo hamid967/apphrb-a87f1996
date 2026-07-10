@@ -168,7 +168,7 @@ function ClaimsReviewPage() {
         if (cancelled) return;
         const el = document.getElementById(`violation-${violationId}`);
         if (el) {
-          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.scrollIntoView({ behavior: scrollBehavior, block: "center" });
           el.classList.add("violation-flash");
           if (flashTimer != null) window.clearTimeout(flashTimer);
           flashTimer = window.setTimeout(() => {
