@@ -334,8 +334,14 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
                     }
                     onClick={handleMic}
                     disabled={disabled || isBusy}
-                    aria-label={PHASE_LABEL[phase] || "إدخال صوتي"}
-                    title={PHASE_LABEL[phase] || "إدخال صوتي"}
+                    aria-label={
+                      phase === "recording" || phase === "paused"
+                        ? "إيقاف التسجيل"
+                        : PHASE_LABEL[phase] || "بدء الإدخال الصوتي"
+                    }
+                    aria-pressed={phase === "recording" || phase === "paused"}
+                    aria-keyshortcuts="Control+Shift+M Meta+Shift+M"
+                    title={`${PHASE_LABEL[phase] || "إدخال صوتي"} (Ctrl+Shift+M)`}
                     className={cn(
                       "h-8 w-8 relative overflow-hidden",
                       phase === "recording" &&
