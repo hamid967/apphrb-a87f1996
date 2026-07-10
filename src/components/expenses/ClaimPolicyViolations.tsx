@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -52,6 +52,40 @@ export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
     queryKey: ["claim-policy-violations", claimId],
     queryFn: () => listPolicyViolationsForClaim({ data: { claim_id: claimId } }),
   });
+
+  // Re-flash the active (deep-linked) violation row every time it re-enters
+  // the viewport, not just on the initial scroll. If the reviewer scrolls
+  // past it and comes back, the row briefly pulses again to re-anchor
+  // attention. Persistent `.violation-active` styling stays put in between.
+  useEffect(() => {
+    if (!activeViolationId || typeof window === "undefined") return;
+    const el = document.getElementById(`violation-${activeViolationId}`);
+    if (!el) return;
+    let removeTimer: number | null = null;
+    const flash = () => {
+      el.classList.remove("violation-flash");
+      // Force reflow so the animation restarts on repeated entries.
+      void el.offsetWidth;
+      el.classList.add("violation-flash");
+      if (removeTimer != null) window.clearTimeout(removeTimer);
+      removeTimer = window.setTimeout(() => {
+        el.classList.remove("violation-flash");
+      }, 2600);
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) flash();
+      },
+      { threshold: 0.4 },
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      if (removeTimer != null) window.clearTimeout(removeTimer);
+      el.classList.remove("violation-flash");
+    };
+  }, [activeViolationId, q.data]);
+
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["claim-policy-violations", claimId] });
