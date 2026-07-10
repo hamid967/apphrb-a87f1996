@@ -357,7 +357,7 @@ async function ensureInvoiceForSchedule(
       currency: "SAR",
       status: "draft",
       invoice_type: "simplified",
-      zatca_status: "not_started",
+
       description,
       notes: sched.notes ?? null,
     })
