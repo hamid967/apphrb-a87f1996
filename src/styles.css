@@ -1996,3 +1996,12 @@ html.theme-lux :where(:not(.theme-luxe *)) textarea:focus {
   scroll-margin-top: 6rem;
   border-radius: 0.375rem;
 }
+
+/* Persistent highlight for the deep-linked violation row. Applied on top of
+   the short flash so the row stays visually marked even after scrolling
+   away and back — cleared only when the reviewer collapses the claim. */
+.violation-active {
+  background-color: hsl(var(--primary) / 0.12) !important;
+  box-shadow: inset 3px 0 0 0 hsl(var(--primary));
+  scroll-margin-top: 6rem;
+}
