@@ -67,6 +67,8 @@ export type InvoicePdfInput = {
     xml_ubl?: string | null;
     notes?: string | null;
   };
+  docKind?: "invoice" | "credit_note" | "debit_note";
+  reference?: { number: string; issue_date?: string | null; reason?: string | null } | null;
   seller: {
     name_ar: string;
     name_en?: string;
