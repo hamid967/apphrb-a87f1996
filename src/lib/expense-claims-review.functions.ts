@@ -122,7 +122,9 @@ export const decideClaim = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: claim, error: readErr } = await supabase
       .from("expense_claims")
-      .select("id, org_id, title, claim_number, amount, currency, status, submitted_by, batch_id")
+      .select(
+        "id, org_id, title, claim_number, amount, currency, status, submitted_by, batch_id, required_levels, current_level",
+      )
       .eq("id", data.claim_id)
       .maybeSingle();
     if (readErr) throw readErr;
@@ -133,41 +135,75 @@ export const decideClaim = createServerFn({ method: "POST" })
       throw new Error("reason_required");
     }
 
+    // Multi-level flow: each approve moves the claim through one sign-off level;
+    // status only flips to 'approved' after the final level signs.
+    const requiredLevels = Number(claim.required_levels ?? 1) || 1;
+    const currentLevel = Number(claim.current_level ?? 0) || 0;
+    const nextLevel = currentLevel + 1;
     const now = new Date().toISOString();
+
     let template: string;
     let event_key: string;
-    let nextStatus: "approved" | "rejected" | "draft";
-    const patch = {
+    let nextStatus: "approved" | "rejected" | "draft" | "in_review";
+    const patch: Record<string, unknown> = {
       reviewed_by: userId,
       reviewed_at: now,
-      approved_at: null as string | null,
-      submitted_at: claim.status === "submitted" || claim.status === "in_review"
-        ? (undefined as unknown as string) // untouched for approve/reject
-        : undefined,
-      status: "approved" as "approved" | "rejected" | "draft",
-      rejection_reason: null as string | null,
     };
+
     if (data.decision === "approve") {
-      nextStatus = "approved";
-      patch.status = "approved";
-      patch.approved_at = now;
-      patch.rejection_reason = null;
-      template = "expense_claim_approved";
-      event_key = "expense_claim_approved";
+      const willFinalize = nextLevel >= requiredLevels;
+      nextStatus = willFinalize ? "approved" : "in_review";
+      patch.status = nextStatus;
+      patch.current_level = nextLevel;
+      if (willFinalize) {
+        patch.approved_at = now;
+        patch.rejection_reason = null;
+      }
+      template = willFinalize ? "expense_claim_approved" : "expense_claim_level_signed";
+      event_key = template;
     } else if (data.decision === "reject") {
       nextStatus = "rejected";
       patch.status = "rejected";
       patch.rejection_reason = data.reason ?? null;
       template = "expense_claim_rejected";
-      event_key = "expense_claim_rejected";
+      event_key = template;
     } else {
       nextStatus = "draft";
       patch.status = "draft";
-      patch.submitted_at = null as unknown as string;
+      patch.submitted_at = null;
       patch.approved_at = null;
+      patch.current_level = 0;
       patch.rejection_reason = data.reason ?? null;
       template = "expense_claim_returned";
-      event_key = "expense_claim_returned";
+      event_key = template;
+    }
+
+    // Record this sign-off in the multi-level ledger. UPSERT keeps the seeded
+    // row's UNIQUE (claim_id, level) intact if the trigger already inserted it,
+    // and creates it if the claim predates the trigger.
+    {
+      const level =
+        data.decision === "approve"
+          ? nextLevel
+          : Math.max(1, Math.min(requiredLevels, nextLevel));
+      const requiredRole =
+        level === 1 ? "manager" : level === 2 ? "finance" : level === 3 ? "owner" : "admin";
+      const { error: signErr } = await supabase
+        .from("expense_claim_approvals")
+        .upsert(
+          {
+            org_id: claim.org_id,
+            claim_id: claim.id,
+            level,
+            required_role: requiredRole,
+            decided_by: userId,
+            decision: data.decision,
+            reason: data.reason ?? null,
+            decided_at: now,
+          },
+          { onConflict: "claim_id,level" },
+        );
+      if (signErr) throw signErr;
     }
 
     const { error: upErr } = await supabase
@@ -192,6 +228,8 @@ export const decideClaim = createServerFn({ method: "POST" })
               amount: claim.amount ?? 0,
               currency: claim.currency ?? "SAR",
               reason: data.reason ?? "",
+              level: patch.current_level ?? nextLevel,
+              required_levels: requiredLevels,
               reference_type: "expense_claim",
               reference_id: claim.id,
             },
@@ -202,5 +240,10 @@ export const decideClaim = createServerFn({ method: "POST" })
         /* notifications must not block the decision */
       }
     }
-    return { ok: true, status: nextStatus };
+    return {
+      ok: true,
+      status: nextStatus,
+      current_level: (patch.current_level as number) ?? currentLevel,
+      required_levels: requiredLevels,
+    };
   });
