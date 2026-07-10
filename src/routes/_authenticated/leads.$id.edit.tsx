@@ -48,6 +48,7 @@ function EditLeadPage() {
   const lead = detailQ.data?.lead as any;
 
   const [form, setForm] = useState<FormState | null>(null);
+  const [convertOpen, setConvertOpen] = useState(false);
   useEffect(() => {
     if (lead && !form) {
       setForm({
