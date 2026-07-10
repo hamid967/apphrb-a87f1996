@@ -155,12 +155,6 @@ export function Navbar() {
         </nav>
         <div className="hidden items-center gap-2 md:flex lg:gap-3">
           <ThemeToggle />
-          <Link to="/dashboard" className="text-sm text-slate-300 transition hover:text-white">
-            {t("hbspro.nav.employeeDashboard")}
-          </Link>
-          <Link to="/admin" className="text-sm text-slate-300 transition hover:text-white">
-            {t("hbspro.nav.adminDashboard")}
-          </Link>
           <Link to="/auth" className="text-sm text-slate-300 hover:text-white">
             {t("hbspro.nav.signIn")}
           </Link>
@@ -217,22 +211,6 @@ export function Navbar() {
               style={{ background: HBS.gold }}
             >
               {t("hbspro.nav.signUp")}
-            </Link>
-            <Link
-              to="/dashboard"
-              onClick={() => setOpen(false)}
-              className="block rounded-full border px-4 py-2 text-center text-sm text-white"
-              style={{ borderColor: HBS.border }}
-            >
-              {t("hbspro.nav.employeeDashboard")}
-            </Link>
-            <Link
-              to="/admin"
-              onClick={() => setOpen(false)}
-              className="block rounded-full border px-4 py-2 text-center text-sm text-white"
-              style={{ borderColor: HBS.border }}
-            >
-              {t("hbspro.nav.adminDashboard")}
             </Link>
           </div>
         </div>
