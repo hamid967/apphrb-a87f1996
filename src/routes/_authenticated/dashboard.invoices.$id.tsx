@@ -163,6 +163,14 @@ function InvoiceDetailPage() {
         <div className="flex gap-2 flex-wrap">
           <Button
             variant="outline"
+            onClick={() => setPreviewOpen(true)}
+            disabled={!b}
+          >
+            <Eye className="h-4 w-4 me-1" />
+            {isAr ? "معاينة وتحقق" : "Preview & Verify"}
+          </Button>
+          <Button
+            variant="outline"
             onClick={() => pdfMut.mutate()}
             disabled={pdfMut.isPending || !b}
           >
