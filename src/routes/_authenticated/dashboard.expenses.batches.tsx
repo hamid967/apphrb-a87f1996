@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { ListState } from "@/components/common/ListState";
 
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute("/_authenticated/dashboard/expenses/batches")({
