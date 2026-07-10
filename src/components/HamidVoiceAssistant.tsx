@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { Loader2, Mic, MicOff, Volume2, X } from "lucide-react";
+import { ArrowRight, Loader2, Mic, MicOff, Volume2, X } from "lucide-react";
 import { HBS } from "@/components/hbspro/tokens";
 import { cn } from "@/lib/utils";
 
@@ -26,44 +26,135 @@ type SpeechSynthesisWindow = Window & {
   webkitSpeechRecognition?: SpeechRecognitionCtor;
 };
 
+type HamidIntent = {
+  text: string;
+  actionLabel?: string;
+  actionPath?: string;
+};
+
+const TASK_SHORTCUTS = [
+  "سجلني في المنصة",
+  "افتح لوحة التحكم",
+  "أضف عقار جديد",
+  "سجل بلاغ صيانة",
+  "أرني التقارير",
+  "تابع التحصيل",
+];
+
 function getSpeechRecognition(): SpeechRecognitionCtor | null {
   if (typeof window === "undefined") return null;
   const speechWindow = window as SpeechSynthesisWindow;
   return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
 }
 
-function getLocalReply(text: string) {
+function getLocalIntent(text: string): HamidIntent {
   const input = text.trim().toLowerCase();
 
   if (/تسجيل|حساب|اشترك|ابدأ|signup|register|account/.test(input)) {
-    return "حياك الله، أبشر. تقدر تبدأ من صفحة إنشاء الحساب، وبعدها تكمل الملف الشخصي، ثم بيانات المنشأة ومساحة العمل. إذا احتجت مساعدة، اسألني عن خطوة التسجيل.";
+    return {
+      text:
+        "حياك الله، أبشر. أبدأ معك التسجيل من صفحة إنشاء الحساب، وبعدها نكمل الملف الشخصي، بيانات المنشأة، ومساحة العمل. لا تشارك كلمة المرور أو رمز التحقق معي.",
+      actionLabel: "افتح التسجيل",
+      actionPath: "/auth?mode=signup",
+    };
   }
 
-  if (/تحصيل|متأخر|دفعات|ايجار|إيجار|arrears|collection|payment/.test(input)) {
-    return "خلّني أوضح لك خطة التحصيل: نحدد الدفعات المتأخرة، نقسمها حسب عمر التأخير، نرسل تذكير، ثم نسجل المتابعة والوعد بالسداد داخل النظام.";
+  if (/لوحة|الرئيسية|داشبورد|dashboard|home/.test(input)) {
+    return {
+      text:
+        "أفتح لك لوحة التحكم. من هناك تتابع المؤشرات اليومية: التحصيل، الشغور، العقود القريبة، الصيانة، والتنبيهات المهمة.",
+      actionLabel: "افتح لوحة التحكم",
+      actionPath: "/dashboard",
+    };
+  }
+
+  if (/عقار|عقارات|وحدة|وحدات|أضف|اضف|property|properties|unit/.test(input)) {
+    return {
+      text:
+        "لإضافة عقار، نحتاج الاسم، المدينة، العنوان، نوع الوحدة، السعر، الحالة، والصور. أفتح لك صفحة العقارات لتبدأ الإدخال.",
+      actionLabel: "افتح العقارات",
+      actionPath: "/properties",
+    };
+  }
+
+  if (/تحصيل|متأخر|دفعات|ايجار|إيجار|فاتورة|arrears|collection|payment|invoice/.test(input)) {
+    return {
+      text:
+        "خطة التحصيل: حدد المتأخرات، صنفها حسب عمر التأخير، أرسل تذكير، سجل وعد السداد، ثم صعّد الحالات عالية المخاطر. أفتح لك المحاسبة والمتابعة المالية.",
+      actionLabel: "افتح المحاسبة",
+      actionPath: "/accounting",
+    };
   }
 
   if (/صيانة|بلاغ|تذكرة|maintenance|ticket/.test(input)) {
-    return "في الصيانة نبدأ بتسجيل البلاغ، تحديد العقار والوحدة، رفع الصور إن وجدت، تحديد الأولوية، ثم متابعة المورد حتى الإغلاق وتوثيق التكلفة.";
+    return {
+      text:
+        "لبلاغ الصيانة، سجل العقار والوحدة، وصف المشكلة، الأولوية، الصور إن وجدت، ثم عيّن المورد وتابع الإغلاق والتكلفة.",
+      actionLabel: "افتح الصيانة",
+      actionPath: "/maintenance",
+    };
   }
 
   if (/عقد|عقود|تجديد|انتهاء|contract|lease|renew/.test(input)) {
-    return "بالنسبة للعقود، الأفضل متابعة العقود التي تنتهي خلال ثلاثين أو ستين يوم، تجهيز شروط التجديد، وإرسال تنبيه مبكر للمستأجر والمالك.";
+    return {
+      text:
+        "لإدارة العقود، راقب العقود التي تنتهي خلال 30 أو 60 يوم، جهز شروط التجديد، وأرسل تنبيه مبكر للمستأجر والمالك.",
+      actionLabel: "افتح العقود",
+      actionPath: "/contracts",
+    };
   }
 
   if (/شاغر|شاغرة|اشغال|إشغال|vacant|vacancy|occupancy/.test(input)) {
-    return "للوحدات الشاغرة، راجع مدة الشغور، السعر مقارنة بالسوق، جودة الإعلان، والصور. بعدها حدد إجراء واضح: تعديل السعر، تحسين الإعلان، أو تكليف وسيط.";
+    return {
+      text:
+        "للوحدات الشاغرة، راجع مدة الشغور، السعر مقارنة بالسوق، جودة الإعلان، الصور، ثم اختر إجراء: تعديل السعر، تحسين الإعلان، أو تكليف وسيط.",
+      actionLabel: "افتح العقارات",
+      actionPath: "/properties",
+    };
   }
 
-  if (/تقرير|تقارير|ملخص|لوحة|dashboard|report/.test(input)) {
-    return "الملخص الصباحي المفيد يشمل التحصيل، المتأخرات، الوحدات الشاغرة، العقود القريبة من الانتهاء، بلاغات الصيانة، وأهم توصية تنفيذية اليوم.";
+  if (/تقرير|تقارير|ملخص|اداء|أداء|dashboard|report|analytics/.test(input)) {
+    return {
+      text:
+        "أجهز لك اتجاه العمل: راجع التحصيل، المتأخرات، الشغور، العقود القريبة، الصيانة المفتوحة، ثم استخرج توصية تنفيذية واحدة لليوم.",
+      actionLabel: "افتح التقارير",
+      actionPath: "/reports",
+    };
+  }
+
+  if (/مهمة|مهام|تابع|تذكير|task|tasks|reminder/.test(input)) {
+    return {
+      text:
+        "لإتمام المهام، افتح قائمة المهام، اختر المسؤول، حدّد تاريخ الاستحقاق، واربط المهمة بالعقار أو العقد أو العميل حتى تبقى المتابعة واضحة.",
+      actionLabel: "افتح المهام",
+      actionPath: "/tasks",
+    };
+  }
+
+  if (/عميل|عملاء|مالك|مستأجر|lead|contact|crm|tenant|owner/.test(input)) {
+    return {
+      text:
+        "لإدارة العملاء، سجل بيانات التواصل، نوع العلاقة، الملاحظات، وربط العميل بالعقار أو العقد. بعدها تقدر تتابع الفرص والطلبات من نفس المكان.",
+      actionLabel: "افتح العملاء",
+      actionPath: "/contacts",
+    };
   }
 
   if (/سعر|تسعير|price|pricing/.test(input)) {
-    return "للتسعير، قارن الوحدة بمثيلاتها في نفس المدينة والحي، ثم راجع الإشغال والطلب ومدة الشغور. الهدف سعر عادل يقلل الشغور ويحافظ على العائد.";
+    return {
+      text:
+        "للتسعير، قارن الوحدة بمثيلاتها في نفس المدينة والحي، راجع مدة الشغور والطلب، ثم اختر سعر يقلل الشغور ويحافظ على العائد.",
+      actionLabel: "افتح العقارات",
+      actionPath: "/properties",
+    };
   }
 
-  return "حياك الله، أنا حامد مساعد HBSpro المحلي. أقدر أساعدك في التسجيل، التحصيل، العقود، الصيانة، الوحدات الشاغرة، والتقارير. اسألني عن أي نقطة منها.";
+  return {
+    text:
+      "حياك الله، أنا حامد مساعد HBSpro المحلي. أقدر أساعدك في التسجيل، فتح الصفحات، وتجهيز خطوات مهام اللوحة مثل العقارات، التحصيل، الصيانة، العقود، التقارير، والعملاء.",
+    actionLabel: "افتح لوحة التحكم",
+    actionPath: "/dashboard",
+  };
 }
 
 function pickArabicVoice() {
@@ -90,12 +181,17 @@ function speakLocally(text: string) {
   return true;
 }
 
+function goTo(path: string) {
+  if (typeof window === "undefined") return;
+  window.location.assign(path);
+}
+
 export function HamidVoiceAssistant() {
   const [open, setOpen] = useState(false);
   const [listening, setListening] = useState(false);
   const [loading, setLoading] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [reply, setReply] = useState("");
+  const [reply, setReply] = useState<HamidIntent>(() => getLocalIntent(""));
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const Recognition = useMemo(getSpeechRecognition, []);
@@ -108,11 +204,11 @@ export function HamidVoiceAssistant() {
 
     setLoading(true);
     setError(null);
-    const nextReply = getLocalReply(cleanText);
+    const nextReply = getLocalIntent(cleanText);
     setReply(nextReply);
 
     await new Promise((resolve) => window.setTimeout(resolve, 250));
-    const spoken = speakLocally(nextReply);
+    const spoken = speakLocally(nextReply.text);
     if (!spoken) setError("الصوت المحلي غير مدعوم في هذا المتصفح، لكن الرد النصي ظاهر أمامك.");
     setLoading(false);
   };
@@ -162,14 +258,14 @@ export function HamidVoiceAssistant() {
         aria-label="تحدث صوتياً مع حامد"
       >
         <Volume2 className="size-4" style={{ color: HBS.goldSoft }} />
-        حامد محلي
+        حامد مهام
       </button>
     );
   }
 
   return (
     <section
-      className="fixed bottom-5 start-5 z-40 w-[340px] max-w-[92vw] overflow-hidden rounded-2xl backdrop-blur-2xl"
+      className="fixed bottom-5 start-5 z-40 w-[360px] max-w-[92vw] overflow-hidden rounded-2xl backdrop-blur-2xl"
       style={{
         background: "linear-gradient(160deg, rgba(11,27,44,0.94), rgba(7,19,32,0.98))",
         border: `1px solid ${HBS.border}`,
@@ -180,9 +276,9 @@ export function HamidVoiceAssistant() {
     >
       <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: `1px solid ${HBS.border}` }}>
         <div>
-          <h2 className="text-sm font-semibold">حامد المحلي</h2>
+          <h2 className="text-sm font-semibold">حامد — مساعد المهام</h2>
           <p className="text-[11px]" style={{ color: HBS.gray }}>
-            عربي سعودي · بدون مفاتيح أو خدمات خارجية
+            تسجيل · تشغيل اللوحة · مهام المستخدم
           </p>
         </div>
         <button
@@ -230,14 +326,45 @@ export function HamidVoiceAssistant() {
           {loading ? "حامد يجهز الرد…" : listening ? "إيقاف الاستماع" : "تحدث الآن"}
         </button>
 
+        <div className="flex flex-wrap gap-1.5">
+          {TASK_SHORTCUTS.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => void answer(item)}
+              className="rounded-full px-2.5 py-1 text-[11px] transition hover:-translate-y-0.5"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: `1px solid ${HBS.border}`,
+                color: HBS.goldSoft,
+              }}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
         {transcript && (
           <div className="rounded-xl bg-white/5 p-3 text-xs" style={{ border: `1px solid ${HBS.border}` }}>
             <span style={{ color: HBS.goldSoft }}>سمعتك:</span> {transcript}
           </div>
         )}
-        {reply && (
-          <div className="rounded-xl bg-white/5 p-3 text-xs leading-relaxed" style={{ border: `1px solid ${HBS.border}` }}>
-            <span style={{ color: HBS.goldSoft }}>حامد:</span> {reply}
+        {reply.text && (
+          <div className="space-y-2 rounded-xl bg-white/5 p-3 text-xs leading-relaxed" style={{ border: `1px solid ${HBS.border}` }}>
+            <div>
+              <span style={{ color: HBS.goldSoft }}>حامد:</span> {reply.text}
+            </div>
+            {reply.actionLabel && reply.actionPath && (
+              <button
+                type="button"
+                onClick={() => goTo(reply.actionPath!)}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold text-white transition hover:-translate-y-0.5"
+                style={{ background: `linear-gradient(120deg, ${HBS.blue}, ${HBS.gold})` }}
+              >
+                {reply.actionLabel}
+                <ArrowRight className="size-3" />
+              </button>
+            )}
           </div>
         )}
         {error && (
