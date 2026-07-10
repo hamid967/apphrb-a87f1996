@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Building2, Mail, Phone, MessageCircle, MapPin } from "lucide-react";
+import { Building2, Mail, Clock3, MessageCircle, MapPin } from "lucide-react";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -91,8 +91,8 @@ function ContactPage() {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
             {isAr
-              ? "املأ النموذج وسيتواصل معك فريقنا خلال 24 ساعة عمل، أو تواصل مباشرة عبر البريد أو الواتساب."
-              : "Fill out the form and our team will get back to you within one business day, or reach us directly by email or WhatsApp."}
+              ? "املأ النموذج وسيتواصل معك فريقنا خلال 24 ساعة عمل، أو تواصل مباشرة عبر البريد."
+              : "Fill out the form and our team will get back to you within one business day, or reach us directly by email."}
           </p>
         </div>
 
@@ -172,28 +172,24 @@ function ContactPage() {
                 <div className="text-sm text-muted-foreground">sales@hrhbs.com</div>
               </div>
             </a>
-            <a
-              href="https://wa.me/966500000000"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-start gap-3 rounded-xl border border-border/60 bg-card/40 p-4 transition hover:bg-card/70"
-            >
+            <div className="flex items-start gap-3 rounded-xl border border-border/60 bg-card/40 p-4">
               <MessageCircle className="mt-0.5 h-5 w-5 text-primary" />
               <div>
-                <div className="text-sm font-semibold">WhatsApp</div>
-                <div className="text-sm text-muted-foreground" dir="ltr">+966 50 000 0000</div>
+                <div className="text-sm font-semibold">{isAr ? "طلب عرض" : "Demo request"}</div>
+                <div className="text-sm text-muted-foreground">
+                  {isAr ? "أرسل عدد الوحدات واحتياجك التشغيلي وسنقترح المسار المناسب." : "Share your unit count and operating needs, and we will suggest the right path."}
+                </div>
               </div>
-            </a>
-            <a
-              href="tel:+966500000000"
-              className="flex items-start gap-3 rounded-xl border border-border/60 bg-card/40 p-4 transition hover:bg-card/70"
-            >
-              <Phone className="mt-0.5 h-5 w-5 text-primary" />
+            </div>
+            <div className="flex items-start gap-3 rounded-xl border border-border/60 bg-card/40 p-4">
+              <Clock3 className="mt-0.5 h-5 w-5 text-primary" />
               <div>
-                <div className="text-sm font-semibold">{isAr ? "الهاتف" : "Phone"}</div>
-                <div className="text-sm text-muted-foreground" dir="ltr">+966 50 000 0000</div>
+                <div className="text-sm font-semibold">{isAr ? "وقت الرد" : "Response time"}</div>
+                <div className="text-sm text-muted-foreground">
+                  {isAr ? "خلال 24 ساعة عمل." : "Within one business day."}
+                </div>
               </div>
-            </a>
+            </div>
             <div className="flex items-start gap-3 rounded-xl border border-border/60 bg-card/40 p-4">
               <MapPin className="mt-0.5 h-5 w-5 text-primary" />
               <div>
