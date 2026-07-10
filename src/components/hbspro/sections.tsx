@@ -669,6 +669,7 @@ export function Features() {
                 ease: "easeOut",
               }}
               whileHover={{ y: -8 }}
+              whileTap={{ scale: 0.97, transition: { duration: 0.12 } }}
               className={`${glass} group relative overflow-hidden p-6 transition-colors`}
               style={glassStyle}
             >
@@ -1458,7 +1459,8 @@ export function Testimonials() {
     return (
       <motion.div
         whileHover={{ y: -6 }}
-        transition={{ duration: 0.3 }}
+        whileTap={{ scale: 0.98, transition: { duration: 0.12 } }}
+        transition={{ type: "spring", stiffness: 260, damping: 22 }}
         className={`${glass} group relative overflow-hidden p-6 transition-all duration-500`}
         style={{
           ...glassStyle,
@@ -1601,6 +1603,7 @@ export function Pricing() {
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ delay: i * 0.1, duration: 0.5, ease: "easeOut" }}
                 whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                whileTap={{ scale: 0.98, transition: { duration: 0.12 } }}
                 className={`${glass} group relative overflow-hidden p-6 ${pl.hot ? "md:-translate-y-3 md:scale-[1.03]" : ""}`}
                 style={
                   pl.hot
