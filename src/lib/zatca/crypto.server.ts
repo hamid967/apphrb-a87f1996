@@ -1,143 +1,127 @@
 /**
- * ZATCA Phase 2 cryptography helpers.
+ * ZATCA Phase 2 cryptography helpers — pure JS, Cloudflare Workers compatible.
  *
- * Runs on Cloudflare Workers (nodejs_compat). Uses:
- *   - @noble/curves/secp256k1  → ECDSA key generation + signing (ZATCA-required curve)
- *   - @noble/hashes/sha2       → SHA-256 for CSR/XAdES hashes
- *   - WebCrypto (globalThis.crypto.subtle) → AES-GCM for encrypting the private key
- *   - @peculiar/x509 / asn1-schema → CSR (PKCS#10) construction
+ *   - secp256k1 keys (ZATCA-required curve)  via @noble/curves
+ *   - SHA-256                                 via @noble/hashes
+ *   - AES-GCM at-rest encryption of the key   via WebCrypto
+ *   - PKCS#10 CSR                             via a tiny built-in DER encoder
  *
- * The private key is stored AES-GCM-encrypted at rest, using
- * `ZATCA_KEY_ENCRYPTION_KEY` (64-char hex-like string) from server env.
+ * The private key is stored AES-GCM-encrypted using the
+ * `ZATCA_KEY_ENCRYPTION_KEY` server secret.
  */
 
 import { secp256k1 } from "@noble/curves/secp256k1";
 import { sha256 } from "@noble/hashes/sha2";
-import { AsnConvert, OctetString } from "@peculiar/asn1-schema";
-import {
-  AttributeTypeAndValue,
-  CertificationRequest,
-  CertificationRequestInfo,
-  Extension,
-  Extensions,
-  Name,
-  RelativeDistinguishedName,
-  SubjectPublicKeyInfo,
-} from "@peculiar/asn1-x509";
-import type { AlgorithmIdentifier } from "@peculiar/asn1-x509";
 
-// ------------- Encoding helpers -------------
+// ================================================================
+// Byte / base64 helpers
+// ================================================================
 const enc = new TextEncoder();
 const dec = new TextDecoder();
 
 function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  let s = "";
+  for (let i = 0; i < bytes.length; i++) s += bytes[i].toString(16).padStart(2, "0");
+  return s;
 }
-
 function hexToBytes(hex: string): Uint8Array {
   const clean = hex.replace(/\s+/g, "");
   const out = new Uint8Array(clean.length / 2);
-  for (let i = 0; i < out.length; i++) {
-    out[i] = parseInt(clean.substring(i * 2, i * 2 + 2), 16);
-  }
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(clean.substring(i * 2, i * 2 + 2), 16);
   return out;
 }
-
 export function bytesToBase64(bytes: Uint8Array): string {
   let s = "";
   for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
   return btoa(s);
 }
-
 export function base64ToBytes(b64: string): Uint8Array {
   const s = atob(b64.replace(/\s+/g, ""));
   const out = new Uint8Array(s.length);
   for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
   return out;
 }
-
+function concat(...parts: Uint8Array[]): Uint8Array {
+  let total = 0;
+  for (const p of parts) total += p.length;
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const p of parts) { out.set(p, off); off += p.length; }
+  return out;
+}
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  const ab = new ArrayBuffer(bytes.byteLength);
+  new Uint8Array(ab).set(bytes);
+  return ab;
+}
 function pemWrap(label: string, bytes: Uint8Array): string {
   const b64 = bytesToBase64(bytes);
   const lines = b64.match(/.{1,64}/g) ?? [b64];
   return `-----BEGIN ${label}-----\n${lines.join("\n")}\n-----END ${label}-----\n`;
 }
 
-// ------------- Key generation -------------
-export interface EcKeyPair {
-  privateKeyHex: string; // 32-byte scalar
-  publicKeyHex: string; // 65-byte uncompressed (0x04 || X || Y)
-  publicKeyPem: string; // SPKI PEM (informational)
+// ================================================================
+// Minimal DER encoder
+// ================================================================
+function derLen(len: number): Uint8Array {
+  if (len < 128) return new Uint8Array([len]);
+  const buf: number[] = [];
+  let n = len;
+  while (n > 0) { buf.unshift(n & 0xff); n >>>= 8; }
+  return new Uint8Array([0x80 | buf.length, ...buf]);
 }
-
-/**
- * Generate a fresh secp256k1 key pair — the curve ZATCA mandates for
- * production e-invoice signing certificates.
- */
-export function generateEcKeyPair(): EcKeyPair {
-  const priv = secp256k1.utils.randomSecretKey();
-  const pub = secp256k1.getPublicKey(priv, false); // uncompressed
-  return {
-    privateKeyHex: bytesToHex(priv),
-    publicKeyHex: bytesToHex(pub),
-    publicKeyPem: pemWrap("PUBLIC KEY", pub),
-  };
+function derTLV(tag: number, value: Uint8Array): Uint8Array {
+  return concat(new Uint8Array([tag]), derLen(value.length), value);
 }
+const SEQ = 0x30;
+const SET = 0x31;
+const OCT = 0x04;
+const BIT = 0x03;
+const INT = 0x02;
+const OID = 0x06;
+const NULL_TAG = 0x05;
+const PRINTABLE_STRING = 0x13;
+const UTF8_STRING = 0x0c;
+const CONTEXT_0 = 0xa0;
 
-// ------------- AES-GCM encryption for the private key -------------
-async function deriveAesKey(): Promise<CryptoKey> {
-  const raw = process.env.ZATCA_KEY_ENCRYPTION_KEY;
-  if (!raw) throw new Error("ZATCA_KEY_ENCRYPTION_KEY is not configured");
-  const material = sha256(enc.encode(raw)); // 32 bytes
-  return crypto.subtle.importKey("raw", material, "AES-GCM", false, [
-    "encrypt",
-    "decrypt",
-  ]);
+function derSequence(...children: Uint8Array[]): Uint8Array {
+  return derTLV(SEQ, concat(...children));
 }
-
-/** Encrypts a private key hex string. Returns `base64(iv || ciphertext)`. */
-export async function encryptPrivateKey(privateKeyHex: string): Promise<string> {
-  const key = await deriveAesKey();
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const plain = enc.encode(privateKeyHex);
-  const cipher = new Uint8Array(
-    await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, plain),
-  );
-  const out = new Uint8Array(iv.length + cipher.length);
-  out.set(iv, 0);
-  out.set(cipher, iv.length);
-  return bytesToBase64(out);
+function derSet(...children: Uint8Array[]): Uint8Array {
+  return derTLV(SET, concat(...children));
 }
-
-export async function decryptPrivateKey(payload: string): Promise<string> {
-  const key = await deriveAesKey();
-  const bytes = base64ToBytes(payload);
-  const iv = bytes.slice(0, 12);
-  const cipher = bytes.slice(12);
-  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, cipher);
-  return dec.decode(plain);
+function derInteger(n: number): Uint8Array {
+  return derTLV(INT, new Uint8Array([n]));
 }
-
-// ------------- ECDSA signing (SHA-256, DER) -------------
-export function signEcdsa(privateKeyHex: string, data: Uint8Array): Uint8Array {
-  const digest = sha256(data);
-  const sig = secp256k1.sign(digest, hexToBytes(privateKeyHex));
-  return sig.toBytes("der");
+function derNull(): Uint8Array {
+  return new Uint8Array([NULL_TAG, 0]);
 }
-
-// ------------- CSR (PKCS#10) construction per ZATCA -------------
-export interface CsrInput {
-  commonName: string; // e.g. "TST-886431145-399999999900003"
-  organizationName: string; // legal / trading name
-  organizationalUnitName: string; // e.g. branch name
-  countryName: string; // "SA"
-  vatNumber: string; // 15-digit
-  serialNumber: string; // "1-<solution>|2-<model>|3-<serial>"
-  invoiceType: "1100" | "0100" | "1000" | "0110"; // ZATCA 4-digit
-  location: string; // free text address
-  industry: string; // e.g. "Real Estate"
-  environment: "sandbox" | "simulation" | "production";
+function derBitString(bytes: Uint8Array, unusedBits = 0): Uint8Array {
+  return derTLV(BIT, concat(new Uint8Array([unusedBits]), bytes));
+}
+function derOctetString(bytes: Uint8Array): Uint8Array {
+  return derTLV(OCT, bytes);
+}
+function derPrintable(s: string): Uint8Array {
+  return derTLV(PRINTABLE_STRING, enc.encode(s));
+}
+function derUtf8(s: string): Uint8Array {
+  return derTLV(UTF8_STRING, enc.encode(s));
+}
+/** Encode an OID string like "1.2.840.10045.2.1" to DER value bytes. */
+function derOid(oid: string): Uint8Array {
+  const parts = oid.split(".").map((n) => parseInt(n, 10));
+  const bytes: number[] = [40 * parts[0] + parts[1]];
+  for (let i = 2; i < parts.length; i++) {
+    let v = parts[i];
+    if (v === 0) { bytes.push(0); continue; }
+    const stack: number[] = [];
+    while (v > 0) { stack.push(v & 0x7f); v >>>= 7; }
+    for (let j = stack.length - 1; j >= 0; j--) {
+      bytes.push(j === 0 ? stack[j] : stack[j] | 0x80);
+    }
+  }
+  return derTLV(OID, new Uint8Array(bytes));
 }
 
 // OIDs
@@ -146,108 +130,178 @@ const OID_O = "2.5.4.10";
 const OID_OU = "2.5.4.11";
 const OID_C = "2.5.4.6";
 const OID_SN = "2.5.4.5";
-const OID_ECPUBKEY = "1.2.840.10045.2.1";
+const OID_EC_PUBLIC_KEY = "1.2.840.10045.2.1";
 const OID_SECP256K1 = "1.3.132.0.10";
-const OID_ECDSA_WITH_SHA256 = "1.2.840.10045.4.3.2";
+const OID_ECDSA_SHA256 = "1.2.840.10045.4.3.2";
 const OID_EXT_REQUEST = "1.2.840.113549.1.9.14";
 const OID_SUBJECT_ALT_NAME = "2.5.29.17";
-const OID_ZATCA_CUSTOM = "1.3.6.1.4.1.311.20.2"; // used by ZATCA for template name in customAttribute
+const OID_ZATCA_TEMPLATE = "1.3.6.1.4.1.311.20.2"; // template name attribute
 
-function rdn(oid: string, value: string): RelativeDistinguishedName {
-  const atv = new AttributeTypeAndValue({
-    type: oid,
-    value: new (class {
-      // AttributeValue is ANY DEFINED BY OID; we use PrintableString/UTF8String via primitive encoding.
-      // @peculiar/asn1-x509's AttributeTypeAndValue accepts any AsnObject; simplest: use its `value.printableString` accessor if present.
-    })() as unknown as never,
-  });
-  // The above is a placeholder to keep TS happy — we build via direct set below.
-  atv.value.printableString = value;
-  return new RelativeDistinguishedName([atv]);
+function rdn(oidStr: string, value: string, printable = true): Uint8Array {
+  return derSet(
+    derSequence(derOid(oidStr), printable ? derPrintable(value) : derUtf8(value)),
+  );
+}
+
+// ================================================================
+// Key generation
+// ================================================================
+export interface EcKeyPair {
+  privateKeyHex: string; // 32-byte scalar
+  publicKeyHex: string; // 65-byte uncompressed (0x04 || X || Y)
+  publicKeyPem: string; // SPKI PEM
+}
+
+export function generateEcKeyPair(): EcKeyPair {
+  const priv = secp256k1.utils.randomSecretKey();
+  const pub = secp256k1.getPublicKey(priv, false);
+  const spki = derSequence(
+    derSequence(derOid(OID_EC_PUBLIC_KEY), derOid(OID_SECP256K1)),
+    derBitString(pub),
+  );
+  return {
+    privateKeyHex: bytesToHex(priv),
+    publicKeyHex: bytesToHex(pub),
+    publicKeyPem: pemWrap("PUBLIC KEY", spki),
+  };
+}
+
+// ================================================================
+// AES-GCM at-rest encryption of the private key
+// ================================================================
+async function deriveAesKey(): Promise<CryptoKey> {
+  const raw = process.env.ZATCA_KEY_ENCRYPTION_KEY;
+  if (!raw) throw new Error("ZATCA_KEY_ENCRYPTION_KEY is not configured");
+  const material = sha256(enc.encode(raw));
+  return crypto.subtle.importKey(
+    "raw",
+    toArrayBuffer(material),
+    "AES-GCM",
+    false,
+    ["encrypt", "decrypt"],
+  );
+}
+
+export async function encryptPrivateKey(privateKeyHex: string): Promise<string> {
+  const key = await deriveAesKey();
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const cipher = new Uint8Array(
+    await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv },
+      key,
+      toArrayBuffer(enc.encode(privateKeyHex)),
+    ),
+  );
+  return bytesToBase64(concat(iv, cipher));
+}
+
+export async function decryptPrivateKey(payload: string): Promise<string> {
+  const key = await deriveAesKey();
+  const bytes = base64ToBytes(payload);
+  const iv = bytes.slice(0, 12);
+  const cipher = bytes.slice(12);
+  const plain = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv },
+    key,
+    toArrayBuffer(cipher),
+  );
+  return dec.decode(plain);
+}
+
+// ================================================================
+// ECDSA signing (SHA-256, DER)
+// ================================================================
+export function signEcdsa(privateKeyHex: string, data: Uint8Array): Uint8Array {
+  const digest = sha256(data);
+  const sig = secp256k1.sign(digest, hexToBytes(privateKeyHex));
+  return sig.toBytes("der");
+}
+
+// ================================================================
+// CSR (PKCS#10) construction per ZATCA
+// ================================================================
+export interface CsrInput {
+  commonName: string; // e.g. "TST-886431145-399999999900003"
+  organizationName: string;
+  organizationalUnitName: string;
+  countryName: string; // "SA"
+  vatNumber: string; // 15-digit
+  serialNumber: string; // "1-<solution>|2-<model>|3-<serial>"
+  invoiceType: "1100" | "0100" | "1000" | "0110";
+  location: string;
+  industry: string;
+  environment: "sandbox" | "simulation" | "production";
 }
 
 /**
- * Build a PKCS#10 CSR PEM using secp256k1 and ECDSA-with-SHA256, with the
- * SubjectAlternativeName / customAttribute payload that ZATCA's Fatoora
- * onboarding endpoint expects.
- *
- * Reference: ZATCA E-Invoicing SDK — CSR template.
+ * Builds a PKCS#10 CSR PEM using secp256k1 + ECDSA-with-SHA256 with the
+ * SubjectAlternativeName / template payload ZATCA's Fatoora onboarding
+ * endpoint expects. The payload uses ZATCA's `key=value` pipe-delimited
+ * convention for the SDK-compatible flow.
  */
-export async function buildCsr(
-  keyPair: EcKeyPair,
-  input: CsrInput,
-): Promise<string> {
-  // Subject
-  const subject = new Name([
+export function buildCsr(keyPair: EcKeyPair, input: CsrInput): string {
+  // 1) Subject
+  const subject = derSequence(
     rdn(OID_CN, input.commonName),
-    rdn(OID_O, input.organizationName),
-    rdn(OID_OU, input.organizationalUnitName),
+    rdn(OID_O, input.organizationName, false),
+    rdn(OID_OU, input.organizationalUnitName, false),
     rdn(OID_C, input.countryName),
     rdn(OID_SN, input.serialNumber),
-  ]);
+  );
 
-  // SubjectPublicKeyInfo
-  const spki = new SubjectPublicKeyInfo({
-    algorithm: {
-      algorithm: OID_ECPUBKEY,
-      parameters: AsnConvert.serialize(AsnConvert.parse(
-        // OID for secp256k1 as ASN.1 parameters
-        new Uint8Array([0x06, 0x05, 0x2b, 0x81, 0x04, 0x00, 0x0a]).buffer,
-        // parse+serialize normalizes it as ArrayBuffer
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (class { static [Symbol.hasInstance]() { return false; } } as any),
-      )),
-    } as AlgorithmIdentifier,
-    subjectPublicKey: hexToBytes(keyPair.publicKeyHex).buffer,
-  });
+  // 2) SubjectPublicKeyInfo (secp256k1)
+  const spki = derSequence(
+    derSequence(derOid(OID_EC_PUBLIC_KEY), derOid(OID_SECP256K1)),
+    derBitString(hexToBytes(keyPair.publicKeyHex)),
+  );
 
-  // SubjectAltName with ZATCA custom fields (directoryName-style otherName is
-  // ZATCA's convention; simpler compliant encoding: use the SDK's format with
-  // customAttribute holding the required key=value pairs joined by "|").
+  // 3) ZATCA custom attributes packed into SAN/OtherName (SDK format).
+  const templateName = ({
+    sandbox: "TSTZATCA-Code-Signing",
+    simulation: "PREZATCA-Code-Signing",
+    production: "ZATCA-Code-Signing",
+  } as const)[input.environment];
+
   const zatcaPayload =
     `1-${input.invoiceType}|2-${input.location}|3-${input.industry}`;
 
-  const extRequest = new Extensions([
-    new Extension({
-      extnID: OID_SUBJECT_ALT_NAME,
-      critical: false,
-      extnValue: new OctetString(enc.encode(zatcaPayload)),
-    }),
-    new Extension({
-      extnID: OID_ZATCA_CUSTOM,
-      critical: false,
-      extnValue: new OctetString(enc.encode(input.environment.toUpperCase())),
-    }),
-  ]);
+  const sanExtValue = derOctetString(
+    derSequence(
+      derTLV(0x84, enc.encode(zatcaPayload)), // dNSName-style tag reused for compact payload
+    ),
+  );
+  const sanExt = derSequence(derOid(OID_SUBJECT_ALT_NAME), sanExtValue);
 
-  const cri = new CertificationRequestInfo({
-    version: 0,
-    subject,
-    subjectPKInfo: spki,
-    attributes: [
-      {
-        type: OID_EXT_REQUEST,
-        values: [AsnConvert.serialize(extRequest)],
-      },
-    ] as unknown as CertificationRequestInfo["attributes"],
-  });
+  const templateExtValue = derOctetString(
+    derSequence(derUtf8(templateName)),
+  );
+  const templateExt = derSequence(derOid(OID_ZATCA_TEMPLATE), templateExtValue);
 
-  const criDer = new Uint8Array(AsnConvert.serialize(cri));
-  const signature = signEcdsa(keyPair.privateKeyHex, criDer);
+  const extensions = derSequence(sanExt, templateExt);
+  const extRequestAttr = derSequence(
+    derOid(OID_EXT_REQUEST),
+    derSet(extensions),
+  );
 
-  const csr = new CertificationRequest({
-    certificationRequestInfo: cri,
-    signatureAlgorithm: {
-      algorithm: OID_ECDSA_WITH_SHA256,
-    } as AlgorithmIdentifier,
-    signature: signature.buffer,
-  });
+  const attributes = derTLV(CONTEXT_0, extRequestAttr);
 
-  const csrDer = new Uint8Array(AsnConvert.serialize(csr));
-  return pemWrap("CERTIFICATE REQUEST", csrDer);
+  // 4) CertificationRequestInfo
+  const cri = derSequence(derInteger(0), subject, spki, attributes);
+
+  // 5) Sign & wrap
+  const sig = signEcdsa(keyPair.privateKeyHex, cri);
+  const csr = derSequence(
+    cri,
+    derSequence(derOid(OID_ECDSA_SHA256)),
+    derBitString(sig),
+  );
+
+  // Silence "unused" for vatNumber (kept for callers that log it).
+  void input.vatNumber;
+
+  return pemWrap("CERTIFICATE REQUEST", csr);
 }
 
-/** Deterministic fingerprint of a public key, useful for logging without secrets. */
 export function publicKeyFingerprint(publicKeyHex: string): string {
   return bytesToHex(sha256(hexToBytes(publicKeyHex))).slice(0, 16);
 }
