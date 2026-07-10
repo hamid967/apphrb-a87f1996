@@ -1,7 +1,6 @@
-import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import "@/lib/i18n";
-import { Building2 } from "lucide-react";
+import { PublicNav } from "@/components/marketing/PublicNav";
 
 export interface LegalSection {
   headingAr: string;
@@ -25,25 +24,8 @@ export function LegalPage(props: LegalPageProps) {
   const isAr = i18n.language?.startsWith("ar");
   return (
     <div dir={isAr ? "rtl" : "ltr"} className="theme-luxe min-h-app bg-background text-foreground">
-      <header className="border-b border-border/60 bg-card/40 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link to="/" className="flex items-center gap-2 font-bold">
-            <Building2 className="h-5 w-5" />
-            <span>HBSpro</span>
-          </Link>
-          <nav className="flex items-center gap-4 text-sm">
-            <Link to="/pricing" className="text-muted-foreground hover:text-foreground">
-              {isAr ? "الأسعار" : "Pricing"}
-            </Link>
-            <Link to="/contact" className="text-muted-foreground hover:text-foreground">
-              {isAr ? "تواصل معنا" : "Contact"}
-            </Link>
-            <Link to="/help" className="text-muted-foreground hover:text-foreground">
-              {isAr ? "المساعدة" : "Help"}
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <PublicNav />
+
 
       <article className="mx-auto max-w-3xl px-6 py-16">
         <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground">
