@@ -314,9 +314,215 @@ function ConnectPage() {
           </ol>
         </CardContent>
       </Card>
+
+      <SavedServersCard />
     </div>
   );
 }
+
+function SavedServersCard() {
+  const { orgId, role, ready } = useCurrentOrg();
+  const qc = useQueryClient();
+  const canEdit = role === "owner" || role === "admin";
+
+  const [name, setName] = useState("");
+  const [url, setUrl] = useState("");
+  const [tests, setTests] = useState<Record<string, TestState>>({});
+
+  const servers = useQuery({
+    queryKey: ["org-mcp-servers", orgId],
+    queryFn: () => listOrgMcpServers({ data: { orgId: orgId! } }),
+    enabled: !!orgId,
+    staleTime: 30_000,
+  });
+
+  const createMut = useMutation({
+    mutationFn: (input: { name: string; url: string }) =>
+      createOrgMcpServer({ data: { orgId: orgId!, name: input.name, url: input.url } }),
+    onSuccess: () => {
+      toast.success("MCP server saved");
+      setName("");
+      setUrl("");
+      qc.invalidateQueries({ queryKey: ["org-mcp-servers", orgId] });
+    },
+    onError: (err) => toast.error((err as Error).message),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => deleteOrgMcpServer({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Removed");
+      qc.invalidateQueries({ queryKey: ["org-mcp-servers", orgId] });
+    },
+    onError: (err) => toast.error((err as Error).message),
+  });
+
+  async function testOne(server: OrgMcpServer) {
+    setTests((t) => ({ ...t, [server.id]: { status: "running" } }));
+    const result = await probeMcpServer(server.url);
+    setTests((t) => ({ ...t, [server.id]: result }));
+  }
+
+  if (!ready) return null;
+  if (!orgId) {
+    return (
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="text-base">Saved MCP servers</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground">
+          Sign in to save and share external MCP servers with your organization.
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const list = servers.data ?? [];
+
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle className="text-base">Saved MCP servers for your organization</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-xs text-muted-foreground">
+          Save external MCP servers (e.g. third-party assistants) so everyone in your
+          organization can find and test them from here.
+        </p>
+
+        {servers.isLoading ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+          </div>
+        ) : list.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No saved servers yet.</p>
+        ) : (
+          <ul className="space-y-3">
+            {list.map((s) => {
+              const t = tests[s.id] ?? { status: "idle" as const };
+              return (
+                <li key={s.id} className="rounded-md border p-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium">{s.name}</div>
+                      <code className="mt-1 block truncate text-xs text-muted-foreground">
+                        {s.url}
+                      </code>
+                    </div>
+                    <div className="flex shrink-0 gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          void navigator.clipboard.writeText(s.url);
+                          toast.success("URL copied");
+                        }}
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => testOne(s)}
+                        disabled={t.status === "running"}
+                      >
+                        {t.status === "running" ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <PlugZap className="h-3.5 w-3.5" />
+                        )}
+                        Test
+                      </Button>
+                      {canEdit && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm(`Remove "${s.name}"?`)) deleteMut.mutate(s.id);
+                          }}
+                          disabled={deleteMut.isPending}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  {t.status === "ok" && (
+                    <Alert className="mt-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <AlertTitle>Reachable</AlertTitle>
+                      <AlertDescription>{t.serverName}</AlertDescription>
+                    </Alert>
+                  )}
+                  {t.status === "error" && (
+                    <Alert variant="destructive" className="mt-2">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>{t.title}</AlertTitle>
+                      <AlertDescription>{t.detail}</AlertDescription>
+                    </Alert>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {canEdit ? (
+          <form
+            className="space-y-3 border-t pt-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!name.trim() || !url.trim()) return;
+              createMut.mutate({ name: name.trim(), url: url.trim() });
+            }}
+          >
+            <div className="grid gap-3 sm:grid-cols-[1fr_2fr]">
+              <div className="space-y-1">
+                <Label htmlFor="mcp-name">Name</Label>
+                <Input
+                  id="mcp-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Linear MCP"
+                  maxLength={80}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="mcp-url">URL</Label>
+                <Input
+                  id="mcp-url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://example.com/mcp"
+                  inputMode="url"
+                />
+              </div>
+            </div>
+            <Button type="submit" disabled={createMut.isPending || !name.trim() || !url.trim()}>
+              {createMut.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Saving…
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4" /> Add server
+                </>
+              )}
+            </Button>
+          </form>
+        ) : (
+          <p className="border-t pt-4 text-xs text-muted-foreground">
+            Only organization owners and admins can add or remove saved servers.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 
 export const Route = createFileRoute("/connect")({
   head: () => ({
