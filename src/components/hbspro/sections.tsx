@@ -126,7 +126,7 @@ export function Navbar() {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all ${scrolled ? "py-2" : "py-4"}`}
       style={{
-        background: scrolled ? "rgba(7,19,32,0.75)" : "transparent",
+        background: scrolled ? "rgba(4,57,39,0.75)" : "transparent",
         backdropFilter: scrolled ? "blur(18px)" : "none",
         borderBottom: scrolled ? `1px solid ${HBS.border}` : "1px solid transparent",
       }}
@@ -175,7 +175,7 @@ export function Navbar() {
           <Link
             to="/auth"
             search={{ mode: "signup" }}
-            className="rounded-full px-5 py-2 text-sm font-semibold text-slate-900"
+            className="rounded-full px-5 py-2 text-sm font-semibold text-[#043927]"
             style={{ background: HBS.gold }}
           >
             {t("hbspro.nav.signUp")}
@@ -193,7 +193,7 @@ export function Navbar() {
       {open && (
         <div
           className="md:hidden mx-6 mt-3 rounded-2xl border p-4"
-          style={{ borderColor: HBS.border, background: "rgba(7,19,32,0.95)" }}
+          style={{ borderColor: HBS.border, background: "rgba(4,57,39,0.95)" }}
         >
           {links.map(([l, h]) => (
             <a
@@ -213,7 +213,7 @@ export function Navbar() {
               to="/auth"
               search={{ mode: "signup" }}
               onClick={() => setOpen(false)}
-              className="block rounded-full px-4 py-2 text-center text-sm font-semibold text-slate-900"
+              className="block rounded-full px-4 py-2 text-center text-sm font-semibold text-[#043927]"
               style={{ background: HBS.gold }}
             >
               {t("hbspro.nav.signUp")}
@@ -311,7 +311,7 @@ export function Hero() {
         <div
           className="absolute inset-0"
           style={{
-            background: `radial-gradient(1200px 700px at 70% 35%, rgba(59,111,160,0.20), transparent 60%), radial-gradient(900px 500px at 20% 20%, rgba(30,58,95,0.22), transparent 60%)`,
+            background: `radial-gradient(1200px 700px at 70% 35%, rgba(13,122,95,0.20), transparent 60%), radial-gradient(900px 500px at 20% 20%, rgba(10,82,56,0.22), transparent 60%)`,
           }}
         />
         <Particles density={30} />
@@ -360,7 +360,7 @@ export function Hero() {
           >
             <a
               href="#cta"
-              className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-slate-900 transition hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-[#043927] transition hover:-translate-y-0.5"
               style={{ background: HBS.gold, boxShadow: `0 12px 32px -10px ${HBS.gold}` }}
             >
               {L.startFree}
@@ -410,7 +410,7 @@ export function Hero() {
                 className="overflow-hidden rounded-3xl border"
                 style={{
                   borderColor: HBS.border,
-                  background: `radial-gradient(600px 400px at 55% 45%, rgba(30,136,229,0.18), rgba(7,19,32,0.9))`,
+                  background: `radial-gradient(600px 400px at 55% 45%, rgba(197,160,89,0.18), rgba(4,57,39,0.9))`,
                   boxShadow: `0 30px 80px -30px rgba(212,175,55,0.35)`,
                 }}
               >
@@ -432,7 +432,7 @@ export function Hero() {
                     className="pointer-events-auto rounded-xl border p-2.5 backdrop-blur-md"
                     style={{
                       borderColor: HBS.border,
-                      background: "rgba(11,27,44,0.75)",
+                      background: "rgba(4,57,39,0.75)",
                     }}
                   >
                     <div className="flex items-center justify-between gap-2">
@@ -544,7 +544,7 @@ export function Stats() {
                     background: active
                       ? `linear-gradient(90deg, ${HBS.gold}, ${HBS.blueSoft})`
                       : "transparent",
-                    color: active ? "#0B1220" : HBS.gray,
+                    color: active ? "#043927" : HBS.gray,
                   }}
                 >
                   {f.label}
@@ -761,7 +761,7 @@ export function DashboardPreview() {
               <div className="mb-6 flex items-center gap-2 text-white">
                 <div
                   className="grid h-8 w-8 place-items-center rounded-lg"
-                  style={{ background: HBS.gold, color: "#071320" }}
+                  style={{ background: HBS.gold, color: "#043927" }}
                 >
                   <Building2 className="h-4 w-4" />
                 </div>
@@ -802,7 +802,7 @@ export function DashboardPreview() {
                 <div className="flex items-center gap-2 text-xs" style={{ color: HBS.gray }}>
                   <span
                     className="rounded-full px-3 py-1"
-                    style={{ background: "rgba(30,136,229,0.15)", color: HBS.blueSoft }}
+                    style={{ background: "rgba(197,160,89,0.15)", color: HBS.blueSoft }}
                   >
                     {t("hbspro.dashboard.live")}
                   </span>
@@ -867,7 +867,7 @@ export function DashboardPreview() {
                         </defs>
                         <Tooltip
                           contentStyle={{
-                            background: "#071320",
+                            background: "#043927",
                             border: `1px solid ${HBS.border}`,
                             borderRadius: 12,
                             color: "white",
@@ -903,7 +903,7 @@ export function DashboardPreview() {
                           paddingAngle={4}
                         >
                           <Cell fill={HBS.gold} />
-                          <Cell fill="#1e2a3a" />
+                          <Cell fill="#0a5238" />
                         </Pie>
                       </PieChart>
                     </ResponsiveContainer>
@@ -1054,7 +1054,7 @@ export function PropertySlider() {
               className="grid h-10 w-10 place-items-center rounded-full transition-all hover:scale-105 sm:h-11 sm:w-11"
               style={{
                 background: `linear-gradient(135deg, ${HBS.gold}, ${HBS.blueSoft})`,
-                color: "#071320",
+                color: "#043927",
               }}
             >
               <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -1114,14 +1114,14 @@ export function PropertySlider() {
                   <div
                     className="absolute inset-0"
                     style={{
-                      backgroundImage: "linear-gradient(rgba(7,19,32,0) 30%, rgba(7,19,32,0.92))",
+                      backgroundImage: "linear-gradient(rgba(4,57,39,0) 30%, rgba(4,57,39,0.92))",
                     }}
                   />
                   <div
                     className="absolute top-4 rounded-full px-3 py-1 text-xs font-semibold shadow-lg start-4"
                     style={{
-                      background: `linear-gradient(135deg, ${HBS.gold}, #f0c674)`,
-                      color: "#071320",
+                      background: `linear-gradient(135deg, ${HBS.gold}, #E8D9A6)`,
+                      color: "#043927",
                     }}
                   >
                     {type}
@@ -1204,14 +1204,14 @@ export function PropertySlider() {
                   <div
                     className="absolute inset-0"
                     style={{
-                      backgroundImage: "linear-gradient(rgba(7,19,32,0) 35%, rgba(7,19,32,0.9))",
+                      backgroundImage: "linear-gradient(rgba(4,57,39,0) 35%, rgba(4,57,39,0.9))",
                     }}
                   />
                   <div
                     className="absolute top-3 rounded-full px-3 py-1 text-[11px] font-semibold shadow-lg start-3"
                     style={{
-                      background: `linear-gradient(135deg, ${HBS.gold}, #f0c674)`,
-                      color: "#071320",
+                      background: `linear-gradient(135deg, ${HBS.gold}, #E8D9A6)`,
+                      color: "#043927",
                     }}
                   >
                     {type}
@@ -1248,7 +1248,7 @@ export function PropertySlider() {
                       className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:scale-105"
                       style={{
                         background: `linear-gradient(135deg, ${HBS.gold}, ${HBS.blueSoft})`,
-                        color: "#071320",
+                        color: "#043927",
                       }}
                     >
                       {t("hbspro.portfolio.viewDetails", { defaultValue: "عرض التفاصيل" })}
@@ -1291,7 +1291,7 @@ export function AISection() {
       <div
         className="pointer-events-none absolute inset-0"
         style={{
-          background: `radial-gradient(700px 400px at 70% 40%, rgba(30,136,229,0.15), transparent 60%)`,
+          background: `radial-gradient(700px 400px at 70% 40%, rgba(197,160,89,0.15), transparent 60%)`,
         }}
       />
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2">
@@ -1330,7 +1330,7 @@ export function AISection() {
                   className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${c.r === "u" ? "ml-auto text-white" : "text-white"}`}
                   style={
                     c.r === "u"
-                      ? { background: "rgba(30,136,229,0.25)" }
+                      ? { background: "rgba(197,160,89,0.25)" }
                       : { background: "rgba(212,175,55,0.15)" }
                   }
                 >
@@ -1484,7 +1484,7 @@ export function Testimonials() {
         <p className="text-sm text-white/90 leading-relaxed">"{q}"</p>
         <div className="mt-5 flex items-center gap-3">
           <div
-            className="grid h-10 w-10 place-items-center rounded-full font-semibold text-slate-900 transition-shadow group-hover:shadow-[0_0_20px_rgba(212,168,83,0.6)]"
+            className="grid h-10 w-10 place-items-center rounded-full font-semibold text-[#043927] transition-shadow group-hover:shadow-[0_0_20px_rgba(212,168,83,0.6)]"
             style={{ background: `linear-gradient(135deg, ${HBS.gold}, ${HBS.goldSoft})` }}
           >
             {n[0]}
@@ -1622,7 +1622,7 @@ export function Pricing() {
                       }}
                     />
                     <div
-                      className="absolute end-5 top-5 rounded-full px-3 py-1 text-xs font-semibold text-slate-900 shadow-lg"
+                      className="absolute end-5 top-5 rounded-full px-3 py-1 text-xs font-semibold text-[#043927] shadow-lg"
                       style={{ background: `linear-gradient(90deg, ${HBS.gold}, ${HBS.goldSoft})` }}
                     >
                       {t("hbspro.pricing.popular")}
@@ -1666,7 +1666,7 @@ export function Pricing() {
                     pl.hot
                       ? {
                           background: `linear-gradient(90deg, ${HBS.gold}, ${HBS.goldSoft})`,
-                          color: "#071320",
+                          color: "#043927",
                           boxShadow: `0 12px 40px -10px ${HBS.gold}`,
                         }
                       : {
@@ -1780,7 +1780,7 @@ export function CTA() {
           <div
             className="absolute inset-0 -z-10"
             style={{
-              background: `radial-gradient(600px 300px at 50% 0%, rgba(212,175,55,0.18), transparent 60%), radial-gradient(600px 300px at 50% 100%, rgba(30,136,229,0.18), transparent 60%)`,
+              background: `radial-gradient(600px 300px at 50% 0%, rgba(212,175,55,0.18), transparent 60%), radial-gradient(600px 300px at 50% 100%, rgba(197,160,89,0.18), transparent 60%)`,
             }}
           />
           <div
@@ -1802,7 +1802,7 @@ export function CTA() {
               href="/auth"
               whileHover={{ scale: 1.03, y: -2 }}
               whileTap={{ scale: 0.97 }}
-              className="group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-slate-900 transition-shadow"
+              className="group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-[#043927] transition-shadow"
               style={{
                 background: `linear-gradient(90deg, ${HBS.gold}, ${HBS.goldSoft})`,
                 boxShadow: `0 12px 40px -10px ${HBS.gold}, 0 0 0 1px ${HBS.gold}55`,
