@@ -23,6 +23,7 @@ import {
   type ZatcaCheckItem,
   type ZatcaCheckStatus,
 } from "@/lib/zatca-check.functions";
+import { ZatcaCsidCard } from "@/components/zatca/ZatcaCsidCard";
 
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute("/_authenticated/dashboard/settings/zatca")({
