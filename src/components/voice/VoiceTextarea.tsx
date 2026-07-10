@@ -372,10 +372,11 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
               {(phase === "starting" || phase === "transcribing") && (
                 <Loader2 className="size-3 animate-spin" />
               )}
+              {phase === "paused" && <Pause className="size-3" />}
               {phase === "done" && <Check className="size-3" />}
               {phase === "error" && <AlertCircle className="size-3" />}
               <span>{PHASE_LABEL[phase]}</span>
-              {phase === "recording" && (
+              {(phase === "recording" || phase === "paused") && (
                 <span className="font-mono tabular-nums opacity-80">
                   {formatElapsed(elapsed)}
                 </span>
