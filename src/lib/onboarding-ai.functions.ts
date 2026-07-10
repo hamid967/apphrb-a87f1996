@@ -5,102 +5,100 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
 
 const StepEnum = z.enum(["profile", "company", "branch", "property"]);
+type Step = z.infer<typeof StepEnum>;
 
 const Input = z.object({
   step: StepEnum,
   description: z.string().trim().min(3).max(2000),
 });
 
-/**
- * مساعد ذكي أثناء الأونبوردنق: يستخرج حقول الخطوة الحالية من وصف حرّ يكتبه
- * المستخدم بالعربية. يعيد كائن جزئي لا يحتوي إلا الحقول التي أمكن استنتاجها،
- * وتُترك القيم الأخرى غير مُعرَّفة كي يُبقي الفورم قيمها الحالية.
- */
+export type ExtractedFields = {
+  full_name?: string;
+  phone?: string;
+  job_title?: string;
+  reason?: string;
+  name?: string;
+  address?: string;
+  departments?: string[];
+  title?: string;
+  property_type?: "apartment" | "villa" | "office" | "land" | "shop" | "building";
+  city?: string;
+  price?: number;
+};
 
-const ProfileSchema = z.object({
+// مخطط موحّد اختياري لكل الحقول لتجنّب اتحاد المخططات (تعارض أنواع في AI SDK).
+const UnifiedSchema = z.object({
   full_name: z.string().optional(),
   phone: z.string().optional(),
   job_title: z.string().optional(),
-  reason: z
-    .enum([
-      "إدارة عقارات وإيجارات",
-      "إدارة صيانة ومهام",
-      "تنظيم المبيعات والعمولات",
-      "تقارير مالية وتحليلات",
-      "تجربة النظام قبل الاشتراك",
-      "أخرى",
-    ])
-    .optional(),
-});
-
-const CompanySchema = z.object({
+  reason: z.string().optional(),
   name: z.string().optional(),
-  phone: z.string().optional(),
-});
-
-const BranchSchema = z.object({
-  name: z.string().optional(),
-  phone: z.string().optional(),
   address: z.string().optional(),
   departments: z.array(z.string()).optional(),
-});
-
-const PropertySchema = z.object({
   title: z.string().optional(),
-  property_type: z.enum(["apartment", "villa", "office", "land", "shop", "building"]).optional(),
+  property_type: z
+    .enum(["apartment", "villa", "office", "land", "shop", "building"])
+    .optional(),
   city: z.string().optional(),
   price: z.number().optional(),
 });
 
-function schemaFor(step: z.infer<typeof StepEnum>) {
-  switch (step) {
-    case "profile":
-      return ProfileSchema;
-    case "company":
-      return CompanySchema;
-    case "branch":
-      return BranchSchema;
-    case "property":
-      return PropertySchema;
-  }
-}
-
-function promptFor(step: z.infer<typeof StepEnum>, description: string) {
+function promptFor(step: Step, description: string) {
   const rules =
     "استخرج البيانات من الوصف التالي كما هي بلا تخمين. اترك أي حقل غير مذكور خارج الإجابة. " +
-    "استخدم الأرقام العربية للأرقام. لأرقام الجوال السعودية، أعِدها بصيغة +9665XXXXXXXX. " +
-    "لا تُترجم الأسماء، احتفظ باللغة كما ذكرها المستخدم.";
+    "لأرقام الجوال السعودية، أعِدها بصيغة +9665XXXXXXXX. لا تُترجم الأسماء.";
   const stepHint =
     step === "profile"
-      ? "الحقول المطلوبة: الاسم الكامل، رقم الجوال، المسمى الوظيفي، سبب الاشتراك."
+      ? "املأ فقط: full_name، phone، job_title، reason (اختر من: إدارة عقارات وإيجارات، إدارة صيانة ومهام، تنظيم المبيعات والعمولات، تقارير مالية وتحليلات، تجربة النظام قبل الاشتراك، أخرى)."
       : step === "company"
-        ? "الحقول: اسم الشركة/مساحة العمل، رقم اتصال الشركة."
+        ? "املأ فقط: name (اسم الشركة)، phone (رقم اتصال الشركة)."
         : step === "branch"
-          ? "الحقول: اسم الفرع، رقم هاتف الفرع، العنوان، قائمة الأقسام (departments) كمصفوفة نصية."
-          : "الحقول: اسم العقار (title)، نوع العقار (apartment/villa/office/land/shop/building)، المدينة، السعر بالريال (رقم فقط).";
+          ? "املأ فقط: name (اسم الفرع)، phone، address، departments (مصفوفة أسماء الأقسام)."
+          : "املأ فقط: title (اسم العقار)، property_type (apartment/villa/office/land/shop/building)، city، price (رقم بالريال).";
   return `${rules}\n${stepHint}\n\nالوصف:\n${description}`;
 }
 
+const ALLOWED: Record<Step, ReadonlyArray<keyof ExtractedFields>> = {
+  profile: ["full_name", "phone", "job_title", "reason"],
+  company: ["name", "phone"],
+  branch: ["name", "phone", "address", "departments"],
+  property: ["title", "property_type", "city", "price"],
+};
+
+function pickAllowed(step: Step, raw: Record<string, unknown>): ExtractedFields {
+  const out: ExtractedFields = {};
+  for (const k of ALLOWED[step]) {
+    const v = raw[k];
+    if (v === undefined || v === null || v === "") continue;
+    // @ts-expect-error narrowing per allowed key set
+    out[k] = v;
+  }
+  return out;
+}
+
+/**
+ * مساعد ذكي أثناء الأونبوردنق: يستخرج حقول الخطوة الحالية من وصف حرّ.
+ * يُعيد كائناً جزئياً فقط بالحقول المُستنتجة.
+ */
 export const aiExtractOnboarding = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => Input.parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data }): Promise<{ ok: boolean; step: Step; fields: ExtractedFields }> => {
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("Missing LOVABLE_API_KEY");
     const gateway = createLovableAiGatewayProvider(apiKey);
-    const schema = schemaFor(data.step);
 
     try {
-      const { experimental_output: output } = await generateText({
+      const result = await generateText({
         model: gateway("google/gemini-3-flash-preview"),
-        output: Output.object({ schema }),
+        experimental_output: Output.object({ schema: UnifiedSchema }),
         prompt: promptFor(data.step, data.description),
       });
-      return { ok: true as const, step: data.step, fields: output };
+      const raw = (result.experimental_output ?? {}) as Record<string, unknown>;
+      return { ok: true, step: data.step, fields: pickAllowed(data.step, raw) };
     } catch (err) {
       if (NoObjectGeneratedError.isInstance(err)) {
-        // نموذج لم يُطابق المخطط — نُعيد فراغاً بدل الأعطال
-        return { ok: false as const, step: data.step, fields: {} as Record<string, unknown> };
+        return { ok: false, step: data.step, fields: {} };
       }
       throw err;
     }
