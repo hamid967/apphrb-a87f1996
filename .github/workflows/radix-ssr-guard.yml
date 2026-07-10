@@ -69,6 +69,17 @@ jobs:
           python tests/e2e/authed-radix-ssr.spec.py \
             2>&1 | tee /tmp/browser/authed-radix-ssr.log
 
+      - name: Run expense-claim submit flow guard
+        id: claim
+        env:
+          LOVABLE_BROWSER_AUTH_STATUS: ${{ secrets.E2E_SUPABASE_SESSION_JSON != '' && 'injected' || 'signed_out' }}
+          LOVABLE_BROWSER_SUPABASE_STORAGE_KEY: ${{ secrets.E2E_SUPABASE_STORAGE_KEY }}
+          LOVABLE_BROWSER_SUPABASE_SESSION_JSON: ${{ secrets.E2E_SUPABASE_SESSION_JSON }}
+          LOVABLE_BROWSER_SUPABASE_COOKIES_JSON: ${{ secrets.E2E_SUPABASE_COOKIES_JSON }}
+        run: |
+          python tests/e2e/expense-claim-submit.spec.py \
+            2>&1 | tee /tmp/browser/expense-claim-submit.log
+
       - name: Stop dev server
         if: always()
         run: kill "$(cat /tmp/dev-server.pid)" 2>/dev/null || true
@@ -81,7 +92,10 @@ jobs:
           path: |
             /tmp/browser/no-radix-ssr-errors/**
             /tmp/browser/authed-radix-ssr/**
+            /tmp/browser/expense-claim-submit/**
             /tmp/browser/no-radix-ssr-errors.log
             /tmp/browser/authed-radix-ssr.log
+            /tmp/browser/expense-claim-submit.log
             /tmp/dev-server.log
           if-no-files-found: warn
+
