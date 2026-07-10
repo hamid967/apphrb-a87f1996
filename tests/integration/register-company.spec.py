@@ -35,15 +35,21 @@ SELECT
        ELSE 'FAIL: authenticated missing EXECUTE on register_company'
   END AS grant_check;
 
--- Fixture: a fresh auth user + profile row so the function's UPDATE on
--- profiles has a row to touch. Kept inside the rolled-back txn.
+-- Fixture: pick two existing profile ids that do NOT already own/admin an org.
+-- register_company rejects users who already belong; we need clean principals.
 DO $$
-DECLARE u uuid := gen_random_uuid();
+DECLARE u1 uuid; u2 uuid;
 BEGIN
-  INSERT INTO auth.users(id, email, aud, role, instance_id)
-    VALUES (u, 'rc-'||substr(u::text,1,8)||'@test.local', 'authenticated', 'authenticated', '00000000-0000-0000-0000-000000000000');
-  INSERT INTO public.profiles(id, full_name) VALUES (u, 'Register Company Test');
-  PERFORM set_config('test.uid', u::text, false);
+  SELECT id INTO u1 FROM public.profiles
+    WHERE id NOT IN (SELECT user_id FROM public.organization_members WHERE role IN ('owner','admin'))
+    LIMIT 1;
+  SELECT id INTO u2 FROM public.profiles
+    WHERE id NOT IN (SELECT user_id FROM public.organization_members WHERE role IN ('owner','admin'))
+      AND id <> u1
+    LIMIT 1;
+  IF u1 IS NULL OR u2 IS NULL THEN RAISE EXCEPTION 'Need >=2 unaffiliated profiles'; END IF;
+  PERFORM set_config('test.uid', u1::text, false);
+  PERFORM set_config('test.uid2', u2::text, false);
 END $$;
 
 -- 2) Happy path — call as the fixture user via JWT claim
