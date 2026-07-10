@@ -26,7 +26,6 @@ import subprocess
 import sys
 
 SQL = r"""
-\set ON_ERROR_STOP off
 BEGIN;
 
 -- 1) Grant check
