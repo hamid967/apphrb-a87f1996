@@ -35,18 +35,16 @@ SELECT
        ELSE 'FAIL: authenticated missing EXECUTE on register_company'
   END AS grant_check;
 
--- Fixture: pick two existing profiles and clear their memberships INSIDE this
--- txn (rolled back at the end) so register_company's "already belong" guard
--- doesn't block the happy path. This mirrors what a brand-new signup looks like.
+-- Fixture: pick one existing profile and clear its membership INSIDE this txn
+-- (rolled back at the end) so register_company's "already belong" guard doesn't
+-- block the happy path. Mirrors what a brand-new signup looks like.
 DO $$
-DECLARE u1 uuid; u2 uuid;
+DECLARE u1 uuid;
 BEGIN
   SELECT id INTO u1 FROM public.profiles ORDER BY created_at LIMIT 1;
-  SELECT id INTO u2 FROM public.profiles WHERE id <> u1 ORDER BY created_at LIMIT 1;
-  IF u1 IS NULL OR u2 IS NULL THEN RAISE EXCEPTION 'Need >=2 profiles'; END IF;
-  DELETE FROM public.organization_members WHERE user_id IN (u1, u2);
+  IF u1 IS NULL THEN RAISE EXCEPTION 'Need >=1 profile'; END IF;
+  DELETE FROM public.organization_members WHERE user_id = u1;
   PERFORM set_config('test.uid', u1::text, false);
-  PERFORM set_config('test.uid2', u2::text, false);
 END $$;
 
 -- 2) Happy path — call as the fixture user via JWT claim
