@@ -237,7 +237,7 @@ const MAX_ATTEMPTS = 5;
 
 type QueueRow = {
   id: string;
-  channel: "whatsapp" | "sms" | "email";
+  channel: "whatsapp" | "sms" | "email" | "push" | "in_app";
   recipient: string;
   template: string;
   variables: Record<string, unknown> | null;
