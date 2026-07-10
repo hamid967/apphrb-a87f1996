@@ -223,12 +223,25 @@ function prepareArabicForSpeech(text: string) {
 
 /** Currently-playing HTMLAudioElement for server-side TTS, so we can cancel. */
 let currentAudio: HTMLAudioElement | null = null;
+/** In-flight TTS fetch controller, so a new speak() cancels the previous one. */
+let currentTtsAbort: AbortController | null = null;
+/** Monotonic request id — only the latest speak() request may produce audio. */
+let ttsSeq = 0;
 
 function stopSpeaking() {
   if (typeof window === "undefined") return;
+  if (currentTtsAbort) {
+    try { currentTtsAbort.abort(); } catch { /* noop */ }
+    currentTtsAbort = null;
+  }
   if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.src = "";
+    try {
+      currentAudio.onended = null;
+      currentAudio.onerror = null;
+      currentAudio.onplay = null;
+      currentAudio.pause();
+      currentAudio.src = "";
+    } catch { /* noop */ }
     currentAudio = null;
   }
   window.speechSynthesis?.cancel();
@@ -267,6 +280,8 @@ function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
 /**
  * Speak with the Lovable AI Saudi-tuned TTS route; fall back to the browser
  * SpeechSynthesis engine when the network call fails or audio can't play.
+ * Guarantees a single voice at a time: cancels any prior request/playback,
+ * and never double-fires the fallback once server audio has begun playing.
  */
 async function speakSaudi(
   text: string,
@@ -276,6 +291,9 @@ async function speakSaudi(
 ): Promise<boolean> {
   const clean = prepareArabicForSpeech(text);
   stopSpeaking();
+  const mySeq = ++ttsSeq;
+  const controller = new AbortController();
+  currentTtsAbort = controller;
   try {
     const res = await fetch("/api/hamid-tts", {
       method: "POST",
@@ -285,42 +303,72 @@ async function speakSaudi(
         voice: settings.serverVoice,
         speed: settings.rate,
       }),
+      signal: controller.signal,
     });
+    if (mySeq !== ttsSeq) return false; // superseded
     if (!res.ok) {
       const body = await res.text().catch(() => "");
       pushLog("warn", `خادم TTS رجّع ${res.status}`, body.slice(0, 140) || "سنستخدم صوت المتصفح الاحتياطي.");
       throw new Error(`tts ${res.status}`);
     }
     const blob = await res.blob();
+    if (mySeq !== ttsSeq) return false;
     if (!blob.size) {
       pushLog("warn", "استجابة TTS فارغة", "التبديل لصوت المتصفح.");
       throw new Error("empty tts");
     }
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
+    audio.playbackRate = settings.rate;
     currentAudio = audio;
+    let started = false;
+    let finalized = false;
     audio.onplay = () => {
+      started = true;
       pushLog("ok", "تشغيل صوت الخادم (Lovable AI TTS)");
       onStart?.();
     };
     const cleanup = () => {
+      if (finalized) return;
+      finalized = true;
       URL.revokeObjectURL(url);
       if (currentAudio === audio) currentAudio = null;
       onEnd?.();
     };
     audio.onended = cleanup;
     audio.onerror = () => {
-      pushLog("error", "فشل تشغيل ملف الصوت من الخادم", "قد يكون صيغة MP3 محظورة. سنجرّب صوت المتصفح.");
+      // Only try the browser fallback if playback never actually started —
+      // otherwise the user would hear the same reply spoken twice.
+      const shouldFallback = !started;
+      pushLog(
+        shouldFallback ? "error" : "warn",
+        "حدث خطأ أثناء تشغيل ملف صوت الخادم",
+        shouldFallback ? "سنجرّب صوت المتصفح." : "المقطع بدأ التشغيل — لن نكرر النطق.",
+      );
       cleanup();
-      speakBrowserFallback(text, settings);
+      if (shouldFallback && mySeq === ttsSeq) speakBrowserFallback(text, settings);
     };
-    await audio.play();
+    try {
+      await audio.play();
+    } catch (playErr) {
+      // play() rejected (autoplay blocked, etc.) — treat like start failure.
+      cleanup();
+      if (mySeq === ttsSeq) {
+        pushLog("warn", "تعذّر بدء تشغيل الصوت — تحويل لصوت المتصفح", String((playErr as Error).message ?? playErr));
+        return speakBrowserFallback(text, settings);
+      }
+      return false;
+    }
     return true;
   } catch (err) {
+    if ((err as Error).name === "AbortError" || mySeq !== ttsSeq) return false;
     pushLog("warn", "تعذّر استخدام TTS الخادم — تحويل لصوت المتصفح", String((err as Error).message ?? err));
     return speakBrowserFallback(text, settings);
+  } finally {
+    if (currentTtsAbort === controller) currentTtsAbort = null;
   }
 }
+
 
 
 
