@@ -220,12 +220,38 @@ export function PushStatusCard() {
                 : "Receive instant alerts for new notifications on this device/browser even when the tab is closed."}
             </p>
             {permission === "denied" && (
-              <p className="mt-2 flex items-center gap-1 text-[11px] text-destructive">
-                <ShieldAlert className="size-3.5" />
-                {isAr
-                  ? "افتح إعدادات الموقع في المتصفح واسمح بالإشعارات لتفعيلها."
-                  : "Open site settings in the browser and allow notifications to enable."}
-              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-destructive">
+                <span className="inline-flex items-center gap-1">
+                  <ShieldAlert className="size-3.5" />
+                  {isAr
+                    ? "الإشعارات محظورة — لا يمكن طلب الإذن مجددًا من الصفحة."
+                    : "Notifications are blocked — the page can't re-prompt."}
+                </span>
+                <button
+                  type="button"
+                  className="underline underline-offset-2 hover:text-destructive/80"
+                  onClick={() => openHelp("denied")}
+                >
+                  {isAr ? "كيف أعيد التفعيل؟" : "How do I re-enable?"}
+                </button>
+              </div>
+            )}
+            {!supported && (
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                <span className="inline-flex items-center gap-1">
+                  <ShieldAlert className="size-3.5" />
+                  {isAr
+                    ? "المتصفح الحالي لا يدعم Push. سنستخدم البريد وصندوق الإشعارات."
+                    : "This browser doesn't support push. We'll use email and the in-app inbox."}
+                </span>
+                <button
+                  type="button"
+                  className="underline underline-offset-2 hover:text-foreground"
+                  onClick={() => openHelp("unsupported")}
+                >
+                  {isAr ? "البدائل المتاحة" : "See alternatives"}
+                </button>
+              </div>
             )}
             {subscribed && endpoint && (
               <p
