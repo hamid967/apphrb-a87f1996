@@ -178,7 +178,7 @@ def main() -> int:
     passed = sum(1 for ln in lines if "PASS:" in ln)
     failed = sum(1 for ln in lines if "FAIL:" in ln)
     print(f"\n{passed} passed, {failed} failed")
-    return 0 if failed == 0 and passed >= 8 else 1
+    return 0 if failed == 0 and passed >= 11 else 1
 
 
 if __name__ == "__main__":
