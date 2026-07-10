@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, Handshake, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { updateLead } from "@/lib/crm.functions";
 import { getLeadDetail } from "@/lib/lead-activities.functions";
+import { ConvertLeadDialog } from "@/components/crm/ConvertLeadDialog";
 
 export const Route = createFileRoute("/_authenticated/leads/$id/edit")({
   component: EditLeadPage,
