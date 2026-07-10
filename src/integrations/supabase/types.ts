@@ -4327,6 +4327,9 @@ export type Database = {
           id: string
           limit_amount: number | null
           org_id: string
+          overridden_at: string | null
+          overridden_by: string | null
+          override_reason: string | null
           policy_id: string | null
           reason: string
           rule_type: string
@@ -4341,6 +4344,9 @@ export type Database = {
           id?: string
           limit_amount?: number | null
           org_id: string
+          overridden_at?: string | null
+          overridden_by?: string | null
+          override_reason?: string | null
           policy_id?: string | null
           reason: string
           rule_type: string
@@ -4355,6 +4361,9 @@ export type Database = {
           id?: string
           limit_amount?: number | null
           org_id?: string
+          overridden_at?: string | null
+          overridden_by?: string | null
+          override_reason?: string | null
           policy_id?: string | null
           reason?: string
           rule_type?: string
