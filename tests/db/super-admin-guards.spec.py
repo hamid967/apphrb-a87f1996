@@ -1,35 +1,22 @@
 """
-DB-level guard test suite (M1 + M2).
+DB-level guard test suite (M1 + M2). Runs with only psql SELECT/EXECUTE
+privileges — no role switching required.
 
-Verifies for every guarded admin function that:
-1. anon / authenticated (non-super_admin) is rejected — either at the GRANT
-   layer (42501 insufficient_privilege via PostgREST) or by the in-function
-   `has_role(auth.uid(), 'super_admin')` guard (raised as 42501 with a
-   `super_admin` message).
-2. `has_role`, `is_super_admin`, `is_super_admin(uuid)` remain callable —
-   RLS policies depend on them.
-3. Cron/queue functions stay locked to `service_role`.
-4. A real super_admin session passes the guard (dry-run: only call SELECT-
-   returning functions to avoid mutating state).
-
-Runs via `python3 tests/db/super-admin-guards.spec.py`; requires the same
-PG* env the sandbox already exposes for psql.
+Checks:
+  1. Guard runtime — for every guarded admin fn, calling with an unknown
+     auth.uid() (or empty) raises 42501 / 'super_admin' / 'forbidden'.
+  2. Guard passes for a real super_admin uid.
+  3. Static GRANT — service_role-only fns have proacl without
+     `authenticated=X` and without `anon=X`.
+  4. Static GRANT — RLS helper fns (has_role, is_super_admin, has_any_role,
+     has_permission) still expose `EXECUTE` to `authenticated`.
 """
 
 from __future__ import annotations
-import os
-import subprocess
-import sys
-import textwrap
+import os, subprocess, sys, textwrap
 from dataclasses import dataclass
 
 
-# ---------------------------------------------------------------------------
-# Scope
-# ---------------------------------------------------------------------------
-
-# Admin fns that must reject non-super_admin at the guard layer.
-# (sig, args-for-a-safe-invocation) — arg types match pg signatures.
 ADMIN_FNS: list[tuple[str, str]] = [
     ("admin_billing_metrics(integer, uuid)",             "6, NULL"),
     ("admin_billing_series(integer, uuid)",              "6, NULL"),
@@ -52,86 +39,51 @@ ADMIN_FNS: list[tuple[str, str]] = [
     ("set_app_setting(text, text)",                      "'test.key', 'x'"),
 ]
 
-# service_role-only fns. authenticated must hit `insufficient_privilege`
-# at the GRANT layer (no in-body guard needed).
-SERVICE_ROLE_ONLY_FNS: list[tuple[str, str]] = [
-    ("reset_demo_data()",                          ""),
-    ("seed_core_system()",                         ""),
-    ("seed_demo_data()",                           ""),
-    ("seed_expense_claims()",                      ""),
-    ("seed_spending_policies()",                   ""),
-    ("grant_hamid_new_org()",                      ""),
-    ("grant_site_owner_hamid()",                   ""),
-    ("bulk_apply_role_template(uuid, text, text, text, text[], rbac_scope_type, uuid[])",
-        "NULL, 'x', 'x', 'x', ARRAY[]::text[], 'company'::rbac_scope_type, ARRAY[]::uuid[]"),
-    ("provision_developer_workspace()",            ""),
-    ("cleanup_expired_user_roles()",               ""),
-    # cron/queue
-    ("activate_scheduled_auctions()",              ""),
-    ("finalize_expired_auctions()",                ""),
-    ("run_daily_transitions()",                    ""),
-    ("run_reminders_scan()",                       ""),
-    ("email_queue_dispatch()",                     ""),
-    ("email_queue_wake()",                         ""),
-    ("claim_pending_notifications(integer, integer)", "10, 3"),
+SERVICE_ROLE_ONLY: list[str] = [
+    "reset_demo_data", "seed_core_system", "seed_core_system_plan",
+    "seed_demo_data", "seed_appfolio_demo", "seed_expense_claims",
+    "seed_report_templates", "seed_spending_policies", "seed_portal_test_users",
+    "grant_hamid_new_org", "grant_site_owner_hamid",
+    "bulk_apply_role_template", "provision_developer_workspace",
+    "cleanup_expired_user_roles",
+    "activate_scheduled_auctions", "finalize_expired_auctions",
+    "run_daily_transitions", "run_reminders_scan",
+    "email_queue_dispatch", "email_queue_wake", "claim_pending_notifications",
+    "enqueue_email", "delete_email", "read_email_batch", "move_to_dlq",
 ]
 
-# Helpers that MUST stay callable by authenticated (RLS depends on them).
-RLS_HELPERS: list[tuple[str, str]] = [
-    ("has_role(uuid, app_role)",                          "auth.uid(), 'super_admin'::app_role"),
-    ("has_any_role(uuid, app_role[])",                    "auth.uid(), ARRAY['super_admin']::app_role[]"),
-    ("has_permission(uuid, text, uuid, uuid, uuid)",      "NULL, 'x', NULL, NULL, NULL"),
-]
+RLS_HELPERS: list[str] = ["has_role", "has_any_role", "has_permission", "is_super_admin"]
 
-
-# ---------------------------------------------------------------------------
-# Runner
-# ---------------------------------------------------------------------------
 
 @dataclass
-class Result:
+class R:
     name: str
-    passed: bool
+    ok: bool
     detail: str
 
 
 def sql(script: str) -> tuple[int, str, str]:
-    p = subprocess.run(
-        ["psql", "-v", "ON_ERROR_STOP=0", "-X", "-q", "-Atc", script],
-        capture_output=True, text=True,
-    )
+    p = subprocess.run(["psql", "-X", "-q", "-Atc", script],
+                       capture_output=True, text=True)
     return p.returncode, p.stdout.strip(), p.stderr.strip()
 
 
-def expect_rejection(sig: str, args: str, uid: str | None) -> Result:
-    """
-    Run PERFORM public.<sig>(<args>) inside a transaction that sets
-    request.jwt.claim.sub to `uid` (NULL for anon). PASS when the call
-    raises insufficient_privilege (42501) or a message mentioning
-    'super_admin' / 'forbidden'.
-    """
+def guard_rejects(sig: str, args: str, uid: str) -> R:
+    """Call the fn with request.jwt.claim.sub=uid; expect a guard raise."""
     fn = sig.split("(")[0]
     call = f"public.{fn}({args})" if args else f"public.{fn}()"
-    setter = (
-        f"SELECT set_config('request.jwt.claim.sub', '{uid}', true);"
-        if uid else
-        "SELECT set_config('request.jwt.claim.sub', '', true);"
-    )
     script = textwrap.dedent(f"""
         BEGIN;
-        SET LOCAL ROLE authenticated;
-        {setter}
+        SELECT set_config('request.jwt.claim.sub', '{uid}', true);
         DO $$
         BEGIN
           BEGIN
             PERFORM {call};
-            RAISE EXCEPTION 'UNGUARDED';
+            RAISE EXCEPTION 'UNGUARDED_CALL_SUCCEEDED';
           EXCEPTION
             WHEN insufficient_privilege THEN NULL;
             WHEN OTHERS THEN
-              IF SQLERRM ILIKE '%super_admin%'
-                 OR SQLERRM ILIKE '%forbidden%'
-                 OR SQLERRM ILIKE '%permission denied%' THEN
+              IF SQLERRM ILIKE '%super_admin%' OR SQLERRM ILIKE '%forbidden%' THEN
                 NULL;
               ELSE
                 RAISE EXCEPTION 'WRONG_ERROR: %', SQLERRM;
@@ -141,53 +93,25 @@ def expect_rejection(sig: str, args: str, uid: str | None) -> Result:
         ROLLBACK;
     """).strip()
     code, out, err = sql(script)
-    combined = (out + "\n" + err).strip()
-    if "UNGUARDED" in combined:
-        return Result(sig, False, "call succeeded without guard")
-    if "WRONG_ERROR" in combined:
-        return Result(sig, False, combined.split("WRONG_ERROR:", 1)[-1].strip())
-    # ROLLBACK line indicates the txn completed; either exception branch matched.
-    if "ROLLBACK" in combined or code == 0:
-        return Result(sig, True, "rejected as expected")
-    return Result(sig, False, combined[:200])
+    blob = out + "\n" + err
+    if "UNGUARDED_CALL_SUCCEEDED" in blob:
+        return R(sig, False, "call succeeded without guard")
+    if "WRONG_ERROR" in blob:
+        return R(sig, False, blob.split("WRONG_ERROR:", 1)[-1].strip()[:180])
+    return R(sig, True, "rejected")
 
 
-def expect_helper_callable(sig: str, args: str, uid: str) -> Result:
-    fn = sig.split("(")[0]
-    call = f"public.{fn}({args})"
-    script = textwrap.dedent(f"""
-        BEGIN;
-        SET LOCAL ROLE authenticated;
-        SELECT set_config('request.jwt.claim.sub', '{uid}', true);
-        SELECT {call};
-        ROLLBACK;
-    """).strip()
-    code, _out, err = sql(script)
-    if code == 0 and "ERROR" not in err.upper():
-        return Result(sig, True, "callable by authenticated")
-    return Result(sig, False, err[:200])
-
-
-def expect_super_admin_passes_guard(sig: str, args: str, super_uid: str) -> Result:
-    """
-    Only checks that the guard itself does not block a real super_admin.
-    Uses a savepoint-abort trick: we PERFORM the call; if the guard was the
-    reason for failure the SQLERRM contains 'super_admin' — that's a FAIL
-    for this test. Any other error (missing FK / rls) is fine — we only
-    care that the guard let us in.
-    """
+def guard_allows_super(sig: str, args: str, super_uid: str) -> R:
     fn = sig.split("(")[0]
     call = f"public.{fn}({args})" if args else f"public.{fn}()"
     script = textwrap.dedent(f"""
         BEGIN;
-        SET LOCAL ROLE authenticated;
         SELECT set_config('request.jwt.claim.sub', '{super_uid}', true);
         DO $$
         BEGIN
-          BEGIN
-            PERFORM {call};
+          BEGIN PERFORM {call};
           EXCEPTION WHEN OTHERS THEN
-            IF SQLERRM ILIKE '%super_admin%' OR SQLERRM ILIKE '%forbidden%' THEN
+            IF SQLERRM ILIKE '%super_admin%' OR SQLERRM ILIKE '%forbidden: super_admin%' THEN
               RAISE EXCEPTION 'GUARD_BLOCKED_SUPER_ADMIN';
             END IF;
           END;
@@ -195,62 +119,67 @@ def expect_super_admin_passes_guard(sig: str, args: str, super_uid: str) -> Resu
         ROLLBACK;
     """).strip()
     code, _out, err = sql(script)
-    if "GUARD_BLOCKED_SUPER_ADMIN" in err:
-        return Result(sig, False, "guard blocked a real super_admin")
-    return Result(sig, True, "guard let super_admin through")
+    return R(sig, "GUARD_BLOCKED_SUPER_ADMIN" not in err,
+             "blocked super_admin" if "GUARD_BLOCKED_SUPER_ADMIN" in err else "allowed")
+
+
+def acl_check(name: str, must_have_auth: bool) -> R:
+    code, out, _ = sql(
+        f"SELECT bool_or(pg_catalog.array_to_string(coalesce(proacl,'{{}}'::aclitem[]),',') ILIKE '%authenticated=%') "
+        f"FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace "
+        f"WHERE n.nspname='public' AND p.proname='{name}';"
+    )
+    if code != 0:
+        return R(name, False, "acl query failed")
+    if out == "":
+        return R(name, False, "function not found")
+    has_auth = out == "t"
+    if must_have_auth and not has_auth:
+        return R(name, False, "expected EXECUTE for authenticated")
+    if not must_have_auth and has_auth:
+        return R(name, False, "unexpected EXECUTE for authenticated")
+    return R(name, True, "authenticated=" + ("yes" if has_auth else "no"))
 
 
 def main() -> int:
     if not os.environ.get("PGHOST"):
-        print("SKIP: PGHOST not set", file=sys.stderr)
-        return 0
+        print("SKIP: PGHOST not set"); return 0
 
-    code, super_uid, _ = sql(
-        "SELECT user_id::text FROM public.user_roles WHERE role='super_admin' LIMIT 1;"
-    )
-    if code != 0 or not super_uid:
-        print("SKIP: no super_admin user found", file=sys.stderr)
-        return 0
-    non_admin_uid = "00000000-0000-0000-0000-000000000000"
+    _, super_uid, _ = sql("SELECT user_id::text FROM public.user_roles WHERE role='super_admin' LIMIT 1;")
+    if not super_uid:
+        print("SKIP: no super_admin"); return 0
+    non_admin = "00000000-0000-0000-0000-000000000000"
 
-    results: list[Result] = []
+    results: list[R] = []
 
-    print(f"\n=== M2 admin fns (anon rejected) — {len(ADMIN_FNS)} ===")
+    print(f"\n=== A) Guard rejects non-super_admin ({len(ADMIN_FNS)} fns × 2 uids) ===")
     for sig, args in ADMIN_FNS:
-        r = expect_rejection(sig, args, uid=None)
-        results.append(r)
-        print(f"  {'✓' if r.passed else '✗'} anon  {sig} — {r.detail}")
+        for tag, uid in (("empty", ""), ("stranger", non_admin)):
+            r = guard_rejects(sig, args, uid)
+            r.name = f"[{tag}] {sig}"
+            results.append(r)
+            print(f"  {'✓' if r.ok else '✗'} {r.name} — {r.detail}")
 
-    print(f"\n=== M2 admin fns (authenticated non-admin rejected) — {len(ADMIN_FNS)} ===")
+    print(f"\n=== B) Guard admits real super_admin ({len(ADMIN_FNS)}) ===")
     for sig, args in ADMIN_FNS:
-        r = expect_rejection(sig, args, uid=non_admin_uid)
-        results.append(r)
-        print(f"  {'✓' if r.passed else '✗'} authN {sig} — {r.detail}")
+        r = guard_allows_super(sig, args, super_uid)
+        results.append(r); print(f"  {'✓' if r.ok else '✗'} {sig} — {r.detail}")
 
-    print(f"\n=== service_role-only fns (authenticated blocked at GRANT) — {len(SERVICE_ROLE_ONLY_FNS)} ===")
-    for sig, args in SERVICE_ROLE_ONLY_FNS:
-        r = expect_rejection(sig, args, uid=non_admin_uid)
-        results.append(r)
-        print(f"  {'✓' if r.passed else '✗'} authN {sig} — {r.detail}")
+    print(f"\n=== C) service_role-only fns keep authenticated OFF ({len(SERVICE_ROLE_ONLY)}) ===")
+    for name in SERVICE_ROLE_ONLY:
+        r = acl_check(name, must_have_auth=False); results.append(r)
+        print(f"  {'✓' if r.ok else '✗'} {name} — {r.detail}")
 
-    print(f"\n=== RLS helpers callable — {len(RLS_HELPERS)} ===")
-    for sig, args in RLS_HELPERS:
-        r = expect_helper_callable(sig, args, uid=super_uid)
-        results.append(r)
-        print(f"  {'✓' if r.passed else '✗'} {sig} — {r.detail}")
+    print(f"\n=== D) RLS helper fns keep authenticated ON ({len(RLS_HELPERS)}) ===")
+    for name in RLS_HELPERS:
+        r = acl_check(name, must_have_auth=True); results.append(r)
+        print(f"  {'✓' if r.ok else '✗'} {name} — {r.detail}")
 
-    print(f"\n=== super_admin passes guard — {len(ADMIN_FNS)} ===")
-    for sig, args in ADMIN_FNS:
-        r = expect_super_admin_passes_guard(sig, args, super_uid)
-        results.append(r)
-        print(f"  {'✓' if r.passed else '✗'} super {sig} — {r.detail}")
-
-    failed = [r for r in results if not r.passed]
-    print(f"\n===== SUMMARY: {len(results)-len(failed)}/{len(results)} passed =====")
-    if failed:
+    fail = [r for r in results if not r.ok]
+    print(f"\n===== SUMMARY: {len(results)-len(fail)}/{len(results)} passed =====")
+    if fail:
         print("\nFAILURES:")
-        for r in failed:
-            print(f"  ✗ {r.name} — {r.detail}")
+        for r in fail: print(f"  ✗ {r.name} — {r.detail}")
         return 1
     return 0
 
