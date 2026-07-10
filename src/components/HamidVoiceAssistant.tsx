@@ -215,16 +215,37 @@ function stopSpeaking() {
   window.speechSynthesis?.cancel();
 }
 
-function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
+function speakBrowserFallback(
+  text: string,
+  settings: HamidVoiceSettings,
+  onStart?: () => void,
+  onProgress?: (ratio: number) => void,
+  onEnd?: () => void,
+) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(prepareArabicForSpeech(text));
+  const spoken = prepareArabicForSpeech(text);
+  const u = new SpeechSynthesisUtterance(spoken);
   u.lang = "ar-SA";
   u.rate = settings.rate;
   u.pitch = settings.pitch;
   u.volume = 1;
   const v = pickArabicVoice(settings.gender);
   if (v) u.voice = v;
+  u.onstart = () => onStart?.();
+  u.onboundary = (ev) => {
+    // Char-level progress from the engine — synchronizes typed text with speech.
+    const ratio = Math.max(0, Math.min(1, ev.charIndex / Math.max(1, spoken.length)));
+    onProgress?.(ratio);
+  };
+  u.onend = () => {
+    onProgress?.(1);
+    onEnd?.();
+  };
+  u.onerror = () => {
+    onProgress?.(1);
+    onEnd?.();
+  };
   window.speechSynthesis.speak(u);
   return true;
 }
