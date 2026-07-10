@@ -114,7 +114,7 @@ function InboxPage() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <PushEnableButton />
+          {/* Push status moved to a dedicated card below */}
           <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border/60 bg-muted/40 px-3 py-1.5 text-xs">
             <input
               type="checkbox"
