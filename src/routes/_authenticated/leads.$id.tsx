@@ -251,20 +251,44 @@ function LeadDetailPage() {
 
         <aside className="space-y-4">
           <div className="surface-card p-5">
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-semibold">
                 {t("crm.leads.matches", "Matches")}
               </h2>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={suggest.isPending}
-                onClick={() => suggest.mutate()}
-              >
-                <Sparkles className="me-1.5 size-3.5" />
-                {t("crm.leads.suggest", "Suggest")}
-              </Button>
+              <div className="flex items-center gap-2">
+                <ExportMenu
+                  label={t("crm.leads.exportMatches")}
+                  disabled={matches.length === 0}
+                  onExport={(fmt) =>
+                    exportRows(
+                      `lead_${id}_matches`,
+                      matches.map((m: any) => ({
+                        listing_id: m.listing?.id ?? "",
+                        title: m.listing?.title ?? "",
+                        price: m.listing?.price ?? "",
+                        currency: m.listing?.currency ?? "",
+                        city: m.listing?.city ?? "",
+                        bedrooms: m.listing?.bedrooms ?? "",
+                        bathrooms: m.listing?.bathrooms ?? "",
+                        area: m.listing?.area ?? "",
+                        status: m.status,
+                      })),
+                      fmt,
+                    )
+                  }
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={suggest.isPending}
+                  onClick={() => suggest.mutate()}
+                >
+                  <Sparkles className="me-1.5 size-3.5" />
+                  {t("crm.leads.suggest", "Suggest")}
+                </Button>
+              </div>
             </div>
+
             {matches.length === 0 && (
               <div className="text-sm text-muted-foreground">
                 {t("crm.leads.noMatches", "No matches yet")}
