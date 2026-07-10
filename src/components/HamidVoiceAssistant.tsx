@@ -71,9 +71,9 @@ function getLocalIntent(text: string): HamidIntent {
   if (/عقار|عقارات|وحدة|وحدات|أضف|اضف|property|properties|unit/.test(input)) {
     return {
       text:
-        "لإضافة عقار، نحتاج الاسم، المدينة، العنوان، نوع الوحدة، السعر، الحالة، والصور. أفتح لك صفحة العقارات لتبدأ الإدخال.",
-      actionLabel: "افتح العقارات",
-      actionPath: "/properties",
+        "لإضافة عقار، نحتاج الاسم، المدينة، العنوان، نوع الوحدة، السعر، الحالة، والصور. أفتح لك صفحة الإضافة لتبدأ الإدخال.",
+      actionLabel: "أضف عقار",
+      actionPath: "/properties/new",
     };
   }
 
@@ -99,8 +99,8 @@ function getLocalIntent(text: string): HamidIntent {
     return {
       text:
         "لإدارة العقود، راقب العقود التي تنتهي خلال 30 أو 60 يوم، جهز شروط التجديد، وأرسل تنبيه مبكر للمستأجر والمالك.",
-      actionLabel: "افتح العقود",
-      actionPath: "/contracts",
+      actionLabel: "افتح التأجير والعقود",
+      actionPath: "/leasing",
     };
   }
 
