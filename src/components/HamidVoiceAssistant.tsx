@@ -35,7 +35,7 @@ type SpeechRecognition = EventTarget & {
   abort: () => void;
   onresult: ((event: SpeechRecognitionEvent) => void) | null;
   onend: (() => void) | null;
-  onerror: (() => void) | null;
+  onerror: ((event: { error: string; message?: string }) => void) | null;
 };
 
 type SpeechRecognitionEvent = {
