@@ -29,7 +29,7 @@ export function exportAssistantAsPdf(messages: AssistantMsg[]) {
   let y = margin;
 
   doc.setFontSize(16);
-  doc.text("AQARY PRO — AI Assistant Report", margin, y);
+  doc.text("HBSpro — AI Assistant Report", margin, y);
   y += 20;
   doc.setFontSize(10);
   doc.setTextColor(120);

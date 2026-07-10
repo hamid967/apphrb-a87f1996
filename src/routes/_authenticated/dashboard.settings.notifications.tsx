@@ -648,7 +648,7 @@ function ChannelCard({
             <Input
               value={replyTo}
               onChange={(e) => setReplyTo(e.target.value)}
-              placeholder={channel === "sms" ? "AQARI" : "معرّف الحساب"}
+              placeholder={channel === "sms" ? "HBSPRO" : "معرّف الحساب"}
             />
           </div>
         )}

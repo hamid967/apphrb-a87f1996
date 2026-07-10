@@ -233,7 +233,7 @@ const COPY = {
     ],
   },
   en: {
-    metaTitle: "HBSpro vs Saudi Property Management Platforms | Aqary Comparison",
+    metaTitle: "HBSpro vs Saudi Property Management Platforms | HBSpro Comparison",
     metaDesc:
       "Compare HBSpro with leading Saudi/GCC property management platforms: Mogod, Nozol, Simaat, Asaas. Super-admin panel, manual bank transfers, role-aware AI, unlimited RBAC.",
     heroKicker: "Why HBSpro",
