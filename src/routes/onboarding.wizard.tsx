@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Building2, Check, Home, Loader2, Sparkles, UserRound } from "lucide-react";
+import { Building2, Check, Home, Loader2, Network, Sparkles, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -17,9 +17,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PhoneVerifyInput } from "@/components/PhoneVerifyInput";
+import { OnboardingAiHelper } from "@/components/onboarding/OnboardingAiHelper";
 import { registerCompany, getMyAccessContext } from "@/lib/company.functions";
 import { createProperty } from "@/lib/properties.functions";
 import { setOnboardingStep } from "@/lib/onboarding.functions";
+import { createOnboardingBranch } from "@/lib/onboarding-branches.functions";
 import { savePendingRedirect } from "@/lib/pending-redirect";
 
 export const Route = createFileRoute("/onboarding/wizard")({
