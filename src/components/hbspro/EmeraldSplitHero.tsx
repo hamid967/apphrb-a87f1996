@@ -1,16 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import {
-  FileText,
-  Users,
-  Gavel,
   BarChart3,
   ArrowLeft,
   Building2,
   Clock3,
   Wrench,
   CreditCard,
-  ShieldCheck,
   Sparkles,
   BellRing,
   TrendingUp,
