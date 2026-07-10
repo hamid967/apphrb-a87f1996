@@ -32,6 +32,7 @@ import { Route as PortalInviteTokenRouteImport } from './routes/portal-invite.$t
 import { Route as OnboardingWorkspaceRouteImport } from './routes/onboarding.workspace'
 import { Route as OnboardingWizardRouteImport } from './routes/onboarding.wizard'
 import { Route as OnboardingWelcomeRouteImport } from './routes/onboarding.welcome'
+import { Route as OnboardingSummaryRouteImport } from './routes/onboarding.summary'
 import { Route as OnboardingProfileRouteImport } from './routes/onboarding.profile'
 import { Route as OnboardingCompanyRouteImport } from './routes/onboarding.company'
 import { Route as ListingsSlugRouteImport } from './routes/listings.$slug'
@@ -361,6 +362,11 @@ const OnboardingWizardRoute = OnboardingWizardRouteImport.update({
 const OnboardingWelcomeRoute = OnboardingWelcomeRouteImport.update({
   id: '/onboarding/welcome',
   path: '/onboarding/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingSummaryRoute = OnboardingSummaryRouteImport.update({
+  id: '/onboarding/summary',
+  path: '/onboarding/summary',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingProfileRoute = OnboardingProfileRouteImport.update({
@@ -1640,6 +1646,7 @@ export interface FileRoutesByFullPath {
   '/listings/$slug': typeof ListingsSlugRouteWithChildren
   '/onboarding/company': typeof OnboardingCompanyRoute
   '/onboarding/profile': typeof OnboardingProfileRoute
+  '/onboarding/summary': typeof OnboardingSummaryRoute
   '/onboarding/welcome': typeof OnboardingWelcomeRoute
   '/onboarding/wizard': typeof OnboardingWizardRoute
   '/onboarding/workspace': typeof OnboardingWorkspaceRoute
@@ -1875,6 +1882,7 @@ export interface FileRoutesByTo {
   '/listings/$slug': typeof ListingsSlugRouteWithChildren
   '/onboarding/company': typeof OnboardingCompanyRoute
   '/onboarding/profile': typeof OnboardingProfileRoute
+  '/onboarding/summary': typeof OnboardingSummaryRoute
   '/onboarding/welcome': typeof OnboardingWelcomeRoute
   '/onboarding/wizard': typeof OnboardingWizardRoute
   '/onboarding/workspace': typeof OnboardingWorkspaceRoute
@@ -2114,6 +2122,7 @@ export interface FileRoutesById {
   '/listings/$slug': typeof ListingsSlugRouteWithChildren
   '/onboarding/company': typeof OnboardingCompanyRoute
   '/onboarding/profile': typeof OnboardingProfileRoute
+  '/onboarding/summary': typeof OnboardingSummaryRoute
   '/onboarding/welcome': typeof OnboardingWelcomeRoute
   '/onboarding/wizard': typeof OnboardingWizardRoute
   '/onboarding/workspace': typeof OnboardingWorkspaceRoute
@@ -2356,6 +2365,7 @@ export interface FileRouteTypes {
     | '/listings/$slug'
     | '/onboarding/company'
     | '/onboarding/profile'
+    | '/onboarding/summary'
     | '/onboarding/welcome'
     | '/onboarding/wizard'
     | '/onboarding/workspace'
@@ -2591,6 +2601,7 @@ export interface FileRouteTypes {
     | '/listings/$slug'
     | '/onboarding/company'
     | '/onboarding/profile'
+    | '/onboarding/summary'
     | '/onboarding/welcome'
     | '/onboarding/wizard'
     | '/onboarding/workspace'
@@ -2829,6 +2840,7 @@ export interface FileRouteTypes {
     | '/listings/$slug'
     | '/onboarding/company'
     | '/onboarding/profile'
+    | '/onboarding/summary'
     | '/onboarding/welcome'
     | '/onboarding/wizard'
     | '/onboarding/workspace'
@@ -3062,6 +3074,7 @@ export interface RootRouteChildren {
   ListingsSlugRoute: typeof ListingsSlugRouteWithChildren
   OnboardingCompanyRoute: typeof OnboardingCompanyRoute
   OnboardingProfileRoute: typeof OnboardingProfileRoute
+  OnboardingSummaryRoute: typeof OnboardingSummaryRoute
   OnboardingWelcomeRoute: typeof OnboardingWelcomeRoute
   OnboardingWizardRoute: typeof OnboardingWizardRoute
   OnboardingWorkspaceRoute: typeof OnboardingWorkspaceRoute
@@ -3257,6 +3270,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding/welcome'
       fullPath: '/onboarding/welcome'
       preLoaderRoute: typeof OnboardingWelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding/summary': {
+      id: '/onboarding/summary'
+      path: '/onboarding/summary'
+      fullPath: '/onboarding/summary'
+      preLoaderRoute: typeof OnboardingSummaryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding/profile': {
@@ -5587,6 +5607,7 @@ const rootRouteChildren: RootRouteChildren = {
   ListingsSlugRoute: ListingsSlugRouteWithChildren,
   OnboardingCompanyRoute: OnboardingCompanyRoute,
   OnboardingProfileRoute: OnboardingProfileRoute,
+  OnboardingSummaryRoute: OnboardingSummaryRoute,
   OnboardingWelcomeRoute: OnboardingWelcomeRoute,
   OnboardingWizardRoute: OnboardingWizardRoute,
   OnboardingWorkspaceRoute: OnboardingWorkspaceRoute,

@@ -1,9 +1,18 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Building2, Check, Home, Loader2, Network, Sparkles, UserRound } from "lucide-react";
+import {
+  Building2,
+  Check,
+  Home,
+  ListChecks,
+  Loader2,
+  Network,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -24,8 +33,17 @@ import { setOnboardingStep } from "@/lib/onboarding.functions";
 import { createOnboardingBranch } from "@/lib/onboarding-branches.functions";
 import { savePendingRedirect } from "@/lib/pending-redirect";
 
+const STEP_KEYS = ["profile", "company", "branch", "property"] as const;
+type StepQuery = (typeof STEP_KEYS)[number];
+
 export const Route = createFileRoute("/onboarding/wizard")({
   ssr: false,
+  validateSearch: (raw: Record<string, unknown>): { step?: StepQuery } => {
+    const s = raw.step;
+    return typeof s === "string" && (STEP_KEYS as readonly string[]).includes(s)
+      ? { step: s as StepQuery }
+      : {};
+  },
   head: () => ({
     meta: [{ title: "تفعيل الحساب — Aqari" }, { name: "robots", content: "noindex" }],
   }),
@@ -68,6 +86,7 @@ const PROP_TYPES: {
 
 function OnboardingWizardPage() {
   const nav = useNavigate();
+  const search = Route.useSearch();
   const { i18n } = useTranslation();
   const isAr = (i18n.language || "ar").startsWith("ar");
   const { user, ready } = useAuth();
@@ -138,11 +157,25 @@ function OnboardingWizardPage() {
         }
         if (prof?.job_title) setJobTitle(prof.job_title);
         if (prof?.signup_reason) setReason(prof.signup_reason);
+        // Load company data too so the step-1 form pre-fills when editing.
         if (ctx.company_id) {
           setOrgId(ctx.company_id);
+          const { data: comp } = await supabase
+            .from("companies")
+            .select("name, phone")
+            .eq("id", ctx.company_id)
+            .maybeSingle();
+          if (comp?.name) setWsName(comp.name);
+          if (comp?.phone) setWsPhone(comp.phone);
           setStep(2);
         } else if (prof?.full_name && prof?.signup_reason) {
           setStep(1);
+        }
+        // Optional deep-link override: /onboarding/wizard?step=profile|company|branch|property
+        const requested = search.step;
+        if (requested) {
+          const idx = STEP_KEYS.indexOf(requested);
+          if (idx >= 0) setStep(idx as 0 | 1 | 2 | 3);
         }
       } catch {
         /* ignore, start from step 0 */
@@ -150,7 +183,7 @@ function OnboardingWizardPage() {
         setChecking(false);
       }
     })();
-  }, [ready, user, nav, getCtx]);
+  }, [ready, user, nav, getCtx, search.step]);
 
   const goDashboard = () => nav({ to: "/dashboard", replace: true });
 
@@ -330,6 +363,14 @@ function OnboardingWizardPage() {
 
       <div className="relative z-10 mx-auto grid min-h-[var(--app-height,100vh)] w-full max-w-2xl place-items-center px-4 py-10">
         <div className="w-full rounded-3xl border border-border/60 bg-card/70 p-6 shadow-2xl shadow-primary/10 backdrop-blur-xl sm:p-8">
+          <div className="mb-3 flex items-center justify-end">
+            <Button asChild variant="ghost" size="sm" className="h-7 gap-1 text-xs">
+              <Link to="/onboarding/summary">
+                <ListChecks className="size-3.5" />
+                عرض الملخّص
+              </Link>
+            </Button>
+          </div>
           {/* Stepper */}
           <ol
             className="mb-6 flex items-center justify-between gap-2"
