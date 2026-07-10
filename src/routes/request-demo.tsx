@@ -61,6 +61,8 @@ function RequestDemoPage() {
   const { i18n } = useTranslation();
   const isAr = i18n.language !== "en";
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const bullets = isAr
     ? [
