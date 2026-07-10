@@ -101,11 +101,12 @@ function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
 export async function encryptPrivateKey(plaintext: string): Promise<string> {
   const key = await importAesKey();
   const iv = crypto.getRandomValues(new Uint8Array(AES_IV_LEN));
+  const ivBuf = toArrayBuffer(iv);
   const ct = new Uint8Array(
     await crypto.subtle.encrypt(
-      { name: AES_ALGO, iv },
+      { name: AES_ALGO, iv: ivBuf },
       key,
-      new TextEncoder().encode(plaintext),
+      toArrayBuffer(new TextEncoder().encode(plaintext)),
     ),
   );
   const out = new Uint8Array(iv.length + ct.length);
@@ -126,7 +127,11 @@ export async function decryptPrivateKey(ciphertextB64: string): Promise<string> 
   }
   const iv = buf.slice(0, AES_IV_LEN);
   const ct = buf.slice(AES_IV_LEN);
-  const pt = await crypto.subtle.decrypt({ name: AES_ALGO, iv }, key, ct);
+  const pt = await crypto.subtle.decrypt(
+    { name: AES_ALGO, iv: toArrayBuffer(iv) },
+    key,
+    toArrayBuffer(ct),
+  );
   return new TextDecoder().decode(pt);
 }
 
