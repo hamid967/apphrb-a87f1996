@@ -1,6 +1,5 @@
-import { useMemo, useRef, useState } from "react";
-import { ArrowRight, Loader2, Mic, MicOff, Volume2, X } from "lucide-react";
-import { HBS } from "@/components/hbspro/tokens";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, Loader2, Minimize2, Phone, PhoneOff, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type SpeechRecognitionCtor = new () => SpeechRecognition;
@@ -45,129 +44,69 @@ type IntentRule = {
   followUp?: string;
 };
 
-const TASK_SHORTCUTS = [
-  "سجلني في المنصة",
-  "افتح لوحة التحكم",
-  "أضف عقار جديد",
-  "سجل بلاغ صيانة",
-  "أرني التقارير",
-  "تابع التحصيل",
-  "ما الخطوة التالية؟",
-  "افتح المساعد الكامل",
-];
-
 const INTENT_RULES: IntentRule[] = [
   {
     mode: "signup",
     patterns: [/تسجيل|حساب|اشترك|ابدأ|انشاء حساب|إنشاء حساب|signup|register|account/],
-    text:
-      "حياك الله. نبدأ التسجيل من صفحة إنشاء الحساب، ثم تكمل الملف الشخصي، وبعدها بيانات المنشأة ومساحة العمل. لا تشارك كلمة المرور أو رمز التحقق معي.",
+    text: "حياك الله. نبدأ التسجيل من صفحة إنشاء الحساب، ثم تكمل الملف الشخصي، وبعدها بيانات المنشأة ومساحة العمل.",
     actionLabel: "افتح التسجيل",
     actionPath: "/auth?mode=signup",
-    followUp: "بعد فتح الصفحة، أدخل البريد وكلمة مرور قوية ثم أكمل خطوات التهيئة.",
   },
   {
     mode: "navigate",
     patterns: [/لوحة|الرئيسية|داشبورد|dashboard|home/],
-    text:
-      "أفتح لك لوحة التحكم. هناك تتابع التحصيل، الشغور، العقود القريبة، الصيانة، والتنبيهات المهمة من شاشة واحدة.",
+    text: "أفتح لك لوحة التحكم. هناك تتابع التحصيل، الشغور، العقود القريبة، الصيانة، والتنبيهات المهمة.",
     actionLabel: "افتح لوحة التحكم",
     actionPath: "/dashboard",
   },
   {
     mode: "task",
     patterns: [/أضف|اضف|عقار جديد|وحدة جديدة|property|properties|unit|عقار|عقارات|وحدة|وحدات/],
-    text:
-      "لإضافة عقار نحتاج الاسم، المدينة، العنوان، نوع الوحدة، السعر، الحالة، والصور. سأفتح لك صفحة الإضافة لتبدأ الإدخال خطوة بخطوة.",
+    text: "لإضافة عقار نحتاج الاسم، المدينة، العنوان، نوع الوحدة، السعر، الحالة، والصور.",
     actionLabel: "أضف عقار",
     actionPath: "/properties/new",
   },
   {
     mode: "task",
     patterns: [/تحصيل|متأخر|متأخرات|دفعات|ايجار|إيجار|فاتورة|سداد|arrears|collection|payment|invoice/],
-    text:
-      "خطة التحصيل: حدد المتأخرات، صنفها حسب عمر التأخير، أرسل تذكير، سجل وعد السداد، ثم صعّد الحالات عالية المخاطر.",
+    text: "خطة التحصيل: حدد المتأخرات، صنفها حسب عمر التأخير، أرسل تذكير، سجل وعد السداد.",
     actionLabel: "افتح المحاسبة",
     actionPath: "/accounting",
   },
   {
     mode: "task",
     patterns: [/صيانة|بلاغ|تذكرة|عطل|فني|maintenance|ticket/],
-    text:
-      "لبلاغ الصيانة، سجل العقار والوحدة، وصف المشكلة، الأولوية، الصور إن وجدت، ثم عيّن المورد وتابع الإغلاق والتكلفة.",
+    text: "لبلاغ الصيانة، سجل العقار والوحدة، وصف المشكلة، الأولوية، ثم عيّن المورد.",
     actionLabel: "افتح الصيانة",
     actionPath: "/maintenance",
   },
   {
     mode: "task",
     patterns: [/عقد|عقود|تجديد|انتهاء|تأجير|leasing|contract|lease|renew/],
-    text:
-      "لإدارة العقود، راقب العقود التي تنتهي خلال 30 أو 60 يوم، جهز شروط التجديد، وأرسل تنبيه مبكر للمستأجر والمالك.",
+    text: "لإدارة العقود، راقب العقود التي تنتهي خلال 30 أو 60 يوم، وأرسل تنبيه مبكر.",
     actionLabel: "افتح التأجير والعقود",
     actionPath: "/leasing",
   },
   {
     mode: "coach",
-    patterns: [/شاغر|شاغرة|اشغال|إشغال|vacant|vacancy|occupancy/],
-    text:
-      "للوحدات الشاغرة، راجع مدة الشغور، السعر مقارنة بالسوق، جودة الإعلان، والصور. بعدها اختر إجراء واحد: تعديل السعر، تحسين الإعلان، أو تكليف وسيط.",
-    actionLabel: "افتح العقارات",
-    actionPath: "/properties",
-  },
-  {
-    mode: "coach",
-    patterns: [/تقرير|تقارير|ملخص|اداء|أداء|مؤشرات|dashboard|report|analytics|kpi/],
-    text:
-      "ابدأ بتقرير تنفيذي مختصر: التحصيل، المتأخرات، الشغور، العقود القريبة، الصيانة المفتوحة، ثم توصية واحدة قابلة للتنفيذ اليوم.",
+    patterns: [/تقرير|تقارير|ملخص|اداء|أداء|مؤشرات|report|analytics|kpi/],
+    text: "ابدأ بتقرير تنفيذي مختصر: التحصيل، المتأخرات، الشغور، العقود القريبة، الصيانة المفتوحة.",
     actionLabel: "افتح التقارير",
     actionPath: "/reports",
   },
   {
     mode: "task",
-    patterns: [/مهمة|مهام|تابع|تذكير|موعد|task|tasks|reminder/],
-    text:
-      "لإتمام المهام، اختر المسؤول، حدّد تاريخ الاستحقاق، واربط المهمة بالعقار أو العقد أو العميل حتى تبقى المتابعة واضحة.",
-    actionLabel: "افتح المهام",
-    actionPath: "/tasks",
-  },
-  {
-    mode: "task",
     patterns: [/عميل|عملاء|مالك|مستأجر|وسيط|lead|contact|crm|tenant|owner/],
-    text:
-      "لإدارة العملاء، سجل بيانات التواصل، نوع العلاقة، الملاحظات، واربط العميل بالعقار أو العقد. بعدها تقدر تتابع الفرص والطلبات من نفس المكان.",
+    text: "لإدارة العملاء، سجل بيانات التواصل، نوع العلاقة، الملاحظات، واربط العميل بالعقار.",
     actionLabel: "افتح العملاء",
     actionPath: "/contacts",
-  },
-  {
-    mode: "coach",
-    patterns: [/سعر|تسعير|قيمة|price|pricing|rent value/],
-    text:
-      "للتسعير، قارن الوحدة بمثيلاتها في نفس المدينة والحي، راجع مدة الشغور والطلب، ثم اختر سعر يقلل الشغور ويحافظ على العائد.",
-    actionLabel: "افتح العقارات",
-    actionPath: "/properties",
-  },
-  {
-    mode: "navigate",
-    patterns: [/المساعد الكامل|ذكاء|حامد كامل|assistant|ai/],
-    text:
-      "أفتح لك المساعد الكامل داخل اللوحة. هناك يقدر يقرأ سياق النظام حسب صلاحياتك ويعطيك إجابات أعمق من المساعد الصوتي المحلي.",
-    actionLabel: "افتح المساعد الكامل",
-    actionPath: "/assistant",
-  },
-  {
-    mode: "task",
-    patterns: [/استيراد|رفع ملف|csv|excel|اكسل|إكسل|import/],
-    text:
-      "للاستيراد، جهز ملف CSV أو Excel، راجع الأعمدة المطلوبة، ثم ابدأ من صفحة الاستيراد. انتبه لمطابقة البريد أو الجوال لتجنب التكرار.",
-    actionLabel: "افتح الاستيراد",
-    actionPath: "/settings/import",
   },
 ];
 
 function getSpeechRecognition(): SpeechRecognitionCtor | null {
   if (typeof window === "undefined") return null;
-  const speechWindow = window as SpeechSynthesisWindow;
-  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
+  const w = window as SpeechSynthesisWindow;
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
 function normalizeArabic(text: string) {
@@ -185,34 +124,18 @@ function findIntent(text: string): { rule?: IntentRule; confidence: HamidIntent[
   const input = normalizeArabic(text);
   let best: IntentRule | undefined;
   let score = 0;
-
   for (const rule of INTENT_RULES) {
-    const matches = rule.patterns.filter((pattern) => pattern.test(input)).length;
+    const matches = rule.patterns.filter((p) => p.test(input)).length;
     if (matches > score) {
       score = matches;
       best = rule;
     }
   }
-
   if (!best) return { confidence: "low" };
   return { rule: best, confidence: score > 1 ? "high" : "medium" };
 }
 
-function getFollowUp(history: Turn[]) {
-  const last = history.at(-1);
-  if (!last) return "أقدر أفتح لك الصفحة المناسبة أو أشرح لك الخطوات بصوت مختصر.";
-  if (last.mode === "signup") return "نكمل التسجيل بفتح صفحة الحساب، ثم الملف الشخصي والمنشأة.";
-  if (last.mode === "task") return "الخطوة التالية: افتح الصفحة، املأ البيانات الأساسية، ثم احفظ أو أرسل للمراجعة حسب الصفحة.";
-  if (last.mode === "coach") return "ابدأ بالمؤشر الأهم، ثم نفذ إجراء واحد واضح، وبعده راقب النتيجة.";
-  return "قل لي المهمة التي تريدها: تسجيل، عقار، صيانة، تحصيل، تقرير، أو مهمة.";
-}
-
-function getLocalIntent(text: string, history: Turn[]): HamidIntent {
-  const input = normalizeArabic(text);
-  if (/الخطوه التاليه|اكمل|كمل|تابع|وبعدين|بعدها|next/.test(input)) {
-    return { text: getFollowUp(history), confidence: "medium", mode: "coach" };
-  }
-
+function getLocalIntent(text: string, _history: Turn[]): HamidIntent {
   const { rule, confidence } = findIntent(text);
   if (rule) {
     return {
@@ -223,10 +146,8 @@ function getLocalIntent(text: string, history: Turn[]): HamidIntent {
       mode: rule.mode,
     };
   }
-
   return {
-    text:
-      "حياك الله، أنا حامد مساعد HBSpro الصوتي. أقدر أساعدك في التسجيل، فتح الصفحات، وتجهيز مهام العقارات، التحصيل، الصيانة، العقود، التقارير، العملاء، والاستيراد.",
+    text: "حياك الله، أنا حامد مساعد HBSpro الصوتي. أقدر أساعدك في التسجيل، فتح الصفحات، وتجهيز مهام العقارات، التحصيل، الصيانة، العقود، التقارير، والعملاء.",
     actionLabel: "افتح لوحة التحكم",
     actionPath: "/dashboard",
     confidence: "low",
@@ -237,24 +158,20 @@ function getLocalIntent(text: string, history: Turn[]): HamidIntent {
 function pickArabicVoice() {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
-  return (
-    voices.find((voice) => voice.lang === "ar-SA") ??
-    voices.find((voice) => voice.lang.startsWith("ar")) ??
-    null
-  );
+  return voices.find((v) => v.lang === "ar-SA") ?? voices.find((v) => v.lang.startsWith("ar")) ?? null;
 }
 
 function speakLocally(text: string) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;
   window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "ar-SA";
-  utterance.rate = 0.92;
-  utterance.pitch = 0.95;
-  utterance.volume = 1;
-  const voice = pickArabicVoice();
-  if (voice) utterance.voice = voice;
-  window.speechSynthesis.speak(utterance);
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "ar-SA";
+  u.rate = 0.95;
+  u.pitch = 0.98;
+  u.volume = 1;
+  const v = pickArabicVoice();
+  if (v) u.voice = v;
+  window.speechSynthesis.speak(u);
   return true;
 }
 
@@ -263,35 +180,139 @@ function goTo(path: string) {
   window.location.assign(path);
 }
 
+/** ElevenLabs-style gradient orb — inline SVG, no external assets. */
+function VoiceOrb({
+  size = 220,
+  active = false,
+  speaking = false,
+}: {
+  size?: number;
+  active?: boolean;
+  speaking?: boolean;
+}) {
+  return (
+    <div
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
+      aria-hidden
+    >
+      {/* soft glow halo */}
+      <div
+        className={cn(
+          "absolute inset-0 rounded-full blur-2xl transition-opacity duration-500",
+          active ? "opacity-70" : "opacity-40",
+        )}
+        style={{
+          background:
+            "radial-gradient(circle at 30% 30%, #d6d67a 0%, #6bb3a9 35%, #2f7fbf 70%, transparent 78%)",
+        }}
+      />
+      <svg
+        viewBox="0 0 200 200"
+        width={size}
+        height={size}
+        className={cn(
+          "relative drop-shadow-2xl transition-transform duration-500",
+          active && "animate-[spin_18s_linear_infinite]",
+          speaking && "scale-105",
+        )}
+      >
+        <defs>
+          <radialGradient id="hamidOrb" cx="35%" cy="35%" r="75%">
+            <stop offset="0%" stopColor="#f3ecb0" />
+            <stop offset="28%" stopColor="#b8c96a" />
+            <stop offset="55%" stopColor="#4fa39a" />
+            <stop offset="82%" stopColor="#2b6fb3" />
+            <stop offset="100%" stopColor="#0b2a4a" />
+          </radialGradient>
+          <radialGradient id="hamidGrain" cx="50%" cy="50%" r="55%">
+            <stop offset="60%" stopColor="rgba(255,255,255,0)" />
+            <stop offset="100%" stopColor="rgba(0,0,0,0.35)" />
+          </radialGradient>
+          <filter id="hamidNoise">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" />
+            <feColorMatrix
+              values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.35 0"
+            />
+            <feComposite in2="SourceGraphic" operator="in" />
+          </filter>
+        </defs>
+        <circle cx="100" cy="100" r="92" fill="url(#hamidOrb)" />
+        <circle cx="100" cy="100" r="92" fill="url(#hamidGrain)" />
+        <circle cx="100" cy="100" r="92" filter="url(#hamidNoise)" opacity="0.55" />
+        {/* inner white dot for phone icon */}
+        <circle cx="100" cy="100" r="26" fill="#ffffff" />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Phone className="h-6 w-6 text-black" />
+      </div>
+    </div>
+  );
+}
+
+/** Small orb used inside the floating launch button. */
+function MiniOrb({ size = 44 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 200 200" width={size} height={size} aria-hidden>
+      <defs>
+        <radialGradient id="hamidOrbMini" cx="35%" cy="35%" r="75%">
+          <stop offset="0%" stopColor="#f3ecb0" />
+          <stop offset="30%" stopColor="#b8c96a" />
+          <stop offset="60%" stopColor="#4fa39a" />
+          <stop offset="90%" stopColor="#2b6fb3" />
+          <stop offset="100%" stopColor="#0b2a4a" />
+        </radialGradient>
+      </defs>
+      <circle cx="100" cy="100" r="92" fill="url(#hamidOrbMini)" />
+      <circle cx="100" cy="100" r="26" fill="#ffffff" />
+      <g transform="translate(88 88)">
+        <Phone />
+      </g>
+    </svg>
+  );
+}
+
 export function HamidVoiceAssistant() {
   const [open, setOpen] = useState(false);
+  const [callActive, setCallActive] = useState(false);
   const [listening, setListening] = useState(false);
   const [loading, setLoading] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [textInput, setTextInput] = useState("");
   const [history, setHistory] = useState<Turn[]>([]);
-  const [reply, setReply] = useState<HamidIntent>(() => getLocalIntent("", []));
+  const [reply, setReply] = useState<HamidIntent | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [speaking, setSpeaking] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const Recognition = useMemo(getSpeechRecognition, []);
   const speechSupported = Boolean(Recognition);
   const synthesisSupported = typeof window !== "undefined" && "speechSynthesis" in window;
 
-  const answer = async (text: string) => {
-    const cleanText = text.trim();
-    if (!cleanText || loading) return;
+  useEffect(() => {
+    if (!synthesisSupported) return;
+    const s = window.speechSynthesis;
+    const onStart = () => setSpeaking(true);
+    const onEnd = () => setSpeaking(false);
+    // no direct global events; poll speaking state
+    const iv = window.setInterval(() => setSpeaking(s.speaking), 300);
+    return () => {
+      window.clearInterval(iv);
+      onStart;
+      onEnd;
+    };
+  }, [synthesisSupported]);
 
+  const answer = async (text: string) => {
+    const clean = text.trim();
+    if (!clean || loading) return;
     setLoading(true);
     setError(null);
-    const nextReply = getLocalIntent(cleanText, history);
-    setReply(nextReply);
-    setHistory((items) => [
-      ...items.slice(-4),
-      { user: cleanText, assistant: nextReply.text, mode: nextReply.mode },
-    ]);
-
-    await new Promise((resolve) => window.setTimeout(resolve, 220));
-    const spoken = speakLocally(nextReply.text);
-    if (!spoken) setError("الصوت المحلي غير مدعوم في هذا المتصفح، لكن الرد النصي ظاهر أمامك.");
+    const next = getLocalIntent(clean, history);
+    setReply(next);
+    setHistory((h) => [...h.slice(-4), { user: clean, assistant: next.text, mode: next.mode }]);
+    await new Promise((r) => window.setTimeout(r, 180));
+    const spoken = speakLocally(next.text);
+    if (!spoken) setError("الصوت المحلي غير مدعوم في هذا المتصفح.");
     setLoading(false);
   };
 
@@ -299,25 +320,22 @@ export function HamidVoiceAssistant() {
     if (!Recognition || listening || loading) return;
     setError(null);
     setTranscript("");
-    const recognition = new Recognition();
-    recognition.lang = "ar-SA";
-    recognition.interimResults = false;
-    recognition.continuous = false;
-    recognition.onresult = (event) => {
-      const text = Array.from(event.results)
-        .map((result) => result[0]?.transcript || "")
-        .join(" ")
-        .trim();
-      setTranscript(text);
-      void answer(text);
+    const r = new Recognition();
+    r.lang = "ar-SA";
+    r.interimResults = false;
+    r.continuous = false;
+    r.onresult = (e) => {
+      const t = Array.from(e.results).map((res) => res[0]?.transcript || "").join(" ").trim();
+      setTranscript(t);
+      void answer(t);
     };
-    recognition.onerror = () => {
+    r.onerror = () => {
       setListening(false);
       setError("لم أستطع سماعك بوضوح. جرّب مرة ثانية.");
     };
-    recognition.onend = () => setListening(false);
-    recognitionRef.current = recognition;
-    recognition.start();
+    r.onend = () => setListening(false);
+    recognitionRef.current = r;
+    r.start();
     setListening(true);
   };
 
@@ -326,139 +344,158 @@ export function HamidVoiceAssistant() {
     setListening(false);
   };
 
+  const startCall = async () => {
+    setCallActive(true);
+    setReply({
+      text: "أهلاً بك، أنا حامد. تفضّل تكلم أو اكتب طلبك وسأنفذه فوراً.",
+      confidence: "high",
+      mode: "coach",
+    });
+    speakLocally("أهلاً بك، أنا حامد. تفضّل تكلم أو اكتب طلبك.");
+    if (speechSupported) startListening();
+  };
+
+  const endCall = () => {
+    stopListening();
+    window.speechSynthesis?.cancel();
+    setCallActive(false);
+    setSpeaking(false);
+  };
+
+  const submitText = (e: React.FormEvent) => {
+    e.preventDefault();
+    const t = textInput.trim();
+    if (!t) return;
+    setTextInput("");
+    void answer(t);
+  };
+
   if (!open) {
     return (
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 start-5 z-40 flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold text-white shadow-2xl backdrop-blur transition hover:-translate-y-0.5"
-        style={{
-          background: `linear-gradient(120deg, ${HBS.gold}, ${HBS.blue})`,
-          border: `1px solid ${HBS.border}`,
-          boxShadow: `0 20px 50px -15px ${HBS.blue}`,
-        }}
-        aria-label="تحدث صوتياً مع حامد"
+        className="fixed bottom-5 start-5 z-40 flex items-center gap-2 rounded-full bg-white/95 py-2 pe-4 ps-2 text-sm font-semibold text-slate-900 shadow-2xl backdrop-blur transition hover:-translate-y-0.5 hover:shadow-[0_25px_60px_-10px_rgba(47,127,191,0.6)] dark:bg-slate-900/90 dark:text-slate-100"
+        aria-label="افتح مساعد حامد الصوتي"
       >
-        <Volume2 className="size-4" style={{ color: HBS.goldSoft }} />
-        حامد AI
+        <MiniOrb size={38} />
+        <span>حامد</span>
       </button>
     );
   }
 
   return (
     <section
-      className="fixed bottom-5 start-5 z-40 w-[380px] max-w-[92vw] overflow-hidden rounded-2xl backdrop-blur-2xl"
-      style={{
-        background: "linear-gradient(160deg, rgba(11,27,44,0.94), rgba(7,19,32,0.98))",
-        border: `1px solid ${HBS.border}`,
-        boxShadow: `0 35px 90px -30px ${HBS.blue}`,
-        color: HBS.white,
-      }}
-      aria-label="مساعد حامد الصوتي الذكي"
+      dir="rtl"
+      className="fixed bottom-5 start-5 z-40 w-[380px] max-w-[92vw] overflow-hidden rounded-3xl border border-black/5 bg-white shadow-[0_40px_120px_-30px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-950"
+      aria-label="مساعد حامد الصوتي"
     >
-      <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: `1px solid ${HBS.border}` }}>
-        <div>
-          <h2 className="text-sm font-semibold">حامد — وكيل صوتي ذكي</h2>
-          <p className="text-[11px]" style={{ color: HBS.gray }}>
-            استماع · فهم نية · تنفيذ آمن · بدون ElevenLabs
-          </p>
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3">
+        <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
+          <span className="text-base leading-none">🇸🇦</span>
+          <span>العربية</span>
         </div>
         <button
           type="button"
           onClick={() => {
-            stopListening();
-            window.speechSynthesis?.cancel();
+            endCall();
             setOpen(false);
           }}
-          className="rounded-md p-1 transition hover:bg-white/10"
-          style={{ color: HBS.gray }}
-          aria-label="إغلاق المساعد المحلي"
+          className="rounded-full bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+          aria-label="تصغير"
         >
-          <X className="size-4" />
+          <Minimize2 className="h-3.5 w-3.5" />
         </button>
       </div>
 
-      <div className="space-y-3 p-4 text-sm">
-        {!speechSupported && (
-          <div className="rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 text-xs text-amber-100">
-            التعرف الصوتي غير مدعوم في هذا المتصفح. جرّب Chrome أو Edge لتفعيل المايك.
-          </div>
-        )}
-        {!synthesisSupported && (
-          <div className="rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 text-xs text-amber-100">
-            النطق الصوتي المحلي غير مدعوم هنا، وسيظهر رد حامد كنص فقط.
-          </div>
-        )}
+      {/* Orb stage */}
+      <div className="flex flex-col items-center gap-4 px-5 pb-4 pt-2">
         <button
           type="button"
-          onClick={listening ? stopListening : startListening}
-          disabled={!speechSupported || loading}
-          className={cn(
-            "flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold text-white transition",
-            listening && "animate-pulse",
-          )}
-          style={{
-            background: listening
-              ? `linear-gradient(120deg, #dc2626, ${HBS.gold})`
-              : `linear-gradient(120deg, ${HBS.blue}, ${HBS.gold})`,
-            opacity: !speechSupported || loading ? 0.65 : 1,
-          }}
+          onClick={callActive ? endCall : startCall}
+          className="group relative outline-none"
+          aria-label={callActive ? "إنهاء المكالمة" : "بدء مكالمة مع حامد"}
         >
-          {loading ? <Loader2 className="size-4 animate-spin" /> : listening ? <MicOff className="size-4" /> : <Mic className="size-4" />}
-          {loading ? "حامد يحلل الطلب…" : listening ? "إيقاف الاستماع" : "تحدث الآن"}
+          <VoiceOrb size={200} active={callActive} speaking={speaking || listening} />
         </button>
 
-        <div className="flex flex-wrap gap-1.5">
-          {TASK_SHORTCUTS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => void answer(item)}
-              className="rounded-full px-2.5 py-1 text-[11px] transition hover:-translate-y-0.5"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: `1px solid ${HBS.border}`,
-                color: HBS.goldSoft,
-              }}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
+        <p className="max-w-[280px] text-center text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+          {callActive
+            ? listening
+              ? "يستمع إليك الآن…"
+              : speaking
+                ? "حامد يتحدث…"
+                : "اضغط الأيقونة لإنهاء المكالمة"
+            : "اكتشف قدرات المساعد الصوتي حامد — بدون أي ربط خارجي"}
+        </p>
 
         {transcript && (
-          <div className="rounded-xl bg-white/5 p-3 text-xs" style={{ border: `1px solid ${HBS.border}` }}>
-            <span style={{ color: HBS.goldSoft }}>سمعتك:</span> {transcript}
+          <div className="w-full rounded-xl bg-slate-100 px-3 py-2 text-xs text-slate-700 dark:bg-slate-800/70 dark:text-slate-200">
+            <span className="font-semibold">أنت:</span> {transcript}
           </div>
         )}
-        {reply.text && (
-          <div className="space-y-2 rounded-xl bg-white/5 p-3 text-xs leading-relaxed" style={{ border: `1px solid ${HBS.border}` }}>
-            <div className="flex items-center justify-between gap-2 text-[10px]" style={{ color: HBS.gray }}>
-              <span>النمط: {reply.mode}</span>
-              <span>الثقة: {reply.confidence}</span>
-            </div>
+        {reply && (
+          <div className="w-full space-y-2 rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-700 dark:bg-slate-900/60 dark:text-slate-200">
             <div>
-              <span style={{ color: HBS.goldSoft }}>حامد:</span> {reply.text}
+              <span className="font-semibold text-slate-900 dark:text-white">حامد:</span> {reply.text}
             </div>
             {reply.actionLabel && reply.actionPath && (
               <button
                 type="button"
                 onClick={() => goTo(reply.actionPath!)}
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold text-white transition hover:-translate-y-0.5"
-                style={{ background: `linear-gradient(120deg, ${HBS.blue}, ${HBS.gold})` }}
+                className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-900"
               >
                 {reply.actionLabel}
-                <ArrowRight className="size-3" />
+                <ArrowRight className="h-3 w-3 rotate-180" />
               </button>
             )}
           </div>
         )}
         {error && (
-          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+          <div className="w-full rounded-xl border border-amber-300/40 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
             {error}
           </div>
         )}
       </div>
+
+      {/* Composer */}
+      <form
+        onSubmit={submitText}
+        className="mx-4 mb-4 flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 shadow-sm focus-within:border-slate-400 dark:border-slate-700 dark:bg-slate-900"
+      >
+        <input
+          value={textInput}
+          onChange={(e) => setTextInput(e.target.value)}
+          placeholder="أو اكتب رسالة…"
+          className="flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100"
+        />
+        {callActive ? (
+          <button
+            type="button"
+            onClick={endCall}
+            className="rounded-full bg-red-500 p-2 text-white transition hover:bg-red-600"
+            aria-label="إنهاء المكالمة"
+          >
+            <PhoneOff className="h-4 w-4" />
+          </button>
+        ) : (
+          <button
+            type="submit"
+            disabled={loading || !textInput.trim()}
+            className="rounded-full bg-slate-900 p-2 text-white transition hover:-translate-y-0.5 disabled:opacity-40 dark:bg-white dark:text-slate-900"
+            aria-label="إرسال"
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4 -rotate-45" />}
+          </button>
+        )}
+      </form>
+
+      {!speechSupported && (
+        <p className="px-5 pb-3 text-[11px] text-slate-500 dark:text-slate-400">
+          التعرف الصوتي غير مدعوم في هذا المتصفح — استعمل Chrome أو Edge لتشغيل المايك.
+        </p>
+      )}
     </section>
   );
 }
