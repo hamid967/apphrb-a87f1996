@@ -1,9 +1,18 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Building2, Check, Home, Loader2, Network, Sparkles, UserRound } from "lucide-react";
+import {
+  Building2,
+  Check,
+  Home,
+  ListChecks,
+  Loader2,
+  Network,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
