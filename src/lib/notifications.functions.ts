@@ -568,3 +568,55 @@ export const listTestSendHistory = createServerFn({ method: "GET" })
     if (error) throw error;
     return rows ?? [];
   });
+
+/**
+ * In-app notification center: lists notification_queue rows addressed to
+ * the current user (recipient_user_id = auth.uid()). RLS scopes results.
+ */
+export const listMyNotifications = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { unreadOnly?: boolean; limit?: number } | undefined) => ({
+    unreadOnly: input?.unreadOnly ?? false,
+    limit: Math.min(Math.max(input?.limit ?? 50, 1), 200),
+  }))
+  .handler(async ({ data, context }) => {
+    let q = context.supabase
+      .from("notification_queue")
+      .select(
+        "id, channel, template, status, variables, sent_at, created_at, read_at",
+      )
+      .eq("recipient_user_id", context.userId)
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (data.unreadOnly) q = q.is("read_at", null);
+    const { data: rows, error } = await q;
+    if (error) throw error;
+    return rows ?? [];
+  });
+
+export const markMyNotificationRead = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string; read?: boolean }) =>
+    z.object({ id: z.string().uuid(), read: z.boolean().default(true) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("notification_queue")
+      .update({ read_at: data.read ? new Date().toISOString() : null })
+      .eq("id", data.id)
+      .eq("recipient_user_id", context.userId);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const markAllMyNotificationsRead = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { error } = await context.supabase
+      .from("notification_queue")
+      .update({ read_at: new Date().toISOString() })
+      .eq("recipient_user_id", context.userId)
+      .is("read_at", null);
+    if (error) throw error;
+    return { ok: true };
+  });
