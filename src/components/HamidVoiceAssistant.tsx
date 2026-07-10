@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Loader2, Minimize2, Phone, PhoneOff, Send } from "lucide-react";
+import { ArrowRight, Loader2, Minimize2, Phone, PhoneOff, RotateCcw, Send, Settings2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { askHamidAgent } from "@/lib/hamid-agent.functions";
+import {
+  DEFAULT_HAMID_VOICE,
+  HAMID_VOICE_PRESETS,
+  useHamidVoiceSettings,
+  type HamidVoiceSettings,
+} from "@/lib/hamid-voice-settings";
 import { cn } from "@/lib/utils";
 
 type SpeechRecognitionCtor = new () => SpeechRecognition;
