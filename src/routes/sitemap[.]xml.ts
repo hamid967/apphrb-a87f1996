@@ -75,12 +75,20 @@ export const Route = createFileRoute("/sitemap.xml")({
           `</urlset>`,
         ].join("\n");
 
+        // Force XML content-type explicitly. Some hosting layers (Cloudflare
+        // Workers / SSR wrappers) default to text/html when the framework's
+        // outer response wins — set both the Response headers AND a matching
+        // charset so intermediaries can't downgrade the type.
         return new Response(xml, {
+          status: 200,
           headers: {
-            "Content-Type": "application/xml",
-            "Cache-Control": "public, max-age=3600",
+            "Content-Type": "application/xml; charset=utf-8",
+            "Cache-Control": "public, max-age=3600, s-maxage=3600",
+            "X-Content-Type-Options": "nosniff",
+            Vary: "Accept-Encoding",
           },
         });
+
       },
     },
   },
