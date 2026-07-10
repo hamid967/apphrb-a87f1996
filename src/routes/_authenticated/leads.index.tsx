@@ -246,19 +246,59 @@ function LeadsPage() {
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
           {t("crm.leads.title")}
         </h1>
-        {canEdit && (
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setImportOpen(true)}>
-              <Upload className="me-2 size-4" /> {t("csv.importLeads")}
-            </Button>
-            <Button asChild>
-              <Link to="/leads/new">
-                <Plus className="me-2 size-4" /> {t("crm.leads.add")}
-              </Link>
-            </Button>
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="me-2 size-4" /> {t("crm.leads.export")}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleExport("csv")}>
+                {t("crm.leads.exportCsv")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("xlsx")}>
+                {t("crm.leads.exportXlsx")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {canEdit && (
+            <>
+              <Button variant="outline" onClick={() => setImportOpen(true)}>
+                <Upload className="me-2 size-4" /> {t("csv.importLeads")}
+              </Button>
+              <Button asChild>
+                <Link to="/leads/new">
+                  <Plus className="me-2 size-4" /> {t("crm.leads.add")}
+                </Link>
+              </Button>
+            </>
+          )}
+        </div>
       </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t("crm.leads.search")}
+          className="max-w-xs"
+        />
+        <Select value={stageFilter} onValueChange={(v) => setStageFilter(v as Stage | "__all__")}>
+          <SelectTrigger className="w-44">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__all__">{t("crm.leads.filterStage")}</SelectItem>
+            {STAGES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {t(`crm.leads.stages.${s}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
 
       <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <div className="mt-6 grid gap-3 md:grid-cols-3 xl:grid-cols-7">
