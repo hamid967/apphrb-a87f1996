@@ -195,7 +195,7 @@ function ClaimsReviewPage() {
       if (flashTimer != null) window.clearTimeout(flashTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusClaimId, rows]);
+  }, [focusClaimId, rows, scrollBehavior]);
 
 
 
