@@ -321,6 +321,10 @@ export type ClaimViolationRow = {
   limit_amount: number | string | null;
   currency: string | null;
   created_at: string;
+  overridden_by: string | null;
+  override_reason: string | null;
+  overridden_at: string | null;
+  override_by_name: string | null;
   policy: {
     id: string;
     category: string;
@@ -340,9 +344,29 @@ export type ClaimViolationsPayload = {
     receipt_url: string | null;
     amount: number | string;
     currency: string | null;
+    org_id: string;
   } | null;
   violations: ClaimViolationRow[];
+  can_override: boolean;
 };
+
+async function isOrgAdmin(
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
+  userId: string,
+  orgId: string,
+): Promise<boolean> {
+  const [{ data: isAdmin }, { data: isSuper }, { data: isOrgAdmin }] = await Promise.all([
+    supabase.rpc("has_role", { _user_id: userId, _role: "admin" }),
+    supabase.rpc("has_role", { _user_id: userId, _role: "super_admin" }),
+    supabase.rpc("has_org_role", {
+      _org: orgId,
+      _user: userId,
+      _roles: ["owner", "admin"],
+    }),
+  ]);
+  return Boolean(isAdmin || isSuper || isOrgAdmin);
+}
 
 /**
  * Loads all policy_violations for a single claim, joined with the originating
@@ -353,26 +377,130 @@ export const listPolicyViolationsForClaim = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: z.infer<typeof oneClaimSchema>) => oneClaimSchema.parse(d))
   .handler(async ({ data, context }): Promise<ClaimViolationsPayload> => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
 
     const [{ data: claim, error: cErr }, { data: rows, error: vErr }] = await Promise.all([
       supabase
         .from("expense_claims")
-        .select("id, claim_number, title, receipt_url, amount, currency")
+        .select("id, claim_number, title, receipt_url, amount, currency, org_id")
         .eq("id", data.claim_id)
         .maybeSingle(),
       supabase
         .from("policy_violations")
         .select(
-          "id, claim_id, rule_type, severity, category, reason, amount, limit_amount, currency, created_at, policy:spending_policies(id, category, rule_type, note, max_amount, period_days, keywords)",
+          "id, claim_id, rule_type, severity, category, reason, amount, limit_amount, currency, created_at, overridden_by, override_reason, overridden_at, policy:spending_policies(id, category, rule_type, note, max_amount, period_days, keywords), overrider:profiles!policy_violations_overridden_by_fkey(full_name)",
         )
         .eq("claim_id", data.claim_id)
         .order("created_at", { ascending: true }),
     ]);
     if (cErr) throw cErr;
     if (vErr) throw vErr;
+
+    const orgId = (claim as { org_id?: string } | null)?.org_id;
+    const canOverride = orgId ? await isOrgAdmin(supabase, userId, orgId) : false;
+
+    const mapped: ClaimViolationRow[] = (rows ?? []).map((r: Record<string, unknown>) => {
+      const overrider = r.overrider as { full_name?: string | null } | null | undefined;
+      const { overrider: _o, ...rest } = r as Record<string, unknown> & { overrider?: unknown };
+      return {
+        ...(rest as unknown as Omit<ClaimViolationRow, "override_by_name">),
+        override_by_name: overrider?.full_name ?? null,
+      };
+    });
+
     return {
       claim: (claim ?? null) as ClaimViolationsPayload["claim"],
-      violations: (rows ?? []) as unknown as ClaimViolationRow[],
+      violations: mapped,
+      can_override: canOverride,
     };
   });
+
+// ── Admin override actions ──
+const overrideSchema = z.object({
+  violation_id: z.string().uuid(),
+  reason: z.string().trim().min(4).max(500),
+});
+const clearOverrideSchema = z.object({ violation_id: z.string().uuid() });
+
+/**
+ * Admin override: marks a violation as accepted with a documented reason.
+ * Records overridden_by (auth.uid), override_reason, overridden_at, and
+ * writes an audit_log entry so the decision is traceable. Overridden rows
+ * survive trigger re-evaluations.
+ */
+export const overrideClaimPolicyViolation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: z.infer<typeof overrideSchema>) => overrideSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: row, error: rErr } = await supabase
+      .from("policy_violations")
+      .select("id, org_id, claim_id, rule_type, severity, reason")
+      .eq("id", data.violation_id)
+      .maybeSingle();
+    if (rErr) throw rErr;
+    if (!row) throw new Error("not_found");
+    if (!(await isOrgAdmin(supabase, userId, row.org_id))) throw new Error("forbidden");
+
+    const { error: uErr } = await supabase
+      .from("policy_violations")
+      .update({
+        overridden_by: userId,
+        override_reason: data.reason,
+        overridden_at: new Date().toISOString(),
+      })
+      .eq("id", data.violation_id);
+    if (uErr) throw uErr;
+
+    await supabase.from("audit_log").insert({
+      entity: "policy_violations",
+      entity_id: data.violation_id,
+      actor: userId,
+      action: "POLICY_VIOLATION_OVERRIDE",
+      diff: {
+        claim_id: row.claim_id,
+        rule_type: row.rule_type,
+        severity: row.severity,
+        original_reason: row.reason,
+        override_reason: data.reason,
+      },
+    });
+
+    return { ok: true as const };
+  });
+
+/**
+ * Reverts an override so the violation is treated as active again. Same
+ * admin gate; recorded in audit_log for traceability.
+ */
+export const clearClaimPolicyViolationOverride = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: z.infer<typeof clearOverrideSchema>) => clearOverrideSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: row, error: rErr } = await supabase
+      .from("policy_violations")
+      .select("id, org_id, claim_id, override_reason")
+      .eq("id", data.violation_id)
+      .maybeSingle();
+    if (rErr) throw rErr;
+    if (!row) throw new Error("not_found");
+    if (!(await isOrgAdmin(supabase, userId, row.org_id))) throw new Error("forbidden");
+
+    const { error: uErr } = await supabase
+      .from("policy_violations")
+      .update({ overridden_by: null, override_reason: null, overridden_at: null })
+      .eq("id", data.violation_id);
+    if (uErr) throw uErr;
+
+    await supabase.from("audit_log").insert({
+      entity: "policy_violations",
+      entity_id: data.violation_id,
+      actor: userId,
+      action: "POLICY_VIOLATION_OVERRIDE_CLEARED",
+      diff: { claim_id: row.claim_id, prior_reason: row.override_reason },
+    });
+
+    return { ok: true as const };
+  });
+
