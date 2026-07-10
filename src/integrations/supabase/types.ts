@@ -875,7 +875,15 @@ export type Database = {
       }
       contacts: {
         Row: {
+          address_additional_number: string | null
+          address_building_number: string | null
+          address_city: string | null
+          address_country_code: string
+          address_district: string | null
+          address_postal_code: string | null
+          address_street: string | null
           contact_type: Database["public"]["Enums"]["contact_type"]
+          cr_number: string | null
           created_at: string
           created_by: string | null
           email: string | null
@@ -886,9 +894,18 @@ export type Database = {
           phone: string | null
           tags: string[]
           updated_at: string
+          vat_number: string | null
         }
         Insert: {
+          address_additional_number?: string | null
+          address_building_number?: string | null
+          address_city?: string | null
+          address_country_code?: string
+          address_district?: string | null
+          address_postal_code?: string | null
+          address_street?: string | null
           contact_type?: Database["public"]["Enums"]["contact_type"]
+          cr_number?: string | null
           created_at?: string
           created_by?: string | null
           email?: string | null
@@ -899,9 +916,18 @@ export type Database = {
           phone?: string | null
           tags?: string[]
           updated_at?: string
+          vat_number?: string | null
         }
         Update: {
+          address_additional_number?: string | null
+          address_building_number?: string | null
+          address_city?: string | null
+          address_country_code?: string
+          address_district?: string | null
+          address_postal_code?: string | null
+          address_street?: string | null
           contact_type?: Database["public"]["Enums"]["contact_type"]
+          cr_number?: string | null
           created_at?: string
           created_by?: string | null
           email?: string | null
@@ -912,6 +938,7 @@ export type Database = {
           phone?: string | null
           tags?: string[]
           updated_at?: string
+          vat_number?: string | null
         }
         Relationships: [
           {
