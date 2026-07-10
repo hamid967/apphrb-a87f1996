@@ -65,7 +65,7 @@ type PdfVerifyReport = {
   issues: string[];
 };
 
-type CacheEntry = { bytes: Uint8Array; report: PdfVerifyReport };
+type CacheEntry = { bytes: Uint8Array; report: PdfVerifyReport; input: InvoicePdfInput };
 const PDF_CACHE = new Map<string, CacheEntry>();
 const PDF_CACHE_MAX = 12;
 function cacheGet(key: string): CacheEntry | undefined {
@@ -110,6 +110,9 @@ export function PdfPreviewDialog({ open, onOpenChange, filename, cacheKey, build
   const [bytes, setBytes] = useState<Uint8Array | null>(null);
   const [report, setReport] = useState<PdfVerifyReport | null>(null);
   const [fromCache, setFromCache] = useState(false);
+  const [input, setInput] = useState<InvoicePdfInput | null>(null);
+  const [qrOpen, setQrOpen] = useState(false);
+  const [xmlOpen, setXmlOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -125,6 +128,7 @@ export function PdfPreviewDialog({ open, onOpenChange, filename, cacheKey, build
       setBytes(hit.bytes);
       setUrl(u);
       setReport(hit.report);
+      setInput(hit.input);
       setFromCache(true);
       setLoading(false);
     } else {
@@ -132,22 +136,24 @@ export function PdfPreviewDialog({ open, onOpenChange, filename, cacheKey, build
       setReport(null);
       setUrl(null);
       setBytes(null);
+      setInput(null);
       setFromCache(false);
 
       (async () => {
         try {
-          const input = await buildInput();
+          const built = await buildInput();
           const { generateInvoicePdf, verifyInvoicePdf } = await import("@/lib/zatca/pdf-invoice");
-          const b = await generateInvoicePdf(input);
-          const r = await verifyInvoicePdf(b, input);
+          const b = await generateInvoicePdf(built);
+          const r = await verifyInvoicePdf(b, built);
           if (cancelled) return;
-          if (cacheKey) cacheSet(cacheKey, { bytes: b, report: r });
+          if (cacheKey) cacheSet(cacheKey, { bytes: b, report: r, input: built });
           const blob = new Blob([b as BlobPart], { type: "application/pdf" });
           const u = URL.createObjectURL(blob);
           revoked = u;
           setBytes(b);
           setUrl(u);
           setReport(r);
+          setInput(built);
         } catch (e) {
           if (!cancelled) setError((e as Error).message);
         } finally {
@@ -162,6 +168,29 @@ export function PdfPreviewDialog({ open, onOpenChange, filename, cacheKey, build
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, cacheKey]);
+
+  const qrTlv = input?.invoice.qr_tlv ?? null;
+  const xmlUbl = input?.invoice.xml_ubl ?? null;
+
+  const xmlBlobUrl = useMemo(() => {
+    if (!xmlUbl) return null;
+    return URL.createObjectURL(new Blob([xmlUbl], { type: "application/xml" }));
+  }, [xmlUbl]);
+  useEffect(() => () => { if (xmlBlobUrl) URL.revokeObjectURL(xmlBlobUrl); }, [xmlBlobUrl]);
+
+  const copyText = async (label: string, value: string) => {
+    await navigator.clipboard.writeText(value);
+    toast.success(isAr ? `تم نسخ ${label}` : `Copied ${label}`);
+  };
+
+  const downloadXml = () => {
+    if (!xmlUbl) return;
+    const a = document.createElement("a");
+    a.href = xmlBlobUrl!;
+    a.download = filename.replace(/\.pdf$/i, "") + ".xml";
+    a.click();
+  };
+
 
   const download = () => {
     if (!bytes) return;
