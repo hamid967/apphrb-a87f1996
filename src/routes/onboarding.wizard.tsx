@@ -24,8 +24,17 @@ import { setOnboardingStep } from "@/lib/onboarding.functions";
 import { createOnboardingBranch } from "@/lib/onboarding-branches.functions";
 import { savePendingRedirect } from "@/lib/pending-redirect";
 
+const STEP_KEYS = ["profile", "company", "branch", "property"] as const;
+type StepQuery = (typeof STEP_KEYS)[number];
+
 export const Route = createFileRoute("/onboarding/wizard")({
   ssr: false,
+  validateSearch: (raw: Record<string, unknown>): { step?: StepQuery } => {
+    const s = raw.step;
+    return typeof s === "string" && (STEP_KEYS as readonly string[]).includes(s)
+      ? { step: s as StepQuery }
+      : {};
+  },
   head: () => ({
     meta: [{ title: "تفعيل الحساب — Aqari" }, { name: "robots", content: "noindex" }],
   }),
