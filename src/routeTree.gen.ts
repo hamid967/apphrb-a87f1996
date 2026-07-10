@@ -173,6 +173,7 @@ import { Route as AuthenticatedAccountingVatRouteImport } from './routes/_authen
 import { Route as AuthenticatedAccountingPnlRouteImport } from './routes/_authenticated/accounting.pnl'
 import { Route as AuthenticatedAccountingExpensesRouteImport } from './routes/_authenticated/accounting.expenses'
 import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AuthenticatedTenantPortalIndexRouteImport } from './routes/_authenticated/tenant.portal.index'
 import { Route as AuthenticatedPortalTenantIndexRouteImport } from './routes/_authenticated/portal.tenant.index'
 import { Route as AuthenticatedPortalSettingsIndexRouteImport } from './routes/_authenticated/portal.settings.index'
@@ -1176,6 +1177,11 @@ const Char91DotmcpChar93InvokeToolToolRoute =
     path: '/.mcp/invoke-tool/$tool',
     getParentRoute: () => rootRouteImport,
   } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedTenantPortalIndexRoute =
   AuthenticatedTenantPortalIndexRouteImport.update({
     id: '/tenant/portal/',
@@ -1686,6 +1692,7 @@ export interface FileRoutesByFullPath {
   '/solutions/owners': typeof SolutionsOwnersRoute
   '/blog/': typeof BlogIndexRoute
   '/listings/': typeof ListingsIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/accounting/expenses': typeof AuthenticatedAccountingExpensesRoute
   '/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
@@ -1926,6 +1933,7 @@ export interface FileRoutesByTo {
   '/solutions/owners': typeof SolutionsOwnersRoute
   '/blog': typeof BlogIndexRoute
   '/listings': typeof ListingsIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/accounting/expenses': typeof AuthenticatedAccountingExpensesRoute
   '/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
@@ -2170,6 +2178,7 @@ export interface FileRoutesById {
   '/solutions/owners': typeof SolutionsOwnersRoute
   '/blog/': typeof BlogIndexRoute
   '/listings/': typeof ListingsIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/accounting/expenses': typeof AuthenticatedAccountingExpensesRoute
   '/_authenticated/accounting/pnl': typeof AuthenticatedAccountingPnlRoute
@@ -2417,6 +2426,7 @@ export interface FileRouteTypes {
     | '/solutions/owners'
     | '/blog/'
     | '/listings/'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/accounting/expenses'
     | '/accounting/pnl'
@@ -2657,6 +2667,7 @@ export interface FileRouteTypes {
     | '/solutions/owners'
     | '/blog'
     | '/listings'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/accounting/expenses'
     | '/accounting/pnl'
@@ -2900,6 +2911,7 @@ export interface FileRouteTypes {
     | '/solutions/owners'
     | '/blog/'
     | '/listings/'
+    | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/accounting/expenses'
     | '/_authenticated/accounting/pnl'
@@ -3138,6 +3150,7 @@ export interface RootRouteChildren {
   SolutionsOwnersRoute: typeof SolutionsOwnersRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ListingsIndexRoute: typeof ListingsIndexRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
   ApiAssistantChatRoute: typeof ApiAssistantChatRoute
   ApiPublicFilterAnalyticsBeaconRoute: typeof ApiPublicFilterAnalyticsBeaconRoute
@@ -4312,6 +4325,13 @@ declare module '@tanstack/react-router' {
       path: '/.mcp/invoke-tool/$tool'
       fullPath: '/.mcp/invoke-tool/$tool'
       preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/tenant/portal/': {
@@ -5704,6 +5724,7 @@ const rootRouteChildren: RootRouteChildren = {
   SolutionsOwnersRoute: SolutionsOwnersRoute,
   BlogIndexRoute: BlogIndexRoute,
   ListingsIndexRoute: ListingsIndexRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
   ApiAssistantChatRoute: ApiAssistantChatRoute,
   ApiPublicFilterAnalyticsBeaconRoute: ApiPublicFilterAnalyticsBeaconRoute,
