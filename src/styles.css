@@ -1981,3 +1981,18 @@ html.theme-lux :where(:not(.theme-luxe *)) textarea:focus {
   50% { transform: translateX(50%); }
   100% { transform: translateX(300%); }
 }
+
+/* Deep-link flash used when opening #violation-<id> from a push notification
+   or shared link. Briefly highlights the target row so the reviewer can
+   locate the exact violation. */
+@keyframes violation-flash {
+  0%   { box-shadow: 0 0 0 0 hsl(var(--primary) / 0);      background-color: hsl(var(--primary) / 0); }
+  15%  { box-shadow: 0 0 0 4px hsl(var(--primary) / 0.55); background-color: hsl(var(--primary) / 0.18); }
+  60%  { box-shadow: 0 0 0 4px hsl(var(--primary) / 0.35); background-color: hsl(var(--primary) / 0.10); }
+  100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0);      background-color: hsl(var(--primary) / 0); }
+}
+.violation-flash {
+  animation: violation-flash 2.4s ease-out 1;
+  scroll-margin-top: 6rem;
+  border-radius: 0.375rem;
+}
