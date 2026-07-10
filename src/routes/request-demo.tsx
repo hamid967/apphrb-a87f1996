@@ -106,16 +106,39 @@ function RequestDemoPage() {
         <div className="rounded-2xl border border-border/40 bg-card/50 p-6 backdrop-blur-sm md:p-8">
           {submitted ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <CheckCircle2 className="mb-4 h-12 w-12 text-primary" />
-              <h2 className="text-xl font-semibold text-foreground">
-                {isAr ? "تم الاستلام!" : "Received!"}
+              <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                <CheckCircle2 className="h-9 w-9 text-primary" />
+              </div>
+              <h2 className="text-2xl font-semibold text-foreground">
+                {isAr ? "شكراً لك! تم استلام طلبك." : "Thank you! Your request is in."}
               </h2>
-              <p className="mt-2 text-sm text-muted-foreground">
+              <p className="mt-3 max-w-sm text-sm text-muted-foreground">
                 {isAr
-                  ? "سنتواصل معك خلال يوم عمل واحد لتحديد الموعد."
-                  : "We'll reach out within one business day to schedule."}
+                  ? "سيتواصل معك فريق HBSpro خلال يوم عمل واحد لتحديد موعد العرض التوضيحي. تحقّق من بريدك — بما في ذلك مجلد الرسائل غير المرغوبة."
+                  : "The HBSpro team will reach out within one business day to schedule your demo. Please check your inbox — including spam."}
               </p>
+              <div className="mt-3 rounded-lg border border-border/40 bg-background/60 px-4 py-2 text-xs text-muted-foreground">
+                {isAr
+                  ? "رقم المرجع: HBS-" + Date.now().toString().slice(-6)
+                  : "Reference: HBS-" + Date.now().toString().slice(-6)}
+              </div>
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                <Button asChild size="lg">
+                  <Link to="/features">
+                    {isAr ? "العودة إلى المزايا" : "Back to features"}
+                    <ArrowRight className="ms-2 h-4 w-4 rtl:rotate-180" />
+                  </Link>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setSubmitted(false)}
+                >
+                  {isAr ? "إرسال طلب آخر" : "Submit another"}
+                </Button>
+              </div>
             </div>
+
           ) : (
             <form
               className="space-y-4"
