@@ -54,6 +54,7 @@ import { Route as DocsApiRouteImport } from './routes/docs.api'
 import { Route as DevVerifyRouteImport } from './routes/dev.verify'
 import { Route as DevBreadcrumbsTestRouteImport } from './routes/dev.breadcrumbs-test'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as ApiHamidTtsRouteImport } from './routes/api/hamid-tts'
 import { Route as AuthenticatedRegisterCompanyRouteImport } from './routes/_authenticated/register-company'
 import { Route as AuthenticatedPortalRouteImport } from './routes/_authenticated/portal'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -491,6 +492,11 @@ const DevBreadcrumbsTestRoute = DevBreadcrumbsTestRouteImport.update({
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHamidTtsRoute = ApiHamidTtsRouteImport.update({
+  id: '/api/hamid-tts',
+  path: '/api/hamid-tts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRegisterCompanyRoute =
@@ -1762,6 +1768,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/portal': typeof AuthenticatedPortalRouteWithChildren
   '/register-company': typeof AuthenticatedRegisterCompanyRoute
+  '/api/hamid-tts': typeof ApiHamidTtsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dev/breadcrumbs-test': typeof DevBreadcrumbsTestRoute
   '/dev/verify': typeof DevVerifyRoute
@@ -2016,6 +2023,7 @@ export interface FileRoutesByTo {
   '/meetings': typeof AuthenticatedMeetingsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/register-company': typeof AuthenticatedRegisterCompanyRoute
+  '/api/hamid-tts': typeof ApiHamidTtsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dev/breadcrumbs-test': typeof DevBreadcrumbsTestRoute
   '/dev/verify': typeof DevVerifyRoute
@@ -2274,6 +2282,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/portal': typeof AuthenticatedPortalRouteWithChildren
   '/_authenticated/register-company': typeof AuthenticatedRegisterCompanyRoute
+  '/api/hamid-tts': typeof ApiHamidTtsRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dev/breadcrumbs-test': typeof DevBreadcrumbsTestRoute
   '/dev/verify': typeof DevVerifyRoute
@@ -2535,6 +2544,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/portal'
     | '/register-company'
+    | '/api/hamid-tts'
     | '/blog/$slug'
     | '/dev/breadcrumbs-test'
     | '/dev/verify'
@@ -2789,6 +2799,7 @@ export interface FileRouteTypes {
     | '/meetings'
     | '/onboarding'
     | '/register-company'
+    | '/api/hamid-tts'
     | '/blog/$slug'
     | '/dev/breadcrumbs-test'
     | '/dev/verify'
@@ -3046,6 +3057,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/portal'
     | '/_authenticated/register-company'
+    | '/api/hamid-tts'
     | '/blog/$slug'
     | '/dev/breadcrumbs-test'
     | '/dev/verify'
@@ -3298,6 +3310,7 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  ApiHamidTtsRoute: typeof ApiHamidTtsRoute
   BlogSlugRoute: typeof BlogSlugRoute
   DevBreadcrumbsTestRoute: typeof DevBreadcrumbsTestRoute
   DevVerifyRoute: typeof DevVerifyRoute
@@ -3662,6 +3675,13 @@ declare module '@tanstack/react-router' {
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/hamid-tts': {
+      id: '/api/hamid-tts'
+      path: '/api/hamid-tts'
+      fullPath: '/api/hamid-tts'
+      preLoaderRoute: typeof ApiHamidTtsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/register-company': {
@@ -5978,6 +5998,7 @@ const rootRouteChildren: RootRouteChildren = {
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  ApiHamidTtsRoute: ApiHamidTtsRoute,
   BlogSlugRoute: BlogSlugRoute,
   DevBreadcrumbsTestRoute: DevBreadcrumbsTestRoute,
   DevVerifyRoute: DevVerifyRoute,
