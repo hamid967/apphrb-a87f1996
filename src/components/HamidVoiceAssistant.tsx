@@ -700,6 +700,26 @@ export function HamidVoiceAssistant() {
         <div className="flex items-center gap-1.5">
           <button
             type="button"
+            onClick={() => {
+              setDiagOpen((v) => !v);
+              if (!diagOpen && !checks.length) void runDiagnostics();
+            }}
+            className={cn(
+              "relative rounded-full p-2 transition",
+              diagOpen
+                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700",
+            )}
+            aria-label="تشخيص الصوت"
+            aria-pressed={diagOpen}
+          >
+            <Activity className="h-3.5 w-3.5" />
+            {logs.some((l) => l.level === "error") && (
+              <span className="absolute -end-0.5 -top-0.5 h-2 w-2 rounded-full bg-red-500" />
+            )}
+          </button>
+          <button
+            type="button"
             onClick={() => setSettingsOpen((v) => !v)}
             className={cn(
               "rounded-full p-2 transition",
