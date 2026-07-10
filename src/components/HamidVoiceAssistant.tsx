@@ -149,7 +149,7 @@ function getLocalIntent(text: string, _history: Turn[]): HamidIntent {
     };
   }
   return {
-    text: "حياك الله، أنا حامد مساعد HBSpro الصوتي. أقدر أساعدك في التسجيل، فتح الصفحات، وتجهيز مهام العقارات، التحصيل، الصيانة، العقود، التقارير، والعملاء.",
+    text: "هلا والله! أنا حامد، مساعدك في HBSpro. قل لي وش تبي: تسجيل، فتح صفحة، عقارات، تحصيل، صيانة، عقود، تقارير، أو عملاء.",
     actionLabel: "افتح لوحة التحكم",
     actionPath: "/dashboard",
     confidence: "low",
@@ -160,7 +160,19 @@ function getLocalIntent(text: string, _history: Turn[]): HamidIntent {
 function pickArabicVoice() {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
-  return voices.find((v) => v.lang === "ar-SA") ?? voices.find((v) => v.lang.startsWith("ar")) ?? null;
+  if (!voices.length) return null;
+  const ar = voices.filter((v) => v.lang?.toLowerCase().startsWith("ar"));
+  if (!ar.length) return null;
+  const isMale = (n: string) =>
+    /male|majed|maged|naayf|nayf|tarik|hamed|hamid|salman|khalid|abdul|رجل|ذكر/i.test(n) &&
+    !/female|امرأة|أنثى/i.test(n);
+  // Prefer Saudi male → Saudi any → male Arabic → any Arabic
+  return (
+    ar.find((v) => v.lang === "ar-SA" && isMale(v.name)) ??
+    ar.find((v) => v.lang === "ar-SA") ??
+    ar.find((v) => isMale(v.name)) ??
+    ar[0]
+  );
 }
 
 function speakLocally(text: string) {
@@ -168,8 +180,8 @@ function speakLocally(text: string) {
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "ar-SA";
-  u.rate = 0.95;
-  u.pitch = 0.98;
+  u.rate = 0.92;
+  u.pitch = 0.88;
   u.volume = 1;
   const v = pickArabicVoice();
   if (v) u.voice = v;
@@ -297,16 +309,17 @@ export function HamidVoiceAssistant() {
   useEffect(() => {
     if (!synthesisSupported) return;
     const s = window.speechSynthesis;
-    const onStart = () => setSpeaking(true);
-    const onEnd = () => setSpeaking(false);
-    // no direct global events; poll speaking state
-    const iv = window.setInterval(() => setSpeaking(s.speaking), 300);
+    // Warm up voice list (Chrome loads voices async)
+    s.getVoices();
+    const onVoices = () => s.getVoices();
+    s.addEventListener?.("voiceschanged", onVoices);
+    const iv = window.setInterval(() => setSpeaking(s.speaking), 250);
     return () => {
       window.clearInterval(iv);
-      onStart;
-      onEnd;
+      s.removeEventListener?.("voiceschanged", onVoices);
     };
   }, [synthesisSupported]);
+
 
   const callAgent = useServerFn(askHamidAgent);
 
@@ -374,13 +387,14 @@ export function HamidVoiceAssistant() {
   const startCall = async () => {
     setCallActive(true);
     setReply({
-      text: "أهلاً بك، أنا حامد. تفضّل تكلم أو اكتب طلبك وسأنفذه فوراً.",
+      text: "هلا والله! معك حامد. قل لي وش تبي وأنا على طول أخدمك.",
       confidence: "high",
       mode: "coach",
     });
-    speakLocally("أهلاً بك، أنا حامد. تفضّل تكلم أو اكتب طلبك.");
+    speakLocally("هلا والله! معك حامد. قل لي وش تبي وأنا على طول أخدمك.");
     if (speechSupported) startListening();
   };
+
 
   const endCall = () => {
     stopListening();
