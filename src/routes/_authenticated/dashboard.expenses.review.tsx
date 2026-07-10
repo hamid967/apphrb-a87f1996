@@ -40,6 +40,9 @@ import { ListState } from "@/components/common/ListState";
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute("/_authenticated/dashboard/expenses/review")({
   head: () => sectionHead({ section: "dashboard", entityAr: "مراجعة المصروفات", entityEn: "Expenses Review", path: "/dashboard/expenses/review" }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    claim: typeof search.claim === "string" ? search.claim : undefined,
+  }),
   component: ClaimsReviewPage,
 });
 
