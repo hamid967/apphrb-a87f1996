@@ -1,15 +1,163 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Copy, Check, ExternalLink, Loader2, AlertCircle, CheckCircle2, PlugZap } from "lucide-react";
+import {
+  Copy,
+  Check,
+  ExternalLink,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  PlugZap,
+  Trash2,
+  Plus,
+} from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useCurrentOrg } from "@/hooks/use-current-org";
+import {
+  createOrgMcpServer,
+  deleteOrgMcpServer,
+  listOrgMcpServers,
+  type OrgMcpServer,
+} from "@/lib/org-mcp-servers.functions";
 
 type TestState =
   | { status: "idle" }
   | { status: "running" }
   | { status: "ok"; toolCount: number; serverName?: string }
   | { status: "error"; title: string; detail: string };
+
+/**
+ * Probe an MCP endpoint with an `initialize` JSON-RPC call and classify the
+ * response. A 401 with WWW-Authenticate is treated as success (OAuth-protected
+ * endpoint reachable). Any hard error is surfaced with an actionable message.
+ */
+async function probeMcpServer(rawUrl: string): Promise<TestState> {
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    return {
+      status: "error",
+      title: "Invalid URL",
+      detail: "That doesn't look like a valid URL.",
+    };
+  }
+  if (parsed.protocol !== "https:" && parsed.hostname !== "localhost") {
+    return {
+      status: "error",
+      title: "Insecure URL",
+      detail: "MCP clients require an https:// endpoint.",
+    };
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10_000);
+  let res: Response;
+  try {
+    res = await fetch(rawUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json, text/event-stream",
+      },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "initialize",
+        params: {
+          protocolVersion: "2025-06-18",
+          capabilities: {},
+          clientInfo: { name: "aqari-connect-test", version: "1.0.0" },
+        },
+      }),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    clearTimeout(timer);
+    const msg =
+      (err as Error).name === "AbortError"
+        ? "The server didn't respond within 10 seconds."
+        : "Couldn't reach the MCP server. Check the URL and your network.";
+    return { status: "error", title: "Network error", detail: msg };
+  }
+  clearTimeout(timer);
+
+  if (res.status === 401 || res.status === 403) {
+    if (res.headers.get("www-authenticate")) {
+      return {
+        status: "ok",
+        toolCount: 0,
+        serverName: "MCP endpoint reachable — OAuth required (this is expected).",
+      };
+    }
+    return {
+      status: "error",
+      title: "Authorization failed",
+      detail: `Server returned ${res.status} without an OAuth challenge.`,
+    };
+  }
+  if (res.status === 404) {
+    return {
+      status: "error",
+      title: "MCP endpoint not found",
+      detail: "The server returned 404. Check that the URL points at a live MCP endpoint.",
+    };
+  }
+  if (res.status === 406) {
+    return {
+      status: "error",
+      title: "Protocol mismatch",
+      detail: "Server rejected the Accept header. The endpoint may not implement MCP.",
+    };
+  }
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    return {
+      status: "error",
+      title: `Server error ${res.status}`,
+      detail: body.slice(0, 200) || `The server responded with HTTP ${res.status}.`,
+    };
+  }
+  const contentType = res.headers.get("content-type") ?? "";
+  const raw = await res.text();
+  let payloadText = raw;
+  if (contentType.includes("text/event-stream")) {
+    const dataLine = raw.split("\n").find((l) => l.startsWith("data:"));
+    payloadText = dataLine ? dataLine.slice(5).trim() : raw;
+  }
+  let parsedBody: {
+    result?: { serverInfo?: { name?: string } };
+    error?: { message?: string };
+  };
+  try {
+    parsedBody = JSON.parse(payloadText);
+  } catch {
+    return {
+      status: "error",
+      title: "Invalid response",
+      detail: "The server responded but the body wasn't valid JSON-RPC.",
+    };
+  }
+  if (parsedBody.error) {
+    return {
+      status: "error",
+      title: "MCP error",
+      detail: parsedBody.error.message ?? "Server returned a JSON-RPC error.",
+    };
+  }
+  return {
+    status: "ok",
+    toolCount: 0,
+    serverName: parsedBody.result?.serverInfo?.name ?? "MCP server responded successfully.",
+  };
+}
+
 
 
 function ConnectPage() {
