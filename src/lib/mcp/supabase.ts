@@ -35,3 +35,78 @@ export async function getUserOrgId(
 export function errorContent(text: string) {
   return { content: [{ type: "text" as const, text }], isError: true };
 }
+
+import { z } from "zod";
+
+/** Shared pagination + search inputs for MCP list tools. */
+export const listInputShape = {
+  q: z
+    .string()
+    .trim()
+    .min(1)
+    .max(200)
+    .optional()
+    .describe("Optional case-insensitive text search across the tool's primary fields."),
+  page: z.number().int().min(1).max(1000).default(1).describe("1-based page number."),
+  page_size: z
+    .number()
+    .int()
+    .min(1)
+    .max(100)
+    .default(20)
+    .describe("Rows per page (1-100)."),
+} as const;
+
+export type ListInput = { q?: string; page: number; page_size: number };
+
+/** Escape a value for use inside a PostgREST `or(...)` `ilike` filter. */
+export function escapeIlike(value: string): string {
+  // PostgREST treats `,` `(` `)` and `*` specially; strip them defensively.
+  return value.replace(/[,()*]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Build a unified list response. `essentials` maps each raw row to a compact
+ * shape ({ id, title, subtitle?, status?, date?, meta? }) so every list tool
+ * returns the same top-level fields regardless of the underlying table.
+ */
+export function buildListResponse<TRow extends { id: string | number }>(
+  entity: string,
+  rows: TRow[],
+  input: ListInput,
+  total: number | null,
+  essentials: (row: TRow) => {
+    id: string;
+    title: string;
+    subtitle?: string | null;
+    status?: string | null;
+    date?: string | null;
+    meta?: Record<string, unknown>;
+  },
+) {
+  const items = rows.map((row) => ({ ...essentials(row), raw: row }));
+  const totalKnown = typeof total === "number";
+  const hasMore = totalKnown
+    ? input.page * input.page_size < total
+    : rows.length === input.page_size;
+  const summary = totalKnown
+    ? `Showing ${items.length} of ${total} ${entity} (page ${input.page}).`
+    : `Showing ${items.length} ${entity} on page ${input.page}.`;
+  return {
+    content: [
+      {
+        type: "text" as const,
+        text: `${summary}\n${JSON.stringify(items.map((i) => ({ id: i.id, title: i.title, status: i.status, date: i.date })), null, 2)}`,
+      },
+    ],
+    structuredContent: {
+      entity,
+      page: input.page,
+      page_size: input.page_size,
+      total,
+      has_more: hasMore,
+      count: items.length,
+      items,
+    },
+  };
+}

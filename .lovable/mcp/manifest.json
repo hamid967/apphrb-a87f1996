@@ -35,7 +35,7 @@
       {
         "name": "list_properties",
         "title": "List properties",
-        "description": "List real-estate properties in the signed-in user's company. Supports optional filters by city and listing type.",
+        "description": "List real-estate properties in the signed-in user's company. Supports text search over title/city, pagination, and optional filters by city and listing type. Returns a unified {id, title, subtitle, status, date} shape.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -44,18 +44,31 @@
         "inputSchema": {
           "type": "object",
           "properties": {
-            "limit": {
+            "q": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Optional case-insensitive text search across the tool's primary fields."
+            },
+            "page": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 1,
+              "description": "1-based page number."
+            },
+            "page_size": {
               "type": "integer",
               "minimum": 1,
               "maximum": 100,
               "default": 20,
-              "description": "Max rows to return (1-100)."
+              "description": "Rows per page (1-100)."
             },
             "city": {
               "type": "string",
               "minLength": 1,
               "maxLength": 80,
-              "description": "Filter by city name."
+              "description": "Filter by city name (exact)."
             },
             "listing_type": {
               "type": "string",
@@ -74,16 +87,38 @@
       {
         "name": "list_branches",
         "title": "List branches & departments",
-        "description": "List branches (and their departments) belonging to the signed-in user's company.",
+        "description": "List branches (with their departments) for the signed-in user's company. Supports text search over branch name/address and pagination. Returns a unified {id, title, subtitle, date} shape.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
           "openWorldHint": false
         },
         "inputSchema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "object",
-          "properties": {}
+          "properties": {
+            "q": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Optional case-insensitive text search across the tool's primary fields."
+            },
+            "page": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "default": 1,
+              "description": "1-based page number."
+            },
+            "page_size": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "description": "Rows per page (1-100)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
       },
