@@ -198,13 +198,10 @@ function LeadsPage() {
             <Button variant="outline" onClick={() => setImportOpen(true)}>
               <Upload className="me-2 size-4" /> {t("csv.importLeads")}
             </Button>
-            <Button
-              onClick={() => {
-                setEditing(null);
-                setOpen(true);
-              }}
-            >
-              <Plus className="me-2 size-4" /> {t("crm.leads.add")}
+            <Button asChild>
+              <Link to="/leads/new">
+                <Plus className="me-2 size-4" /> {t("crm.leads.add")}
+              </Link>
             </Button>
           </div>
         )}
