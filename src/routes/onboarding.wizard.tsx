@@ -607,17 +607,22 @@ function OnboardingWizardPage() {
                     placeholder="المبيعات، الإيجارات، الصيانة، المحاسبة"
                   />
                 </div>
-                <div className="flex items-center justify-between gap-3">
-                  <Button type="button" variant="ghost" onClick={skipBranch} disabled={busy}>
-                    تخطّي
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <Button type="button" variant="ghost" onClick={() => setStep(1)} disabled={busy}>
+                    رجوع
                   </Button>
-                  <Button
-                    type="submit"
-                    className="h-11 flex-1 rounded-xl bg-gradient-to-r from-primary to-teal-500 text-primary-foreground"
-                    disabled={busy}
-                  >
-                    {busy && <Loader2 className="me-2 size-4 animate-spin" />} حفظ ومتابعة
-                  </Button>
+                  <div className="flex flex-1 items-center justify-end gap-2">
+                    <Button type="button" variant="outline" onClick={skipBranch} disabled={busy}>
+                      تخطّي
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="h-11 flex-1 rounded-xl bg-gradient-to-r from-primary to-teal-500 text-primary-foreground"
+                      disabled={busy}
+                    >
+                      {busy && <Loader2 className="me-2 size-4 animate-spin" />} حفظ ومتابعة
+                    </Button>
+                  </div>
                 </div>
               </form>
             </>
