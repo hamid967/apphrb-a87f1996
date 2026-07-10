@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, forwardRef, type TextareaHTMLAttributes } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { AlertCircle, Check, Globe, Loader2, Mic, MicOff, Square } from "lucide-react";
+import { AlertCircle, Check, Globe, Loader2, Mic, MicOff, RotateCcw, Square, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useVoiceInput } from "@/hooks/use-voice-input";
@@ -82,9 +82,20 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
       onError: (msg) => {
         toast.error(msg);
         setPhase("error");
-        window.setTimeout(() => setPhase((p) => (p === "error" ? "idle" : p)), 2200);
+        // No auto-clear — the user dismisses via retry or by starting a new
+        // recording. The pending transcript (if any) is intentionally kept.
       },
     });
+
+    const retry = async () => {
+      setPhase("starting");
+      try {
+        await voice.start();
+        setPhase("recording");
+      } catch {
+        setPhase("error");
+      }
+    };
 
     // Elapsed-seconds timer, driven by phase.
     const startedAtRef = useRef<number | null>(null);
@@ -298,6 +309,27 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
                 <span className="font-mono tabular-nums opacity-80">
                   {formatElapsed(elapsed)}
                 </span>
+              )}
+              {phase === "error" && (
+                <>
+                  <button
+                    type="button"
+                    onClick={retry}
+                    disabled={disabled}
+                    className="ms-1 inline-flex items-center gap-1 rounded-full border border-current/40 px-2 py-0.5 text-[10px] font-semibold hover:bg-current/10 disabled:opacity-50"
+                  >
+                    <RotateCcw className="size-3" />
+                    إعادة المحاولة
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPhase("idle")}
+                    className="rounded-full p-0.5 opacity-70 hover:opacity-100"
+                    aria-label="إغلاق"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </>
               )}
             </motion.div>
           )}
