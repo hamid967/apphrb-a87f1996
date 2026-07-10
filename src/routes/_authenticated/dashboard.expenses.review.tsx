@@ -71,6 +71,8 @@ type ClaimRow = {
 
 function ClaimsReviewPage() {
   const { t, i18n } = useTranslation();
+  const reducedMotion = useReducedMotion();
+  const scrollBehavior: ScrollBehavior = reducedMotion ? "auto" : "smooth";
   const qc = useQueryClient();
   const isAr = i18n.language?.startsWith("ar");
   const { claim: focusClaimId } = Route.useSearch();
