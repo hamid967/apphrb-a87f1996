@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Check, Mail, MessageCircle, Phone } from "lucide-react";
+import { Check, Mail, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,8 +8,6 @@ import ogPricing from "@/assets/og-pricing.jpg.asset.json";
 
 const OG_PRICING = `https://hrhbs.com${ogPricing.url}`;
 const CONTACT_EMAIL = "sales@hrhbs.com";
-const CONTACT_WHATSAPP = "https://wa.me/966500000000";
-const CONTACT_PHONE = "+966500000000";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -118,15 +116,15 @@ function PricingPage() {
 
                 <div className="grid gap-3 pt-4 sm:grid-cols-2">
                   <Button asChild size="lg" className="w-full">
-                    <Link to="/register-company">
+                    <Link to="/auth" search={{ mode: "signup" } as never}>
                       {isAr ? "سجّل حسابك الآن" : "Register your account"}
                     </Link>
                   </Button>
                   <Button asChild size="lg" variant="outline" className="w-full">
-                    <a href={CONTACT_WHATSAPP} target="_blank" rel="noopener noreferrer">
+                    <Link to="/contact">
                       <MessageCircle className="me-2 size-4" />
-                      {isAr ? "تواصل عبر واتساب" : "Contact on WhatsApp"}
-                    </a>
+                      {isAr ? "طلب عرض توضيحي" : "Request a demo"}
+                    </Link>
                   </Button>
                 </div>
 
@@ -136,12 +134,6 @@ function PricingPage() {
                     className="inline-flex items-center gap-1 hover:text-primary"
                   >
                     <Mail className="size-4" /> {CONTACT_EMAIL}
-                  </a>
-                  <a
-                    href={`tel:${CONTACT_PHONE}`}
-                    className="inline-flex items-center gap-1 hover:text-primary"
-                  >
-                    <Phone className="size-4" /> {CONTACT_PHONE}
                   </a>
                 </div>
               </CardContent>
