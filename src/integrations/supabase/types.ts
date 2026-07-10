@@ -3205,6 +3205,7 @@ export type Database = {
           last_attempt_at: string | null
           last_error: string | null
           org_id: string
+          read_at: string | null
           recipient: string
           recipient_user_id: string | null
           sent_at: string | null
@@ -3224,6 +3225,7 @@ export type Database = {
           last_attempt_at?: string | null
           last_error?: string | null
           org_id: string
+          read_at?: string | null
           recipient: string
           recipient_user_id?: string | null
           sent_at?: string | null
@@ -3243,6 +3245,7 @@ export type Database = {
           last_attempt_at?: string | null
           last_error?: string | null
           org_id?: string
+          read_at?: string | null
           recipient?: string
           recipient_user_id?: string | null
           sent_at?: string | null
