@@ -53,12 +53,58 @@ export const getZatcaBundle = createServerFn({ method: "GET" })
     const { data: inv, error } = await context.supabase
       .from("invoices")
       .select(
-        "id, number, zatca_uuid, zatca_hash, previous_hash, qr_tlv, xml_ubl, zatca_status, zatca_reported_at, zatca_counter, zatca_sealed_at, invoice_type, total, currency, issue_date",
+        "id, org_id, number, zatca_uuid, zatca_hash, previous_hash, qr_tlv, xml_ubl, zatca_status, zatca_reported_at, zatca_counter, zatca_sealed_at, invoice_type, subtotal, vat_amount, vat_rate, total, currency, issue_date, due_date, description, notes, contact_id",
       )
       .eq("id", data.invoiceId)
       .single();
     if (error || !inv) throw new Error(error?.message ?? "Invoice not found");
     return inv;
+  });
+
+/** Fetch seller (org) + buyer (contact) info for PDF rendering. */
+export const getInvoicePartiesForPdf = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => GenSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const { data: inv, error: invErr } = await supabase
+      .from("invoices")
+      .select("org_id, contact_id")
+      .eq("id", data.invoiceId)
+      .single();
+    if (invErr || !inv) throw new Error(invErr?.message ?? "Invoice not found");
+
+    const [orgRes, settingsRes, contactRes] = await Promise.all([
+      supabase.from("organizations").select("name, logo_url").eq("id", inv.org_id).maybeSingle(),
+      supabase.from("org_settings").select("key, value").eq("org_id", inv.org_id).in("key", [
+        "seller_name_ar", "seller_name_en", "seller_vat_number", "seller_cr_number", "seller_address",
+      ]),
+      inv.contact_id
+        ? supabase.from("contacts").select("full_name, email, phone").eq("id", inv.contact_id).maybeSingle()
+        : Promise.resolve({ data: null, error: null } as { data: null; error: null }),
+    ]);
+
+    const settings = new Map<string, string>();
+    for (const r of (settingsRes.data ?? []) as Array<{ key: string; value: unknown }>) {
+      const v = r.value as { value?: string } | string | null;
+      settings.set(r.key, typeof v === "string" ? v : (v?.value ?? ""));
+    }
+
+    return {
+      seller: {
+        name_ar: settings.get("seller_name_ar") || orgRes.data?.name || "",
+        name_en: settings.get("seller_name_en") || undefined,
+        vat_number: settings.get("seller_vat_number") || undefined,
+        cr_number: settings.get("seller_cr_number") || undefined,
+        address: settings.get("seller_address") || undefined,
+        logo_data_url: orgRes.data?.logo_url ?? null,
+      },
+      buyer: {
+        name: contactRes.data?.full_name ?? "—",
+        email: contactRes.data?.email ?? undefined,
+        phone: contactRes.data?.phone ?? undefined,
+      },
+    };
   });
 
 /**
