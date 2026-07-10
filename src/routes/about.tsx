@@ -11,7 +11,7 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "تعرّف على قصة HBSpro من HRHBS: منصة سحابية سعودية لإدارة العقارات بالذكاء الاصطناعي، ورؤيتنا لتحويل قطاع العقارات.",
+          "تعرّف على قصة HBSpro: منصة سحابية سعودية لإدارة العقارات بالذكاء الاصطناعي، ورؤيتنا لتحويل قطاع العقارات.",
       },
       { property: "og:title", content: "من نحن — HBSpro" },
       {
