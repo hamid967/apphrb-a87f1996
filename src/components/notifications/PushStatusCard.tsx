@@ -87,9 +87,10 @@ export function PushStatusCard() {
       if (Notification.permission === "denied") {
         toast.error(
           isAr
-            ? "الإشعارات محظورة من إعدادات المتصفح — فعّلها يدويًا ثم أعد المحاولة"
-            : "Notifications are blocked in browser settings — allow them and try again",
+            ? "الإشعارات محظورة — افتح دليل التفعيل"
+            : "Notifications blocked — see how to enable",
         );
+        openHelp("denied");
         return;
       }
       const perm =
@@ -98,6 +99,7 @@ export function PushStatusCard() {
           : await Notification.requestPermission();
       if (perm !== "granted") {
         toast.error(isAr ? "تم رفض الإذن" : "Permission denied");
+        openHelp(perm === "denied" ? "denied" : "dismissed");
         return;
       }
       const reg = await navigator.serviceWorker.register("/push-sw.js", { scope: "/" });
