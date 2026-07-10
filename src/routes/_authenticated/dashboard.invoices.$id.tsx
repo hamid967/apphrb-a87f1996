@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
-  ShieldCheck, RefreshCw, Copy, Download, FileCode, QrCode, ChevronLeft, Lock,
+  ShieldCheck, RefreshCw, Copy, Download, FileCode, QrCode, ChevronLeft, Lock, Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,7 @@ import {
   sealZatcaInvoice,
 } from "@/lib/invoices-zatca.functions";
 import { InvoiceNotesSection } from "@/components/invoices/InvoiceNotesSection";
+import { PdfPreviewDialog } from "@/components/invoices/PdfPreviewDialog";
 import { FileDown } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invoices/$id")({
@@ -48,6 +49,7 @@ function InvoiceDetailPage() {
   const isAr = i18n.language?.startsWith("ar");
   const qc = useQueryClient();
   const [xmlOpen, setXmlOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const bundleQ = useQuery({
     queryKey: ["invoice-zatca", id],
@@ -101,7 +103,7 @@ function InvoiceDetailPage() {
     mutationFn: async () => {
       if (!b) throw new Error("No invoice data");
       const parties = await getInvoicePartiesForPdf({ data: { invoiceId: id } });
-      const { generateInvoicePdf, downloadPdfBlob } = await import("@/lib/zatca/pdf-invoice.client");
+      const { generateInvoicePdf, downloadPdfBlob } = await import("@/lib/zatca/pdf-invoice");
       const bytes = await generateInvoicePdf({
         invoice: {
           number: b.number ?? id,
@@ -159,6 +161,14 @@ function InvoiceDetailPage() {
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => setPreviewOpen(true)}
+            disabled={!b}
+          >
+            <Eye className="h-4 w-4 me-1" />
+            {isAr ? "معاينة وتحقق" : "Preview & Verify"}
+          </Button>
           <Button
             variant="outline"
             onClick={() => pdfMut.mutate()}

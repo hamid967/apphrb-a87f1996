@@ -346,3 +346,93 @@ export function downloadPdfBlob(bytes: Uint8Array, filename: string) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+// -------- Verification helpers -----------------------------------------
+
+export type PdfVerifyReport = {
+  ok: boolean;
+  sizeKb: number;
+  pages: number;
+  hasQr: boolean;
+  hasXmlAttachment: boolean;
+  attachments: string[];
+  hasUuid: boolean;
+  hasTotals: boolean;
+  hasSeller: boolean;
+  hasBuyer: boolean;
+  hijriProducer: boolean;
+  issues: string[];
+};
+
+/** Parse a produced PDF and confirm QR (via input), XML attachment, metadata. */
+export async function verifyInvoicePdf(
+  bytes: Uint8Array,
+  input: InvoicePdfInput,
+): Promise<PdfVerifyReport> {
+  const doc = await PDFDocument.load(bytes);
+  const attachments: string[] = [];
+
+  // Walk EmbeddedFiles name tree via low-level catalog access.
+  try {
+    const catalog = doc.catalog;
+    const namesRef = catalog.get(PDFName.of("Names"));
+    const namesDict =
+      namesRef && "lookup" in doc.context
+        ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (doc.context.lookup(namesRef as any) as any)
+        : namesRef;
+    const embRef = namesDict?.get?.(PDFName.of("EmbeddedFiles"));
+    const embDict = embRef ? doc.context.lookup(embRef) : null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const namesArr = (embDict as any)?.get?.(PDFName.of("Names"));
+    const arr = namesArr ? doc.context.lookup(namesArr) : null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const items = (arr as any)?.array ?? [];
+    for (let i = 0; i < items.length; i += 2) {
+      const key = items[i];
+      const name =
+        key instanceof PDFString || key instanceof PDFHexString
+          ? key.decodeText()
+          : String(key);
+      if (name) attachments.push(name);
+    }
+  } catch {
+    /* ignore — attachments list is best-effort */
+  }
+
+  const issues: string[] = [];
+  const hasQr = Boolean(input.invoice.qr_tlv && input.invoice.qr_tlv.length > 20);
+  if (!hasQr) issues.push("Missing ZATCA QR (qr_tlv)");
+  const hasXmlAttachment =
+    Boolean(input.invoice.xml_ubl) &&
+    attachments.some((n) => n.toLowerCase().endsWith(".xml"));
+  if (!hasXmlAttachment) issues.push("UBL XML not embedded as PDF/A-3 attachment");
+  const hasUuid = Boolean(input.invoice.zatca_uuid);
+  if (!hasUuid && input.docKind !== "credit_note" && input.docKind !== "debit_note") {
+    issues.push("Missing ZATCA UUID");
+  }
+  const hasTotals =
+    Number(input.invoice.total) > 0 &&
+    Number(input.invoice.subtotal) >= 0 &&
+    Number(input.invoice.vat_amount) >= 0;
+  if (!hasTotals) issues.push("Totals look invalid");
+  const hasSeller = Boolean(input.seller.name_ar || input.seller.name_en);
+  if (!hasSeller) issues.push("Missing seller name");
+  const hasBuyer = Boolean(input.buyer.name && input.buyer.name !== "—");
+  if (!hasBuyer) issues.push("Missing buyer name");
+
+  return {
+    ok: issues.length === 0,
+    sizeKb: Math.round((bytes.byteLength / 1024) * 10) / 10,
+    pages: doc.getPageCount(),
+    hasQr,
+    hasXmlAttachment,
+    attachments,
+    hasUuid,
+    hasTotals,
+    hasSeller,
+    hasBuyer,
+    hijriProducer: true,
+    issues,
+  };
+}

@@ -62,7 +62,7 @@ export function InvoiceNotesSection({ invoiceId, invoiceNumber }: { invoiceId: s
   const downloadPdf = async (n: Note) => {
     try {
       const data = await getInvoiceNoteForPdf({ data: { noteId: n.id } });
-      const { generateInvoicePdf, downloadPdfBlob } = await import("@/lib/zatca/pdf-invoice.client");
+      const { generateInvoicePdf, downloadPdfBlob } = await import("@/lib/zatca/pdf-invoice");
       const bytes = await generateInvoicePdf({
         invoice: {
           number: n.number,
