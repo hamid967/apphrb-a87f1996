@@ -147,11 +147,25 @@ function OnboardingWizardPage() {
         }
         if (prof?.job_title) setJobTitle(prof.job_title);
         if (prof?.signup_reason) setReason(prof.signup_reason);
+        // Load company data too so the step-1 form pre-fills when editing.
         if (ctx.company_id) {
           setOrgId(ctx.company_id);
+          const { data: comp } = await supabase
+            .from("companies")
+            .select("name, phone")
+            .eq("id", ctx.company_id)
+            .maybeSingle();
+          if (comp?.name) setWsName(comp.name);
+          if (comp?.phone) setWsPhone(comp.phone);
           setStep(2);
         } else if (prof?.full_name && prof?.signup_reason) {
           setStep(1);
+        }
+        // Optional deep-link override: /onboarding/wizard?step=profile|company|branch|property
+        const requested = search.step;
+        if (requested) {
+          const idx = STEP_KEYS.indexOf(requested);
+          if (idx >= 0) setStep(idx as 0 | 1 | 2 | 3);
         }
       } catch {
         /* ignore, start from step 0 */
