@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Loader2, Minimize2, Phone, PhoneOff, Send } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { askHamidAgent } from "@/lib/hamid-agent.functions";
 import { cn } from "@/lib/utils";
 
 type SpeechRecognitionCtor = new () => SpeechRecognition;
@@ -306,18 +308,39 @@ export function HamidVoiceAssistant() {
     };
   }, [synthesisSupported]);
 
+  const callAgent = useServerFn(askHamidAgent);
+
   const answer = async (text: string) => {
     const clean = text.trim();
     if (!clean || loading) return;
     setLoading(true);
     setError(null);
-    const next = getLocalIntent(clean, history);
-    setReply(next);
-    setHistory((h) => [...h.slice(-4), { user: clean, assistant: next.text, mode: next.mode }]);
-    await new Promise((r) => window.setTimeout(r, 180));
-    const spoken = speakLocally(next.text);
-    if (!spoken) setError("الصوت المحلي غير مدعوم في هذا المتصفح.");
-    setLoading(false);
+    try {
+      const historyPayload = history.flatMap((t) => [
+        { role: "user" as const, content: t.user },
+        { role: "assistant" as const, content: t.assistant },
+      ]);
+      const res = await callAgent({ data: { message: clean, history: historyPayload } });
+      const next: HamidIntent = {
+        text: res.reply,
+        actionLabel: res.action_label,
+        actionPath: res.action_path,
+        confidence: "high",
+        mode: res.action_path ? "navigate" : "coach",
+      };
+      setReply(next);
+      setHistory((h) => [...h.slice(-6), { user: clean, assistant: next.text, mode: next.mode }]);
+      const spoken = speakLocally(next.text);
+      if (!spoken) setError("الصوت المحلي غير مدعوم في هذا المتصفح.");
+    } catch (err) {
+      const fallback = getLocalIntent(clean, history);
+      setReply(fallback);
+      speakLocally(fallback.text);
+      setError("تعذّر الاتصال بحامد الآن، تم استخدام الرد المحلي.");
+      void err;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const startListening = () => {
