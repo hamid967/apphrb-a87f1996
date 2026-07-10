@@ -21,20 +21,73 @@ type SpeechRecognitionEvent = {
   results: ArrayLike<ArrayLike<{ transcript: string }>>;
 };
 
-type VoiceResponse = {
-  text?: string;
-  audioBase64?: string;
-  mimeType?: string;
-  error?: string;
+type SpeechSynthesisWindow = Window & {
+  SpeechRecognition?: SpeechRecognitionCtor;
+  webkitSpeechRecognition?: SpeechRecognitionCtor;
 };
 
 function getSpeechRecognition(): SpeechRecognitionCtor | null {
   if (typeof window === "undefined") return null;
-  const speechWindow = window as Window & {
-    SpeechRecognition?: SpeechRecognitionCtor;
-    webkitSpeechRecognition?: SpeechRecognitionCtor;
-  };
+  const speechWindow = window as SpeechSynthesisWindow;
   return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
+}
+
+function getLocalReply(text: string) {
+  const input = text.trim().toLowerCase();
+
+  if (/تسجيل|حساب|اشترك|ابدأ|signup|register|account/.test(input)) {
+    return "حياك الله، أبشر. تقدر تبدأ من صفحة إنشاء الحساب، وبعدها تكمل الملف الشخصي، ثم بيانات المنشأة ومساحة العمل. إذا احتجت مساعدة، اسألني عن خطوة التسجيل.";
+  }
+
+  if (/تحصيل|متأخر|دفعات|ايجار|إيجار|arrears|collection|payment/.test(input)) {
+    return "خلّني أوضح لك خطة التحصيل: نحدد الدفعات المتأخرة، نقسمها حسب عمر التأخير، نرسل تذكير، ثم نسجل المتابعة والوعد بالسداد داخل النظام.";
+  }
+
+  if (/صيانة|بلاغ|تذكرة|maintenance|ticket/.test(input)) {
+    return "في الصيانة نبدأ بتسجيل البلاغ، تحديد العقار والوحدة، رفع الصور إن وجدت، تحديد الأولوية، ثم متابعة المورد حتى الإغلاق وتوثيق التكلفة.";
+  }
+
+  if (/عقد|عقود|تجديد|انتهاء|contract|lease|renew/.test(input)) {
+    return "بالنسبة للعقود، الأفضل متابعة العقود التي تنتهي خلال ثلاثين أو ستين يوم، تجهيز شروط التجديد، وإرسال تنبيه مبكر للمستأجر والمالك.";
+  }
+
+  if (/شاغر|شاغرة|اشغال|إشغال|vacant|vacancy|occupancy/.test(input)) {
+    return "للوحدات الشاغرة، راجع مدة الشغور، السعر مقارنة بالسوق، جودة الإعلان، والصور. بعدها حدد إجراء واضح: تعديل السعر، تحسين الإعلان، أو تكليف وسيط.";
+  }
+
+  if (/تقرير|تقارير|ملخص|لوحة|dashboard|report/.test(input)) {
+    return "الملخص الصباحي المفيد يشمل التحصيل، المتأخرات، الوحدات الشاغرة، العقود القريبة من الانتهاء، بلاغات الصيانة، وأهم توصية تنفيذية اليوم.";
+  }
+
+  if (/سعر|تسعير|price|pricing/.test(input)) {
+    return "للتسعير، قارن الوحدة بمثيلاتها في نفس المدينة والحي، ثم راجع الإشغال والطلب ومدة الشغور. الهدف سعر عادل يقلل الشغور ويحافظ على العائد.";
+  }
+
+  return "حياك الله، أنا حامد مساعد HBSpro المحلي. أقدر أساعدك في التسجيل، التحصيل، العقود، الصيانة، الوحدات الشاغرة، والتقارير. اسألني عن أي نقطة منها.";
+}
+
+function pickArabicVoice() {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  return (
+    voices.find((voice) => voice.lang === "ar-SA") ??
+    voices.find((voice) => voice.lang.startsWith("ar")) ??
+    null
+  );
+}
+
+function speakLocally(text: string) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "ar-SA";
+  utterance.rate = 0.92;
+  utterance.pitch = 0.95;
+  utterance.volume = 1;
+  const voice = pickArabicVoice();
+  if (voice) utterance.voice = voice;
+  window.speechSynthesis.speak(utterance);
+  return true;
 }
 
 export function HamidVoiceAssistant() {
@@ -45,38 +98,23 @@ export function HamidVoiceAssistant() {
   const [reply, setReply] = useState("");
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const Recognition = useMemo(getSpeechRecognition, []);
   const speechSupported = Boolean(Recognition);
+  const synthesisSupported = typeof window !== "undefined" && "speechSynthesis" in window;
 
-  const speak = async (text: string) => {
+  const answer = async (text: string) => {
     const cleanText = text.trim();
     if (!cleanText || loading) return;
 
     setLoading(true);
     setError(null);
-    setReply("");
-    try {
-      const response = await fetch("/api/public/hamid-voice", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text: cleanText }),
-      });
-      const data = (await response.json()) as VoiceResponse;
-      if (!response.ok || data.error) throw new Error(data.error || "Voice request failed");
-      setReply(data.text || "");
+    const nextReply = getLocalReply(cleanText);
+    setReply(nextReply);
 
-      if (data.audioBase64 && data.mimeType) {
-        audioRef.current?.pause();
-        audioRef.current = new Audio(`data:${data.mimeType};base64,${data.audioBase64}`);
-        await audioRef.current.play();
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "تعذر تشغيل المساعد الصوتي";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
+    await new Promise((resolve) => window.setTimeout(resolve, 250));
+    const spoken = speakLocally(nextReply);
+    if (!spoken) setError("الصوت المحلي غير مدعوم في هذا المتصفح، لكن الرد النصي ظاهر أمامك.");
+    setLoading(false);
   };
 
   const startListening = () => {
@@ -93,7 +131,7 @@ export function HamidVoiceAssistant() {
         .join(" ")
         .trim();
       setTranscript(text);
-      void speak(text);
+      void answer(text);
     };
     recognition.onerror = () => {
       setListening(false);
@@ -124,7 +162,7 @@ export function HamidVoiceAssistant() {
         aria-label="تحدث صوتياً مع حامد"
       >
         <Volume2 className="size-4" style={{ color: HBS.goldSoft }} />
-        حامد صوتي
+        حامد محلي
       </button>
     );
   }
@@ -138,25 +176,25 @@ export function HamidVoiceAssistant() {
         boxShadow: `0 35px 90px -30px ${HBS.blue}`,
         color: HBS.white,
       }}
-      aria-label="مساعد حامد الصوتي"
+      aria-label="مساعد حامد المحلي"
     >
       <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: `1px solid ${HBS.border}` }}>
         <div>
-          <h2 className="text-sm font-semibold">حامد الصوتي</h2>
+          <h2 className="text-sm font-semibold">حامد المحلي</h2>
           <p className="text-[11px]" style={{ color: HBS.gray }}>
-            عربي سعودي · مدعوم من ElevenLabs
+            عربي سعودي · بدون مفاتيح أو خدمات خارجية
           </p>
         </div>
         <button
           type="button"
           onClick={() => {
             stopListening();
-            audioRef.current?.pause();
+            window.speechSynthesis?.cancel();
             setOpen(false);
           }}
           className="rounded-md p-1 transition hover:bg-white/10"
           style={{ color: HBS.gray }}
-          aria-label="إغلاق المساعد الصوتي"
+          aria-label="إغلاق المساعد المحلي"
         >
           <X className="size-4" />
         </button>
@@ -166,6 +204,11 @@ export function HamidVoiceAssistant() {
         {!speechSupported && (
           <div className="rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 text-xs text-amber-100">
             التعرف الصوتي غير مدعوم في هذا المتصفح. جرّب Chrome أو Edge لتفعيل المايك.
+          </div>
+        )}
+        {!synthesisSupported && (
+          <div className="rounded-xl border border-amber-300/30 bg-amber-300/10 p-3 text-xs text-amber-100">
+            النطق الصوتي المحلي غير مدعوم هنا، وسيظهر رد حامد كنص فقط.
           </div>
         )}
         <button
