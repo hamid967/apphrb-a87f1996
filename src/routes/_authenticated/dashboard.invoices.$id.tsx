@@ -198,6 +198,10 @@ function InvoiceDetailPage() {
         </div>
       </header>
 
+      <InvoiceDetailsCard bundle={b} isAr={isAr} />
+
+
+
 
       <Card className="p-4 md:p-6 space-y-4 border-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -359,6 +363,149 @@ function Field({
           </Button>
         )}
       </div>
+    </div>
+  );
+}
+
+function InvoiceDetailsCard({ bundle, isAr }: { bundle: Bundle | undefined; isAr: boolean }) {
+  if (!bundle) {
+    return (
+      <Card className="p-6 text-sm text-muted-foreground text-center">
+        {isAr ? "جارٍ التحميل…" : "Loading…"}
+      </Card>
+    );
+  }
+  const b = bundle;
+  const fmtMoney = (n: number | string | null | undefined) =>
+    new Intl.NumberFormat(isAr ? "ar-SA" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(n ?? 0));
+  const invStatusMap: Record<string, { ar: string; en: string; cls: string }> = {
+    draft:     { ar: "مسودة",    en: "Draft",     cls: "bg-muted text-foreground" },
+    sent:      { ar: "مُرسلة",   en: "Sent",      cls: "bg-primary/15 text-primary" },
+    paid:      { ar: "مدفوعة",   en: "Paid",      cls: "bg-emerald-500/15 text-emerald-600" },
+    overdue:   { ar: "متأخرة",   en: "Overdue",   cls: "bg-amber-500/15 text-amber-600" },
+    cancelled: { ar: "ملغاة",    en: "Cancelled", cls: "bg-destructive/15 text-destructive" },
+  };
+  const st = invStatusMap[(b.status as string) ?? "draft"] ?? invStatusMap.draft;
+  const subtotal = Number(b.subtotal ?? 0);
+  const vatAmount = Number(b.vat_amount ?? 0);
+  const total = Number(b.total ?? 0);
+  const cur = b.currency ?? "SAR";
+  const buyer = b.buyer as null | { full_name: string | null; email: string | null; phone: string | null; vat_number: string | null };
+  const isRejected = b.zatca_status === "rejected";
+
+  return (
+    <div className="space-y-4">
+      {isRejected && (
+        <Card className="p-4 border-destructive border-2 bg-destructive/5">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 h-8 w-8 rounded-full bg-destructive/15 flex items-center justify-center text-destructive font-bold">!</div>
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold text-destructive">
+                {isAr ? "الفاتورة مرفوضة من هيئة الزكاة" : "Invoice rejected by ZATCA"}
+              </h3>
+              <p className="mt-1 text-sm">
+                {b.zatca_rejection_reason ?? (isAr ? "لم يُسجَّل سبب الرفض بعد." : "No rejection reason recorded yet.")}
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      <Card className="p-4 md:p-6 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">{isAr ? "تفاصيل الفاتورة" : "Invoice details"}</h2>
+          <span className={`text-xs px-2 py-1 rounded-md font-medium ${st.cls}`}>
+            {isAr ? st.ar : st.en}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          <Meta label={isAr ? "رقم الفاتورة" : "Invoice #"} value={b.number} mono />
+          <Meta label={isAr ? "تاريخ الإصدار" : "Issue date"} value={b.issue_date} />
+          <Meta label={isAr ? "تاريخ الاستحقاق" : "Due date"} value={b.due_date ?? "—"} />
+          <Meta label={isAr ? "تاريخ السداد" : "Paid at"} value={b.paid_at ?? "—"} />
+          <Meta label={isAr ? "النوع (ZATCA)" : "Type"} value={b.invoice_type ?? "—"} />
+          <Meta label={isAr ? "حالة ZATCA" : "ZATCA status"} value={b.zatca_status ?? "—"} />
+          <Meta label={isAr ? "تاريخ الإرسال" : "Reported at"} value={b.zatca_reported_at ? new Date(b.zatca_reported_at).toLocaleString(isAr ? "ar-SA" : "en-US") : "—"} />
+          <Meta label={isAr ? "تاريخ الختم" : "Sealed at"} value={b.zatca_sealed_at ? new Date(b.zatca_sealed_at).toLocaleString(isAr ? "ar-SA" : "en-US") : "—"} />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="border rounded-md p-3 space-y-1">
+            <div className="text-xs text-muted-foreground">{isAr ? "العميل" : "Buyer"}</div>
+            <div className="text-sm font-semibold">{buyer?.full_name ?? "—"}</div>
+            {buyer?.vat_number && (
+              <div className="text-xs">
+                {isAr ? "الرقم الضريبي" : "VAT"}: <span className="font-mono">{buyer.vat_number}</span>
+              </div>
+            )}
+            {(buyer?.email || buyer?.phone) && (
+              <div className="text-xs text-muted-foreground">
+                {[buyer?.email, buyer?.phone].filter(Boolean).join(" · ")}
+              </div>
+            )}
+          </div>
+          <div className="border rounded-md p-3 space-y-1">
+            <div className="text-xs text-muted-foreground">{isAr ? "الوصف" : "Description"}</div>
+            <div className="text-sm whitespace-pre-wrap">{b.description || (isAr ? "—" : "—")}</div>
+            {b.notes && (
+              <>
+                <div className="text-xs text-muted-foreground mt-2">{isAr ? "ملاحظات" : "Notes"}</div>
+                <div className="text-xs text-muted-foreground whitespace-pre-wrap">{b.notes}</div>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="border rounded-md overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/40 text-xs text-muted-foreground">
+              <tr>
+                <th className="text-start p-2">{isAr ? "الوصف" : "Description"}</th>
+                <th className="text-end p-2 w-16">{isAr ? "الكمية" : "Qty"}</th>
+                <th className="text-end p-2 w-28">{isAr ? "السعر" : "Unit price"}</th>
+                <th className="text-end p-2 w-20">{isAr ? "ض.ق.م" : "VAT %"}</th>
+                <th className="text-end p-2 w-28">{isAr ? "الإجمالي" : "Total"}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-t">
+                <td className="p-2">{b.description || (isAr ? "خدمة" : "Service")}</td>
+                <td className="p-2 text-end">1</td>
+                <td className="p-2 text-end font-mono">{fmtMoney(subtotal)}</td>
+                <td className="p-2 text-end">{Number(b.vat_rate ?? 15)}%</td>
+                <td className="p-2 text-end font-mono font-semibold">{fmtMoney(subtotal)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex justify-end">
+          <div className="w-full md:w-72 space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">{isAr ? "المجموع الفرعي" : "Subtotal"}</span>
+              <span className="font-mono">{fmtMoney(subtotal)} {cur}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">{isAr ? "الضريبة" : "VAT"} ({Number(b.vat_rate ?? 15)}%)</span>
+              <span className="font-mono">{fmtMoney(vatAmount)} {cur}</span>
+            </div>
+            <div className="flex justify-between border-t pt-2 font-bold">
+              <span>{isAr ? "الإجمالي" : "Total"}</span>
+              <span className="font-mono">{fmtMoney(total)} {cur}</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function Meta({ label, value, mono }: { label: string; value: string | number | null | undefined; mono?: boolean }) {
+  return (
+    <div>
+      <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-0.5">{label}</div>
+      <div className={`text-sm ${mono ? "font-mono" : ""}`}>{value ?? "—"}</div>
     </div>
   );
 }
