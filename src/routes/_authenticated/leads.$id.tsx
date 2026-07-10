@@ -366,3 +366,28 @@ function iconFor(k: string) {
   if (k === "whatsapp" || k === "note") return <MessageSquare className="size-3.5" />;
   return <MessageSquare className="size-3.5" />;
 }
+
+function ExportMenu({
+  label,
+  disabled,
+  onExport,
+}: {
+  label: string;
+  disabled?: boolean;
+  onExport: (format: "csv" | "xlsx") => void;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button size="sm" variant="outline" disabled={disabled}>
+          <Download className="me-1.5 size-3.5" />
+          {label}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => onExport("csv")}>CSV</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onExport("xlsx")}>Excel</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
