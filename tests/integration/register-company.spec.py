@@ -47,13 +47,29 @@ BEGIN
   PERFORM set_config('test.uid', u1::text, false);
 END $$;
 
--- 2) Happy path — call as the fixture user via JWT claim
+-- 2) Invalid name — run BEFORE happy path so the user still has no membership.
 SET LOCAL role = 'authenticated';
-SELECT set_config(
-  'request.jwt.claims',
-  json_build_object('sub', current_setting('test.uid'), 'role','authenticated')::text,
-  true
-);
+SELECT set_config('request.jwt.claims',
+  json_build_object('sub', current_setting('test.uid'), 'role','authenticated')::text, true);
+
+DO $$
+BEGIN
+  PERFORM public.register_company('x', NULL);
+  RAISE NOTICE 'FAIL: short-name call unexpectedly succeeded';
+EXCEPTION WHEN OTHERS THEN
+  IF SQLERRM LIKE '%Invalid company name%' THEN
+    RAISE NOTICE 'PASS: short name rejected (%)', SQLERRM;
+  ELSE
+    RAISE NOTICE 'FAIL: wrong error on short name: %', SQLERRM;
+  END IF;
+END $$;
+
+RESET role;
+
+-- 3) Happy path — same user, valid name
+SET LOCAL role = 'authenticated';
+SELECT set_config('request.jwt.claims',
+  json_build_object('sub', current_setting('test.uid'), 'role','authenticated')::text, true);
 
 SELECT
   CASE WHEN (public.register_company('Test Co', '+966500000000')->>'trial_days')::int = 14
@@ -82,7 +98,7 @@ SELECT CASE
   ELSE 'FAIL: profile not updated as expected'
 END FROM public.profiles WHERE id = current_setting('test.uid')::uuid;
 
--- 3) Second call must fail with "already belong to a company"
+-- 4) Second call must fail with "already belong to a company"
 SET LOCAL role = 'authenticated';
 SELECT set_config('request.jwt.claims',
   json_build_object('sub', current_setting('test.uid'), 'role','authenticated')::text, true);
@@ -93,7 +109,7 @@ BEGIN
   RAISE NOTICE 'FAIL: second register_company call unexpectedly succeeded';
 EXCEPTION WHEN OTHERS THEN
   IF SQLERRM LIKE '%already belong%' THEN
-    RAISE NOTICE 'PASS: duplicate registration rejected (% )', SQLERRM;
+    RAISE NOTICE 'PASS: duplicate registration rejected (%)', SQLERRM;
   ELSE
     RAISE NOTICE 'FAIL: wrong error on duplicate: %', SQLERRM;
   END IF;
@@ -101,7 +117,7 @@ END $$;
 
 RESET role;
 
--- 4) Anonymous call rejected
+-- 5) Anonymous call rejected
 SET LOCAL role = 'anon';
 SELECT set_config('request.jwt.claims', json_build_object('role','anon')::text, true);
 
@@ -118,24 +134,6 @@ EXCEPTION WHEN OTHERS THEN
 END $$;
 
 RESET role;
-
--- 5) Invalid name (reuse test.uid2, an unaffiliated profile)
-
-SET LOCAL role = 'authenticated';
-SELECT set_config('request.jwt.claims',
-  json_build_object('sub', current_setting('test.uid2'), 'role','authenticated')::text, true);
-
-DO $$
-BEGIN
-  PERFORM public.register_company('x', NULL);
-  RAISE NOTICE 'FAIL: short-name call unexpectedly succeeded';
-EXCEPTION WHEN OTHERS THEN
-  IF SQLERRM LIKE '%Invalid company name%' THEN
-    RAISE NOTICE 'PASS: short name rejected (%)', SQLERRM;
-  ELSE
-    RAISE NOTICE 'FAIL: wrong error on short name: %', SQLERRM;
-  END IF;
-END $$;
 
 ROLLBACK;
 """
