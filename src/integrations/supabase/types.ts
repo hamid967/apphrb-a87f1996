@@ -6974,6 +6974,37 @@ export type Database = {
           path: string
         }[]
       }
+      admin_list_cron_jobs: {
+        Args: never
+        Returns: {
+          active: boolean
+          command_url: string
+          jobid: number
+          jobname: string
+          schedule: string
+        }[]
+      }
+      admin_list_cron_runs: {
+        Args: { _jobid: number; _limit?: number }
+        Returns: {
+          end_time: string
+          return_message: string
+          runid: number
+          start_time: string
+          status: string
+        }[]
+      }
+      admin_list_http_responses: {
+        Args: { _limit?: number; _url_like: string }
+        Returns: {
+          content_preview: string
+          created: string
+          error_msg: string
+          id: number
+          status_code: number
+          timed_out: boolean
+        }[]
+      }
       admin_list_packages: {
         Args: never
         Returns: {
