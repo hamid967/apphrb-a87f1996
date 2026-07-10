@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { generateText } from "ai";
 import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
 
-const DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM";
 const MAX_INPUT_CHARS = 900;
 
 const SYSTEM = `
@@ -32,7 +31,9 @@ async function synthesizeSpeech(text: string) {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) throw new Error("Missing ELEVENLABS_API_KEY");
 
-  const voiceId = process.env.ELEVENLABS_HAMID_VOICE_ID || DEFAULT_VOICE_ID;
+  const voiceId = process.env.ELEVENLABS_HAMID_VOICE_ID;
+  if (!voiceId) throw new Error("Missing ELEVENLABS_HAMID_VOICE_ID");
+
   const modelId = process.env.ELEVENLABS_MODEL_ID || "eleven_multilingual_v2";
 
   const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
