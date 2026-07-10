@@ -378,6 +378,7 @@ function MiniOrb({ size = 44 }: { size?: number }) {
 
 export function HamidVoiceAssistant() {
   const [open, setOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [callActive, setCallActive] = useState(false);
   const [listening, setListening] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -387,6 +388,15 @@ export function HamidVoiceAssistant() {
   const [reply, setReply] = useState<HamidIntent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [speaking, setSpeaking] = useState(false);
+  const { settings, update, reset } = useHamidVoiceSettings();
+  const settingsRef = useRef(settings);
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
+  const speak = (text: string) => {
+    void speakSaudi(text, settingsRef.current);
+    return true;
+  };
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const Recognition = useMemo(getSpeechRecognition, []);
   const speechSupported = Boolean(Recognition);
