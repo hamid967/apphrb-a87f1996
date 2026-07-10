@@ -118,6 +118,12 @@ function EditLeadPage() {
         </div>
         <div className="flex items-center gap-2">
           <SaveIndicator pending={save.isPending} savedAt={save.submittedAt ?? 0} />
+          {lead?.stage !== "won" && lead?.stage !== "lost" && (
+            <Button size="sm" onClick={() => setConvertOpen(true)}>
+              <Handshake className="me-2 size-4" />
+              {String(t("crm.leads.convert", "Convert to deal"))}
+            </Button>
+          )}
           <Button variant="ghost" asChild>
             <Link to="/leads">
               <ArrowLeft className="me-2 size-4" />
