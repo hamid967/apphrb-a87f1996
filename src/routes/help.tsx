@@ -11,6 +11,8 @@ import {
   FileText,
   MessageSquare,
 } from "lucide-react";
+import { PublicNav } from "@/components/marketing/PublicNav";
+
 
 const TOPICS = [
   {
@@ -76,25 +78,8 @@ function HelpPage() {
   const isAr = i18n.language?.startsWith("ar");
   return (
     <div dir={isAr ? "rtl" : "ltr"} className="theme-luxe min-h-app bg-background text-foreground">
-      <header className="border-b border-border/60 bg-card/40 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link to="/" className="flex items-center gap-2 font-bold">
-            <Building2 className="h-5 w-5" />
-            <span>HBSpro</span>
-          </Link>
-          <nav className="flex items-center gap-4 text-sm">
-            <Link to="/faq" className="text-muted-foreground hover:text-foreground">
-              {isAr ? "الأسئلة الشائعة" : "FAQ"}
-            </Link>
-            <Link to="/contact" className="text-muted-foreground hover:text-foreground">
-              {isAr ? "تواصل معنا" : "Contact"}
-            </Link>
-            <Link to="/pricing" className="text-muted-foreground hover:text-foreground">
-              {isAr ? "الأسعار" : "Pricing"}
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <PublicNav />
+
 
       <section className="mx-auto max-w-4xl px-6 py-16 text-center">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs text-muted-foreground">
