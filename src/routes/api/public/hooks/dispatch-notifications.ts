@@ -3,25 +3,24 @@ import { createFileRoute } from "@tanstack/react-router";
 /**
  * Cron-driven worker that processes queued notifications.
  *
- * Called by pg_cron every minute. Authenticated with the Supabase anon key
- * (`apikey` header) — the /api/public prefix bypasses edge auth, so we
- * verify the key ourselves against `SUPABASE_PUBLISHABLE_KEY`.
+ * Called by pg_cron every minute. Authenticated with a private
+ * `CRON_HOOK_SECRET` (sent as `x-cron-secret`). Never accept the Supabase
+ * publishable/anon key here — it is inlined in the public JS bundle and
+ * would let any visitor drain the notification queue on demand.
  */
 export const Route = createFileRoute("/api/public/hooks/dispatch-notifications")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apiKey =
-          request.headers.get("apikey") ??
-          request.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
-          "";
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY ?? "";
-        if (!apiKey || !expected || apiKey !== expected) {
+        const secret = process.env.CRON_HOOK_SECRET ?? "";
+        const provided = request.headers.get("x-cron-secret") ?? "";
+        if (!secret || provided.length !== secret.length || provided !== secret) {
           return new Response(JSON.stringify({ error: "unauthorized" }), {
             status: 401,
             headers: { "Content-Type": "application/json" },
           });
         }
+
 
         try {
           const { dispatchPendingNotifications } = await import(

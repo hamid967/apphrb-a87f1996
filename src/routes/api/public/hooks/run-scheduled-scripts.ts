@@ -5,11 +5,14 @@ export const Route = createFileRoute("/api/public/hooks/run-scheduled-scripts")(
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apiKey = request.headers.get("apikey");
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.SUPABASE_ANON_KEY;
-        if (!expected || !apiKey || apiKey !== expected) {
+        // Private cron secret only — the Supabase anon/publishable key is in
+        // the public JS bundle and cannot gate service-role execution.
+        const secret = process.env.CRON_HOOK_SECRET ?? "";
+        const provided = request.headers.get("x-cron-secret") ?? "";
+        if (!secret || provided.length !== secret.length || provided !== secret) {
           return new Response("Unauthorized", { status: 401 });
         }
+
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const nowIso = new Date().toISOString();
 
