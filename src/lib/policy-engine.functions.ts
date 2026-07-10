@@ -388,7 +388,7 @@ export const listPolicyViolationsForClaim = createServerFn({ method: "POST" })
       supabase
         .from("policy_violations")
         .select(
-          "id, claim_id, rule_type, severity, category, reason, amount, limit_amount, currency, created_at, overridden_by, override_reason, overridden_at, policy:spending_policies(id, category, rule_type, note, max_amount, period_days, keywords), overrider:profiles!policy_violations_overridden_by_fkey(full_name)",
+          "id, claim_id, rule_type, severity, category, reason, amount, limit_amount, currency, created_at, overridden_by, override_reason, overridden_at, policy:spending_policies(id, category, rule_type, note, max_amount, period_days, keywords)",
         )
         .eq("claim_id", data.claim_id)
         .order("created_at", { ascending: true }),
@@ -399,14 +399,29 @@ export const listPolicyViolationsForClaim = createServerFn({ method: "POST" })
     const orgId = (claim as { org_id?: string } | null)?.org_id;
     const canOverride = orgId ? await isOrgAdmin(supabase, userId, orgId) : false;
 
-    const mapped: ClaimViolationRow[] = (rows ?? []).map((r: Record<string, unknown>) => {
-      const overrider = r.overrider as { full_name?: string | null } | null | undefined;
-      const { overrider: _o, ...rest } = r as Record<string, unknown> & { overrider?: unknown };
-      return {
-        ...(rest as unknown as Omit<ClaimViolationRow, "override_by_name">),
-        override_by_name: overrider?.full_name ?? null,
-      };
-    });
+    // Resolve overrider display names via profiles (no direct FK).
+    const overriderIds = Array.from(
+      new Set(
+        (rows ?? [])
+          .map((r: Record<string, unknown>) => r.overridden_by as string | null)
+          .filter((v): v is string => Boolean(v)),
+      ),
+    );
+    const nameById = new Map<string, string>();
+    if (overriderIds.length > 0) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", overriderIds);
+      for (const p of (profs ?? []) as Array<{ id: string; full_name: string | null }>) {
+        if (p.full_name) nameById.set(p.id, p.full_name);
+      }
+    }
+
+    const mapped: ClaimViolationRow[] = (rows ?? []).map((r: Record<string, unknown>) => ({
+      ...(r as unknown as Omit<ClaimViolationRow, "override_by_name">),
+      override_by_name: r.overridden_by ? (nameById.get(r.overridden_by as string) ?? null) : null,
+    }));
 
     return {
       claim: (claim ?? null) as ClaimViolationsPayload["claim"],
