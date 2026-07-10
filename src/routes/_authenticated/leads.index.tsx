@@ -300,15 +300,14 @@ function LeadsPage() {
                               </div>
                               <div className="flex gap-1">
                                 <Button
+                                  asChild
                                   size="sm"
                                   variant="ghost"
                                   className="h-7 px-2"
-                                  onClick={() => {
-                                    setEditing(lead);
-                                    setOpen(true);
-                                  }}
                                 >
-                                  <Pencil className="size-3.5" />
+                                  <Link to="/leads/$id/edit" params={{ id: lead.id }}>
+                                    <Pencil className="size-3.5" />
+                                  </Link>
                                 </Button>
                                 {canEdit &&
                                   lead.property_id &&
