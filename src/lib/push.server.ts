@@ -3,11 +3,10 @@
  *
  * Uses `@block65/webcrypto-web-push` which relies on the Web Crypto API,
  * so it runs on Cloudflare Workers (unlike the classic Node `web-push`).
- * Loads VAPID keys from env at call time — never at module scope, since
- * this file is server-only but the values are only bound to the worker.
+ * VAPID keys are read from env inside the handler at call time.
  */
 import {
-  ApplicationServer,
+  buildPushPayload,
   type PushSubscription as WPPushSubscription,
 } from "@block65/webcrypto-web-push";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -16,19 +15,12 @@ export function getVapidPublicKey(): string {
   return process.env.VAPID_PUBLIC_KEY ?? "";
 }
 
-let appServer: ApplicationServer | null = null;
-async function getAppServer(): Promise<ApplicationServer | null> {
-  if (appServer) return appServer;
-  const pub = process.env.VAPID_PUBLIC_KEY;
-  const priv = process.env.VAPID_PRIVATE_KEY;
+function vapidFromEnv() {
+  const publicKey = process.env.VAPID_PUBLIC_KEY;
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
   const subject = process.env.VAPID_SUBJECT ?? "mailto:admin@hrhbs.com";
-  if (!pub || !priv) return null;
-  appServer = await ApplicationServer.new({
-    contactInformation: subject,
-    publicKey: pub,
-    privateKey: priv,
-  });
-  return appServer;
+  if (!publicKey || !privateKey) return null;
+  return { publicKey, privateKey, subject };
 }
 
 export type PushPayload = {
@@ -42,14 +34,13 @@ export type PushPayload = {
 /**
  * Deliver `payload` to every push subscription belonging to `userId`.
  * Failed endpoints are recorded (410/404 subscriptions are removed).
- * Returns delivery counts so the dispatcher can decide success/retry.
  */
 export async function sendPushToUser(
   userId: string,
   payload: PushPayload,
 ): Promise<{ delivered: number; removed: number; failed: number }> {
-  const server = await getAppServer();
-  if (!server) return { delivered: 0, removed: 0, failed: 0 };
+  const vapid = vapidFromEnv();
+  if (!vapid) return { delivered: 0, removed: 0, failed: 0 };
 
   const admin = supabaseAdmin as unknown as {
     from: (t: string) => {
@@ -71,13 +62,13 @@ export async function sendPushToUser(
   if (error) throw new Error(error.message);
   if (!subs || subs.length === 0) return { delivered: 0, removed: 0, failed: 0 };
 
-  const body = JSON.stringify({
+  const data = {
     title: payload.title,
     body: payload.body ?? "",
     url: payload.url ?? "/dashboard/inbox",
-    tag: payload.tag,
-    icon: payload.icon,
-  });
+    tag: payload.tag ?? null,
+    icon: payload.icon ?? null,
+  };
 
   let delivered = 0;
   let removed = 0;
@@ -90,13 +81,25 @@ export async function sendPushToUser(
       keys: { p256dh: s.p256dh, auth: s.auth },
     };
     try {
-      const message = await server.subscribe(sub, body);
-      const res = await fetch(message);
-      if (res.status === 201 || res.status === 200 || res.status === 202) {
+      const message = await buildPushPayload(
+        { data, options: { ttl: 60 * 60 * 24, urgency: "normal" } },
+        sub,
+        vapid,
+      );
+      const res = await fetch(sub.endpoint, {
+        method: message.method,
+        headers: message.headers as unknown as HeadersInit,
+        body: message.body,
+      });
+      if (res.status >= 200 && res.status < 300) {
         delivered++;
         await admin
           .from("push_subscriptions")
-          .update({ last_success_at: new Date().toISOString(), failure_count: 0, last_error: null })
+          .update({
+            last_success_at: new Date().toISOString(),
+            failure_count: 0,
+            last_error: null,
+          })
           .eq("id", s.id);
       } else if (res.status === 404 || res.status === 410) {
         removed++;
