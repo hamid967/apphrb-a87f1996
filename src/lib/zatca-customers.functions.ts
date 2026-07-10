@@ -72,10 +72,7 @@ export type ZatcaCustomerRow = {
   invoice_count: number;
 };
 
-async function primaryOrgId(
-  supabase: ReturnType<typeof requireSupabaseAuth>[0] extends never ? never : any,
-  userId: string,
-): Promise<string | null> {
+async function primaryOrgId(supabase: any, userId: string): Promise<string | null> {
   const { data } = await supabase
     .from("organization_members")
     .select("org_id")
