@@ -130,7 +130,7 @@ function ConsentPage() {
             <div>
               <span className="text-muted-foreground">الصلاحيات المطلوبة:</span>
               <ul className="mt-1 list-inside list-disc text-sm">
-                {scopes.map((s) => (
+                {scopes.map((s: string) => (
                   <li key={s} className="font-mono text-xs">
                     {s}
                   </li>
