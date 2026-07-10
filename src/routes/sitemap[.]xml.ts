@@ -37,9 +37,12 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
+        // Computed per-request so it reflects a real timestamp on Workers.
+        const BUILD_DATE = new Date().toISOString();
         const entries: SitemapEntry[] = PUBLIC_PATHS.map(({ path, lastmod }) =>
           classify(path, { lastmod: lastmod ?? BUILD_DATE }),
         );
+
 
         try {
           const res = await listPublishedPosts();
