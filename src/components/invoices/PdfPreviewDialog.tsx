@@ -6,14 +6,62 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-// Types are duplicated here (not imported) because pdf-invoice.client.ts
-// is a browser-only module blocked from the SSR module graph.
-type InvoicePdfInput = Parameters<
-  typeof import("@/lib/zatca/pdf-invoice.client")["generateInvoicePdf"]
->[0];
-type PdfVerifyReport = Awaited<
-  ReturnType<typeof import("@/lib/zatca/pdf-invoice.client")["verifyInvoicePdf"]>
->;
+// Local mirror of types from src/lib/zatca/pdf-invoice.client.ts
+// (that module is browser-only and blocked from the SSR graph).
+type InvoicePdfInput = {
+  invoice: {
+    number: string;
+    issue_date: string;
+    due_date?: string | null;
+    zatca_uuid?: string | null;
+    zatca_counter?: number | null;
+    subtotal: number;
+    vat_amount: number;
+    total: number;
+    currency: string;
+    qr_tlv?: string | null;
+    xml_ubl?: string | null;
+    notes?: string | null;
+  };
+  docKind?: "invoice" | "credit_note" | "debit_note";
+  reference?: { number: string; issue_date?: string | null; reason?: string | null } | null;
+  seller: {
+    name_ar: string;
+    name_en?: string;
+    vat_number?: string;
+    cr_number?: string;
+    address?: string;
+    logo_data_url?: string | null;
+  };
+  buyer: {
+    name: string;
+    vat_number?: string;
+    address?: string;
+    email?: string;
+    phone?: string;
+  };
+  lines: Array<{
+    description: string;
+    qty: number;
+    unit_price: number;
+    vat_rate: number;
+    amount: number;
+  }>;
+};
+type PdfVerifyReport = {
+  ok: boolean;
+  sizeKb: number;
+  pages: number;
+  hasQr: boolean;
+  hasXmlAttachment: boolean;
+  attachments: string[];
+  hasUuid: boolean;
+  hasTotals: boolean;
+  hasSeller: boolean;
+  hasBuyer: boolean;
+  hijriProducer: boolean;
+  issues: string[];
+};
 
 type Props = {
   open: boolean;
