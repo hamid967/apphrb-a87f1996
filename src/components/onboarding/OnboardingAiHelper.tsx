@@ -243,16 +243,67 @@ export function OnboardingAiHelper({
         {mode === "input" ? (
           <>
             <p className="mb-2 text-xs text-muted-foreground">
-              اكتب المعلومات بلغة عادية، وسأستخرج الحقول لتراجعها وتعدّلها قبل التطبيق.
+              اكتب المعلومات بلغة عادية أو أملها صوتيًا، وسأستخرج الحقول لتراجعها قبل التطبيق.
             </p>
-            <Textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              rows={5}
-              maxLength={2000}
-              placeholder={PLACEHOLDERS[step]}
-              className="resize-none text-sm"
-            />
+            <div className="relative">
+              <Textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                rows={5}
+                maxLength={2000}
+                placeholder={PLACEHOLDERS[step]}
+                className="resize-none text-sm pe-12"
+              />
+              {voice.supported && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={voice.state === "recording" ? "destructive" : "outline"}
+                  onClick={handleMicClick}
+                  disabled={busy || voice.state === "transcribing"}
+                  aria-label={
+                    voice.state === "recording"
+                      ? "إيقاف التسجيل"
+                      : voice.state === "transcribing"
+                        ? "جارٍ التحويل"
+                        : "إدخال صوتي"
+                  }
+                  title={
+                    voice.state === "recording"
+                      ? "إيقاف التسجيل"
+                      : voice.state === "transcribing"
+                        ? "جارٍ التحويل"
+                        : "إدخال صوتي"
+                  }
+                  className={cn(
+                    "absolute end-2 bottom-2 h-8 w-8",
+                    voice.state === "recording" && "animate-pulse",
+                  )}
+                >
+                  {voice.state === "transcribing" ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : voice.state === "recording" ? (
+                    <Square className="size-4" />
+                  ) : (
+                    <Mic className="size-4" />
+                  )}
+                </Button>
+              )}
+              {!voice.supported && (
+                <div
+                  className="absolute end-2 bottom-2 flex h-8 w-8 items-center justify-center text-muted-foreground"
+                  title="الإدخال الصوتي غير مدعوم على هذا المتصفح"
+                >
+                  <MicOff className="size-4" />
+                </div>
+              )}
+            </div>
+            {voice.state === "recording" && (
+              <p className="mt-1 text-[11px] text-destructive">● جارٍ التسجيل… اضغط الزر لإيقافه.</p>
+            )}
+            {voice.state === "transcribing" && (
+              <p className="mt-1 text-[11px] text-muted-foreground">جارٍ تحويل الصوت إلى نص…</p>
+            )}
             <div className="mt-2 flex items-center justify-end gap-2">
               <Button
                 type="button"
