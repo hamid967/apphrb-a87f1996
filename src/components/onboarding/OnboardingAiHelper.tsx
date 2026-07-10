@@ -149,6 +149,7 @@ export function OnboardingAiHelper({
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useState<DraftState>(EMPTY_DRAFT);
+  const [pendingTranscript, setPendingTranscript] = useState<string | null>(null);
   const voice = useVoiceInput({
     language: "ar",
     onError: (msg) => toast.error(msg),
@@ -157,24 +158,34 @@ export function OnboardingAiHelper({
   const handleMicClick = async () => {
     if (voice.state === "recording") {
       try {
-        const heard = await voice.stop();
-        if (heard.trim()) {
-          setText((prev) => (prev.trim() ? `${prev.trim()} ${heard}` : heard));
-        }
+        const heard = (await voice.stop()).trim();
+        if (heard) setPendingTranscript(heard);
       } catch {
         /* toast surfaced via onError */
       }
       return;
     }
     if (voice.state === "idle") {
+      setPendingTranscript(null);
       await voice.start();
     }
   };
+
+  const confirmTranscript = () => {
+    const heard = (pendingTranscript ?? "").trim();
+    if (heard) {
+      setText((prev) => (prev.trim() ? `${prev.trim()} ${heard}` : heard));
+    }
+    setPendingTranscript(null);
+  };
+
+  const discardTranscript = () => setPendingTranscript(null);
 
   const reset = () => {
     setMode("input");
     setText("");
     setDraft(EMPTY_DRAFT);
+    setPendingTranscript(null);
   };
 
   const run = async () => {
