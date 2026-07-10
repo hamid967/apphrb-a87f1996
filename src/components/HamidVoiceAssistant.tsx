@@ -231,7 +231,10 @@ function stopSpeaking() {
 }
 
 function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+    pushLog("error", "Web Speech API غير متاحة في هذا المتصفح", "استعمل Chrome أو Edge على سطح المكتب.");
+    return false;
+  }
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(prepareArabicForSpeech(text));
   u.lang = "ar-SA";
@@ -239,9 +242,22 @@ function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
   u.pitch = settings.pitch;
   u.volume = 1;
   const v = pickArabicVoice(settings.gender);
-  if (v) u.voice = v;
-  window.speechSynthesis.speak(u);
-  return true;
+  if (v) {
+    u.voice = v;
+    pushLog("info", `تشغيل صوت المتصفح: ${v.name} (${v.lang})`);
+  } else {
+    pushLog("warn", "لا يوجد صوت عربي مثبت في النظام", "سيُستخدم الصوت الافتراضي. ثبّت حزمة صوت ar-SA من إعدادات نظامك.");
+  }
+  u.onerror = (e: SpeechSynthesisErrorEvent) => {
+    pushLog("error", `فشل نطق المتصفح: ${e.error}`, "قد يكون بسبب حظر التشغيل التلقائي. تفاعل مع الصفحة أولاً.");
+  };
+  try {
+    window.speechSynthesis.speak(u);
+    return true;
+  } catch (err) {
+    pushLog("error", "SpeechSynthesis.speak رمى استثناء", String(err));
+    return false;
+  }
 }
 
 /**
@@ -266,25 +282,42 @@ async function speakSaudi(
         speed: settings.rate,
       }),
     });
-    if (!res.ok) throw new Error(`tts ${res.status}`);
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      pushLog("warn", `خادم TTS رجّع ${res.status}`, body.slice(0, 140) || "سنستخدم صوت المتصفح الاحتياطي.");
+      throw new Error(`tts ${res.status}`);
+    }
     const blob = await res.blob();
+    if (!blob.size) {
+      pushLog("warn", "استجابة TTS فارغة", "التبديل لصوت المتصفح.");
+      throw new Error("empty tts");
+    }
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
     currentAudio = audio;
-    audio.onplay = () => onStart?.();
+    audio.onplay = () => {
+      pushLog("ok", "تشغيل صوت الخادم (Lovable AI TTS)");
+      onStart?.();
+    };
     const cleanup = () => {
       URL.revokeObjectURL(url);
       if (currentAudio === audio) currentAudio = null;
       onEnd?.();
     };
     audio.onended = cleanup;
-    audio.onerror = cleanup;
+    audio.onerror = () => {
+      pushLog("error", "فشل تشغيل ملف الصوت من الخادم", "قد يكون صيغة MP3 محظورة. سنجرّب صوت المتصفح.");
+      cleanup();
+      speakBrowserFallback(text, settings);
+    };
     await audio.play();
     return true;
-  } catch {
+  } catch (err) {
+    pushLog("warn", "تعذّر استخدام TTS الخادم — تحويل لصوت المتصفح", String((err as Error).message ?? err));
     return speakBrowserFallback(text, settings);
   }
 }
+
 
 
 
