@@ -86,11 +86,7 @@ export const createInvoiceNote = createServerFn({ method: "POST" })
     const vatAmount = round2(subtotal * (data.vat_rate / 100));
     const total = round2(subtotal + vatAmount);
 
-    const number = await nextNoteNumber(
-      supabase as unknown as Awaited<ReturnType<typeof getSb>>,
-      inv.org_id,
-      data.note_type,
-    );
+    const number = await nextNoteNumber(supabase, inv.org_id, data.note_type);
 
     const { data: inserted, error: insErr } = await supabase
       .from("invoice_notes")
