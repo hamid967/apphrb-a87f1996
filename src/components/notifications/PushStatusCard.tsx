@@ -363,7 +363,7 @@ export function PushStatusCard() {
                 size="sm"
                 variant="outline"
                 disabled={busy !== null}
-                onClick={sendTest}
+                onClick={() => setConfirmTestOpen(true)}
                 title={
                   isAr
                     ? "إرسال إشعار تجريبي لأحدث مخالفة سياسة (يفتح رابط العنصر)"
