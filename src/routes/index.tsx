@@ -63,16 +63,9 @@ export const Route = createFileRoute("/")({
             "تقارير تنفيذية ذكية",
             "مساعد ذكاء اصطناعي عقاري",
           ],
-          offers: {
-            "@type": "Offer",
-            price: "0",
-            priceCurrency: "SAR",
-            availability: "https://schema.org/InStock",
-          },
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: "4.9",
-            reviewCount: "120",
+          audience: {
+            "@type": "BusinessAudience",
+            audienceType: "Real estate companies and property managers",
           },
         }),
       },
