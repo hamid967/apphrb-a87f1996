@@ -253,22 +253,26 @@ function VoiceOrb({
 /** Small orb used inside the floating launch button. */
 function MiniOrb({ size = 44 }: { size?: number }) {
   return (
-    <svg viewBox="0 0 200 200" width={size} height={size} aria-hidden>
-      <defs>
-        <radialGradient id="hamidOrbMini" cx="35%" cy="35%" r="75%">
-          <stop offset="0%" stopColor="#f3ecb0" />
-          <stop offset="30%" stopColor="#b8c96a" />
-          <stop offset="60%" stopColor="#4fa39a" />
-          <stop offset="90%" stopColor="#2b6fb3" />
-          <stop offset="100%" stopColor="#0b2a4a" />
-        </radialGradient>
-      </defs>
-      <circle cx="100" cy="100" r="92" fill="url(#hamidOrbMini)" />
-      <circle cx="100" cy="100" r="26" fill="#ffffff" />
-      <g transform="translate(88 88)">
-        <Phone />
-      </g>
-    </svg>
+    <span
+      className="relative inline-flex items-center justify-center"
+      style={{ width: size, height: size }}
+      aria-hidden
+    >
+      <svg viewBox="0 0 200 200" width={size} height={size}>
+        <defs>
+          <radialGradient id="hamidOrbMini" cx="35%" cy="35%" r="75%">
+            <stop offset="0%" stopColor="#f3ecb0" />
+            <stop offset="30%" stopColor="#b8c96a" />
+            <stop offset="60%" stopColor="#4fa39a" />
+            <stop offset="90%" stopColor="#2b6fb3" />
+            <stop offset="100%" stopColor="#0b2a4a" />
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="92" fill="url(#hamidOrbMini)" />
+        <circle cx="100" cy="100" r="30" fill="#ffffff" />
+      </svg>
+      <Phone className="absolute h-3.5 w-3.5 text-black" />
+    </span>
   );
 }
 
