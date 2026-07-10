@@ -1,4 +1,4 @@
-import { useState, forwardRef, type TextareaHTMLAttributes } from "react";
+import { useEffect, useRef, useState, forwardRef, type TextareaHTMLAttributes } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { AlertCircle, Check, Loader2, Mic, MicOff, Square } from "lucide-react";
 import { toast } from "sonner";
