@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { VoiceTextarea } from "@/components/voice/VoiceTextarea";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ReceiptCameraButton } from "@/components/receipt-camera-button";
@@ -273,11 +274,11 @@ function CorrectionWizard() {
             <div className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="c-reason">{t("expenseClaimCorrection.reasonLabel")}</Label>
-                <Textarea
+                <VoiceTextarea
                   id="c-reason"
                   autoFocus
                   value={reason}
-                  onChange={(e) => setReason(e.target.value)}
+                  onChange={setReason}
                   placeholder={t("expenseClaimCorrection.reasonPlaceholder")}
                   rows={4}
                   maxLength={1000}
@@ -298,10 +299,10 @@ function CorrectionWizard() {
 
               <div className="space-y-2">
                 <Label htmlFor="c-notes">{t("expenseClaim.notes")}</Label>
-                <Textarea
+                <VoiceTextarea
                   id="c-notes"
                   value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                  onChange={setNotes}
                   rows={3}
                   maxLength={2000}
                 />
