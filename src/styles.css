@@ -463,38 +463,38 @@ body::-webkit-scrollbar,
    =================================================================== */
 .theme-luxe {
   color-scheme: dark;
-  /* Navy Trust: #0f1b3d / #1e3a5f / #3b6fa0 / #e8edf3 */
-  --font-sans: 'Epilogue', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
-  --font-display: 'Urbanist', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
-  --background: oklch(0.19 0.06 265);           /* #0f1b3d base */
-  --foreground: oklch(0.96 0.008 250);          /* #e8edf3 */
-  --card: oklch(0.24 0.06 265 / 92%);           /* #1e3a5f surface */
-  --card-foreground: oklch(0.96 0.008 250);
-  --popover: oklch(0.22 0.06 265 / 96%);
-  --popover-foreground: oklch(0.96 0.008 250);
-  --primary: oklch(0.74 0.14 250);              /* lightened signal blue → 4.5:1 text on primary + 3:1 UI */
-  --primary-foreground: oklch(0.16 0.04 265);   /* deep navy text on light blue button */
-  --secondary: oklch(0.44 0.09 260);            /* deep navy accent */
-  --secondary-foreground: oklch(0.96 0.008 250);
+  /* Emerald Gold Luxury: #043927 / #0a5238 / #0d7a5f / #C5A059 / #f5f0e0 */
+  --font-sans: 'Fira Sans', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-display: 'DM Serif Display', 'Almarai', 'IBM Plex Sans Arabic', serif;
+  --background: oklch(0.26 0.05 165);           /* #043927 emerald base */
+  --foreground: oklch(0.96 0.02 85);            /* #f5f0e0 paper */
+  --card: oklch(0.32 0.06 165 / 92%);           /* #0a5238 emerald surface */
+  --card-foreground: oklch(0.96 0.02 85);
+  --popover: oklch(0.30 0.06 165 / 96%);
+  --popover-foreground: oklch(0.96 0.02 85);
+  --primary: oklch(0.75 0.11 85);               /* luxe gold #C5A059 */
+  --primary-foreground: oklch(0.22 0.05 165);   /* deep emerald text on gold */
+  --secondary: oklch(0.42 0.09 165);            /* mid emerald accent */
+  --secondary-foreground: oklch(0.96 0.02 85);
   --muted: oklch(1 0 0 / 5%);
-  --muted-foreground: oklch(0.78 0.02 250);
-  --accent: oklch(0.74 0.14 250);
-  --accent-foreground: oklch(0.16 0.04 265);
-  --border: oklch(0.96 0.008 250 / 40%);        /* WCAG 1.4.11 — 3.5:1 vs bg */
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.62 0.13 250);
+  --muted-foreground: oklch(0.82 0.04 85);
+  --accent: oklch(0.75 0.11 85);
+  --accent-foreground: oklch(0.22 0.05 165);
+  --border: oklch(0.75 0.11 85 / 30%);          /* gold-tinted border */
+  --input: oklch(1 0 0 / 10%);
+  --ring: oklch(0.75 0.11 85);
   --paper: oklch(1 0 0 / 5%);
-  --ink: oklch(0.96 0.008 250);
+  --ink: oklch(0.96 0.02 85);
   --gradient-brand: linear-gradient(135deg,
-                     oklch(0.62 0.13 250),
-                     oklch(0.44 0.09 260));
+                     oklch(0.78 0.12 85),
+                     oklch(0.68 0.09 85));
   --gradient-surface: linear-gradient(180deg,
                        oklch(1 0 0 / 6%),
                        oklch(1 0 0 / 2%));
   background: radial-gradient(1200px 600px at 20% -10%,
-                oklch(0.62 0.13 250 / 0.20), transparent 60%),
+                oklch(0.75 0.11 85 / 0.16), transparent 60%),
               radial-gradient(900px 500px at 100% 10%,
-                oklch(0.44 0.09 260 / 0.28), transparent 55%),
+                oklch(0.42 0.09 165 / 0.35), transparent 55%),
               var(--background);
   color: var(--foreground);
   min-height: 100%;
