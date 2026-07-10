@@ -47,19 +47,19 @@ def q(sql):
     return r.stdout.strip(), r.stderr.strip(), r.returncode
 
 print("=== A) M3 functions are SECURITY INVOKER (prosecdef=false) ===")
-for name, args in M3_FUNCTIONS:
+for name, id_args, priv_args in M3_FUNCTIONS:
     sql = f"""SELECT prosecdef FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
               WHERE n.nspname='public' AND p.proname='{name}'
-              AND pg_get_function_identity_arguments(p.oid)='{args}';"""
+              AND pg_get_function_identity_arguments(p.oid)='{id_args}';"""
     out, _, _ = q(sql)
-    check(out == "f", f"{name}({args}) → INVOKER")
+    check(out == "f", f"{name}({priv_args}) → INVOKER")
 
 print("\n=== B) M3 functions keep EXECUTE for `authenticated` ===")
-for name, args in M3_FUNCTIONS:
+for name, _id_args, priv_args in M3_FUNCTIONS:
     sql = f"""SELECT has_function_privilege('authenticated',
-              'public.{name}({args})', 'EXECUTE');"""
+              'public.{name}({priv_args})', 'EXECUTE');"""
     out, _, _ = q(sql)
-    check(out == "t", f"{name}({args}) — authenticated=yes")
+    check(out == "t", f"{name}({priv_args}) — authenticated=yes")
 
 print("\n=== C) RLS helper fns remain SECURITY DEFINER ===")
 for name in STILL_DEFINER:
