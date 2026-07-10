@@ -958,6 +958,15 @@ export function HamidVoiceAssistant() {
 
 
 
+      {signupMode && (
+        <HamidSignupWizard
+          speak={(t) => {
+            void speak(t);
+          }}
+          onClose={() => setSignupMode(false)}
+        />
+      )}
+
       {/* 3D Command Core */}
       <div className="flex flex-col items-center gap-4 px-5 pb-4 pt-2">
         <button
