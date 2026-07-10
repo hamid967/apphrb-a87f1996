@@ -269,7 +269,16 @@ const en = {
       convertTitle: "Convert lead to deal",
       convertHint: "Creates a deal from this lead and marks the lead as won.",
       needsProperty: "Attach a property to the lead first.",
+      search: "Search name, source, notes…",
+      filterStage: "All stages",
+      export: "Export",
+      exportCsv: "Export CSV",
+      exportXlsx: "Export Excel",
+      exportActivities: "Export activities",
+      exportMatches: "Export matches",
+      nothingToExport: "Nothing to export",
     },
+
     deals: {
       title: "Deals",
       add: "Add deal",
