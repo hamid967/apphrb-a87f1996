@@ -30,7 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-type Props = { claimId: string };
+type Props = { claimId: string; activeViolationId?: string | null };
 
 const RULE_KEYS = [
   "max_amount",
