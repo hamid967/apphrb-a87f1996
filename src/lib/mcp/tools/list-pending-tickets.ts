@@ -1,8 +1,14 @@
 import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
-import { errorContent, getUserOrgId, supabaseForUser } from "../supabase";
+import {
+  buildListResponse,
+  errorContent,
+  escapeIlike,
+  getUserOrgId,
+  listInputShape,
+  supabaseForUser,
+} from "../supabase";
 
-// Open/pending statuses per table
 const OPEN_STATUSES: Record<string, string[]> = {
   support: ["new", "open", "pending", "in_progress", "waiting"],
   maintenance: ["new", "open", "assigned", "in_progress", "scheduled", "pending"],
@@ -13,8 +19,9 @@ export default defineTool({
   name: "list_pending_tickets",
   title: "List pending tickets & claims",
   description:
-    "List pending items for the signed-in user's company: support tickets, maintenance tickets, or expense claims. Filter by explicit status or by submission date (since ISO date). Defaults to open statuses. Optional `mine_only` limits to items submitted by or assigned to the signed-in user.",
+    "List pending items for the signed-in user's company: support tickets, maintenance tickets, or expense claims. Supports text search over title/subject/number, pagination, filter by status or submission-date window, and `mine_only`. Returns a unified {id, title, subtitle, status, date} shape.",
   inputSchema: {
+    ...listInputShape,
     type: z
       .enum(["support", "maintenance", "expense_claim"])
       .default("support")
@@ -40,10 +47,9 @@ export default defineTool({
       .boolean()
       .default(false)
       .describe("Restrict to items owned by the signed-in user (requester/submitter/assignee)."),
-    limit: z.number().int().min(1).max(100).default(20).describe("Max rows to return (1-100)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ type, status, since, until, mine_only, limit }, ctx) => {
+  handler: async ({ q, page, page_size, type, status, since, until, mine_only }, ctx) => {
     if (!ctx.isAuthenticated()) return errorContent("Not authenticated");
     const { orgId, error } = await getUserOrgId(ctx);
     if (error) return errorContent(error);
@@ -51,55 +57,101 @@ export default defineTool({
 
     const sb = supabaseForUser(ctx);
     const userId = ctx.getUserId();
+    const from = (page - 1) * page_size;
+    const to = from + page_size - 1;
 
-    let q;
+    let qb;
     if (type === "support") {
-      q = sb
+      qb = sb
         .from("tickets")
         .select(
           "id, ticket_number, subject, status, priority, category, channel, requester_id, assignee_id, sla_due_at, created_at",
+          { count: "exact" },
         )
         .eq("org_id", orgId)
         .is("deleted_at", null);
-      if (mine_only && userId) q = q.or(`requester_id.eq.${userId},assignee_id.eq.${userId}`);
+      if (mine_only && userId) qb = qb.or(`requester_id.eq.${userId},assignee_id.eq.${userId}`);
+      if (q) {
+        const s = escapeIlike(q);
+        qb = qb.or(`subject.ilike.%${s}%,ticket_number.ilike.%${s}%`);
+      }
     } else if (type === "maintenance") {
-      q = sb
+      qb = sb
         .from("maintenance_tickets")
         .select(
           "id, ticket_no, title, status, priority, property_id, technician_id, scheduled_at, cost, currency, created_at",
+          { count: "exact" },
         )
         .eq("org_id", orgId);
-      if (mine_only && userId) q = q.eq("created_by", userId);
+      if (mine_only && userId) qb = qb.eq("created_by", userId);
+      if (q) {
+        const s = escapeIlike(q);
+        qb = qb.or(`title.ilike.%${s}%,ticket_no.ilike.%${s}%`);
+      }
     } else {
-      q = sb
+      qb = sb
         .from("expense_claims")
         .select(
           "id, claim_number, title, status, category, amount, currency, submitted_by, submitted_at, created_at",
+          { count: "exact" },
         )
         .eq("org_id", orgId)
         .is("deleted_at", null);
-      if (mine_only && userId) q = q.eq("submitted_by", userId);
+      if (mine_only && userId) qb = qb.eq("submitted_by", userId);
+      if (q) {
+        const s = escapeIlike(q);
+        qb = qb.or(`title.ilike.%${s}%,claim_number.ilike.%${s}%`);
+      }
     }
 
-    if (status) q = q.eq("status", status);
-    else q = q.in("status", OPEN_STATUSES[type]);
-    if (since) q = q.gte("created_at", since);
-    if (until) q = q.lt("created_at", until);
+    if (status) qb = qb.eq("status", status);
+    else qb = qb.in("status", OPEN_STATUSES[type]);
+    if (since) qb = qb.gte("created_at", since);
+    if (until) qb = qb.lt("created_at", until);
+    qb = qb.order("created_at", { ascending: false }).range(from, to);
 
-    q = q.order("created_at", { ascending: false }).limit(limit);
-
-    const { data, error: qErr } = await q;
+    const { data, error: qErr, count } = await qb;
     if (qErr) return errorContent(qErr.message);
 
-    const rows = data ?? [];
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Found ${rows.length} ${type} item(s).\n${JSON.stringify(rows, null, 2)}`,
-        },
-      ],
-      structuredContent: { type, count: rows.length, items: rows },
-    };
+    return buildListResponse(
+      `${type} items`,
+      data ?? [],
+      { q, page, page_size },
+      count ?? null,
+      (row: Record<string, unknown>) => {
+        if (type === "support") {
+          return {
+            id: String(row.id),
+            title: (row.subject as string) ?? (row.ticket_number as string) ?? String(row.id),
+            subtitle: [row.ticket_number, row.category].filter(Boolean).join(" · ") || null,
+            status: (row.status as string) ?? null,
+            date: (row.created_at as string) ?? null,
+            meta: { priority: row.priority, sla_due_at: row.sla_due_at, channel: row.channel },
+          };
+        }
+        if (type === "maintenance") {
+          return {
+            id: String(row.id),
+            title: (row.title as string) ?? (row.ticket_no as string) ?? String(row.id),
+            subtitle: (row.ticket_no as string) ?? null,
+            status: (row.status as string) ?? null,
+            date: (row.created_at as string) ?? null,
+            meta: {
+              priority: row.priority,
+              scheduled_at: row.scheduled_at,
+              property_id: row.property_id,
+            },
+          };
+        }
+        return {
+          id: String(row.id),
+          title: (row.title as string) ?? (row.claim_number as string) ?? String(row.id),
+          subtitle: [row.claim_number, row.category].filter(Boolean).join(" · ") || null,
+          status: (row.status as string) ?? null,
+          date: (row.submitted_at as string) ?? (row.created_at as string) ?? null,
+          meta: { amount: row.amount, currency: row.currency },
+        };
+      },
+    );
   },
 });
