@@ -1,11 +1,34 @@
 import { useEffect, useRef, useState, forwardRef, type TextareaHTMLAttributes } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { AlertCircle, Check, Loader2, Mic, MicOff, Square } from "lucide-react";
+import { AlertCircle, Check, Globe, Loader2, Mic, MicOff, Square } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useVoiceInput } from "@/hooks/use-voice-input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+type LangChoice = "auto" | "ar" | "en";
+
+const LANG_LABEL: Record<LangChoice, string> = {
+  auto: "كشف تلقائي",
+  ar: "العربية",
+  en: "English",
+};
+
+const LANG_SHORT: Record<LangChoice, string> = {
+  auto: "AUTO",
+  ar: "AR",
+  en: "EN",
+};
 
 type VoiceTextareaProps = Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,
@@ -13,7 +36,8 @@ type VoiceTextareaProps = Omit<
 > & {
   value: string;
   onChange: (v: string) => void;
-  language?: string;
+  /** Default recognition language. "auto" lets the model detect it. */
+  language?: LangChoice;
   /** Append transcript separator. Default: single space. */
   separator?: string;
 };
