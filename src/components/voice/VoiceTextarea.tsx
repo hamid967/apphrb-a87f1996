@@ -197,6 +197,30 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
     const showBadge = phase !== "idle";
     const isBusy = phase === "starting" || phase === "transcribing";
 
+    const statusId = useId();
+    const hintId = useId();
+
+    const onTextareaKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+      const mod = e.ctrlKey || e.metaKey;
+      // Ctrl/⌘ + Shift + M → toggle start/stop recording
+      if (mod && e.shiftKey && (e.key === "m" || e.key === "M")) {
+        e.preventDefault();
+        if (!voice.supported || disabled) return;
+        void handleMic();
+        return;
+      }
+      // Ctrl/⌘ + Shift + P → pause / resume (only during recording)
+      if (mod && e.shiftKey && (e.key === "p" || e.key === "P")) {
+        if (phase === "recording" || phase === "paused") {
+          e.preventDefault();
+          togglePause();
+        }
+        return;
+      }
+      // Delegate to caller-provided onKeyDown, if any.
+      rest.onKeyDown?.(e);
+    };
+
     return (
       <div className="space-y-2">
         <div className="relative">
@@ -205,9 +229,15 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
             value={value}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
+            aria-describedby={cn(hintId, showBadge && statusId) || undefined}
+            aria-busy={isBusy || phase === "recording" || phase === "paused"}
             className={cn("pe-32", className)}
             {...rest}
+            onKeyDown={onTextareaKeyDown}
           />
+          <span id={hintId} className="sr-only">
+            اختصار لوحة المفاتيح: Ctrl أو ⌘ مع Shift و M لبدء أو إيقاف التسجيل، وShift مع P للإيقاف المؤقت والاستكمال.
+          </span>
 
           <div className="absolute end-2 bottom-2 flex items-center gap-1">
             {/* Language selector */}
