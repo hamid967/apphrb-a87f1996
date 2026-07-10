@@ -122,7 +122,7 @@ export function EmeraldSplitHero() {
           </div>
         </div>
 
-        <div id="features" className="lg:col-span-7 bg-white p-8 sm:p-10 lg:p-16 flex items-center">
+        <div id="platform-overview" className="lg:col-span-7 bg-white p-8 sm:p-10 lg:p-16 flex items-center">
           <div className="w-full">
             <div className="mb-8 max-w-2xl">
               <div className="mb-3 text-sm font-bold text-[#C5A059]">من منصة إدارة إلى نظام تشغيل عقاري</div>
