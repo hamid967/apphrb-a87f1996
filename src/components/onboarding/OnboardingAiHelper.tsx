@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Loader2, Sparkles, Wand2 } from "lucide-react";
+import { ArrowLeft, Loader2, Mic, MicOff, Sparkles, Square, Wand2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useVoiceInput } from "@/hooks/use-voice-input";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
