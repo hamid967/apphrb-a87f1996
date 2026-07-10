@@ -45,6 +45,7 @@ import {
   updateCommission,
   updateDeal,
 } from "@/lib/deals.functions";
+import { listActivitiesForLead } from "@/lib/lead-activities.functions";
 import { can, type OrgRole } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_authenticated/deals/$id")({
@@ -82,6 +83,12 @@ function DealDetailPage() {
   const commQ = useQuery({
     queryKey: ["commissions", id],
     queryFn: () => listCommissions({ data: { deal_id: id } }),
+  });
+  const leadId = (dealQ.data as any)?.lead_id as string | null | undefined;
+  const leadActivitiesQ = useQuery({
+    queryKey: ["lead-activities", leadId],
+    queryFn: () => listActivitiesForLead({ data: { lead_id: leadId! } }),
+    enabled: !!leadId,
   });
 
   const [editOpen, setEditOpen] = useState(false);
@@ -236,6 +243,56 @@ function DealDetailPage() {
           )}
         </div>
       </div>
+
+      {leadId && (
+        <div className="mt-8">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">
+                {String(t("crm.deals.leadHistory", "Linked lead history"))}
+              </h2>
+              <div className="text-sm text-muted-foreground">
+                <Link to="/leads/$id" params={{ id: leadId }} className="hover:underline">
+                  {String(t("crm.leads.viewDetail", "View lead"))} →
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className="surface-card mt-4">
+            {leadActivitiesQ.isLoading ? (
+              <div className="p-6 text-sm text-muted-foreground">{t("common.loading")}</div>
+            ) : (leadActivitiesQ.data ?? []).length === 0 ? (
+              <div className="p-6 text-sm text-muted-foreground">
+                {String(t("crm.deals.noLeadHistory", "No activity recorded on this lead."))}
+              </div>
+            ) : (
+              <ul className="divide-y">
+                {(leadActivitiesQ.data ?? []).map((a: any) => (
+                  <li key={a.id} className="flex gap-3 p-3 text-sm">
+                    <div className="w-24 shrink-0 text-xs uppercase tracking-wide text-muted-foreground">
+                      {a.activity_type}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      {a.from_stage || a.to_stage ? (
+                        <div className="text-xs text-muted-foreground">
+                          {a.from_stage ?? "—"} → {a.to_stage ?? "—"}
+                        </div>
+                      ) : null}
+                      {a.body && (
+                        <div className="whitespace-pre-wrap text-foreground/80">{a.body}</div>
+                      )}
+                    </div>
+                    <div className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                      {new Date(a.created_at).toLocaleString()}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
+
 
       <EditDealDialog
         open={editOpen}

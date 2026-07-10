@@ -130,6 +130,7 @@ export const deleteDeal = createServerFn({ method: "POST" })
 
 const convertLeadSchema = z.object({
   lead_id: z.string().uuid(),
+  property_id: z.string().uuid().optional().nullable(),
   offer_amount: z.number().nonnegative().optional().nullable(),
   currency: z.string().min(3).max(6).optional(),
   notes: z.string().max(4000).optional().nullable(),
@@ -141,12 +142,13 @@ export const convertLeadToDeal = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: lead, error: le } = await context.supabase
       .from("leads")
-      .select("id, org_id, contact_id, property_id, currency, budget_max, budget_min, notes")
+      .select("id, org_id, contact_id, property_id, currency, budget_max, budget_min, notes, stage")
       .eq("id", data.lead_id)
       .maybeSingle();
     if (le) throw le;
     if (!lead) throw new Error("Lead not found");
-    if (!lead.property_id) throw new Error("Lead has no property attached");
+    const propertyId = data.property_id ?? lead.property_id;
+    if (!propertyId) throw new Error("Property is required to convert lead");
     await assertOrgRole(context.supabase, context.userId, lead.org_id, EDITOR_ROLES);
 
     const offerAmount = data.offer_amount ?? lead.budget_max ?? lead.budget_min ?? null;
@@ -156,7 +158,7 @@ export const convertLeadToDeal = createServerFn({ method: "POST" })
       .from("deals")
       .insert({
         org_id: lead.org_id,
-        property_id: lead.property_id,
+        property_id: propertyId,
         primary_contact_id: lead.contact_id,
         lead_id: lead.id,
         status: "offer",
@@ -170,13 +172,33 @@ export const convertLeadToDeal = createServerFn({ method: "POST" })
       .single();
     if (error) throw error;
 
+    // Move the lead to "won" — its trigger logs a stage_change activity.
     await context.supabase
       .from("leads")
       .update({ stage: "won" } as any)
       .eq("id", lead.id);
 
+    // Log an explicit "converted" activity linking the new deal so the
+    // lead's history (and the deal's linked history) shows the conversion.
+    await context.supabase.from("lead_activities").insert({
+      org_id: lead.org_id,
+      lead_id: lead.id,
+      actor_id: context.userId,
+      activity_type: "converted",
+      from_stage: lead.stage,
+      to_stage: "won",
+      body: data.notes ?? "Converted to deal",
+      metadata: {
+        deal_id: deal.id,
+        offer_amount: offerAmount,
+        currency,
+        property_id: propertyId,
+      },
+    } as any);
+
     return { id: deal.id as string };
   });
+
 
 /* ---------- Commissions ---------- */
 

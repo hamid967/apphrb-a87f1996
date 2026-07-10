@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, Handshake, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { updateLead } from "@/lib/crm.functions";
 import { getLeadDetail } from "@/lib/lead-activities.functions";
+import { ConvertLeadDialog } from "@/components/crm/ConvertLeadDialog";
 
 export const Route = createFileRoute("/_authenticated/leads/$id/edit")({
   component: EditLeadPage,
@@ -47,6 +48,7 @@ function EditLeadPage() {
   const lead = detailQ.data?.lead as any;
 
   const [form, setForm] = useState<FormState | null>(null);
+  const [convertOpen, setConvertOpen] = useState(false);
   useEffect(() => {
     if (lead && !form) {
       setForm({
@@ -117,6 +119,12 @@ function EditLeadPage() {
         </div>
         <div className="flex items-center gap-2">
           <SaveIndicator pending={save.isPending} savedAt={save.submittedAt ?? 0} />
+          {lead?.stage !== "won" && lead?.stage !== "lost" && (
+            <Button size="sm" onClick={() => setConvertOpen(true)}>
+              <Handshake className="me-2 size-4" />
+              {String(t("crm.leads.convert", "Convert to deal"))}
+            </Button>
+          )}
           <Button variant="ghost" asChild>
             <Link to="/leads">
               <ArrowLeft className="me-2 size-4" />
@@ -192,6 +200,21 @@ function EditLeadPage() {
           </Button>
         </div>
       </div>
+
+      {lead && (
+        <ConvertLeadDialog
+          open={convertOpen}
+          onOpenChange={setConvertOpen}
+          lead={{
+            id: lead.id,
+            org_id: lead.org_id,
+            property_id: lead.property_id,
+            currency: lead.currency,
+            budget_max: lead.budget_max,
+            budget_min: lead.budget_min,
+          }}
+        />
+      )}
     </div>
   );
 }

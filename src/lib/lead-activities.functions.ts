@@ -204,3 +204,19 @@ export const getPipelineAnalytics = createServerFn({ method: "GET" })
 
     return { byStage, total, totalValue, winRate, wonCount, lostCount };
   });
+
+/* ----- List activities for a lead (used by deal detail history panel) ----- */
+export const listActivitiesForLead = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ lead_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await getLeadOrg(context.supabase, data.lead_id);
+    const { data: rows, error } = await context.supabase
+      .from("lead_activities")
+      .select("*")
+      .eq("lead_id", data.lead_id)
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (error) throw error;
+    return rows ?? [];
+  });
