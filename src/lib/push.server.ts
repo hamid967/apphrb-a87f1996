@@ -89,7 +89,7 @@ export async function sendPushToUser(
       const res = await fetch(sub.endpoint, {
         method: message.method,
         headers: message.headers as unknown as HeadersInit,
-        body: message.body,
+        body: message.body as unknown as BodyInit,
       });
       if (res.status >= 200 && res.status < 300) {
         delivered++;
