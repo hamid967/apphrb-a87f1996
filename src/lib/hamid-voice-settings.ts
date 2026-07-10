@@ -17,7 +17,7 @@ export const HAMID_VOICE_STORAGE_KEY = "hamid.voice.settings.v1";
 export const DEFAULT_HAMID_VOICE: HamidVoiceSettings = {
   gender: "male",
   serverVoice: "onyx",
-  rate: 0.95,
+  rate: 1.2,
   pitch: 0.9,
 };
 

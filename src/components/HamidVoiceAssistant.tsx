@@ -223,12 +223,25 @@ function prepareArabicForSpeech(text: string) {
 
 /** Currently-playing HTMLAudioElement for server-side TTS, so we can cancel. */
 let currentAudio: HTMLAudioElement | null = null;
+/** In-flight TTS fetch controller, so a new speak() cancels the previous one. */
+let currentTtsAbort: AbortController | null = null;
+/** Monotonic request id — only the latest speak() request may produce audio. */
+let ttsSeq = 0;
 
 function stopSpeaking() {
   if (typeof window === "undefined") return;
+  if (currentTtsAbort) {
+    try { currentTtsAbort.abort(); } catch { /* noop */ }
+    currentTtsAbort = null;
+  }
   if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.src = "";
+    try {
+      currentAudio.onended = null;
+      currentAudio.onerror = null;
+      currentAudio.onplay = null;
+      currentAudio.pause();
+      currentAudio.src = "";
+    } catch { /* noop */ }
     currentAudio = null;
   }
   window.speechSynthesis?.cancel();
@@ -267,6 +280,8 @@ function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
 /**
  * Speak with the Lovable AI Saudi-tuned TTS route; fall back to the browser
  * SpeechSynthesis engine when the network call fails or audio can't play.
+ * Guarantees a single voice at a time: cancels any prior request/playback,
+ * and never double-fires the fallback once server audio has begun playing.
  */
 async function speakSaudi(
   text: string,
@@ -276,6 +291,9 @@ async function speakSaudi(
 ): Promise<boolean> {
   const clean = prepareArabicForSpeech(text);
   stopSpeaking();
+  const mySeq = ++ttsSeq;
+  const controller = new AbortController();
+  currentTtsAbort = controller;
   try {
     const res = await fetch("/api/hamid-tts", {
       method: "POST",
@@ -285,42 +303,72 @@ async function speakSaudi(
         voice: settings.serverVoice,
         speed: settings.rate,
       }),
+      signal: controller.signal,
     });
+    if (mySeq !== ttsSeq) return false; // superseded
     if (!res.ok) {
       const body = await res.text().catch(() => "");
       pushLog("warn", `خادم TTS رجّع ${res.status}`, body.slice(0, 140) || "سنستخدم صوت المتصفح الاحتياطي.");
       throw new Error(`tts ${res.status}`);
     }
     const blob = await res.blob();
+    if (mySeq !== ttsSeq) return false;
     if (!blob.size) {
       pushLog("warn", "استجابة TTS فارغة", "التبديل لصوت المتصفح.");
       throw new Error("empty tts");
     }
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
+    audio.playbackRate = settings.rate;
     currentAudio = audio;
+    let started = false;
+    let finalized = false;
     audio.onplay = () => {
+      started = true;
       pushLog("ok", "تشغيل صوت الخادم (Lovable AI TTS)");
       onStart?.();
     };
     const cleanup = () => {
+      if (finalized) return;
+      finalized = true;
       URL.revokeObjectURL(url);
       if (currentAudio === audio) currentAudio = null;
       onEnd?.();
     };
     audio.onended = cleanup;
     audio.onerror = () => {
-      pushLog("error", "فشل تشغيل ملف الصوت من الخادم", "قد يكون صيغة MP3 محظورة. سنجرّب صوت المتصفح.");
+      // Only try the browser fallback if playback never actually started —
+      // otherwise the user would hear the same reply spoken twice.
+      const shouldFallback = !started;
+      pushLog(
+        shouldFallback ? "error" : "warn",
+        "حدث خطأ أثناء تشغيل ملف صوت الخادم",
+        shouldFallback ? "سنجرّب صوت المتصفح." : "المقطع بدأ التشغيل — لن نكرر النطق.",
+      );
       cleanup();
-      speakBrowserFallback(text, settings);
+      if (shouldFallback && mySeq === ttsSeq) speakBrowserFallback(text, settings);
     };
-    await audio.play();
+    try {
+      await audio.play();
+    } catch (playErr) {
+      // play() rejected (autoplay blocked, etc.) — treat like start failure.
+      cleanup();
+      if (mySeq === ttsSeq) {
+        pushLog("warn", "تعذّر بدء تشغيل الصوت — تحويل لصوت المتصفح", String((playErr as Error).message ?? playErr));
+        return speakBrowserFallback(text, settings);
+      }
+      return false;
+    }
     return true;
   } catch (err) {
+    if ((err as Error).name === "AbortError" || mySeq !== ttsSeq) return false;
     pushLog("warn", "تعذّر استخدام TTS الخادم — تحويل لصوت المتصفح", String((err as Error).message ?? err));
     return speakBrowserFallback(text, settings);
+  } finally {
+    if (currentTtsAbort === controller) currentTtsAbort = null;
   }
 }
+
 
 
 
@@ -409,20 +457,43 @@ function MiniOrb({ size = 44 }: { size?: number }) {
       style={{ width: size, height: size }}
       aria-hidden
     >
-      <svg viewBox="0 0 200 200" width={size} height={size}>
-        <defs>
-          <radialGradient id="hamidOrbMini" cx="35%" cy="35%" r="75%">
-            <stop offset="0%" stopColor="#f3ecb0" />
-            <stop offset="30%" stopColor="#b8c96a" />
-            <stop offset="60%" stopColor="#4fa39a" />
-            <stop offset="90%" stopColor="#2b6fb3" />
-            <stop offset="100%" stopColor="#0b2a4a" />
-          </radialGradient>
-        </defs>
-        <circle cx="100" cy="100" r="92" fill="url(#hamidOrbMini)" />
-        <circle cx="100" cy="100" r="30" fill="#ffffff" />
-      </svg>
-      <Phone className="absolute h-3.5 w-3.5 text-black" />
+      {/* Soft outer glow ring */}
+      <span
+        className="absolute inset-0 rounded-full bg-gradient-to-tr from-sky-400 via-cyan-300 to-emerald-300 opacity-70 blur-[6px]"
+      />
+      {/* Pulsing halo */}
+      <span
+        className="absolute inset-0 rounded-full bg-sky-400/40 animate-ping"
+        style={{ animationDuration: "2.2s" }}
+      />
+      {/* Core disc */}
+      <span className="relative grid h-full w-full place-items-center rounded-full bg-gradient-to-br from-slate-900 via-slate-800 to-sky-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_8px_24px_-8px_rgba(14,165,233,0.7)] ring-1 ring-white/20">
+        {/* Waveform bars */}
+        <svg viewBox="0 0 24 24" width={size * 0.5} height={size * 0.5} fill="none">
+          <g className="[&>rect]:origin-center">
+            <rect x="3"  y="10" width="2.4" height="4"  rx="1.2" fill="#7dd3fc">
+              <animate attributeName="height" values="4;10;4"  dur="1.1s" repeatCount="indefinite" />
+              <animate attributeName="y"      values="10;7;10" dur="1.1s" repeatCount="indefinite" />
+            </rect>
+            <rect x="7"  y="7"  width="2.4" height="10" rx="1.2" fill="#38bdf8">
+              <animate attributeName="height" values="10;16;10" dur="0.9s" repeatCount="indefinite" />
+              <animate attributeName="y"      values="7;4;7"    dur="0.9s" repeatCount="indefinite" />
+            </rect>
+            <rect x="11" y="5"  width="2.4" height="14" rx="1.2" fill="#22d3ee">
+              <animate attributeName="height" values="14;20;14" dur="1.3s" repeatCount="indefinite" />
+              <animate attributeName="y"      values="5;2;5"    dur="1.3s" repeatCount="indefinite" />
+            </rect>
+            <rect x="15" y="7"  width="2.4" height="10" rx="1.2" fill="#38bdf8">
+              <animate attributeName="height" values="10;16;10" dur="1.0s" repeatCount="indefinite" />
+              <animate attributeName="y"      values="7;4;7"    dur="1.0s" repeatCount="indefinite" />
+            </rect>
+            <rect x="19" y="10" width="2.4" height="4"  rx="1.2" fill="#7dd3fc">
+              <animate attributeName="height" values="4;10;4"  dur="1.2s" repeatCount="indefinite" />
+              <animate attributeName="y"      values="10;7;10" dur="1.2s" repeatCount="indefinite" />
+            </rect>
+          </g>
+        </svg>
+      </span>
     </span>
   );
 }
