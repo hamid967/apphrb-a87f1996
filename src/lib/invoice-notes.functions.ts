@@ -31,7 +31,8 @@ function round2(n: number): number {
 }
 
 async function nextNoteNumber(
-  supabase: Awaited<ReturnType<typeof getSb>>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
   orgId: string,
   noteType: "credit" | "debit",
 ): Promise<string> {
@@ -49,11 +50,6 @@ async function nextNoteNumber(
   const last = data?.[0]?.number as string | undefined;
   const nextSeq = last ? parseInt(last.split("-").pop() ?? "0", 10) + 1 : 1;
   return `${prefix}-${year}-${String(nextSeq).padStart(4, "0")}`;
-}
-
-// Fake helper for typing (never called)
-async function getSb() {
-  return null as never;
 }
 
 export const listInvoiceNotes = createServerFn({ method: "GET" })
