@@ -7,7 +7,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { BellPlus, BellOff, Loader2, RefreshCw, ShieldAlert } from "lucide-react";
+import { BellPlus, BellOff, HelpCircle, Loader2, RefreshCw, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,6 +15,7 @@ import {
   getVapidKey,
   savePushSubscription,
 } from "@/lib/push.functions";
+import { PushPermissionHelpDialog } from "@/components/notifications/PushPermissionHelpDialog";
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
