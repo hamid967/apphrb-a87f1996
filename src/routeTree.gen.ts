@@ -44,6 +44,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthenticatedRegisterCompanyRouteImport } from './routes/_authenticated/register-company'
 import { Route as AuthenticatedPortalRouteImport } from './routes/_authenticated/portal'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedMeetingsRouteImport } from './routes/_authenticated/meetings'
 import { Route as AuthenticatedLeasingRouteImport } from './routes/_authenticated/leasing'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
@@ -419,6 +420,11 @@ const AuthenticatedPortalRoute = AuthenticatedPortalRouteImport.update({
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedMeetingsRoute = AuthenticatedMeetingsRouteImport.update({
+  id: '/meetings',
+  path: '/meetings',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedLeasingRoute = AuthenticatedLeasingRouteImport.update({
@@ -1607,6 +1613,7 @@ export interface FileRoutesByFullPath {
   '/assistant': typeof AuthenticatedAssistantRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/leasing': typeof AuthenticatedLeasingRoute
+  '/meetings': typeof AuthenticatedMeetingsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/portal': typeof AuthenticatedPortalRouteWithChildren
   '/register-company': typeof AuthenticatedRegisterCompanyRoute
@@ -1840,6 +1847,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/leasing': typeof AuthenticatedLeasingRoute
+  '/meetings': typeof AuthenticatedMeetingsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/register-company': typeof AuthenticatedRegisterCompanyRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -2075,6 +2083,7 @@ export interface FileRoutesById {
   '/_authenticated/assistant': typeof AuthenticatedAssistantRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_authenticated/leasing': typeof AuthenticatedLeasingRoute
+  '/_authenticated/meetings': typeof AuthenticatedMeetingsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/portal': typeof AuthenticatedPortalRouteWithChildren
   '/_authenticated/register-company': typeof AuthenticatedRegisterCompanyRoute
@@ -2314,6 +2323,7 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/dashboard'
     | '/leasing'
+    | '/meetings'
     | '/onboarding'
     | '/portal'
     | '/register-company'
@@ -2547,6 +2557,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/unsubscribe'
     | '/leasing'
+    | '/meetings'
     | '/onboarding'
     | '/register-company'
     | '/blog/$slug'
@@ -2781,6 +2792,7 @@ export interface FileRouteTypes {
     | '/_authenticated/assistant'
     | '/_authenticated/dashboard'
     | '/_authenticated/leasing'
+    | '/_authenticated/meetings'
     | '/_authenticated/onboarding'
     | '/_authenticated/portal'
     | '/_authenticated/register-company'
@@ -3303,6 +3315,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/meetings': {
+      id: '/_authenticated/meetings'
+      path: '/meetings'
+      fullPath: '/meetings'
+      preLoaderRoute: typeof AuthenticatedMeetingsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/leasing': {
@@ -5305,6 +5324,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedLeasingRoute: typeof AuthenticatedLeasingRoute
+  AuthenticatedMeetingsRoute: typeof AuthenticatedMeetingsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPortalRoute: typeof AuthenticatedPortalRouteWithChildren
   AuthenticatedRegisterCompanyRoute: typeof AuthenticatedRegisterCompanyRoute
@@ -5352,6 +5372,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAssistantRoute: AuthenticatedAssistantRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedLeasingRoute: AuthenticatedLeasingRoute,
+  AuthenticatedMeetingsRoute: AuthenticatedMeetingsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPortalRoute: AuthenticatedPortalRouteWithChildren,
   AuthenticatedRegisterCompanyRoute: AuthenticatedRegisterCompanyRoute,
