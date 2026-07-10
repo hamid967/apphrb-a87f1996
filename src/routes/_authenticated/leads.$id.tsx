@@ -164,9 +164,29 @@ function LeadDetailPage() {
           </div>
 
           <div className="surface-card p-5">
-            <h2 className="mb-3 text-lg font-semibold">
-              {t("crm.leads.activity", "Activity")}
-            </h2>
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <h2 className="text-lg font-semibold">
+                {t("crm.leads.activity", "Activity")}
+              </h2>
+              <ExportMenu
+                label={t("crm.leads.exportActivities")}
+                disabled={activities.length === 0}
+                onExport={(fmt) =>
+                  exportRows(
+                    `lead_${id}_activities`,
+                    activities.map((a: any) => ({
+                      created_at: a.created_at,
+                      type: a.activity_type,
+                      from_stage: a.from_stage ?? "",
+                      to_stage: a.to_stage ?? "",
+                      body: a.body ?? "",
+                    })),
+                    fmt,
+                  )
+                }
+              />
+            </div>
+
             <div className="mb-4 grid gap-2">
               <div className="flex gap-2">
                 <Select value={kind} onValueChange={(v) => setKind(v as Kind)}>
