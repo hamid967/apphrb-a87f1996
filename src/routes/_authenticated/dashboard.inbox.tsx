@@ -12,7 +12,7 @@ import {
   markAllMyNotificationsRead,
   markMyNotificationRead,
 } from "@/lib/notifications.functions";
-import { PushEnableButton } from "@/components/notifications/PushEnableButton";
+import { PushStatusCard } from "@/components/notifications/PushStatusCard";
 
 export const Route = createFileRoute("/_authenticated/dashboard/inbox")({
   head: () =>
@@ -114,7 +114,7 @@ function InboxPage() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <PushEnableButton />
+          {/* Push status moved to a dedicated card below */}
           <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border/60 bg-muted/40 px-3 py-1.5 text-xs">
             <input
               type="checkbox"
@@ -139,6 +139,8 @@ function InboxPage() {
           </Button>
         </div>
       </div>
+
+      <PushStatusCard />
 
       <div className="surface-card divide-y divide-border/60">
         {q.isLoading ? (
