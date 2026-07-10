@@ -107,7 +107,7 @@
       {
         "name": "list_branches",
         "title": "List branches & departments",
-        "description": "List branches (with their departments) for the signed-in user's company. Supports text search over branch name/address and pagination. Returns a unified {id, title, subtitle, date} shape.",
+        "description": "List branches (with their departments) for the signed-in user's company. Supports text search over branch name/address, pagination, and sortable columns. Returns a unified {id, title, subtitle, date} shape.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -144,6 +144,15 @@
               ],
               "default": "desc",
               "description": "Sort direction. Applied together with the tool's `sort` column."
+            },
+            "sort": {
+              "type": "string",
+              "enum": [
+                "created_at",
+                "name"
+              ],
+              "default": "created_at",
+              "description": "Column to sort by. Combined with the shared `order` (asc/desc)."
             }
           },
           "additionalProperties": false,
