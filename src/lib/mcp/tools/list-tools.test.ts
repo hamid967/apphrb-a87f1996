@@ -385,7 +385,7 @@ describe("list_pending_tickets MCP tool", () => {
     });
 
     const call = calls.find((c) => c.table === "maintenance_tickets")!;
-    expect(call.filters).toContainEqual(["eq", "created_by", USER_ID]);
+    expect(call.or).toContain(`created_by.eq.${USER_ID},technician_id.eq.${USER_ID}`);
   });
 
   it("maps expense claims, prefers submitted_at for date, and applies date window", async () => {
