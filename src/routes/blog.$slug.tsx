@@ -26,9 +26,51 @@ export const Route = createFileRoute("/blog/$slug")({
         ],
       };
     }
+    const isArPost = !!loaderData.title_ar;
     const title = loaderData.title_ar || loaderData.title_en;
+    const titleEn = loaderData.title_en || loaderData.title_ar;
     const desc = loaderData.excerpt_ar || loaderData.excerpt_en || title;
     const url = `https://hrhbs.com/blog/${params.slug}`;
+    const image = loaderData.cover_url
+      ? (loaderData.cover_url.startsWith("http")
+          ? loaderData.cover_url
+          : `https://hrhbs.com${loaderData.cover_url}`)
+      : undefined;
+    const published = loaderData.published_at || undefined;
+    const modified = (loaderData as { updated_at?: string }).updated_at || published;
+    const authorName = (loaderData as { author_name?: string }).author_name || "Aqari Editorial";
+
+    const blogPosting: Record<string, unknown> = {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: title,
+      description: desc,
+      inLanguage: isArPost ? "ar" : "en",
+      url,
+      mainEntityOfPage: { "@type": "WebPage", "@id": url },
+      ...(titleEn && titleEn !== title ? { alternativeHeadline: titleEn } : {}),
+      ...(image ? { image: [image] } : {}),
+      ...(published ? { datePublished: published } : {}),
+      ...(modified ? { dateModified: modified } : {}),
+      author: { "@type": "Organization", name: authorName, url: "https://hrhbs.com" },
+      publisher: {
+        "@type": "Organization",
+        name: "Aqari by HRHBS",
+        url: "https://hrhbs.com",
+        logo: { "@type": "ImageObject", url: "https://hrhbs.com/favicon.ico" },
+      },
+    };
+
+    const breadcrumbs = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: isArPost ? "الرئيسية" : "Home", item: "https://hrhbs.com/" },
+        { "@type": "ListItem", position: 2, name: isArPost ? "المدونة" : "Blog", item: "https://hrhbs.com/blog" },
+        { "@type": "ListItem", position: 3, name: title, item: url },
+      ],
+    };
+
     return {
       meta: [
         { title: `${title} — Aqari` },
@@ -37,23 +79,19 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:description", content: desc },
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
-        ...(loaderData.cover_url ? [{ property: "og:image", content: loaderData.cover_url }] : []),
+        { property: "og:locale", content: isArPost ? "ar_SA" : "en_US" },
+        ...(image ? [{ property: "og:image", content: image }] : []),
+        ...(published ? [{ property: "article:published_time", content: published }] : []),
+        ...(modified ? [{ property: "article:modified_time", content: modified }] : []),
+        { name: "twitter:card", content: image ? "summary_large_image" : "summary" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
+        ...(image ? [{ name: "twitter:image", content: image }] : []),
       ],
       links: [{ rel: "canonical", href: url }],
       scripts: [
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: title,
-            description: desc,
-            ...(loaderData.cover_url ? { image: loaderData.cover_url } : {}),
-            ...(loaderData.published_at ? { datePublished: loaderData.published_at } : {}),
-            mainEntityOfPage: url,
-            url,
-          }),
-        },
+        { type: "application/ld+json", children: JSON.stringify(blogPosting) },
+        { type: "application/ld+json", children: JSON.stringify(breadcrumbs) },
       ],
     };
   },
