@@ -1,0 +1,87 @@
+name: Radix / SSR error guard
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Runs the two Playwright specs that lock the fix for the
+# "Cannot read properties of undefined (reading 'useLayoutEffect')" regression
+# in vendor-radix and catch any swallowed h3 SSR HTTPError page:
+#   - tests/e2e/no-radix-ssr-errors.spec.py  (public routes, always runs)
+#   - tests/e2e/authed-radix-ssr.spec.py     (dashboard → claim → review, needs session)
+#
+# On failure, uploads console logs and per-route screenshots for triage.
+
+jobs:
+  radix-ssr-guard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright (Python) + Chromium
+        run: |
+          python -m pip install --no-cache-dir playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Start dev server
+        run: |
+          bun run dev > /tmp/dev-server.log 2>&1 &
+          echo $! > /tmp/dev-server.pid
+          for i in $(seq 1 45); do
+            if curl -sf http://localhost:8080 > /dev/null; then
+              echo "dev server ready"; exit 0
+            fi
+            sleep 2
+          done
+          echo "dev server failed to start"; tail -n 200 /tmp/dev-server.log; exit 1
+
+      - name: Run public-routes Radix/SSR guard
+        id: public
+        run: |
+          mkdir -p /tmp/browser
+          python tests/e2e/no-radix-ssr-errors.spec.py \
+            2>&1 | tee /tmp/browser/no-radix-ssr-errors.log
+
+      - name: Run authenticated Radix/SSR guard
+        id: authed
+        # Skips gracefully when no CI session secret is configured.
+        env:
+          LOVABLE_BROWSER_AUTH_STATUS: ${{ secrets.E2E_SUPABASE_SESSION_JSON != '' && 'injected' || 'signed_out' }}
+          LOVABLE_BROWSER_SUPABASE_STORAGE_KEY: ${{ secrets.E2E_SUPABASE_STORAGE_KEY }}
+          LOVABLE_BROWSER_SUPABASE_SESSION_JSON: ${{ secrets.E2E_SUPABASE_SESSION_JSON }}
+          LOVABLE_BROWSER_SUPABASE_COOKIES_JSON: ${{ secrets.E2E_SUPABASE_COOKIES_JSON }}
+        run: |
+          python tests/e2e/authed-radix-ssr.spec.py \
+            2>&1 | tee /tmp/browser/authed-radix-ssr.log
+
+      - name: Stop dev server
+        if: always()
+        run: kill "$(cat /tmp/dev-server.pid)" 2>/dev/null || true
+
+      - name: Upload failure report + screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radix-ssr-failure-report
+          path: |
+            /tmp/browser/no-radix-ssr-errors/**
+            /tmp/browser/authed-radix-ssr/**
+            /tmp/browser/no-radix-ssr-errors.log
+            /tmp/browser/authed-radix-ssr.log
+            /tmp/dev-server.log
+          if-no-files-found: warn
