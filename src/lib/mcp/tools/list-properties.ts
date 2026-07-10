@@ -21,9 +21,13 @@ export default defineTool({
       .enum(["rent", "sale"])
       .optional()
       .describe("Filter by listing type: rent or sale."),
+    sort: z
+      .enum(["created_at", "price", "city", "status"])
+      .default("created_at")
+      .describe("Column to sort by. Combined with the shared `order` (asc/desc)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ q, page, page_size, city, listing_type }, ctx) => {
+  handler: async ({ q, page, page_size, city, listing_type, sort, order }, ctx) => {
     if (!ctx.isAuthenticated()) return errorContent("Not authenticated");
     const { orgId, error } = await getUserOrgId(ctx);
     if (error) return errorContent(error);
@@ -46,7 +50,7 @@ export default defineTool({
       const s = escapeIlike(q);
       query = query.or(`title_ar.ilike.%${s}%,title_en.ilike.%${s}%,city.ilike.%${s}%`);
     }
-    query = query.order("created_at", { ascending: false }).range(from, to);
+    query = query.order(sort, { ascending: order === "asc" }).range(from, to);
 
     const { data, error: qErr, count } = await query;
     if (qErr) return errorContent(qErr.message);

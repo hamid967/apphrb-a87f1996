@@ -1,4 +1,5 @@
 import { defineTool } from "@lovable.dev/mcp-js";
+import { z } from "zod";
 import {
   buildListResponse,
   errorContent,
@@ -12,10 +13,16 @@ export default defineTool({
   name: "list_branches",
   title: "List branches & departments",
   description:
-    "List branches (with their departments) for the signed-in user's company. Supports text search over branch name/address and pagination. Returns a unified {id, title, subtitle, date} shape.",
-  inputSchema: { ...listInputShape },
+    "List branches (with their departments) for the signed-in user's company. Supports text search over branch name/address, pagination, and sortable columns. Returns a unified {id, title, subtitle, date} shape.",
+  inputSchema: {
+    ...listInputShape,
+    sort: z
+      .enum(["created_at", "name"])
+      .default("created_at")
+      .describe("Column to sort by. Combined with the shared `order` (asc/desc)."),
+  },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ q, page, page_size }, ctx) => {
+  handler: async ({ q, page, page_size, sort, order }, ctx) => {
     if (!ctx.isAuthenticated()) return errorContent("Not authenticated");
     const { orgId, error } = await getUserOrgId(ctx);
     if (error) return errorContent(error);
@@ -34,7 +41,7 @@ export default defineTool({
       const s = escapeIlike(q);
       bq = bq.or(`name.ilike.%${s}%,address.ilike.%${s}%`);
     }
-    bq = bq.order("created_at", { ascending: true }).range(from, to);
+    bq = bq.order(sort, { ascending: order === "asc" }).range(from, to);
 
     const { data: branches, error: bErr, count } = await bq;
     if (bErr) return errorContent(bErr.message);

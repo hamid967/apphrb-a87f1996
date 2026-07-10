@@ -64,6 +64,15 @@
               "default": 20,
               "description": "Rows per page (1-100)."
             },
+            "order": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "description": "Sort direction. Applied together with the tool's `sort` column."
+            },
             "city": {
               "type": "string",
               "minLength": 1,
@@ -77,6 +86,17 @@
                 "sale"
               ],
               "description": "Filter by listing type: rent or sale."
+            },
+            "sort": {
+              "type": "string",
+              "enum": [
+                "created_at",
+                "price",
+                "city",
+                "status"
+              ],
+              "default": "created_at",
+              "description": "Column to sort by. Combined with the shared `order` (asc/desc)."
             }
           },
           "additionalProperties": false,
@@ -87,7 +107,7 @@
       {
         "name": "list_branches",
         "title": "List branches & departments",
-        "description": "List branches (with their departments) for the signed-in user's company. Supports text search over branch name/address and pagination. Returns a unified {id, title, subtitle, date} shape.",
+        "description": "List branches (with their departments) for the signed-in user's company. Supports text search over branch name/address, pagination, and sortable columns. Returns a unified {id, title, subtitle, date} shape.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -115,6 +135,24 @@
               "maximum": 100,
               "default": 20,
               "description": "Rows per page (1-100)."
+            },
+            "order": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "description": "Sort direction. Applied together with the tool's `sort` column."
+            },
+            "sort": {
+              "type": "string",
+              "enum": [
+                "created_at",
+                "name"
+              ],
+              "default": "created_at",
+              "description": "Column to sort by. Combined with the shared `order` (asc/desc)."
             }
           },
           "additionalProperties": false,
@@ -218,6 +256,15 @@
               "default": 20,
               "description": "Rows per page (1-100)."
             },
+            "order": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "description": "Sort direction. Applied together with the tool's `sort` column."
+            },
             "type": {
               "type": "string",
               "enum": [
@@ -248,6 +295,15 @@
               "type": "boolean",
               "default": false,
               "description": "Restrict to items owned by the signed-in user (requester/submitter/assignee)."
+            },
+            "sort": {
+              "type": "string",
+              "enum": [
+                "created_at",
+                "status"
+              ],
+              "default": "created_at",
+              "description": "Column to sort by. Combined with the shared `order` (asc/desc)."
             }
           },
           "additionalProperties": false,

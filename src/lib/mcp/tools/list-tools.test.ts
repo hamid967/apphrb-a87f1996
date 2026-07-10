@@ -96,9 +96,19 @@ process.env.SUPABASE_PUBLISHABLE_KEY = "test-anon-key";
 const ORG_ID = "00000000-0000-0000-0000-000000000001";
 const USER_ID = "11111111-1111-1111-1111-111111111111";
 
+import { z } from "zod";
 import listProperties from "./list-properties";
 import listBranches from "./list-branches";
 import listPendingTickets from "./list-pending-tickets";
+
+// Parse args through each tool's inputSchema so zod defaults (sort, order,
+// page, page_size, mine_only) match what the runtime feeds the handler.
+function parseArgs(
+  tool: { inputSchema?: Record<string, z.ZodTypeAny> },
+  args: Record<string, unknown>,
+) {
+  return z.object(tool.inputSchema ?? {}).parse(args);
+}
 
 type Ctx = {
   isAuthenticated: () => boolean;
@@ -154,7 +164,7 @@ beforeEach(() => {
 describe("list_properties MCP tool", () => {
   const invoke = (args: Record<string, unknown>) =>
     // deno-lint-ignore no-explicit-any
-    (listProperties.handler as any)(args, ctx()) as Promise<ListPayload>;
+    (listProperties.handler as any)(parseArgs(listProperties, args), ctx()) as Promise<ListPayload>;
 
   it("returns the unified item shape for each row", async () => {
     listResults.set("properties", {
@@ -187,6 +197,20 @@ describe("list_properties MCP tool", () => {
     expect(res.structuredContent.entity).toBe("properties");
     expect(res.structuredContent.total).toBe(1);
     expect(res.structuredContent.has_more).toBe(false);
+  });
+
+  it("applies default sort=created_at desc", async () => {
+    listResults.set("properties", { data: [], error: null, count: 0 });
+    await invoke({ page: 1, page_size: 20 });
+    const call = calls.find((c) => c.table === "properties")!;
+    expect(call.order).toEqual(["created_at", { ascending: false }]);
+  });
+
+  it("respects custom sort=price and order=asc", async () => {
+    listResults.set("properties", { data: [], error: null, count: 0 });
+    await invoke({ page: 1, page_size: 20, sort: "price", order: "asc" });
+    const call = calls.find((c) => c.table === "properties")!;
+    expect(call.order).toEqual(["price", { ascending: true }]);
   });
 
   it("applies pagination via .range() and forwards page/page_size", async () => {
@@ -236,7 +260,7 @@ describe("list_properties MCP tool", () => {
 describe("list_branches MCP tool", () => {
   const invoke = (args: Record<string, unknown>) =>
     // deno-lint-ignore no-explicit-any
-    (listBranches.handler as any)(args, ctx()) as Promise<ListPayload>;
+    (listBranches.handler as any)(parseArgs(listBranches, args), ctx()) as Promise<ListPayload>;
 
   it("returns the unified shape and embeds departments in meta", async () => {
     listResults.set("branches", {
@@ -290,7 +314,7 @@ describe("list_branches MCP tool", () => {
 describe("list_pending_tickets MCP tool", () => {
   const invoke = (args: Record<string, unknown>) =>
     // deno-lint-ignore no-explicit-any
-    (listPendingTickets.handler as any)(args, ctx()) as Promise<ListPayload>;
+    (listPendingTickets.handler as any)(parseArgs(listPendingTickets, args), ctx()) as Promise<ListPayload>;
 
   it("maps support rows to the unified shape", async () => {
     listResults.set("tickets", {

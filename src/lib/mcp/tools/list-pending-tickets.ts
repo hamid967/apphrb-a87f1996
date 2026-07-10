@@ -149,9 +149,16 @@ export default defineTool({
       .boolean()
       .default(false)
       .describe("Restrict to items owned by the signed-in user (requester/submitter/assignee)."),
+    sort: z
+      .enum(["created_at", "status"])
+      .default("created_at")
+      .describe("Column to sort by. Combined with the shared `order` (asc/desc)."),
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
-  handler: async ({ q, page, page_size, type, status, since, until, mine_only }, ctx) => {
+  handler: async (
+    { q, page, page_size, type, status, since, until, mine_only, sort, order },
+    ctx,
+  ) => {
     if (!ctx.isAuthenticated()) return errorContent("Not authenticated");
     const { orgId, error } = await getUserOrgId(ctx);
     if (error) return errorContent(error);
@@ -164,6 +171,7 @@ export default defineTool({
     const t = type as TicketType;
     const statuses = status ? [status] : OPEN_STATUSES[t];
     const s = q ? escapeIlike(q) : null;
+    const ascending = order === "asc";
 
     if (t === "support") {
       let qb = sb
@@ -180,7 +188,7 @@ export default defineTool({
       if (since) qb = qb.gte("created_at", since);
       if (until) qb = qb.lt("created_at", until);
       const { data, error: qErr, count } = await qb
-        .order("created_at", { ascending: false })
+        .order(sort, { ascending })
         .range(from, to);
       if (qErr) return errorContent(qErr.message);
       return buildListResponse<SupportRow>(
@@ -206,7 +214,7 @@ export default defineTool({
       if (since) qb = qb.gte("created_at", since);
       if (until) qb = qb.lt("created_at", until);
       const { data, error: qErr, count } = await qb
-        .order("created_at", { ascending: false })
+        .order(sort, { ascending })
         .range(from, to);
       if (qErr) return errorContent(qErr.message);
       return buildListResponse<MaintenanceRow>(
@@ -233,7 +241,7 @@ export default defineTool({
     if (since) qb = qb.gte("created_at", since);
     if (until) qb = qb.lt("created_at", until);
     const { data, error: qErr, count } = await qb
-      .order("created_at", { ascending: false })
+      .order(sort, { ascending })
       .range(from, to);
     if (qErr) return errorContent(qErr.message);
     return buildListResponse<ExpenseClaimRow>(
