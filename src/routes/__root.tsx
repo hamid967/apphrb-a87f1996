@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { Toaster } from "sonner";
+import { useTranslation } from "react-i18next";
 import { MotionPreferenceProvider } from "@/components/motion-preference";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -23,42 +24,78 @@ import { FilterAnalyticsDebugPanel } from "@/components/analytics/FilterAnalytic
 import { CommandPalette } from "@/components/command-palette";
 
 function NotFoundComponent() {
+  const { i18n } = useTranslation();
+  const isAr = i18n.language?.startsWith("ar");
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main
+      dir={isAr ? "rtl" : "ltr"}
+      className="flex min-h-screen items-center justify-center bg-background px-4"
+    >
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-semibold tracking-tight text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-medium">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">This page doesn't exist or has moved.</p>
+        <p className="text-sm font-medium text-primary">HBSpro</p>
+        <h1 className="mt-2 text-7xl font-semibold tracking-tight text-foreground">404</h1>
+        <h2 className="mt-4 text-xl font-medium">
+          {isAr ? "الصفحة غير موجودة" : "Page not found"}
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {isAr
+            ? "قد يكون الرابط غير صحيح أو نُقلت الصفحة إلى مسار جديد."
+            : "The link may be incorrect, or the page may have moved."}
+        </p>
         <Link
           to="/"
           className="mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
         >
-          Go home
+          {isAr ? "العودة إلى الرئيسية" : "Go home"}
         </Link>
       </div>
-    </div>
+    </main>
   );
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const { i18n } = useTranslation();
+  const isAr = i18n.language?.startsWith("ar");
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <main
+      dir={isAr ? "rtl" : "ltr"}
+      role="alert"
+      className="flex min-h-screen items-center justify-center bg-background px-4"
+    >
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold">Something went wrong</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
-        <button
-          onClick={() => {
-            router.invalidate();
-            reset();
-          }}
-          className="mt-6 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
-        >
-          Try again
-        </button>
+        <p className="text-sm font-medium text-primary">HBSpro</p>
+        <h1 className="mt-3 text-2xl font-semibold">
+          {isAr ? "تعذّر إكمال الطلب" : "We couldn't complete that request"}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {isAr
+            ? "حدث خطأ غير متوقع. يمكنك إعادة المحاولة، وإذا استمر الخطأ فتواصل مع الدعم."
+            : "An unexpected error occurred. Try again, and contact support if it continues."}
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
+            className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
+          >
+            {isAr ? "إعادة المحاولة" : "Try again"}
+          </button>
+          <Link
+            to="/"
+            className="rounded-full border border-border px-5 py-2.5 text-sm font-medium"
+          >
+            {isAr ? "الرئيسية" : "Home"}
+          </Link>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
 
@@ -104,7 +141,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "icon", type: "image/png", sizes: "192x192", href: "/icon-192.png" },
-      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-192.png" },
+      { rel: "icon", type: "image/png", sizes: "512x512", href: "/icon-512.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://iefrhjjlftbijuedxmbl.supabase.co", crossOrigin: "anonymous" },
@@ -113,7 +150,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=DM+Serif+Display&family=Fira+Sans:wght@400;500;600;700&family=Tajawal:wght@400;500;700;900&display=swap",
       },
-
     ],
     scripts: [
       {
