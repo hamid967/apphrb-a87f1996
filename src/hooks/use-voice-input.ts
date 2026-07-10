@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { transcribeVoice } from "@/lib/voice-transcribe.functions";
 
-type State = "idle" | "recording" | "transcribing";
+type State = "idle" | "recording" | "paused" | "transcribing";
 
 const PREFERRED_MIME_TYPES = [
   "audio/webm;codecs=opus",
