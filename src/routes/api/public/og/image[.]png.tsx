@@ -7,7 +7,7 @@ import { createFileRoute } from "@tanstack/react-router";
 // scrapers that don't render SVG.
 // ---------------------------------------------------------------------------
 
-const BRAND = "HRHBS · HBSpro";
+const BRAND = "HBSpro";
 const MAX_TITLE = 90;
 const MAX_SUB = 140;
 
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/api/public/og/image.png")({
       GET: async ({ request }) => {
         const url = new URL(request.url);
         const p = url.searchParams;
-        const title = (p.get("title") || "HRHBS — HBSpro").slice(0, MAX_TITLE).trim();
+        const title = (p.get("title") || "HBSpro").slice(0, MAX_TITLE).trim();
         const subtitle = (p.get("subtitle") || "").slice(0, MAX_SUB).trim();
         const kindRaw = (p.get("kind") || "page").toLowerCase() as Kind;
         const kind: Kind = (
