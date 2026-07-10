@@ -79,10 +79,12 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
     const [elapsed, setElapsed] = useState(0);
     const [lang, setLang] = useState<LangChoice>(language);
 
+    const toastId = useId();
+
     const voice = useVoiceInput({
       language: lang === "auto" ? undefined : lang,
       onError: (msg) => {
-        toast.error(msg);
+        toast.error("فشل الإدخال الصوتي", { id: toastId, description: msg });
         setPhase("error");
         // No auto-clear — the user dismisses via retry or by starting a new
         // recording. The pending transcript (if any) is intentionally kept.
@@ -92,8 +94,10 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
     const retry = async () => {
       setPhase("starting");
       try {
+        toast.loading("إعادة بدء التسجيل…", { id: toastId });
         await voice.start();
         setPhase("recording");
+        toast.success("جارٍ التسجيل", { id: toastId, description: "تحدّث الآن — اضغط الإيقاف عند الانتهاء." });
       } catch {
         setPhase("error");
       }
@@ -141,16 +145,22 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
       if (voice.state === "recording" || voice.state === "paused") {
         try {
           setPhase("transcribing");
+          toast.loading("جارٍ تحويل الصوت إلى نص…", { id: toastId });
           const heard = (await voice.stop()).trim();
           if (heard) {
             setPending(heard);
             setPhase("done");
+            toast.success("تم التحويل بنجاح", {
+              id: toastId,
+              description: "راجع النص ثم أكّد الإضافة.",
+            });
             window.setTimeout(
               () => setPhase((p) => (p === "done" ? "idle" : p)),
               1400,
             );
           } else {
             setPhase("idle");
+            toast.message("لم يُلتقط أي صوت", { id: toastId });
           }
         } catch {
           /* toast surfaced via onError; phase set to error there */
@@ -161,8 +171,13 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
         setPending(null);
         setPhase("starting");
         try {
+          toast.loading("جارٍ بدء التسجيل…", { id: toastId });
           await voice.start();
           setPhase("recording");
+          toast.success("جارٍ التسجيل", {
+            id: toastId,
+            description: "تحدّث الآن — اضغط الإيقاف عند الانتهاء.",
+          });
         } catch {
           setPhase("error");
         }
