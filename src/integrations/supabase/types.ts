@@ -7018,6 +7018,15 @@ export type Database = {
         Args: { _company_id: string }
         Returns: string
       }
+      admin_update_cron_schedule: {
+        Args: { _active?: boolean; _jobname: string; _schedule: string }
+        Returns: {
+          active: boolean
+          jobid: number
+          jobname: string
+          schedule: string
+        }[]
+      }
       approve_rental_application: {
         Args: {
           _app_id: string

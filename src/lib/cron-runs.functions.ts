@@ -104,3 +104,37 @@ function extractPath(fullUrl: string): string {
     return fullUrl;
   }
 }
+
+/** Jobs that admins are allowed to reschedule via the UI. */
+export const EDITABLE_CRON_JOBS = [
+  "run-scheduled-scripts",
+  "dispatch-notifications",
+  "rent-reminders",
+] as const;
+export type EditableCronJob = (typeof EDITABLE_CRON_JOBS)[number];
+
+/** Update the schedule (and optionally active flag) of a managed cron job.
+ *  Server-side authorization is enforced twice: the middleware requires an
+ *  AAL2 super_admin, and the underlying RPC re-checks `has_role(..., super_admin)`. */
+export const updateCronSchedule = createServerFn({ method: "POST" })
+  .middleware([requireAAL2SuperAdmin])
+  .inputValidator((data: { jobname: string; schedule: string; active?: boolean }) => {
+    if (!EDITABLE_CRON_JOBS.includes(data.jobname as EditableCronJob)) {
+      throw new Error(`unknown_job: ${data.jobname}`);
+    }
+    const parts = String(data.schedule ?? "").trim().split(/\s+/);
+    if (parts.length !== 5) {
+      throw new Error("invalid_schedule: expected 5-field cron expression");
+    }
+    return data;
+  })
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin.rpc("admin_update_cron_schedule", {
+      _jobname: data.jobname,
+      _schedule: data.schedule,
+      _active: data.active ?? undefined,
+    });
+    if (error) throw new Error(`admin_update_cron_schedule failed: ${error.message}`);
+    return (rows ?? [])[0] ?? null;
+  });
