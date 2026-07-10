@@ -206,6 +206,48 @@
           "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
+      },
+      {
+        "name": "decide_expense_claim",
+        "title": "Approve or reject an expense claim",
+        "description": "Approve or reject a single expense claim as the signed-in reviewer. Records the decision, decision note, reviewer id, and decision timestamp. Only users authorized by RLS (org owner/admin or app admin/super_admin) can decide; other callers get a permission error. Rejection requires a reason.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "claim_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The expense claim id to decide."
+            },
+            "decision": {
+              "type": "string",
+              "enum": [
+                "approve",
+                "reject"
+              ],
+              "description": "Decision to record."
+            },
+            "note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "description": "Decision note. Required when rejecting; recommended when approving."
+            }
+          },
+          "required": [
+            "claim_id",
+            "decision"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
       }
     ]
   }
