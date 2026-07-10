@@ -1,20 +1,19 @@
-// HBSpro — Navy Trust palette (finance/real-estate authority)
-// Deep navy #0f1b3d · mid navy #1e3a5f · signal blue #3b6fa0 · paper #e8edf3
-// `gold`/`goldSoft` keys are kept for compatibility with existing components;
-// values are now Navy Trust signal blues that read on both dark and light.
+// HBSpro — Emerald Gold Luxury palette
+// Deep emerald #043927 · mid emerald #0a5238 · signal emerald #0d7a5f
+// Luxe gold #C5A059 · champagne #E8D9A6 · paper #f5f0e0
 export const HBS = {
-  bg: "#0f1b3d",
-  bgAlt: "#1e3a5f",
-  /* `gold` here drives CTA fills + accent chips: needs dark text to read on it → keep light */
-  gold: "#7aa7d6",
-  /* `goldSoft` drives gradient highlights on dark surfaces → paper white for pop */
-  goldSoft: "#e8edf3",
-  blue: "#3b6fa0",
-  blueSoft: "#7aa7d6",
-  white: "#e8edf3",
-  gray: "#94a3b8",
-  border: "rgba(232,237,243,0.14)",
-  glass: "rgba(255,255,255,0.05)",
+  bg: "#043927",
+  bgAlt: "#0a5238",
+  /* `gold` drives CTA fills + accent chips — luxe metallic gold */
+  gold: "#C5A059",
+  /* `goldSoft` drives gradient highlights — champagne */
+  goldSoft: "#E8D9A6",
+  blue: "#0d7a5f",
+  blueSoft: "#E8D9A6",
+  white: "#f5f0e0",
+  gray: "#a8bfb1",
+  border: "rgba(197,160,89,0.20)",
+  glass: "rgba(197,160,89,0.06)",
 };
 
 export const CITIES = [
