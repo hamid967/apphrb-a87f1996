@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, Loader2, Minimize2, Phone, PhoneOff, Send } from "lucide-react";
+import { ArrowRight, Loader2, Minimize2, Phone, PhoneOff, RotateCcw, Send, Settings2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { askHamidAgent } from "@/lib/hamid-agent.functions";
+import {
+  HAMID_VOICE_PRESETS,
+  useHamidVoiceSettings,
+  type HamidVoiceSettings,
+} from "@/lib/hamid-voice-settings";
 import { cn } from "@/lib/utils";
 
 type SpeechRecognitionCtor = new () => SpeechRecognition;
@@ -157,7 +162,7 @@ function getLocalIntent(text: string, _history: Turn[]): HamidIntent {
   };
 }
 
-function pickArabicVoice() {
+function pickArabicVoice(gender: HamidVoiceSettings["gender"]) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
@@ -165,12 +170,16 @@ function pickArabicVoice() {
   if (!ar.length) return null;
   const isMale = (n: string) =>
     /male|majed|maged|naayf|nayf|tarik|hamed|hamid|salman|khalid|abdul|رجل|ذكر/i.test(n) &&
-    !/female|امرأة|أنثى/i.test(n);
-  // Prefer Saudi male → Saudi any → male Arabic → any Arabic
+    !/female|امرأة|أنثى|amira|noura|hala|salma/i.test(n);
+  const isFemale = (n: string) =>
+    /female|امرأة|أنثى|amira|noura|nora|hala|salma|maha|reem/i.test(n) &&
+    !/male/i.test(n);
+  const wantMale = gender === "male";
+  const genderMatch = (n: string) => (wantMale ? isMale(n) : isFemale(n));
   return (
-    ar.find((v) => v.lang === "ar-SA" && isMale(v.name)) ??
+    ar.find((v) => v.lang === "ar-SA" && genderMatch(v.name)) ??
+    ar.find((v) => genderMatch(v.name)) ??
     ar.find((v) => v.lang === "ar-SA") ??
-    ar.find((v) => isMale(v.name)) ??
     ar[0]
   );
 }
@@ -206,15 +215,15 @@ function stopSpeaking() {
   window.speechSynthesis?.cancel();
 }
 
-function speakBrowserFallback(text: string) {
+function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(prepareArabicForSpeech(text));
   u.lang = "ar-SA";
-  u.rate = 0.9;
-  u.pitch = 0.85;
+  u.rate = settings.rate;
+  u.pitch = settings.pitch;
   u.volume = 1;
-  const v = pickArabicVoice();
+  const v = pickArabicVoice(settings.gender);
   if (v) u.voice = v;
   window.speechSynthesis.speak(u);
   return true;
@@ -226,6 +235,7 @@ function speakBrowserFallback(text: string) {
  */
 async function speakSaudi(
   text: string,
+  settings: HamidVoiceSettings,
   onStart?: () => void,
   onEnd?: () => void,
 ): Promise<boolean> {
@@ -235,7 +245,11 @@ async function speakSaudi(
     const res = await fetch("/api/hamid-tts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: clean }),
+      body: JSON.stringify({
+        text: clean,
+        voice: settings.serverVoice,
+        speed: settings.rate,
+      }),
     });
     if (!res.ok) throw new Error(`tts ${res.status}`);
     const blob = await res.blob();
@@ -253,16 +267,11 @@ async function speakSaudi(
     await audio.play();
     return true;
   } catch {
-    const ok = speakBrowserFallback(text);
-    return ok;
+    return speakBrowserFallback(text, settings);
   }
 }
 
-// Legacy synchronous helper kept for the initial greeting fire-and-forget.
-function speakLocally(text: string) {
-  void speakSaudi(text);
-  return true;
-}
+
 
 
 function goTo(path: string) {
@@ -368,6 +377,7 @@ function MiniOrb({ size = 44 }: { size?: number }) {
 
 export function HamidVoiceAssistant() {
   const [open, setOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [callActive, setCallActive] = useState(false);
   const [listening, setListening] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -377,6 +387,15 @@ export function HamidVoiceAssistant() {
   const [reply, setReply] = useState<HamidIntent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [speaking, setSpeaking] = useState(false);
+  const { settings, update, reset } = useHamidVoiceSettings();
+  const settingsRef = useRef(settings);
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
+  const speak = (text: string) => {
+    void speakSaudi(text, settingsRef.current);
+    return true;
+  };
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const Recognition = useMemo(getSpeechRecognition, []);
   const speechSupported = Boolean(Recognition);
@@ -419,12 +438,12 @@ export function HamidVoiceAssistant() {
       };
       setReply(next);
       setHistory((h) => [...h.slice(-6), { user: clean, assistant: next.text, mode: next.mode }]);
-      const spoken = speakLocally(next.text);
+      const spoken = speak(next.text);
       if (!spoken) setError("الصوت المحلي غير مدعوم في هذا المتصفح.");
     } catch (err) {
       const fallback = getLocalIntent(clean, history);
       setReply(fallback);
-      speakLocally(fallback.text);
+      speak(fallback.text);
       setError("تعذّر الاتصال بحامد الآن، تم استخدام الرد المحلي.");
       void err;
     } finally {
@@ -467,7 +486,7 @@ export function HamidVoiceAssistant() {
       confidence: "high",
       mode: "coach",
     });
-    speakLocally("هلا والله! معك حامد. قل لي وش تبي وأنا على طول أخدمك.");
+    speak("هلا والله! معك حامد. قل لي وش تبي وأنا على طول أخدمك.");
     if (speechSupported) startListening();
   };
 
@@ -513,18 +532,146 @@ export function HamidVoiceAssistant() {
           <span className="text-base leading-none">🇸🇦</span>
           <span>العربية</span>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            endCall();
-            setOpen(false);
-          }}
-          className="rounded-full bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-          aria-label="تصغير"
-        >
-          <Minimize2 className="h-3.5 w-3.5" />
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setSettingsOpen((v) => !v)}
+            className={cn(
+              "rounded-full p-2 transition",
+              settingsOpen
+                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700",
+            )}
+            aria-label="إعدادات الصوت"
+            aria-pressed={settingsOpen}
+          >
+            <Settings2 className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              endCall();
+              setOpen(false);
+            }}
+            className="rounded-full bg-slate-100 p-2 text-slate-600 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+            aria-label="تصغير"
+          >
+            <Minimize2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
+
+      {settingsOpen && (
+        <div className="mx-4 mb-3 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-700 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-200">
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] font-semibold text-slate-900 dark:text-white">إعدادات الصوت</span>
+            <button
+              type="button"
+              onClick={() => reset()}
+              className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[11px] font-medium text-slate-600 shadow-sm hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-white"
+            >
+              <RotateCcw className="h-3 w-3" />
+              إعادة ضبط
+            </button>
+          </div>
+
+          {/* Gender */}
+          <div>
+            <label className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">نوع الصوت</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(["male", "female"] as const).map((g) => (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => update({ gender: g, serverVoice: HAMID_VOICE_PRESETS[g][0].id })}
+                  className={cn(
+                    "rounded-xl border px-3 py-2 text-[12px] font-medium transition",
+                    settings.gender === g
+                      ? "border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200",
+                  )}
+                >
+                  {g === "male" ? "ذكر" : "أنثى"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Voice preset */}
+          <div>
+            <label htmlFor="hamid-voice-preset" className="mb-1 block text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              اختر الصوت
+            </label>
+            <select
+              id="hamid-voice-preset"
+              value={settings.serverVoice}
+              onChange={(e) => update({ serverVoice: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-[12px] text-slate-800 outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+            >
+              {HAMID_VOICE_PRESETS[settings.gender].map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Rate */}
+          <div>
+            <div className="mb-1 flex items-center justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              <span>معدل السرعة</span>
+              <span className="tabular-nums text-slate-700 dark:text-slate-200">{settings.rate.toFixed(2)}×</span>
+            </div>
+            <input
+              type="range"
+              min={0.7}
+              max={1.3}
+              step={0.05}
+              value={settings.rate}
+              onChange={(e) => update({ rate: Number(e.target.value) })}
+              className="w-full accent-slate-900 dark:accent-white"
+            />
+          </div>
+
+          {/* Pitch (browser fallback only) */}
+          <div>
+            <div className="mb-1 flex items-center justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              <span>درجة النبرة</span>
+              <span className="tabular-nums text-slate-700 dark:text-slate-200">{settings.pitch.toFixed(2)}</span>
+            </div>
+            <input
+              type="range"
+              min={0.5}
+              max={1.5}
+              step={0.05}
+              value={settings.pitch}
+              onChange={(e) => update({ pitch: Number(e.target.value) })}
+              className="w-full accent-slate-900 dark:accent-white"
+            />
+            <p className="mt-1 text-[10px] leading-relaxed text-slate-500 dark:text-slate-400">
+              النبرة تُطبَّق على صوت المتصفح الاحتياطي فقط.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => speak("هلا والله، هذا صوتي الحالي، جرّب وقول لي رأيك.")}
+              className="inline-flex items-center gap-1 rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-900"
+            >
+              معاينة الصوت
+            </button>
+            <button
+              type="button"
+              onClick={() => stopSpeaking()}
+              className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[11px] font-medium text-slate-700 shadow-sm hover:text-slate-900 dark:bg-slate-800 dark:text-slate-200"
+            >
+              إيقاف
+            </button>
+          </div>
+        </div>
+      )}
+
 
       {/* Orb stage */}
       <div className="flex flex-col items-center gap-4 px-5 pb-4 pt-2">
