@@ -294,7 +294,9 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
                         onClick={togglePause}
                         disabled={disabled}
                         aria-label={phase === "paused" ? "استكمال التسجيل" : "إيقاف مؤقت"}
-                        title={phase === "paused" ? "استكمال التسجيل" : "إيقاف مؤقت"}
+                        aria-pressed={phase === "paused"}
+                        aria-keyshortcuts="Control+Shift+P Meta+Shift+P"
+                        title={phase === "paused" ? "استكمال التسجيل (Ctrl+Shift+P)" : "إيقاف مؤقت (Ctrl+Shift+P)"}
                         className="h-8 w-8"
                       >
                         {phase === "paused" ? (
