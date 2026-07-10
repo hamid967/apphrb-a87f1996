@@ -60,6 +60,7 @@ function InvoiceDetailPage() {
     mutationFn: () => generateZatcaInvoice({ data: { invoiceId: id } }),
     onSuccess: () => {
       toast.success(isAr ? "تم توليد بيانات ZATCA" : "ZATCA payload generated");
+      invalidatePdfCache(`inv:${id}`);
       qc.invalidateQueries({ queryKey: ["invoice-zatca", id] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -73,6 +74,7 @@ function InvoiceDetailPage() {
           ? `تم ختم الفاتورة #${res.counter}`
           : `Invoice sealed #${res.counter}`,
       );
+      invalidatePdfCache(`inv:${id}`);
       qc.invalidateQueries({ queryKey: ["invoice-zatca", id] });
     },
     onError: (e: Error) => toast.error(e.message),
