@@ -23,6 +23,11 @@ import {
   Handshake,
   MessageSquare,
   FileCheck2,
+  ScanLine,
+  CheckCircle2,
+  PieChart,
+  Scale,
+  ArrowDown,
 } from "lucide-react";
 
 const CANONICAL = "https://hrhbs.com/features";
