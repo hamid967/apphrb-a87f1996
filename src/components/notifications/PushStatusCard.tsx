@@ -7,7 +7,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { BellPlus, BellOff, Loader2, RefreshCw, ShieldAlert } from "lucide-react";
+import { BellPlus, BellOff, HelpCircle, Loader2, RefreshCw, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,6 +15,7 @@ import {
   getVapidKey,
   savePushSubscription,
 } from "@/lib/push.functions";
+import { PushPermissionHelpDialog } from "@/components/notifications/PushPermissionHelpDialog";
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -43,6 +44,13 @@ export function PushStatusCard() {
   const [subscribed, setSubscribed] = useState(false);
   const [endpoint, setEndpoint] = useState<string | null>(null);
   const [busy, setBusy] = useState<null | "enable" | "disable" | "refresh">(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [helpReason, setHelpReason] = useState<"denied" | "dismissed" | "unsupported">("denied");
+
+  const openHelp = (reason: "denied" | "dismissed" | "unsupported") => {
+    setHelpReason(reason);
+    setHelpOpen(true);
+  };
 
   const refresh = useCallback(async () => {
     if (typeof window === "undefined") return;
@@ -79,9 +87,10 @@ export function PushStatusCard() {
       if (Notification.permission === "denied") {
         toast.error(
           isAr
-            ? "الإشعارات محظورة من إعدادات المتصفح — فعّلها يدويًا ثم أعد المحاولة"
-            : "Notifications are blocked in browser settings — allow them and try again",
+            ? "الإشعارات محظورة — افتح دليل التفعيل"
+            : "Notifications blocked — see how to enable",
         );
+        openHelp("denied");
         return;
       }
       const perm =
@@ -90,6 +99,7 @@ export function PushStatusCard() {
           : await Notification.requestPermission();
       if (perm !== "granted") {
         toast.error(isAr ? "تم رفض الإذن" : "Permission denied");
+        openHelp(perm === "denied" ? "denied" : "dismissed");
         return;
       }
       const reg = await navigator.serviceWorker.register("/push-sw.js", { scope: "/" });
@@ -210,12 +220,38 @@ export function PushStatusCard() {
                 : "Receive instant alerts for new notifications on this device/browser even when the tab is closed."}
             </p>
             {permission === "denied" && (
-              <p className="mt-2 flex items-center gap-1 text-[11px] text-destructive">
-                <ShieldAlert className="size-3.5" />
-                {isAr
-                  ? "افتح إعدادات الموقع في المتصفح واسمح بالإشعارات لتفعيلها."
-                  : "Open site settings in the browser and allow notifications to enable."}
-              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-destructive">
+                <span className="inline-flex items-center gap-1">
+                  <ShieldAlert className="size-3.5" />
+                  {isAr
+                    ? "الإشعارات محظورة — لا يمكن طلب الإذن مجددًا من الصفحة."
+                    : "Notifications are blocked — the page can't re-prompt."}
+                </span>
+                <button
+                  type="button"
+                  className="underline underline-offset-2 hover:text-destructive/80"
+                  onClick={() => openHelp("denied")}
+                >
+                  {isAr ? "كيف أعيد التفعيل؟" : "How do I re-enable?"}
+                </button>
+              </div>
+            )}
+            {!supported && (
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                <span className="inline-flex items-center gap-1">
+                  <ShieldAlert className="size-3.5" />
+                  {isAr
+                    ? "المتصفح الحالي لا يدعم Push. سنستخدم البريد وصندوق الإشعارات."
+                    : "This browser doesn't support push. We'll use email and the in-app inbox."}
+                </span>
+                <button
+                  type="button"
+                  className="underline underline-offset-2 hover:text-foreground"
+                  onClick={() => openHelp("unsupported")}
+                >
+                  {isAr ? "البدائل المتاحة" : "See alternatives"}
+                </button>
+              </div>
             )}
             {subscribed && endpoint && (
               <p
@@ -259,6 +295,16 @@ export function PushStatusCard() {
               {isAr ? "تفعيل" : "Enable"}
             </Button>
           )}
+          {supported && !subscribed && permission === "denied" && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => openHelp("denied")}
+            >
+              <HelpCircle className="size-4 me-2" />
+              {isAr ? "كيفية التفعيل" : "How to enable"}
+            </Button>
+          )}
           {supported && subscribed && (
             <Button
               size="sm"
@@ -276,6 +322,11 @@ export function PushStatusCard() {
           )}
         </div>
       </div>
+      <PushPermissionHelpDialog
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        reason={helpReason}
+      />
     </div>
   );
 }
