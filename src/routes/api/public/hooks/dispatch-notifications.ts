@@ -22,22 +22,34 @@ export const Route = createFileRoute("/api/public/hooks/dispatch-notifications")
         }
 
 
-        try {
-          const { dispatchPendingNotifications } = await import(
-            "@/lib/notifications-dispatch.server"
-          );
-          const summary = await dispatchPendingNotifications(50);
+        const { dispatchPendingNotifications } = await import(
+          "@/lib/notifications-dispatch.server"
+        );
+        const { runWithRetry } = await import("@/lib/cron-retry.server");
+        const outcome = await runWithRetry(
+          "dispatch-notifications",
+          () => dispatchPendingNotifications(50),
+        );
+        if (outcome.ok) {
           return new Response(
-            JSON.stringify({ ok: true, ...summary, at: new Date().toISOString() }),
+            JSON.stringify({
+              ok: true,
+              attempts: outcome.attempts,
+              ...outcome.result,
+              at: new Date().toISOString(),
+            }),
             { headers: { "Content-Type": "application/json" } },
           );
-        } catch (err) {
-          console.error("dispatch-notifications failed", err);
-          return new Response(
-            JSON.stringify({ ok: false, error: (err as Error).message }),
-            { status: 500, headers: { "Content-Type": "application/json" } },
-          );
         }
+        return new Response(
+          JSON.stringify({
+            ok: false,
+            attempts: outcome.attempts,
+            error: outcome.error,
+            at: new Date().toISOString(),
+          }),
+          { status: 500, headers: { "Content-Type": "application/json" } },
+        );
       },
     },
   },
