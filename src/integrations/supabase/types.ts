@@ -6413,46 +6413,64 @@ export type Database = {
       }
       zatca_csid: {
         Row: {
+          compliance_request_id: string | null
+          compliance_status: string | null
           created_at: string
           created_by: string | null
           csid_binary_token: string
           csid_secret: string
+          csr: string | null
           disposition_message: string | null
           environment: string
           expires_at: string | null
           id: string
           issued_at: string
           org_id: string
+          otp_used: string | null
+          private_key_encrypted: string | null
+          public_key: string | null
           request_id: string | null
           revoked_at: string | null
           updated_at: string
         }
         Insert: {
+          compliance_request_id?: string | null
+          compliance_status?: string | null
           created_at?: string
           created_by?: string | null
           csid_binary_token: string
           csid_secret: string
+          csr?: string | null
           disposition_message?: string | null
           environment: string
           expires_at?: string | null
           id?: string
           issued_at?: string
           org_id: string
+          otp_used?: string | null
+          private_key_encrypted?: string | null
+          public_key?: string | null
           request_id?: string | null
           revoked_at?: string | null
           updated_at?: string
         }
         Update: {
+          compliance_request_id?: string | null
+          compliance_status?: string | null
           created_at?: string
           created_by?: string | null
           csid_binary_token?: string
           csid_secret?: string
+          csr?: string | null
           disposition_message?: string | null
           environment?: string
           expires_at?: string | null
           id?: string
           issued_at?: string
           org_id?: string
+          otp_used?: string | null
+          private_key_encrypted?: string | null
+          public_key?: string | null
           request_id?: string | null
           revoked_at?: string | null
           updated_at?: string
@@ -6464,6 +6482,81 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      zatca_invoice_signatures: {
+        Row: {
+          cleared_xml: string | null
+          created_at: string
+          environment: string
+          errors: Json
+          id: string
+          invoice_counter: number | null
+          invoice_hash: string | null
+          invoice_id: string
+          org_id: string
+          previous_invoice_hash: string | null
+          qr_code: string | null
+          signed_xml: string | null
+          submission_status: Database["public"]["Enums"]["zatca_submission_status"]
+          submitted_at: string | null
+          updated_at: string
+          warnings: Json
+          zatca_uuid: string | null
+        }
+        Insert: {
+          cleared_xml?: string | null
+          created_at?: string
+          environment: string
+          errors?: Json
+          id?: string
+          invoice_counter?: number | null
+          invoice_hash?: string | null
+          invoice_id: string
+          org_id: string
+          previous_invoice_hash?: string | null
+          qr_code?: string | null
+          signed_xml?: string | null
+          submission_status?: Database["public"]["Enums"]["zatca_submission_status"]
+          submitted_at?: string | null
+          updated_at?: string
+          warnings?: Json
+          zatca_uuid?: string | null
+        }
+        Update: {
+          cleared_xml?: string | null
+          created_at?: string
+          environment?: string
+          errors?: Json
+          id?: string
+          invoice_counter?: number | null
+          invoice_hash?: string | null
+          invoice_id?: string
+          org_id?: string
+          previous_invoice_hash?: string | null
+          qr_code?: string | null
+          signed_xml?: string | null
+          submission_status?: Database["public"]["Enums"]["zatca_submission_status"]
+          submitted_at?: string | null
+          updated_at?: string
+          warnings?: Json
+          zatca_uuid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zatca_invoice_signatures_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "zatca_invoice_signatures_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "v_ar_aging"
+            referencedColumns: ["invoice_id"]
           },
         ]
       }
@@ -7285,6 +7378,12 @@ export type Database = {
         | "cancelled"
       zatca_invoice_type: "standard" | "simplified"
       zatca_status: "draft" | "reported" | "cleared" | "rejected"
+      zatca_submission_status:
+        | "pending"
+        | "cleared"
+        | "reported"
+        | "warnings"
+        | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -7530,6 +7629,13 @@ export const Constants = {
       ],
       zatca_invoice_type: ["standard", "simplified"],
       zatca_status: ["draft", "reported", "cleared", "rejected"],
+      zatca_submission_status: [
+        "pending",
+        "cleared",
+        "reported",
+        "warnings",
+        "rejected",
+      ],
     },
   },
 } as const
