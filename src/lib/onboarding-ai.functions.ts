@@ -91,10 +91,10 @@ export const aiExtractOnboarding = createServerFn({ method: "POST" })
     try {
       const result = await generateText({
         model: gateway("google/gemini-3-flash-preview"),
-        experimental_output: Output.object({ schema: UnifiedSchema }),
+        output: Output.object({ schema: UnifiedSchema }),
         prompt: promptFor(data.step, data.description),
       });
-      const raw = (result.experimental_output ?? {}) as Record<string, unknown>;
+      const raw = (result.output ?? {}) as Record<string, unknown>;
       return { ok: true, step: data.step, fields: pickAllowed(data.step, raw) };
     } catch (err) {
       if (NoObjectGeneratedError.isInstance(err)) {
