@@ -80,11 +80,18 @@ function ClaimsReviewPage() {
   >(null);
   const [reason, setReason] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [activeViolationId, setActiveViolationId] = useState<string | null>(null);
   const toggleExpanded = (id: string) =>
     setExpanded((s) => {
       const next = new Set(s);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+        // Collapsing the parent claim clears any persistent violation
+        // highlight scoped to it — user asked to stop the marker on close.
+        if (focusClaimId === id) setActiveViolationId(null);
+      } else {
+        next.add(id);
+      }
       return next;
     });
 
@@ -129,51 +136,65 @@ function ClaimsReviewPage() {
   // Deep-link: URL hash like `#violation-<uuid>` (from push notifications
   // or shared links). Auto-expand the parent claim's details row so the
   // ClaimPolicyViolations table mounts, then poll for the target row,
-  // scroll it into view, and play a short flash so the reviewer's eye
-  // lands on it. Cleared/rescheduled whenever the hash or focus changes.
+  // scroll it into view, play a short flash, AND set it as the persistent
+  // active row so it stays highlighted even after scrolling away — until
+  // the reviewer collapses the claim's details.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const raw = window.location.hash;
-    const m = /^#violation-([0-9a-fA-F-]{10,})$/.exec(raw);
-    if (!m) return;
-    const violationId = m[1];
-
-    // Ensure the parent claim (if known) is expanded so <ClaimPolicyViolations>
-    // renders and the target row exists in the DOM.
-    if (focusClaimId && !expanded.has(focusClaimId)) {
-      setExpanded((s) => {
-        const next = new Set(s);
-        next.add(focusClaimId);
-        return next;
-      });
-    }
+    const parseHash = () => {
+      const m = /^#violation-([0-9a-fA-F-]{10,})$/.exec(window.location.hash);
+      return m ? m[1] : null;
+    };
 
     let cancelled = false;
     let attempts = 0;
     let flashTimer: number | null = null;
-    const tick = () => {
-      if (cancelled) return;
-      const el = document.getElementById(`violation-${violationId}`);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-        el.classList.add("violation-flash");
-        flashTimer = window.setTimeout(() => {
-          el.classList.remove("violation-flash");
-        }, 2600);
-        return;
-      }
-      if (attempts++ < 40) window.setTimeout(tick, 150); // up to ~6s
-    };
-    tick();
 
+    const activate = (violationId: string) => {
+      setActiveViolationId(violationId);
+      if (focusClaimId) {
+        setExpanded((s) => {
+          if (s.has(focusClaimId)) return s;
+          const next = new Set(s);
+          next.add(focusClaimId);
+          return next;
+        });
+      }
+      attempts = 0;
+      const tick = () => {
+        if (cancelled) return;
+        const el = document.getElementById(`violation-${violationId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          el.classList.add("violation-flash");
+          if (flashTimer != null) window.clearTimeout(flashTimer);
+          flashTimer = window.setTimeout(() => {
+            el.classList.remove("violation-flash");
+          }, 2600);
+          return;
+        }
+        if (attempts++ < 40) window.setTimeout(tick, 150); // up to ~6s
+      };
+      tick();
+    };
+
+    const initial = parseHash();
+    if (initial) activate(initial);
+
+    const onHash = () => {
+      const id = parseHash();
+      if (id) activate(id);
+    };
+    window.addEventListener("hashchange", onHash);
     return () => {
       cancelled = true;
+      window.removeEventListener("hashchange", onHash);
       if (flashTimer != null) window.clearTimeout(flashTimer);
-      const el = document.getElementById(`violation-${violationId}`);
-      el?.classList.remove("violation-flash");
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusClaimId, rows]);
+
+
 
 
 
@@ -401,7 +422,12 @@ function ClaimsReviewPage() {
                     {expanded.has(r.id) && (
                       <TableRow key={`${r.id}-audit`} className="bg-muted/20 hover:bg-muted/20">
                         <TableCell colSpan={7} className="p-3 space-y-3">
-                          <ClaimPolicyViolations claimId={r.id} />
+                          <ClaimPolicyViolations
+                            claimId={r.id}
+                            activeViolationId={
+                              focusClaimId === r.id ? activeViolationId : null
+                            }
+                          />
                           <ApprovalAuditTrail entity="expense_claims" entityId={r.id} />
                         </TableCell>
                       </TableRow>

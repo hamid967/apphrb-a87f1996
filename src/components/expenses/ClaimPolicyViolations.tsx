@@ -30,7 +30,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-type Props = { claimId: string };
+type Props = { claimId: string; activeViolationId?: string | null };
 
 const RULE_KEYS = [
   "max_amount",
@@ -40,7 +40,7 @@ const RULE_KEYS = [
   "max_per_period",
 ] as const;
 
-export function ClaimPolicyViolations({ claimId }: Props) {
+export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const qc = useQueryClient();
@@ -188,7 +188,7 @@ export function ClaimPolicyViolations({ claimId }: Props) {
                   <TableRow
                     key={r.id}
                     id={`violation-${r.id}`}
-                    className={`scroll-mt-24 ${isOverridden ? "opacity-75" : ""}`}
+                    className={`scroll-mt-24 ${isOverridden ? "opacity-75" : ""} ${activeViolationId === r.id ? "violation-active" : ""}`}
                   >
                     <TableCell>
                       <div className="font-medium text-sm truncate">{policyName}</div>
