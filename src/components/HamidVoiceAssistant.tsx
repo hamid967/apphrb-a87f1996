@@ -1145,6 +1145,64 @@ export function HamidVoiceAssistant() {
           </Suspense>
         </button>
 
+
+        {/* Live voice status pill: state + source */}
+        {(() => {
+          const state: "listening" | "speaking" | "idle" = listening
+            ? "listening"
+            : speaking
+              ? "speaking"
+              : "idle";
+          const stateLabel =
+            state === "listening" ? "يستمع" : state === "speaking" ? "يتحدث" : "متوقف";
+          const stateColor =
+            state === "listening"
+              ? "bg-emerald-500"
+              : state === "speaking"
+                ? "bg-sky-500"
+                : "bg-slate-400";
+          const sourceLabel = speaking
+            ? voiceSource === "server"
+              ? "صوت الخادم (Lovable AI)"
+              : voiceSource === "browser"
+                ? "صوت المتصفح (Web Speech)"
+                : "جاري التحضير…"
+            : null;
+          return (
+            <div
+              className="flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-[11px] font-medium text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200"
+              role="status"
+              aria-live="polite"
+            >
+              <span
+                className={cn(
+                  "inline-block h-2 w-2 rounded-full",
+                  stateColor,
+                  state !== "idle" && "animate-pulse",
+                )}
+              />
+              <span>{stateLabel}</span>
+              {sourceLabel && (
+                <>
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                      voiceSource === "server"
+                        ? "bg-sky-500/15 text-sky-700 dark:text-sky-300"
+                        : voiceSource === "browser"
+                          ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                          : "bg-slate-500/15 text-slate-600 dark:text-slate-300",
+                    )}
+                  >
+                    {sourceLabel}
+                  </span>
+                </>
+              )}
+            </div>
+          );
+        })()}
+
         <p className="max-w-[280px] text-center text-sm leading-relaxed text-slate-600 dark:text-slate-300">
           {callActive
             ? listening
