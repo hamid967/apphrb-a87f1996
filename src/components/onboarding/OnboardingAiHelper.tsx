@@ -149,6 +149,27 @@ export function OnboardingAiHelper({
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useState<DraftState>(EMPTY_DRAFT);
+  const voice = useVoiceInput({
+    language: "ar",
+    onError: (msg) => toast.error(msg),
+  });
+
+  const handleMicClick = async () => {
+    if (voice.state === "recording") {
+      try {
+        const heard = await voice.stop();
+        if (heard.trim()) {
+          setText((prev) => (prev.trim() ? `${prev.trim()} ${heard}` : heard));
+        }
+      } catch {
+        /* toast surfaced via onError */
+      }
+      return;
+    }
+    if (voice.state === "idle") {
+      await voice.start();
+    }
+  };
 
   const reset = () => {
     setMode("input");
