@@ -168,6 +168,46 @@ export function PushStatusCard() {
     }
   };
 
+  const sendTest = async () => {
+    setBusy("test");
+    try {
+      const res = await sendTestPushNotification({ data: {} });
+      if (res.delivered === 0 && res.removed === 0 && res.failed === 0) {
+        toast.error(
+          isAr
+            ? "لا يوجد اشتراك نشط لهذا المستخدم — فعّل Push أولًا."
+            : "No active subscription — enable push first.",
+        );
+        return;
+      }
+      if (res.delivered > 0) {
+        toast.success(
+          isAr
+            ? `أُرسل الإشعار التجريبي (${res.delivered}). اضغطه لفتح: ${res.link}`
+            : `Test push sent (${res.delivered}). Click it to open: ${res.link}`,
+        );
+      } else if (res.removed > 0) {
+        toast.error(
+          isAr
+            ? "الاشتراك منتهي وتم حذفه — أعد التفعيل."
+            : "Subscription expired and was removed — re-enable it.",
+        );
+        await refresh();
+      } else {
+        toast.error(
+          isAr
+            ? `فشل الإرسال (${res.failed}). راجع السجل.`
+            : `Delivery failed (${res.failed}). Check logs.`,
+        );
+      }
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+
   const statusLabel = !supported
     ? isAr
       ? "غير مدعوم"
