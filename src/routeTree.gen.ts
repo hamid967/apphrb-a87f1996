@@ -161,6 +161,7 @@ import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminSubscriptionPaymentsRouteImport } from './routes/_authenticated/admin.subscription-payments'
 import { Route as AuthenticatedAdminSmsProvidersRouteImport } from './routes/_authenticated/admin.sms-providers'
+import { Route as AuthenticatedAdminSignupRequestsRouteImport } from './routes/_authenticated/admin.signup-requests'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminSearchInsightsRouteImport } from './routes/_authenticated/admin.search-insights'
 import { Route as AuthenticatedAdminRouteMapRouteImport } from './routes/_authenticated/admin.route-map'
@@ -1111,6 +1112,12 @@ const AuthenticatedAdminSmsProvidersRoute =
     path: '/sms-providers',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminSignupRequestsRoute =
+  AuthenticatedAdminSignupRequestsRouteImport.update({
+    id: '/signup-requests',
+    path: '/signup-requests',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/settings',
@@ -1818,6 +1825,7 @@ export interface FileRoutesByFullPath {
   '/admin/route-map': typeof AuthenticatedAdminRouteMapRoute
   '/admin/search-insights': typeof AuthenticatedAdminSearchInsightsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/signup-requests': typeof AuthenticatedAdminSignupRequestsRoute
   '/admin/sms-providers': typeof AuthenticatedAdminSmsProvidersRoute
   '/admin/subscription-payments': typeof AuthenticatedAdminSubscriptionPaymentsRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -2073,6 +2081,7 @@ export interface FileRoutesByTo {
   '/admin/route-map': typeof AuthenticatedAdminRouteMapRoute
   '/admin/search-insights': typeof AuthenticatedAdminSearchInsightsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/signup-requests': typeof AuthenticatedAdminSignupRequestsRoute
   '/admin/sms-providers': typeof AuthenticatedAdminSmsProvidersRoute
   '/admin/subscription-payments': typeof AuthenticatedAdminSubscriptionPaymentsRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -2332,6 +2341,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/route-map': typeof AuthenticatedAdminRouteMapRoute
   '/_authenticated/admin/search-insights': typeof AuthenticatedAdminSearchInsightsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/signup-requests': typeof AuthenticatedAdminSignupRequestsRoute
   '/_authenticated/admin/sms-providers': typeof AuthenticatedAdminSmsProvidersRoute
   '/_authenticated/admin/subscription-payments': typeof AuthenticatedAdminSubscriptionPaymentsRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -2594,6 +2604,7 @@ export interface FileRouteTypes {
     | '/admin/route-map'
     | '/admin/search-insights'
     | '/admin/settings'
+    | '/admin/signup-requests'
     | '/admin/sms-providers'
     | '/admin/subscription-payments'
     | '/admin/subscriptions'
@@ -2849,6 +2860,7 @@ export interface FileRouteTypes {
     | '/admin/route-map'
     | '/admin/search-insights'
     | '/admin/settings'
+    | '/admin/signup-requests'
     | '/admin/sms-providers'
     | '/admin/subscription-payments'
     | '/admin/subscriptions'
@@ -3107,6 +3119,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/route-map'
     | '/_authenticated/admin/search-insights'
     | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/signup-requests'
     | '/_authenticated/admin/sms-providers'
     | '/_authenticated/admin/subscription-payments'
     | '/_authenticated/admin/subscriptions'
@@ -4426,6 +4439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSmsProvidersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/signup-requests': {
+      id: '/_authenticated/admin/signup-requests'
+      path: '/signup-requests'
+      fullPath: '/admin/signup-requests'
+      preLoaderRoute: typeof AuthenticatedAdminSignupRequestsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/settings': {
       id: '/_authenticated/admin/settings'
       path: '/settings'
@@ -5221,6 +5241,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminRouteMapRoute: typeof AuthenticatedAdminRouteMapRoute
   AuthenticatedAdminSearchInsightsRoute: typeof AuthenticatedAdminSearchInsightsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminSignupRequestsRoute: typeof AuthenticatedAdminSignupRequestsRoute
   AuthenticatedAdminSmsProvidersRoute: typeof AuthenticatedAdminSmsProvidersRoute
   AuthenticatedAdminSubscriptionPaymentsRoute: typeof AuthenticatedAdminSubscriptionPaymentsRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
@@ -5259,6 +5280,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminRouteMapRoute: AuthenticatedAdminRouteMapRoute,
   AuthenticatedAdminSearchInsightsRoute: AuthenticatedAdminSearchInsightsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminSignupRequestsRoute: AuthenticatedAdminSignupRequestsRoute,
   AuthenticatedAdminSmsProvidersRoute: AuthenticatedAdminSmsProvidersRoute,
   AuthenticatedAdminSubscriptionPaymentsRoute:
     AuthenticatedAdminSubscriptionPaymentsRoute,
