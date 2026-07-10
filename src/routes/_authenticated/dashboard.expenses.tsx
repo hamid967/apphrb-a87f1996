@@ -362,15 +362,15 @@ function ExpensesPage() {
             <CardTitle className="text-base">{t("expenses.logTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            {q.isLoading ? (
-              <div className="grid place-items-center p-12">
-                <Loader2 className="size-5 animate-spin text-muted-foreground" />
-              </div>
-            ) : filtered.length === 0 ? (
-              <div className="p-12 text-center text-sm text-muted-foreground">
-                {t("expenses.empty")}
-              </div>
-            ) : (
+            <ListState
+              isLoading={q.isLoading}
+              isError={q.isError}
+              errorMessage={q.error instanceof Error ? q.error.message : null}
+              isEmpty={filtered.length === 0}
+              emptyText={t("expenses.empty")}
+              onRetry={() => q.refetch()}
+              className="rounded-none border-0 shadow-none"
+            >
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -426,7 +426,8 @@ function ExpensesPage() {
                   ))}
                 </TableBody>
               </Table>
-            )}
+            </ListState>
+
           </CardContent>
         </Card>
 
