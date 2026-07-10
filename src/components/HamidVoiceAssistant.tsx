@@ -248,7 +248,7 @@ function stopSpeaking() {
 }
 
 type SpeakCallbacks = {
-  onStart?: (source: "server" | "browser") => void;
+  onStart?: (source: "server" | "browser", durationSec?: number) => void;
   onEnd?: () => void;
 };
 
@@ -351,7 +351,8 @@ async function speakSaudi(
       }
       started = true;
       pushLog("ok", "تشغيل صوت الخادم (Lovable AI TTS)");
-      cb?.onStart?.("server");
+      const dur = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : undefined;
+      cb?.onStart?.("server", dur);
     };
     audio.onended = cleanup;
     audio.onerror = () => {
@@ -544,7 +545,50 @@ export function HamidVoiceAssistant() {
   // Guard against rapid duplicate speak() calls (double-clicks, StrictMode,
   // repeated identical intents). Same text within 900ms is dropped silently.
   const lastSpeakRef = useRef<{ text: string; at: number }>({ text: "", at: 0 });
-  const speak = (text: string) => {
+  // Live reveal of the reply text, synced to audio playback.
+  const [revealText, setRevealText] = useState<string>("");
+  const [revealDone, setRevealDone] = useState<boolean>(true);
+  const revealRafRef = useRef<number | null>(null);
+  const stopReveal = () => {
+    if (revealRafRef.current != null) {
+      cancelAnimationFrame(revealRafRef.current);
+      revealRafRef.current = null;
+    }
+  };
+  const startReveal = (full: string, durationSec?: number) => {
+    stopReveal();
+    if (!full) return;
+    // If we know the audio length, match it. Otherwise estimate ~14 chars/s
+    // at rate 1.0 for Arabic and scale by the user's playback rate.
+    const rate = settingsRef.current.rate || 1;
+    const estimated = full.length / (14 * rate);
+    const total = Math.max(0.4, (durationSec ?? estimated));
+    const t0 = performance.now();
+    setRevealDone(false);
+    const tick = () => {
+      const elapsed = (performance.now() - t0) / 1000;
+      const ratio = Math.min(1, elapsed / total);
+      const shown = Math.max(1, Math.floor(full.length * ratio));
+      setRevealText(full.slice(0, shown));
+      if (ratio < 1) {
+        revealRafRef.current = requestAnimationFrame(tick);
+      } else {
+        revealRafRef.current = null;
+        setRevealText(full);
+        setRevealDone(true);
+      }
+    };
+    revealRafRef.current = requestAnimationFrame(tick);
+  };
+  const finishReveal = (full: string) => {
+    stopReveal();
+    setRevealText(full);
+    setRevealDone(true);
+  };
+  useEffect(() => () => stopReveal(), []);
+
+  type SpeakExtras = { syncText?: string };
+  const speak = (text: string, extras?: SpeakExtras) => {
     const t = (text ?? "").trim();
     if (!t) return false;
     const now = Date.now();
@@ -554,18 +598,38 @@ export function HamidVoiceAssistant() {
       return true;
     }
     lastSpeakRef.current = { text: t, at: now };
+    const syncFull = extras?.syncText;
+    let watchdog: number | null = null;
+    if (syncFull) {
+      setRevealText("");
+      setRevealDone(false);
+      // Safety: if the audio pipeline never signals start within 3.5s,
+      // reveal the full text so the user is never left with an empty bubble.
+      watchdog = window.setTimeout(() => finishReveal(syncFull), 3500);
+    }
+    const clearWatchdog = () => {
+      if (watchdog != null) {
+        window.clearTimeout(watchdog);
+        watchdog = null;
+      }
+    };
     void speakSaudi(t, settingsRef.current, {
-      onStart: (src) => {
+      onStart: (src, dur) => {
+        clearWatchdog();
         setVoiceSource(src);
         setSpeaking(true);
+        if (syncFull) startReveal(syncFull, dur);
       },
       onEnd: () => {
+        clearWatchdog();
         setSpeaking(false);
         setVoiceSource(null);
+        if (syncFull) finishReveal(syncFull);
       },
     });
     return true;
   };
+
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const Recognition = useMemo(getSpeechRecognition, []);
@@ -718,12 +782,12 @@ export function HamidVoiceAssistant() {
       };
       setReply(next);
       setHistory((h) => [...h.slice(-6), { user: clean, assistant: next.text, mode: next.mode }]);
-      const spoken = speak(next.text);
+      const spoken = speak(next.text, { syncText: next.text });
       if (!spoken) setError("الصوت المحلي غير مدعوم في هذا المتصفح.");
     } catch (err) {
       const fallback = getLocalIntent(clean, history);
       setReply(fallback);
-      speak(fallback.text);
+      speak(fallback.text, { syncText: fallback.text });
       setError("تعذّر الاتصال بحامد الآن، تم استخدام الرد المحلي.");
       void err;
     } finally {
@@ -1221,13 +1285,20 @@ export function HamidVoiceAssistant() {
         {reply && (
           <div className="w-full space-y-2 rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-700 dark:bg-slate-900/60 dark:text-slate-200">
             <div>
-              <span className="font-semibold text-slate-900 dark:text-white">حامد:</span> {reply.text}
+              <span className="font-semibold text-slate-900 dark:text-white">حامد:</span>{" "}
+              <span>{revealDone ? reply.text : revealText}</span>
+              {!revealDone && (
+                <span
+                  className="ms-0.5 inline-block h-3 w-[2px] translate-y-[2px] bg-sky-500 align-middle animate-pulse"
+                  aria-hidden
+                />
+              )}
             </div>
-            {reply.actionLabel && reply.actionPath && (
+            {reply.actionLabel && reply.actionPath && revealDone && (
               <button
                 type="button"
                 onClick={() => goTo(reply.actionPath!)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-900"
+                className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-[11px] font-semibold text-white transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-900 animate-fade-in"
               >
                 {reply.actionLabel}
                 <ArrowRight className="h-3 w-3 rotate-180" />
