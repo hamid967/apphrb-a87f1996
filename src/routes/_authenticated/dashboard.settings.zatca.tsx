@@ -101,6 +101,9 @@ function ZatcaPage() {
         </Button>
       </div>
 
+      {org && <ZatcaCsidCard orgId={org.id} />}
+
+
       {reportQ.isLoading && (
         <Card className="mt-6">
           <CardContent className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
