@@ -1,70 +1,97 @@
-# الموجة الثالثة (Wave 3)
+## Sprint 2 — CSR + XAdES + Fatoora Submission (ZATCA Phase 2)
 
-بناءً على ما تبقّى من Wave 2، هذه هي البنود الأربعة المستهدفة، مرتبة حسب الأولوية والاعتماديات.
+### الهدف
+تمكين المؤسسات من إتمام تسجيل ZATCA وتوقيع الفواتير وإرسالها إلى بوابة Fatoora مباشرة من داخل التطبيق، دون الحاجة لأدوات خارجية أو إدخال يدوي للـ CSID.
 
-## 1. ZATCA Fatoora — Onboarding + CSID (أولوية قصوى)
+### النطاق
+1. توليد CSR (Certificate Signing Request) داخل التطبيق باستخدام مفاتيح `secp256k1` / ECDSA.
+2. طلب Compliance CSID ثم Production CSID من ZATCA (Sandbox أولاً ثم Production).
+3. تعديل UBL 2.1 XML الحالي ليتضمن `UBLExtensions` لـ XAdES-BES (SignedInfo + KeyInfo + QualifyingProperties).
+4. حساب `InvoiceHash`، `PIH` (previous invoice hash)، `QRCode` TLV مع التوقيع، و`SignedProperties` hash وفق مواصفة ZATCA.
+5. إرسال الفاتورة إلى `/invoices/clearance/single` (Standard) أو `/invoices/reporting/single` (Simplified).
+6. تخزين نتيجة المقاصة (Cleared XML + QR + Warnings) في `invoices` وأرشفتها مع `sealZatcaInvoice`.
+7. واجهة إدارية جديدة لتتبع حالة كل فاتورة (Draft → Signed → Cleared/Reported/Rejected).
 
-**الهدف:** تسجيل كل مؤسسة في بوابة الفوترة السعودية والحصول على شهادة CSID للتوقيع.
+### القرارات التقنية
+- **العملة التشفيرية:** `secp256k1` عبر مكتبة `@noble/curves` (نقية JS، بدون WASM، متوافقة مع Cloudflare Workers). SHA-256 عبر WebCrypto المتاح في Workers.
+- **CSR/ASN.1:** بناء الـ CSR يدوياً باستخدام `@peculiar/asn1-schema` + `@peculiar/x509` (نقية JS، تعمل في Workers) — أو ترميز DER يدوي إذا اقتضى الأمر لتقليل الاعتماديات.
+- **XML/XAdES:** استخدام `xmldom` + `xpath` + تنفيذ يدوي لـ Canonical XML 1.0 (C14N) لأن `xml-crypto` غير متوافق مع Workers. نستفيد من مواصفة ZATCA التي تحدد بالضبط أي عناصر تُوقّع.
+- **تخزين المفاتيح:** المفتاح الخاص يُشفَّر بـ AES-GCM باستخدام مفتاح رئيسي في `secrets` (`ZATCA_KEY_ENCRYPTION_KEY`) ثم يُحفظ في `zatca_csid.private_key_encrypted` (base64). لن يُعاد المفتاح للواجهة أبداً.
+- **بيئة Fatoora:**
+  - Sandbox: `https://gw-fatoora.zatca.gov.sa/e-invoicing/developer-portal/`
+  - Simulation: `https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation/`
+  - Production: `https://gw-fatoora.zatca.gov.sa/e-invoicing/core/`
 
-**المكونات:**
-- جدول جديد: `zatca_csid` — يخزّن `org_id`, `csid_binary_token`, `csid_secret` (مشفّرة), `production` (bool), `issued_at`, `expires_at`. RLS: `is_org_admin(org_id)` فقط.
-- Server fn `requestComplianceCsid`: يستقبل OTP من المستخدم، ينشئ CSR (RSA-2048 + attributes ZATCA)، ويستدعي `/compliance` في Fatoora sandbox أولاً.
-- Server fn `requestProductionCsid`: يستدعي `/production/csids` بعد نجاح الاختبارات.
-- شاشة `/dashboard/settings/zatca`: زر "Onboard"، حقل OTP، عرض حالة الشهادة وتاريخ الانتهاء.
+### التسليمات
 
-## 2. XAdES Signing + Fatoora Clearance
+#### 1) Migration
+- تعديل `zatca_csid`: إضافة `private_key_encrypted` (text), `public_key` (text), `csr` (text), `otp_used` (text), `compliance_status` (text). الاحتفاظ بالسياسات الحالية.
+- جدول جديد `zatca_invoice_signatures`: `invoice_id` (fk), `signed_xml` (text), `invoice_hash` (text), `qr_code` (text), `zatca_uuid` (text), `submission_status` (enum: pending/cleared/reported/rejected/warnings), `warnings` (jsonb), `errors` (jsonb).
 
-**الهدف:** توقيع فواتير UBL وإرسالها للمقاصة (B2B) أو الإبلاغ (B2C).
-
-**المكونات:**
-- إضافة توقيع XAdES-BES إلى `src/lib/zatca/`: canonicalization C14N، UBL Extensions block، `SignedProperties`، `ds:Signature`.
-- Server fn `submitInvoiceToFatoora(invoiceId)`:
-  - يجلب CSID للمؤسسة.
-  - يوقّع الـ UBL بمفتاح CSID.
-  - يستدعي `/invoices/clearance/single` أو `/invoices/reporting/single`.
-  - يخزّن رد المقاصة (QR الرسمي، `clearance_status`, `clearance_uuid`) في `invoices`.
-- ترقية `sealZatcaInvoice` ليُستدعى تلقائياً بعد نجاح المقاصة (بدل الإجراء اليدوي الحالي).
-- شارة حالة في UI الفاتورة: `Pending` / `Cleared` / `Reported` / `Rejected` مع نص الخطأ من ZATCA.
-
-## 3. ربط جهات الاتصال بمصادر الفواتير
-
-**Commission source:** حالياً `buyer_contact_id` = NULL. سنضيف اختيار جهة الاتصال أثناء إنشاء عمولة (dropdown من `crm_contacts`)، ونمرّرها إلى الفاتورة الناتجة.
-
-**Contract source:** المخطط يفتقر لـ `tenants.contact_id`. Migration:
-- إضافة عمود `contact_id uuid references crm_contacts(id)` على `tenants`.
-- backfill يدوي عبر واجهة تشغيلية (مطابقة بالاسم/الجوال) — بدون إعادة كتابة تلقائية للبيانات القديمة.
-- عند إنشاء فاتورة من عقد، استخدم `tenant.contact_id`؛ إن كانت NULL أطلق تنبيهاً للمستخدم.
-
-## 4. Fatoora Retry Queue
-
-**الهدف:** أي فاتورة تفشل في المقاصة (شبكة، تحقق، …) لا تُفقد.
-
-- جدول `zatca_submission_attempts(invoice_id, attempt_no, status, response_body, retried_at)`.
-- Cron server fn `retryFailedFatooraSubmissions`: يُشغَّل كل 15 دقيقة، حد أقصى 5 محاولات مع backoff.
-- تنبيه للمشرف بعد فشل المحاولة الخامسة.
-
-## الترتيب المقترح للتنفيذ
-
-```text
-Sprint 1: CSID onboarding + شاشة الإعدادات
-Sprint 2: XAdES signing + submitInvoiceToFatoora (sandbox)
-Sprint 3: sealZatcaInvoice الآلي + شارات UI + retry queue
-Sprint 4: contact_id للعقود والعمولات + backfill UI
-Sprint 5: التبديل من sandbox إلى production + مراقبة
+#### 2) مكتبات
+```
+bun add @noble/curves @noble/hashes @peculiar/asn1-schema @peculiar/asn1-x509 @peculiar/x509 xmldom xpath fast-xml-parser
 ```
 
-## تفاصيل تقنية
+#### 3) أدوات التشفير (`src/lib/zatca/crypto.server.ts`)
+- `generateEcKeyPair()` → `{ privateKey, publicKey }` بصيغة PEM.
+- `buildCsr(orgInfo, keyPair, environment)` — يولّد CSR مع الحقول المطلوبة من ZATCA (Common Name، Organization Identifier VAT، Organization Name، Country, Business Category, Invoice Type، Location، Industry).
+- `encryptPrivateKey(pem)` / `decryptPrivateKey(cipher)` باستخدام `ZATCA_KEY_ENCRYPTION_KEY`.
 
-- CSR: OpenSSL WASM في server fn (متوفر على runtime Cloudflare)، أو استدعاء مكتبة `node-forge`.
-- تشفير `csid_secret`: نستخدم `pgsodium` (متوفر في Lovable Cloud) أو AES-GCM بمفتاح من Secrets.
-- Sandbox base URL: `https://gw-fatoora.zatca.gov.sa/e-invoicing/developer-portal`.
-- Production base URL: `https://gw-fatoora.zatca.gov.sa/e-invoicing/core`.
+#### 4) عميل Fatoora (`src/lib/zatca/fatoora-client.server.ts`)
+- `requestComplianceCsid({ csr, otp, environment })` → POST `/compliance`.
+- `requestProductionCsid({ complianceRequestId, environment })` → POST `/production/csids`.
+- `submitComplianceInvoice({ signedXml, invoiceHash, uuid, csid })` — فحص أنواع الفواتير الستة المطلوب.
+- `clearanceSingle({...})` (Standard) و `reportingSingle({...})` (Simplified).
 
-## خارج النطاق
+#### 5) XAdES Signer (`src/lib/zatca/xades-signer.server.ts`)
+- `buildUblExtensions(unsignedXml, csidCert, privateKey, invoiceCounter, pih)`.
+- حساب `InvoiceHash` (SHA-256 لـ canonicalized XML بعد إزالة العناصر المحددة).
+- بناء `SignedInfo` و`SignedProperties` وتوقيعهما.
+- إعادة الـ XML الموقّع + `qrCode` (TLV base64) + `invoiceHash`.
 
-- التبديل الآلي بين sandbox وproduction (يظل يدوياً بموافقة المشرف).
-- تصدير XML يدوياً — البوابة تخزّن نسخة رسمية.
-- Simplified vs Standard invoice routing — كلاهما مدعوم لكن اختيار النوع يعتمد على قواعد ZATCA وسنُبقيه كما هو محدد في Wave 2.
+#### 6) Server Functions (`src/lib/zatca-onboarding.functions.ts`)
+- `generateCsr(environment)` — يولّد المفتاح، يبني CSR، يخزّن مؤقتاً، ويعيد نص CSR للـ UI.
+- `requestComplianceCsid({ csr, otp, environment })` — يستدعي Fatoora ويخزّن CSID.
+- `runComplianceChecks(environment)` — يرسل الفواتير الستة الإلزامية.
+- `requestProductionCsid(environment)` — بعد نجاح الفحص.
 
----
-هل نبدأ بـ Sprint 1 (CSID onboarding) أم تفضّل ترتيباً مختلفاً؟
+- ملف جديد `src/lib/zatca-submission.functions.ts`:
+  - `signAndSubmitInvoice({ invoiceId })` — يجلب الفاتورة، يبني UBL، يوقّع، يرسل، يخزّن النتيجة، ويستدعي `sealZatcaInvoice` عند النجاح.
+  - `retryFailedSubmission({ invoiceId })`.
+
+#### 7) UI
+- تحديث `src/components/zatca/ZatcaCsidCard.tsx`:
+  - زر "توليد CSR" → يعرض النص للنسخ + حقل OTP + زر "طلب CSID تجريبي".
+  - بعد نجاح Compliance: زر "تشغيل فحوصات الامتثال" → يعرض تقدم الفحوصات الستة.
+  - بعد نجاح جميع الفحوصات: زر "طلب CSID الإنتاج".
+- شارة حالة على قائمة الفواتير `src/routes/_authenticated/dashboard.invoices.*.tsx`:
+  - Draft / Signed / Cleared ✓ / Reported ✓ / Warnings ⚠ / Rejected ✗.
+- تعديل صفحة تفاصيل الفاتورة: زر "توقيع وإرسال إلى فاتورة" + عرض QR + تحذيرات ZATCA.
+
+#### 8) Secrets مطلوبة
+- `ZATCA_KEY_ENCRYPTION_KEY` (يُولَّد تلقائياً عبر `generate_secret`, 64 char).
+
+#### 9) اختبارات ذكية
+- Golden test vector: فاتورة نموذجية من مستندات ZATCA + hash متوقع.
+- تشغيل `signAndSubmitInvoice` ضد Sandbox من داخل CI/dev قبل الترقية للإنتاج.
+
+### الترتيب التنفيذي (5 خطوات مرقمة)
+1. **Foundations:** Migration + install libs + `crypto.server.ts` + توليد `ZATCA_KEY_ENCRYPTION_KEY`.
+2. **CSR + Compliance CSID:** `generateCsr` + `requestComplianceCsid` + تحديث UI.
+3. **XAdES + QR + InvoiceHash:** `xades-signer.server.ts` + اختبارات vs ZATCA vectors.
+4. **Fatoora client + submission flow:** `fatoora-client.server.ts` + `signAndSubmitInvoice` + دمج مع `sealZatcaInvoice`.
+5. **Compliance checks + Production CSID + UI حالات:** الفحوصات الستة + الترقية للإنتاج + شارات الفواتير.
+
+### مخاطر معروفة
+- **`secp256k1` ECDSA في Workers:** `@noble/curves` يعمل — تم التحقق. لا حاجة لـ WebCrypto.
+- **C14N XML الدقيق:** أي فرق في المسافات البيضاء يفسد الـ hash. سنتّبع مواصفة ZATCA حرفياً واستخدام golden vectors.
+- **ترتيب `UBLExtensions` قبل `Signature`:** حساس. تم توثيقه في تعليقات الكود.
+- **حجم CSR:** بعض حقول ZATCA (Invoice Type 4-digit) يجب أن تطابق بالضبط `1100` للفواتير الضريبية.
+
+### خارج النطاق (Sprint 3)
+- طابور إعادة المحاولة التلقائي (`zatca_submission_attempts` retry cron).
+- شاشة إعدادات "التقارير الشهرية Reporting Summary".
+- ربط `contact_id` بالفاتورة (يبقى Sprint 4).
+
+هل أبدأ من الخطوة 1 (Foundations)؟
