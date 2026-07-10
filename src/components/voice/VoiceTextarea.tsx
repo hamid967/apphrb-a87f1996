@@ -161,71 +161,108 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
             value={value}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
-            className={cn("pe-12", className)}
+            className={cn("pe-24", className)}
             {...rest}
           />
 
-          {voice.supported ? (
-            <motion.div
-              className="absolute end-2 bottom-2"
-              initial={false}
-              animate={
-                phase === "recording"
-                  ? { scale: [1, 1.06, 1] }
-                  : { scale: 1 }
-              }
-              transition={
-                phase === "recording"
-                  ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
-                  : { duration: 0.2 }
-              }
-            >
-              <Button
-                type="button"
-                size="icon"
-                variant={phase === "recording" ? "destructive" : "outline"}
-                onClick={handleMic}
-                disabled={disabled || isBusy}
-                aria-label={PHASE_LABEL[phase] || "إدخال صوتي"}
-                title={PHASE_LABEL[phase] || "إدخال صوتي"}
-                className={cn(
-                  "h-8 w-8 relative overflow-hidden",
-                  phase === "recording" &&
-                    "shadow-[0_0_0_0_hsl(var(--destructive)/0.5)] animate-[pulse_1.4s_ease-in-out_infinite]",
-                )}
+          <div className="absolute end-2 bottom-2 flex items-center gap-1">
+            {/* Language selector */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={disabled || phase === "recording" || phase === "transcribing"}
+                  className="h-8 gap-1 px-2 text-[10px] font-semibold text-muted-foreground hover:text-foreground"
+                  aria-label={`لغة التفريغ: ${LANG_LABEL[lang]}`}
+                  title={`لغة التفريغ: ${LANG_LABEL[lang]}`}
+                >
+                  <Globe className="size-3.5" />
+                  <span className="tabular-nums">{LANG_SHORT[lang]}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-[10rem]">
+                <DropdownMenuLabel className="text-xs">لغة التفريغ</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup
+                  value={lang}
+                  onValueChange={(v) => setLang(v as LangChoice)}
+                >
+                  <DropdownMenuRadioItem value="auto" className="text-xs">
+                    {LANG_LABEL.auto}
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="ar" className="text-xs">
+                    {LANG_LABEL.ar}
+                  </DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="en" className="text-xs">
+                    {LANG_LABEL.en}
+                  </DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {voice.supported ? (
+              <motion.div
+                initial={false}
+                animate={
+                  phase === "recording"
+                    ? { scale: [1, 1.06, 1] }
+                    : { scale: 1 }
+                }
+                transition={
+                  phase === "recording"
+                    ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
+                    : { duration: 0.2 }
+                }
               >
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.span
-                    key={phase}
-                    initial={{ opacity: 0, scale: 0.6, rotate: -15 }}
-                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                    exit={{ opacity: 0, scale: 0.6, rotate: 15 }}
-                    transition={{ duration: 0.18, ease: "easeOut" }}
-                    className="flex items-center justify-center"
-                  >
-                    {phase === "transcribing" || phase === "starting" ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : phase === "done" ? (
-                      <Check className="size-4" />
-                    ) : phase === "error" ? (
-                      <AlertCircle className="size-4" />
-                    ) : phase === "recording" ? (
-                      <Square className="size-4" />
-                    ) : (
-                      <Mic className="size-4" />
-                    )}
-                  </motion.span>
-                </AnimatePresence>
-              </Button>
-            </motion.div>
-          ) : (
-            <div
-              className="absolute end-2 bottom-2 flex h-8 w-8 items-center justify-center text-muted-foreground"
-              title="الإدخال الصوتي غير مدعوم على هذا المتصفح"
-            >
-              <MicOff className="size-4" />
-            </div>
-          )}
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={phase === "recording" ? "destructive" : "outline"}
+                  onClick={handleMic}
+                  disabled={disabled || isBusy}
+                  aria-label={PHASE_LABEL[phase] || "إدخال صوتي"}
+                  title={PHASE_LABEL[phase] || "إدخال صوتي"}
+                  className={cn(
+                    "h-8 w-8 relative overflow-hidden",
+                    phase === "recording" &&
+                      "shadow-[0_0_0_0_hsl(var(--destructive)/0.5)] animate-[pulse_1.4s_ease-in-out_infinite]",
+                  )}
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.span
+                      key={phase}
+                      initial={{ opacity: 0, scale: 0.6, rotate: -15 }}
+                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                      exit={{ opacity: 0, scale: 0.6, rotate: 15 }}
+                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      className="flex items-center justify-center"
+                    >
+                      {phase === "transcribing" || phase === "starting" ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : phase === "done" ? (
+                        <Check className="size-4" />
+                      ) : phase === "error" ? (
+                        <AlertCircle className="size-4" />
+                      ) : phase === "recording" ? (
+                        <Square className="size-4" />
+                      ) : (
+                        <Mic className="size-4" />
+                      )}
+                    </motion.span>
+                  </AnimatePresence>
+                </Button>
+              </motion.div>
+            ) : (
+              <div
+                className="flex h-8 w-8 items-center justify-center text-muted-foreground"
+                title="الإدخال الصوتي غير مدعوم على هذا المتصفح"
+              >
+                <MicOff className="size-4" />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Status pill: subtle, animated, single source of truth for phase */}
