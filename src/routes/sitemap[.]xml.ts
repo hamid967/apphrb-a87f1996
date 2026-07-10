@@ -6,11 +6,12 @@ import { classify, type SitemapEntry } from "@/lib/sitemap-rules";
 const BASE_URL = "https://hrhbs.com";
 
 /**
- * Evaluated at module init (deploy time). Serves as a floor for `lastmod`
- * on any static route that doesn't declare an explicit date — so a fresh
- * deploy naturally advances the sitemap timestamps.
+ * Floor for `lastmod` on any static route that doesn't declare an explicit
+ * date. MUST be computed inside the handler — Cloudflare Workers freeze
+ * `Date.now()` at module init to `0`, so a module-scope `new Date()` would
+ * emit `1970-01-01T00:00:00.000Z` and defeat the whole point of lastmod.
  */
-const BUILD_DATE = new Date().toISOString();
+
 
 /**
  * Static public routes with optional per-path `lastmod` (ISO date). Bump the
@@ -36,9 +37,12 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
+        // Computed per-request so it reflects a real timestamp on Workers.
+        const BUILD_DATE = new Date().toISOString();
         const entries: SitemapEntry[] = PUBLIC_PATHS.map(({ path, lastmod }) =>
           classify(path, { lastmod: lastmod ?? BUILD_DATE }),
         );
+
 
         try {
           const res = await listPublishedPosts();
