@@ -188,7 +188,7 @@ export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
                   <TableRow
                     key={r.id}
                     id={`violation-${r.id}`}
-                    className={`scroll-mt-24 ${isOverridden ? "opacity-75" : ""}`}
+                    className={`scroll-mt-24 ${isOverridden ? "opacity-75" : ""} ${activeViolationId === r.id ? "violation-active" : ""}`}
                   >
                     <TableCell>
                       <div className="font-medium text-sm truncate">{policyName}</div>
