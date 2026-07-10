@@ -547,9 +547,14 @@ function ViolationsCard({ v, loading, isAr }: { v: Violation[]; loading: boolean
                 </Badge>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium truncate">
+                    <Link
+                      to="/dashboard/expenses/review"
+                      search={{ claim: row.claim_id }}
+                      className="font-medium truncate text-primary hover:underline"
+                      title={isAr ? "فتح المطالبة" : "Open claim"}
+                    >
                       {row.claim?.claim_number ?? row.claim_id.slice(0, 8)}
-                    </span>
+                    </Link>
                     <span className="text-muted-foreground truncate">{row.claim?.title ?? ""}</span>
                     <Badge variant="outline" className="text-[10px]">
                       {row.rule_type}
