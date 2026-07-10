@@ -178,10 +178,22 @@ export async function generateInvoicePdf(input: InvoicePdfInput): Promise<Uint8A
     color: rgb(0.06, 0.09, 0.13),
   });
 
-  drawLeftText(page, "TAX INVOICE", M, h - 45, { font: arBold, size: 22, color: rgb(1, 1, 1) });
-  drawLeftText(page, "Fatoora — ZATCA Phase 2", M, h - 65, { font: ar, size: 10, color: rgb(0.7, 0.78, 0.9) });
-  drawRightText(page, shape("فاتورة ضريبية"), w - M, h - 45, { font: arBold, size: 22, color: rgb(1, 1, 1) });
-  drawRightText(page, shape("متوافقة مع هيئة الزكاة والضريبة والجمارك"), w - M, h - 65, { font: ar, size: 10, color: rgb(0.7, 0.78, 0.9) });
+  const kind = input.docKind ?? "invoice";
+  const titles = {
+    invoice: { en: "TAX INVOICE", ar: "فاتورة ضريبية", sub_en: "Fatoora — ZATCA Phase 2", sub_ar: "متوافقة مع هيئة الزكاة والضريبة والجمارك" },
+    credit_note: { en: "CREDIT NOTE", ar: "إشعار دائن", sub_en: "Linked to original tax invoice", sub_ar: "مرتبط بفاتورة ضريبية أصلية" },
+    debit_note: { en: "DEBIT NOTE", ar: "إشعار مدين", sub_en: "Linked to original tax invoice", sub_ar: "مرتبط بفاتورة ضريبية أصلية" },
+  }[kind];
+  const bandColor = kind === "credit_note"
+    ? rgb(0.55, 0.15, 0.15)
+    : kind === "debit_note"
+      ? rgb(0.15, 0.35, 0.55)
+      : rgb(0.06, 0.09, 0.13);
+  page.drawRectangle({ x: 0, y: h - 90, width: w, height: 90, color: bandColor });
+  drawLeftText(page, titles.en, M, h - 45, { font: arBold, size: 22, color: rgb(1, 1, 1) });
+  drawLeftText(page, titles.sub_en, M, h - 65, { font: ar, size: 10, color: rgb(0.85, 0.88, 0.94) });
+  drawRightText(page, shape(titles.ar), w - M, h - 45, { font: arBold, size: 22, color: rgb(1, 1, 1) });
+  drawRightText(page, shape(titles.sub_ar), w - M, h - 65, { font: ar, size: 10, color: rgb(0.85, 0.88, 0.94) });
 
   // -------------------- Seller / Buyer blocks --------------------
   let y = h - 120;
