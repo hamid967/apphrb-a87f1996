@@ -194,15 +194,15 @@ function ClaimsReviewPage() {
           <CardTitle className="text-base">{tabs.find((tt) => tt.key === status)?.label}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          {listQ.isLoading ? (
-            <div className="grid place-items-center p-12">
-              <Loader2 className="size-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : rows.length === 0 ? (
-            <div className="p-12 text-center text-sm text-muted-foreground">
-              {t("claimsReview.empty")}
-            </div>
-          ) : (
+          <ListState
+            isLoading={listQ.isLoading}
+            isError={listQ.isError}
+            errorMessage={listQ.error instanceof Error ? listQ.error.message : null}
+            isEmpty={rows.length === 0}
+            emptyText={t("claimsReview.empty")}
+            onRetry={() => listQ.refetch()}
+            className="rounded-none border-0 shadow-none"
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -336,7 +336,8 @@ function ClaimsReviewPage() {
                 })}
               </TableBody>
             </Table>
-          )}
+          </ListState>
+
         </CardContent>
       </Card>
 
