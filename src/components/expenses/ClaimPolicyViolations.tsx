@@ -55,44 +55,86 @@ export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
     queryFn: () => listPolicyViolationsForClaim({ data: { claim_id: claimId } }),
   });
 
-  // Re-flash the active (deep-linked) violation row every time it re-enters
-  // the viewport, not just on the initial scroll. If the reviewer scrolls
-  // past it and comes back, the row briefly pulses again to re-anchor
-  // attention. Persistent `.violation-active` styling stays put in between.
-  // When the user prefers reduced motion, we flash only once (on first
-  // entry) and keep the duration short via CSS media query.
+  // Deep-link handling for `#violation-<uuid>`:
+  // 1. Wait until this claim's violations query has loaded (q.data settled).
+  // 2. If the target id isn't in the returned list — either it belongs to a
+  //    different claim, was cleared, or the current user can't see it via
+  //    RLS — surface a one-time toast so the reviewer knows why nothing
+  //    scrolled, and stop.
+  // 3. Otherwise poll briefly for the DOM node (the table paints one tick
+  //    after data arrives), then scrollIntoView, add the persistent
+  //    `.violation-active` marker via <TableRow className>, and set up an
+  //    IntersectionObserver that flashes the row every time it re-enters
+  //    the viewport. Reduced motion → single short flash only.
   useEffect(() => {
     if (!activeViolationId || typeof window === "undefined") return;
-    const el = document.getElementById(`violation-${activeViolationId}`);
-    if (!el) return;
+    if (q.isPending) return; // wait for data before deciding "not found"
+
+    const violations = q.data?.violations ?? [];
+    const exists = violations.some(
+      (v: { id: string }) => v.id === activeViolationId,
+    );
+    if (!exists) {
+      toast.error(
+        isAr
+          ? "لم يتم العثور على المخالفة المطلوبة (قد تكون أُزيلت أو غير مرئية لك)."
+          : "The requested violation wasn't found (it may have been removed or is not visible to you).",
+        { id: `violation-missing-${activeViolationId}` },
+      );
+      return;
+    }
+
+    let cancelled = false;
+    let attempts = 0;
     let removeTimer: number | null = null;
+    let io: IntersectionObserver | null = null;
     let flashed = false;
     const flashMs = reducedMotion ? 600 : 2600;
-    const flash = () => {
+    const scrollBehavior: ScrollBehavior = reducedMotion ? "auto" : "smooth";
+
+    const flash = (el: HTMLElement) => {
       if (reducedMotion && flashed) return;
       flashed = true;
       el.classList.remove("violation-flash");
-      // Force reflow so the animation restarts on repeated entries.
-      void el.offsetWidth;
+      void el.offsetWidth; // reflow → restart animation
       el.classList.add("violation-flash");
       if (removeTimer != null) window.clearTimeout(removeTimer);
       removeTimer = window.setTimeout(() => {
         el.classList.remove("violation-flash");
       }, flashMs);
     };
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) if (e.isIntersecting) flash();
-      },
-      { threshold: 0.4 },
-    );
-    io.observe(el);
-    return () => {
-      io.disconnect();
-      if (removeTimer != null) window.clearTimeout(removeTimer);
-      el.classList.remove("violation-flash");
+
+    const attach = () => {
+      if (cancelled) return;
+      const el = document.getElementById(`violation-${activeViolationId}`);
+      if (!el) {
+        // Data has arrived but the row hasn't mounted yet — retry briefly.
+        if (attempts++ < 20) {
+          window.setTimeout(attach, 100); // up to ~2s
+        }
+        return;
+      }
+      el.scrollIntoView({ behavior: scrollBehavior, block: "center" });
+      flash(el);
+      io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) if (e.isIntersecting) flash(el);
+        },
+        { threshold: 0.4 },
+      );
+      io.observe(el);
     };
-  }, [activeViolationId, q.data, reducedMotion]);
+    attach();
+
+    return () => {
+      cancelled = true;
+      io?.disconnect();
+      if (removeTimer != null) window.clearTimeout(removeTimer);
+      const el = document.getElementById(`violation-${activeViolationId}`);
+      el?.classList.remove("violation-flash");
+    };
+  }, [activeViolationId, q.data, q.isPending, reducedMotion, isAr]);
+
 
 
 
