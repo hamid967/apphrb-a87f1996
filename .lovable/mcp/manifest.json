@@ -64,6 +64,15 @@
               "default": 20,
               "description": "Rows per page (1-100)."
             },
+            "order": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "description": "Sort direction. Applied together with the tool's `sort` column."
+            },
             "city": {
               "type": "string",
               "minLength": 1,
@@ -115,6 +124,15 @@
               "maximum": 100,
               "default": 20,
               "description": "Rows per page (1-100)."
+            },
+            "order": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "description": "Sort direction. Applied together with the tool's `sort` column."
             }
           },
           "additionalProperties": false,
@@ -217,6 +235,15 @@
               "maximum": 100,
               "default": 20,
               "description": "Rows per page (1-100)."
+            },
+            "order": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc",
+              "description": "Sort direction. Applied together with the tool's `sort` column."
             },
             "type": {
               "type": "string",

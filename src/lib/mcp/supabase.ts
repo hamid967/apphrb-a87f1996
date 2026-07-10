@@ -55,6 +55,10 @@ export const listInputShape = {
     .max(100)
     .default(20)
     .describe("Rows per page (1-100)."),
+  order: z
+    .enum(["asc", "desc"])
+    .default("desc")
+    .describe("Sort direction. Applied together with the tool's `sort` column."),
 } as const;
 
 export type ListInput = { q?: string; page: number; page_size: number };
