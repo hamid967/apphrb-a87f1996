@@ -45,6 +45,7 @@ import {
   updateCommission,
   updateDeal,
 } from "@/lib/deals.functions";
+import { listActivitiesForLead } from "@/lib/lead-activities.functions";
 import { can, type OrgRole } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_authenticated/deals/$id")({
