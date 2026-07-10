@@ -467,6 +467,107 @@ export function HamidVoiceAssistant() {
     };
   }, [synthesisSupported]);
 
+  // Subscribe to global voice/log stream
+  useEffect(() => {
+    const on = (e: LogEntry) => setLogs((prev) => [...prev.slice(-49), e]);
+    __logListeners.add(on);
+    return () => {
+      __logListeners.delete(on);
+    };
+  }, []);
+
+  const runDiagnostics = useCallback(async () => {
+    setChecking(true);
+    const results: DiagCheck[] = [];
+
+    // 1. Secure context
+    const secure = typeof window !== "undefined" && (window.isSecureContext || location.hostname === "localhost");
+    results.push({
+      name: "سياق آمن (HTTPS)",
+      status: secure ? "ok" : "error",
+      detail: secure ? "الصفحة آمنة" : "المتصفح يمنع المايك على HTTP",
+      fix: secure ? undefined : "افتح الموقع عبر HTTPS.",
+    });
+
+    // 2. SpeechRecognition
+    results.push({
+      name: "التعرف الصوتي (Web Speech)",
+      status: speechSupported ? "ok" : "error",
+      detail: speechSupported ? "مدعوم" : "غير متاح في هذا المتصفح",
+      fix: speechSupported ? undefined : "استعمل Chrome أو Edge على سطح المكتب.",
+    });
+
+    // 3. SpeechSynthesis
+    results.push({
+      name: "نطق المتصفح (SpeechSynthesis)",
+      status: synthesisSupported ? "ok" : "warn",
+      detail: synthesisSupported ? "مدعوم" : "غير متاح",
+      fix: synthesisSupported ? undefined : "سيُعتمد على صوت الخادم فقط.",
+    });
+
+    // 4. Arabic voice availability
+    if (synthesisSupported) {
+      const voices = window.speechSynthesis.getVoices();
+      const arVoices = voices.filter((v) => v.lang?.toLowerCase().startsWith("ar"));
+      results.push({
+        name: "صوت عربي مثبت",
+        status: arVoices.length ? "ok" : "warn",
+        detail: arVoices.length ? `${arVoices.length} صوت عربي: ${arVoices.slice(0, 3).map((v) => v.name).join("، ")}` : "لا يوجد صوت عربي",
+        fix: arVoices.length ? undefined : "سنستخدم صوت الخادم Lovable AI تلقائياً كحل بديل.",
+      });
+    }
+
+    // 5. Mic permission
+    if (navigator.mediaDevices?.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((t) => t.stop());
+        results.push({ name: "إذن المايكروفون", status: "ok", detail: "ممنوح" });
+      } catch (e) {
+        results.push({
+          name: "إذن المايكروفون",
+          status: "error",
+          detail: `مرفوض: ${(e as Error).name}`,
+          fix: "افتح قفل العنوان في المتصفح → أذونات الموقع → فعّل المايكروفون.",
+        });
+      }
+    }
+
+    // 6. TTS endpoint
+    try {
+      const res = await fetch("/api/hamid-tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: "اختبار", voice: settingsRef.current.serverVoice, speed: 1 }),
+      });
+      if (res.ok) {
+        const blob = await res.blob();
+        results.push({
+          name: "خادم النطق (Lovable AI TTS)",
+          status: blob.size > 0 ? "ok" : "warn",
+          detail: blob.size > 0 ? `يعمل — استُلم ${Math.round(blob.size / 1024)}KB` : "استجابة فارغة",
+        });
+      } else {
+        results.push({
+          name: "خادم النطق (Lovable AI TTS)",
+          status: "error",
+          detail: `HTTP ${res.status}`,
+          fix: "سيتم التبديل تلقائياً لصوت المتصفح.",
+        });
+      }
+    } catch (e) {
+      results.push({
+        name: "خادم النطق (Lovable AI TTS)",
+        status: "error",
+        detail: `فشل الشبكة: ${(e as Error).message}`,
+        fix: "سيتم التبديل تلقائياً لصوت المتصفح.",
+      });
+    }
+
+    setChecks(results);
+    setChecking(false);
+    pushLog("info", `اكتمل التشخيص — ${results.filter((r) => r.status === "ok").length}/${results.length} نجاح`);
+  }, [speechSupported, synthesisSupported]);
 
   const callAgent = useServerFn(askHamidAgent);
 
