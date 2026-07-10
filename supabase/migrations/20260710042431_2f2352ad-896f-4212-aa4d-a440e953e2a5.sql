@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.register_company(text, text) TO authenticated;
