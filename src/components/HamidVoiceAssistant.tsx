@@ -175,19 +175,95 @@ function pickArabicVoice() {
   );
 }
 
-function speakLocally(text: string) {
+/**
+ * Prepare Arabic text for browser TTS so Saudi phonemes come out cleaner:
+ * - strip diacritics that some voices mispronounce
+ * - normalize hamza on ا so the voice doesn't over-stress it
+ * - convert Latin digits to Arabic-Indic so ar-SA voices read them in Arabic
+ * - add micro-pauses at natural boundaries for calmer pacing
+ */
+function prepareArabicForSpeech(text: string) {
+  return text
+    .replace(/[\u064B-\u0652\u0670]/g, "")
+    .replace(/[إأآ]/g, "ا")
+    .replace(/\d/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)])
+    .replace(/([،,])\s*/g, "$1 ")
+    .replace(/([.؟!])\s*/g, "$1 ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Currently-playing HTMLAudioElement for server-side TTS, so we can cancel. */
+let currentAudio: HTMLAudioElement | null = null;
+
+function stopSpeaking() {
+  if (typeof window === "undefined") return;
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.src = "";
+    currentAudio = null;
+  }
+  window.speechSynthesis?.cancel();
+}
+
+function speakBrowserFallback(text: string) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return false;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
+  const u = new SpeechSynthesisUtterance(prepareArabicForSpeech(text));
   u.lang = "ar-SA";
-  u.rate = 0.92;
-  u.pitch = 0.88;
+  u.rate = 0.9;
+  u.pitch = 0.85;
   u.volume = 1;
   const v = pickArabicVoice();
   if (v) u.voice = v;
   window.speechSynthesis.speak(u);
   return true;
 }
+
+/**
+ * Speak with the Lovable AI Saudi-tuned TTS route; fall back to the browser
+ * SpeechSynthesis engine when the network call fails or audio can't play.
+ */
+async function speakSaudi(
+  text: string,
+  onStart?: () => void,
+  onEnd?: () => void,
+): Promise<boolean> {
+  const clean = prepareArabicForSpeech(text);
+  stopSpeaking();
+  try {
+    const res = await fetch("/api/hamid-tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: clean }),
+    });
+    if (!res.ok) throw new Error(`tts ${res.status}`);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    currentAudio = audio;
+    audio.onplay = () => onStart?.();
+    const cleanup = () => {
+      URL.revokeObjectURL(url);
+      if (currentAudio === audio) currentAudio = null;
+      onEnd?.();
+    };
+    audio.onended = cleanup;
+    audio.onerror = cleanup;
+    await audio.play();
+    return true;
+  } catch {
+    const ok = speakBrowserFallback(text);
+    return ok;
+  }
+}
+
+// Legacy synchronous helper kept for the initial greeting fire-and-forget.
+function speakLocally(text: string) {
+  void speakSaudi(text);
+  return true;
+}
+
 
 function goTo(path: string) {
   if (typeof window === "undefined") return;
