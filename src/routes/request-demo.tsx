@@ -1,14 +1,25 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
 import "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle, BrandMark } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, Calendar, ArrowRight } from "lucide-react";
+import { CheckCircle2, Calendar, ArrowRight, Loader2, AlertCircle } from "lucide-react";
+
+const demoSchema = z.object({
+  name: z.string().trim().min(1).max(200),
+  email: z.string().trim().email().max(320),
+  company: z.string().trim().max(200).optional(),
+  phone: z.string().trim().max(40).optional(),
+  units: z.string().trim().max(100).optional(),
+  message: z.string().trim().max(4000).optional(),
+});
 
 const CANONICAL = "https://hrhbs.com/request-demo";
 
