@@ -187,7 +187,20 @@ describe("list_properties MCP tool", () => {
     expect(res.structuredContent.entity).toBe("properties");
     expect(res.structuredContent.total).toBe(1);
     expect(res.structuredContent.has_more).toBe(false);
+  it("applies default sort=created_at desc", async () => {
+    listResults.set("properties", { data: [], error: null, count: 0 });
+    await invoke({ page: 1, page_size: 20 });
+    const call = calls.find((c) => c.table === "properties")!;
+    expect(call.order).toEqual(["created_at", { ascending: false }]);
   });
+
+  it("respects custom sort=price and order=asc", async () => {
+    listResults.set("properties", { data: [], error: null, count: 0 });
+    await invoke({ page: 1, page_size: 20, sort: "price", order: "asc" });
+    const call = calls.find((c) => c.table === "properties")!;
+    expect(call.order).toEqual(["price", { ascending: true }]);
+  });
+});
 
   it("applies pagination via .range() and forwards page/page_size", async () => {
     listResults.set("properties", { data: [], error: null, count: 0 });
