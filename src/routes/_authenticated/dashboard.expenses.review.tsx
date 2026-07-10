@@ -244,7 +244,7 @@ function ClaimsReviewPage() {
                   const canAct = status === "submitted" || status === "in_review";
                   return (
                     <Fragment key={r.id}>
-                    <TableRow key={r.id}>
+                    <TableRow key={r.id} id={`claim-row-${r.id}`} className="transition-shadow">
                       <TableCell>
                         <div className="font-medium">{r.title || r.claim_number || "—"}</div>
                         <div className="text-[11px] text-muted-foreground">
