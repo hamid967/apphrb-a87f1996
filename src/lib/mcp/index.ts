@@ -4,6 +4,7 @@ import listProperties from "./tools/list-properties";
 import listBranches from "./tools/list-branches";
 import createProperty from "./tools/create-property";
 import listPendingTickets from "./tools/list-pending-tickets";
+import decideExpenseClaim from "./tools/decide-expense-claim";
 
 // The OAuth issuer MUST be the direct Supabase host. On publish, SUPABASE_URL
 // is rewritten to the `.lovable.cloud` proxy, which mcp-js rejects
@@ -21,5 +22,5 @@ export default defineMcp({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [getMyContext, listProperties, listBranches, createProperty, listPendingTickets],
+  tools: [getMyContext, listProperties, listBranches, createProperty, listPendingTickets, decideExpenseClaim],
 });
