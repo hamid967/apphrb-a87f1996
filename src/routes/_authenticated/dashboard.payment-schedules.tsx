@@ -421,8 +421,25 @@ function PaymentSchedulesPage() {
             <span className="hidden sm:inline">
               {isAr ? "توليد سندات الأقساط المستحقة" : "Generate due vouchers"}
             </span>
-            <span className="sm:hidden">{isAr ? "توليد" : "Generate"}</span>
+            <span className="sm:hidden">{isAr ? "سندات" : "Vouchers"}</span>
           </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => generateInvoicesMut.mutate()}
+            disabled={generateInvoicesMut.isPending}
+            className={btnPress}
+            title={isAr ? "إصدار فواتير ZATCA لكل الأقساط المستحقة" : "Issue ZATCA invoices for all due installments"}
+          >
+            {generateInvoicesMut.isPending
+              ? <Loader2 className="h-4 w-4 me-1 animate-spin" />
+              : <FileCheck2 className="h-4 w-4 me-1" />}
+            <span className="hidden sm:inline">
+              {isAr ? "فواتير ZATCA المستحقة" : "Issue ZATCA invoices"}
+            </span>
+            <span className="sm:hidden">ZATCA</span>
+          </Button>
+
           <Button variant="outline" size="sm" onClick={exportCsv} className={btnPress}>
             <Download className="h-4 w-4 me-1" />
             <span className="hidden sm:inline">{isAr ? "تصدير CSV" : "Export CSV"}</span>
