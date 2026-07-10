@@ -10,16 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RequestDemoRouteImport } from './routes/request-demo'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlatformRouteImport } from './routes/platform'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as HelpRouteImport } from './routes/help'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as FaqRouteImport } from './routes/faq'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ConnectRouteImport } from './routes/connect'
 import { Route as CompareRouteImport } from './routes/compare'
@@ -30,8 +34,11 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListingsIndexRouteImport } from './routes/listings.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as SolutionsResidentialRouteImport } from './routes/solutions.residential'
+import { Route as SolutionsPropertyManagersRouteImport } from './routes/solutions.property-managers'
 import { Route as SolutionsOwnersRouteImport } from './routes/solutions.owners'
 import { Route as SolutionsEnterprisesRouteImport } from './routes/solutions.enterprises'
+import { Route as SolutionsCommercialRouteImport } from './routes/solutions.commercial'
 import { Route as SolutionsBrokersRouteImport } from './routes/solutions.brokers'
 import { Route as PortalInviteTokenRouteImport } from './routes/portal-invite.$token'
 import { Route as OnboardingWorkspaceRouteImport } from './routes/onboarding.workspace'
@@ -265,6 +272,11 @@ const UnsubscribeRoute = UnsubscribeRouteImport.update({
   path: '/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -285,6 +297,11 @@ const RequestDemoRoute = RequestDemoRouteImport.update({
   path: '/request-demo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -300,6 +317,11 @@ const McpRoute = McpRouteImport.update({
   path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
@@ -313,6 +335,11 @@ const FeaturesRoute = FeaturesRouteImport.update({
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -364,6 +391,17 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
   path: '/blog/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SolutionsResidentialRoute = SolutionsResidentialRouteImport.update({
+  id: '/solutions/residential',
+  path: '/solutions/residential',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolutionsPropertyManagersRoute =
+  SolutionsPropertyManagersRouteImport.update({
+    id: '/solutions/property-managers',
+    path: '/solutions/property-managers',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SolutionsOwnersRoute = SolutionsOwnersRouteImport.update({
   id: '/solutions/owners',
   path: '/solutions/owners',
@@ -372,6 +410,11 @@ const SolutionsOwnersRoute = SolutionsOwnersRouteImport.update({
 const SolutionsEnterprisesRoute = SolutionsEnterprisesRouteImport.update({
   id: '/solutions/enterprises',
   path: '/solutions/enterprises',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolutionsCommercialRoute = SolutionsCommercialRouteImport.update({
+  id: '/solutions/commercial',
+  path: '/solutions/commercial',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SolutionsBrokersRoute = SolutionsBrokersRouteImport.update({
@@ -1686,16 +1729,20 @@ export interface FileRoutesByFullPath {
   '/compare': typeof CompareRoute
   '/connect': typeof ConnectRoute
   '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/help': typeof HelpRoute
   '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/request-demo': typeof RequestDemoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -1723,8 +1770,11 @@ export interface FileRoutesByFullPath {
   '/onboarding/workspace': typeof OnboardingWorkspaceRoute
   '/portal-invite/$token': typeof PortalInviteTokenRoute
   '/solutions/brokers': typeof SolutionsBrokersRoute
+  '/solutions/commercial': typeof SolutionsCommercialRoute
   '/solutions/enterprises': typeof SolutionsEnterprisesRoute
   '/solutions/owners': typeof SolutionsOwnersRoute
+  '/solutions/property-managers': typeof SolutionsPropertyManagersRoute
+  '/solutions/residential': typeof SolutionsResidentialRoute
   '/blog/': typeof BlogIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -1937,16 +1987,20 @@ export interface FileRoutesByTo {
   '/compare': typeof CompareRoute
   '/connect': typeof ConnectRoute
   '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/help': typeof HelpRoute
   '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/request-demo': typeof RequestDemoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -1969,8 +2023,11 @@ export interface FileRoutesByTo {
   '/onboarding/workspace': typeof OnboardingWorkspaceRoute
   '/portal-invite/$token': typeof PortalInviteTokenRoute
   '/solutions/brokers': typeof SolutionsBrokersRoute
+  '/solutions/commercial': typeof SolutionsCommercialRoute
   '/solutions/enterprises': typeof SolutionsEnterprisesRoute
   '/solutions/owners': typeof SolutionsOwnersRoute
+  '/solutions/property-managers': typeof SolutionsPropertyManagersRoute
+  '/solutions/residential': typeof SolutionsResidentialRoute
   '/blog': typeof BlogIndexRoute
   '/listings': typeof ListingsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -2182,16 +2239,20 @@ export interface FileRoutesById {
   '/compare': typeof CompareRoute
   '/connect': typeof ConnectRoute
   '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/help': typeof HelpRoute
   '/mcp': typeof McpRoute
   '/platform': typeof PlatformRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/request-demo': typeof RequestDemoRoute
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terms': typeof TermsRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -2219,8 +2280,11 @@ export interface FileRoutesById {
   '/onboarding/workspace': typeof OnboardingWorkspaceRoute
   '/portal-invite/$token': typeof PortalInviteTokenRoute
   '/solutions/brokers': typeof SolutionsBrokersRoute
+  '/solutions/commercial': typeof SolutionsCommercialRoute
   '/solutions/enterprises': typeof SolutionsEnterprisesRoute
   '/solutions/owners': typeof SolutionsOwnersRoute
+  '/solutions/property-managers': typeof SolutionsPropertyManagersRoute
+  '/solutions/residential': typeof SolutionsResidentialRoute
   '/blog/': typeof BlogIndexRoute
   '/listings/': typeof ListingsIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
@@ -2435,16 +2499,20 @@ export interface FileRouteTypes {
     | '/compare'
     | '/connect'
     | '/contact'
+    | '/cookies'
     | '/faq'
     | '/features'
     | '/forgot-password'
+    | '/help'
     | '/mcp'
     | '/platform'
     | '/pricing'
+    | '/privacy'
     | '/request-demo'
     | '/reset-password'
     | '/services'
     | '/sitemap.xml'
+    | '/terms'
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -2472,8 +2540,11 @@ export interface FileRouteTypes {
     | '/onboarding/workspace'
     | '/portal-invite/$token'
     | '/solutions/brokers'
+    | '/solutions/commercial'
     | '/solutions/enterprises'
     | '/solutions/owners'
+    | '/solutions/property-managers'
+    | '/solutions/residential'
     | '/blog/'
     | '/listings/'
     | '/.lovable/oauth/consent'
@@ -2686,16 +2757,20 @@ export interface FileRouteTypes {
     | '/compare'
     | '/connect'
     | '/contact'
+    | '/cookies'
     | '/faq'
     | '/features'
     | '/forgot-password'
+    | '/help'
     | '/mcp'
     | '/platform'
     | '/pricing'
+    | '/privacy'
     | '/request-demo'
     | '/reset-password'
     | '/services'
     | '/sitemap.xml'
+    | '/terms'
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -2718,8 +2793,11 @@ export interface FileRouteTypes {
     | '/onboarding/workspace'
     | '/portal-invite/$token'
     | '/solutions/brokers'
+    | '/solutions/commercial'
     | '/solutions/enterprises'
     | '/solutions/owners'
+    | '/solutions/property-managers'
+    | '/solutions/residential'
     | '/blog'
     | '/listings'
     | '/.lovable/oauth/consent'
@@ -2930,16 +3008,20 @@ export interface FileRouteTypes {
     | '/compare'
     | '/connect'
     | '/contact'
+    | '/cookies'
     | '/faq'
     | '/features'
     | '/forgot-password'
+    | '/help'
     | '/mcp'
     | '/platform'
     | '/pricing'
+    | '/privacy'
     | '/request-demo'
     | '/reset-password'
     | '/services'
     | '/sitemap.xml'
+    | '/terms'
     | '/unsubscribe'
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
@@ -2967,8 +3049,11 @@ export interface FileRouteTypes {
     | '/onboarding/workspace'
     | '/portal-invite/$token'
     | '/solutions/brokers'
+    | '/solutions/commercial'
     | '/solutions/enterprises'
     | '/solutions/owners'
+    | '/solutions/property-managers'
+    | '/solutions/residential'
     | '/blog/'
     | '/listings/'
     | '/.lovable/oauth/consent'
@@ -3183,16 +3268,20 @@ export interface RootRouteChildren {
   CompareRoute: typeof CompareRoute
   ConnectRoute: typeof ConnectRoute
   ContactRoute: typeof ContactRoute
+  CookiesRoute: typeof CookiesRoute
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  HelpRoute: typeof HelpRoute
   McpRoute: typeof McpRoute
   PlatformRoute: typeof PlatformRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   RequestDemoRoute: typeof RequestDemoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermsRoute: typeof TermsRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
@@ -3211,8 +3300,11 @@ export interface RootRouteChildren {
   OnboardingWorkspaceRoute: typeof OnboardingWorkspaceRoute
   PortalInviteTokenRoute: typeof PortalInviteTokenRoute
   SolutionsBrokersRoute: typeof SolutionsBrokersRoute
+  SolutionsCommercialRoute: typeof SolutionsCommercialRoute
   SolutionsEnterprisesRoute: typeof SolutionsEnterprisesRoute
   SolutionsOwnersRoute: typeof SolutionsOwnersRoute
+  SolutionsPropertyManagersRoute: typeof SolutionsPropertyManagersRoute
+  SolutionsResidentialRoute: typeof SolutionsResidentialRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ListingsIndexRoute: typeof ListingsIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
@@ -3251,6 +3343,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -3279,6 +3378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RequestDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pricing': {
       id: '/pricing'
       path: '/pricing'
@@ -3300,6 +3406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forgot-password': {
       id: '/forgot-password'
       path: '/forgot-password'
@@ -3319,6 +3432,13 @@ declare module '@tanstack/react-router' {
       path: '/faq'
       fullPath: '/faq'
       preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -3391,6 +3511,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/solutions/residential': {
+      id: '/solutions/residential'
+      path: '/solutions/residential'
+      fullPath: '/solutions/residential'
+      preLoaderRoute: typeof SolutionsResidentialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solutions/property-managers': {
+      id: '/solutions/property-managers'
+      path: '/solutions/property-managers'
+      fullPath: '/solutions/property-managers'
+      preLoaderRoute: typeof SolutionsPropertyManagersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/solutions/owners': {
       id: '/solutions/owners'
       path: '/solutions/owners'
@@ -3403,6 +3537,13 @@ declare module '@tanstack/react-router' {
       path: '/solutions/enterprises'
       fullPath: '/solutions/enterprises'
       preLoaderRoute: typeof SolutionsEnterprisesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solutions/commercial': {
+      id: '/solutions/commercial'
+      path: '/solutions/commercial'
+      fullPath: '/solutions/commercial'
+      preLoaderRoute: typeof SolutionsCommercialRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/solutions/brokers': {
@@ -5797,16 +5938,20 @@ const rootRouteChildren: RootRouteChildren = {
   CompareRoute: CompareRoute,
   ConnectRoute: ConnectRoute,
   ContactRoute: ContactRoute,
+  CookiesRoute: CookiesRoute,
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  HelpRoute: HelpRoute,
   McpRoute: McpRoute,
   PlatformRoute: PlatformRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   RequestDemoRoute: RequestDemoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermsRoute: TermsRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
@@ -5826,8 +5971,11 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingWorkspaceRoute: OnboardingWorkspaceRoute,
   PortalInviteTokenRoute: PortalInviteTokenRoute,
   SolutionsBrokersRoute: SolutionsBrokersRoute,
+  SolutionsCommercialRoute: SolutionsCommercialRoute,
   SolutionsEnterprisesRoute: SolutionsEnterprisesRoute,
   SolutionsOwnersRoute: SolutionsOwnersRoute,
+  SolutionsPropertyManagersRoute: SolutionsPropertyManagersRoute,
+  SolutionsResidentialRoute: SolutionsResidentialRoute,
   BlogIndexRoute: BlogIndexRoute,
   ListingsIndexRoute: ListingsIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,

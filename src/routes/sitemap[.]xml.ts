@@ -31,6 +31,16 @@ const PUBLIC_PATHS: Array<{ path: string; lastmod?: string }> = [
   { path: "/blog" },
   { path: "/faq" },
   { path: "/contact" },
+  { path: "/help", lastmod: "2026-07-10" },
+  { path: "/privacy", lastmod: "2026-07-10" },
+  { path: "/terms", lastmod: "2026-07-10" },
+  { path: "/cookies", lastmod: "2026-07-10" },
+  { path: "/solutions/owners", lastmod: "2026-07-10" },
+  { path: "/solutions/brokers", lastmod: "2026-07-10" },
+  { path: "/solutions/enterprises", lastmod: "2026-07-10" },
+  { path: "/solutions/property-managers", lastmod: "2026-07-10" },
+  { path: "/solutions/commercial", lastmod: "2026-07-10" },
+  { path: "/solutions/residential", lastmod: "2026-07-10" },
 ];
 
 export const Route = createFileRoute("/sitemap.xml")({
