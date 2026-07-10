@@ -443,6 +443,7 @@ export function HamidVoiceAssistant() {
   const [reply, setReply] = useState<HamidIntent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [speaking, setSpeaking] = useState(false);
+  const [signupMode, setSignupMode] = useState(false);
   const { settings, update, reset } = useHamidVoiceSettings();
   const settingsRef = useRef(settings);
   useEffect(() => {
