@@ -23,6 +23,11 @@ import {
   Handshake,
   MessageSquare,
   FileCheck2,
+  ScanLine,
+  CheckCircle2,
+  PieChart,
+  Scale,
+  ArrowDown,
 } from "lucide-react";
 
 const CANONICAL = "https://hrhbs.com/features";
@@ -359,8 +364,12 @@ function FeaturesPage() {
         );
       })}
 
+      {/* Deep-dive sections */}
+      <DeepDives isAr={isAr} />
+
       {/* CTA */}
       <section className="border-t border-border/40 py-20">
+
         <div className="mx-auto max-w-3xl px-4 text-center">
           <h2 className="text-3xl font-bold text-foreground md:text-4xl">
             {isAr ? "جاهز لتجربة المزايا بنفسك؟" : "Ready to try every feature yourself?"}
@@ -386,3 +395,211 @@ function FeaturesPage() {
     </div>
   );
 }
+
+type DeepDive = {
+  key: string;
+  icon: typeof ScanLine;
+  eyebrowAr: string;
+  eyebrowEn: string;
+  titleAr: string;
+  titleEn: string;
+  descAr: string;
+  descEn: string;
+  bulletsAr: string[];
+  bulletsEn: string[];
+  exampleTitleAr: string;
+  exampleTitleEn: string;
+  example: React.ReactNode;
+};
+
+const deepDives: DeepDive[] = [
+  {
+    key: "ocr",
+    icon: ScanLine,
+    eyebrowAr: "OCR للمصادر",
+    eyebrowEn: "Source OCR",
+    titleAr: "التقاط تلقائي لكل فاتورة وإيصال",
+    titleEn: "Auto-capture every invoice and receipt",
+    descAr:
+      "ارفع صورة أو PDF لمصروف، عقد، أو إيصال بنكي — يستخرج المحرك المبلغ، التاريخ، المورّد، ورقم ضريبة القيمة المضافة، ثم يربطها بالسجل الصحيح.",
+    descEn:
+      "Upload an image or PDF of an expense, contract, or bank receipt — the engine extracts amount, date, vendor, and VAT number, then links it to the right record.",
+    bulletsAr: [
+      "دعم العربية والإنجليزية والأرقام الهندية.",
+      "ربط تلقائي بسند الصرف أو الصيانة.",
+      "تنبيه عند تكرار المستند أو عدم تطابق ضريبة القيمة المضافة.",
+    ],
+    bulletsEn: [
+      "Arabic + English + Hindi digit support.",
+      "Auto-linked to a payment voucher or maintenance ticket.",
+      "Flags duplicates and VAT mismatches.",
+    ],
+    exampleTitleAr: "مثال — إيصال مورّد",
+    exampleTitleEn: "Example — vendor receipt",
+    example: (
+      <pre className="text-xs leading-relaxed">
+{`vendor:  "شركة الصيانة المتحدة"
+date:    2026-06-14
+amount:  1,437.50 SAR
+vat_no:  300123456700003
+match:   maintenance_ticket #MT-2041
+status:  ✓ auto-linked`}
+      </pre>
+    ),
+  },
+  {
+    key: "approvals",
+    icon: CheckCircle2,
+    eyebrowAr: "إدارة الموافقات",
+    eyebrowEn: "Approvals",
+    titleAr: "مسارات موافقة متعددة المستويات",
+    titleEn: "Multi-level approval workflows",
+    descAr:
+      "عرّف من يوافق على ماذا وبأي حد مالي — مصروفات، سندات صرف، عقود، وخصومات — مع سجل تدقيق كامل وإشعارات فورية.",
+    descEn:
+      "Define who approves what and at which threshold — expenses, vouchers, contracts, discounts — with a full audit log and instant notifications.",
+    bulletsAr: [
+      "قواعد حسب المبلغ، النوع، أو العقار.",
+      "تفويض مؤقت أثناء الإجازات.",
+      "توقيع إلكتروني موثّق مع الطابع الزمني.",
+    ],
+    bulletsEn: [
+      "Rules by amount, type, or property.",
+      "Temporary delegation during leave.",
+      "Signed and time-stamped approvals.",
+    ],
+    exampleTitleAr: "مثال — سلسلة موافقة",
+    exampleTitleEn: "Example — approval chain",
+    example: (
+      <pre className="text-xs leading-relaxed">
+{`expense: 8,900 SAR — building A
+├─ manager     ✓ Sara   09:14
+├─ finance     ✓ Ahmad  10:02
+└─ CFO (>5k)   ⏳ pending
+policy match:  "capex_over_5k"`}
+      </pre>
+    ),
+  },
+  {
+    key: "bi",
+    icon: PieChart,
+    eyebrowAr: "تقارير البيانات",
+    eyebrowEn: "BI Reports",
+    titleAr: "لوحات قرار لحظية بلا استعلامات SQL",
+    titleEn: "Real-time decision boards — no SQL",
+    descAr:
+      "مؤشرات جاهزة للإشغال، التحصيل، ربحية العقار، وأعمار الديون — مع تصدير Excel/PDF وجدولة إرسال بالبريد.",
+    descEn:
+      "Ready-made KPIs for occupancy, collections, per-property profitability, and receivables aging — with Excel/PDF export and scheduled email delivery.",
+    bulletsAr: [
+      "أعمدة ورسوم قابلة للتخصيص لكل دور.",
+      "تصفية بالعقار، الفترة، أو المستأجر.",
+      "مقاييس هجرية وميلادية جنباً إلى جنب.",
+    ],
+    bulletsEn: [
+      "Per-role custom columns and charts.",
+      "Filter by property, period, or tenant.",
+      "Hijri and Gregorian metrics side by side.",
+    ],
+    exampleTitleAr: "مثال — لوحة تنفيذية",
+    exampleTitleEn: "Example — executive board",
+    example: (
+      <pre className="text-xs leading-relaxed">
+{`occupancy       94.2%   ▲ 1.8
+collections     87.5%   ▼ 2.1
+net_yield       6.9%    ▲ 0.3
+overdue > 60d   42,300 SAR
+top property    "Al-Olaya Tower"`}
+      </pre>
+    ),
+  },
+  {
+    key: "policy",
+    icon: Scale,
+    eyebrowAr: "محرك سياسة الإنفاق",
+    eyebrowEn: "Spend Policy Engine",
+    titleAr: "قواعد قابلة للتعديل تفرض الحوكمة تلقائياً",
+    titleEn: "Editable rules that enforce governance automatically",
+    descAr:
+      "اكتب سياسات الإنفاق بلغة بسيطة — سقوف، فئات ممنوعة، موردون معتمدون — يقارنها المحرك بكل عملية قبل الصرف.",
+    descEn:
+      "Write spend policies in plain language — caps, blocked categories, approved vendors — the engine evaluates every transaction before it goes out.",
+    bulletsAr: [
+      "سقوف يومية/شهرية لكل مستخدم.",
+      "قائمة موردين معتمدين مع ربط ضريبي.",
+      "منع تلقائي مع سبب واضح للمستخدم.",
+    ],
+    bulletsEn: [
+      "Per-user daily / monthly caps.",
+      "Approved vendor list with tax linkage.",
+      "Auto-block with a clear reason to the user.",
+    ],
+    exampleTitleAr: "مثال — قاعدة سياسة",
+    exampleTitleEn: "Example — policy rule",
+    example: (
+      <pre className="text-xs leading-relaxed">
+{`rule "maintenance_cap"
+  when category = "maintenance"
+   and amount   > 3,000 SAR
+   and vendor  not in approved_vendors
+  then require_approval("CFO")
+       and notify("finance_ops")`}
+      </pre>
+    ),
+  },
+];
+
+function DeepDives({ isAr }: { isAr: boolean }) {
+  return (
+    <>
+      {deepDives.map((d, i) => (
+        <section
+          key={d.key}
+          id={d.key}
+          className={`border-t border-border/40 py-20 md:py-24 ${
+            i % 2 === 0 ? "" : "bg-card/30"
+          }`}
+        >
+          <div className="mx-auto grid max-w-6xl gap-10 px-4 md:grid-cols-2 md:items-center">
+            <div>
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-xs uppercase tracking-widest text-primary">
+                <d.icon className="h-3.5 w-3.5" />
+                {isAr ? d.eyebrowAr : d.eyebrowEn}
+              </div>
+              <h2 className="text-2xl font-bold text-foreground md:text-3xl">
+                {isAr ? d.titleAr : d.titleEn}
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                {isAr ? d.descAr : d.descEn}
+              </p>
+              <ul className="mt-6 space-y-2 text-sm text-muted-foreground">
+                {(isAr ? d.bulletsAr : d.bulletsEn).map((b) => (
+                  <li key={b} className="flex items-start gap-2">
+                    <ArrowDown className="mt-0.5 h-4 w-4 shrink-0 -rotate-90 rtl:rotate-90 text-primary" />
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="rounded-2xl border border-border/40 bg-background/80 p-5 shadow-sm backdrop-blur-sm"
+              dir="ltr"
+            >
+              <div className="mb-3 text-xs uppercase tracking-widest text-muted-foreground">
+                {isAr ? d.exampleTitleAr : d.exampleTitleEn}
+              </div>
+              <div className="rounded-lg border border-border/40 bg-card/50 p-4 font-mono text-foreground">
+                {d.example}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      ))}
+    </>
+  );
+}
+
