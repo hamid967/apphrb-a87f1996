@@ -388,7 +388,9 @@ function PaymentSchedulesPage() {
   const isRefetching = listQ.isFetching && !listQ.isLoading;
   const busyRowId = (voucherMut.isPending && voucherMut.variables) ||
     (payMut.isPending && payMut.variables) ||
-    (cancelMut.isPending && cancelMut.variables) || null;
+    (cancelMut.isPending && cancelMut.variables) ||
+    (invoiceMut.isPending && invoiceMut.variables) || null;
+
 
   const btnPress = "transition-all duration-150 active:scale-[0.97] hover:-translate-y-0.5";
 
