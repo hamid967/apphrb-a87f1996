@@ -299,16 +299,123 @@ export function PdfPreviewDialog({ open, onOpenChange, filename, cacheKey, build
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {isAr ? "إغلاق" : "Close"}
-          </Button>
-          <Button onClick={download} disabled={!bytes}>
-            <FileDown className="h-4 w-4 me-1" />
-            {isAr ? "تنزيل" : "Download"}
-          </Button>
+        <DialogFooter className="gap-2 sm:justify-between">
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!qrTlv}
+              onClick={() => setQrOpen(true)}
+              title={!qrTlv ? (isAr ? "لا يوجد QR" : "No QR") : undefined}
+            >
+              <QrCode className="h-4 w-4 me-1" />
+              {isAr ? "معاينة QR" : "View QR"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!xmlUbl}
+              onClick={() => setXmlOpen(true)}
+              title={!xmlUbl ? (isAr ? "لا يوجد XML" : "No XML") : undefined}
+            >
+              <FileCode className="h-4 w-4 me-1" />
+              {isAr ? "معاينة XML" : "View XML"}
+            </Button>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              {isAr ? "إغلاق" : "Close"}
+            </Button>
+            <Button onClick={download} disabled={!bytes}>
+              <FileDown className="h-4 w-4 me-1" />
+              {isAr ? "تنزيل PDF" : "Download PDF"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
+
+      {/* QR sub-dialog */}
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogContent className="max-w-md" dir={isAr ? "rtl" : "ltr"}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <QrCode className="h-4 w-4" />
+              {isAr ? "رمز ZATCA QR" : "ZATCA QR"}
+            </DialogTitle>
+          </DialogHeader>
+          {qrTlv ? (
+            <div className="space-y-3">
+              <div className="flex justify-center p-4 bg-white rounded-md">
+                <QrImage value={qrTlv} size={260} alt="ZATCA QR" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground mb-1">
+                  {isAr ? "بيانات TLV (Base64)" : "TLV payload (Base64)"}
+                </div>
+                <textarea
+                  readOnly
+                  value={qrTlv}
+                  className="w-full h-24 text-[11px] font-mono p-2 border rounded-md bg-muted/30 break-all"
+                />
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" size="sm" onClick={() => copyText("QR TLV", qrTlv)}>
+                  <Copy className="h-4 w-4 me-1" />
+                  {isAr ? "نسخ" : "Copy"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {isAr ? "لا يوجد رمز QR." : "No QR available."}
+            </p>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* XML sub-dialog */}
+      <Dialog open={xmlOpen} onOpenChange={setXmlOpen}>
+        <DialogContent className="max-w-3xl h-[80vh] flex flex-col" dir={isAr ? "rtl" : "ltr"}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileCode className="h-4 w-4" />
+              {isAr ? "XML (UBL 2.1)" : "UBL 2.1 XML"}
+              {xmlUbl && (
+                <Badge variant="outline" className="ms-1 text-[10px]">
+                  {(new Blob([xmlUbl]).size / 1024).toFixed(1)} KB
+                </Badge>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          {xmlUbl && xmlBlobUrl ? (
+            <>
+              <pre className="flex-1 overflow-auto text-[11px] font-mono p-3 border rounded-md bg-muted/30 whitespace-pre-wrap break-all">
+                {xmlUbl}
+              </pre>
+              <DialogFooter className="gap-2">
+                <Button variant="outline" size="sm" onClick={() => copyText("XML", xmlUbl)}>
+                  <Copy className="h-4 w-4 me-1" />
+                  {isAr ? "نسخ" : "Copy"}
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <a href={xmlBlobUrl} target="_blank" rel="noreferrer">
+                    <ExternalLink className="h-4 w-4 me-1" />
+                    {isAr ? "فتح في نافذة" : "Open in tab"}
+                  </a>
+                </Button>
+                <Button size="sm" onClick={downloadXml}>
+                  <FileDown className="h-4 w-4 me-1" />
+                  {isAr ? "تنزيل XML" : "Download XML"}
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {isAr ? "لا يوجد XML متاح." : "No XML available."}
+            </p>
+          )}
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
