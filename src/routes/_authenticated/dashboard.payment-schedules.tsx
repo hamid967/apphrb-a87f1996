@@ -632,6 +632,19 @@ function PaymentSchedulesPage() {
                     </Button>
                     <Button
                       size="sm" variant="outline"
+                      disabled={disabled || Boolean(r.invoice_id) || rowBusy}
+                      onClick={() => invoiceMut.mutate(r.id)}
+                      title={isAr ? "إصدار فاتورة ZATCA" : "Issue ZATCA invoice"}
+                      className={btnPress}
+                    >
+                      {invoiceMut.isPending && invoiceMut.variables === r.id
+                        ? <Loader2 className="h-3.5 w-3.5 me-1 animate-spin" />
+                        : <FileCheck2 className="h-3.5 w-3.5 me-1" />}
+                      {isAr ? "فاتورة" : "Invoice"}
+                    </Button>
+
+                    <Button
+                      size="sm" variant="outline"
                       disabled={disabled || rowBusy}
                       onClick={() => payMut.mutate(r.id)}
                       className={btnPress}
