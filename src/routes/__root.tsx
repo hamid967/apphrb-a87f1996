@@ -22,6 +22,7 @@ import { ImpersonationBanner } from "@/components/admin/ImpersonationBanner";
 import { FilterAnalyticsFlusher } from "@/components/analytics/FilterAnalyticsFlusher";
 import { FilterAnalyticsDebugPanel } from "@/components/analytics/FilterAnalyticsDebugPanel";
 import { CommandPalette } from "@/components/command-palette";
+import { HamidVoiceAssistant } from "@/components/HamidVoiceAssistant";
 
 function NotFoundComponent() {
   const { i18n } = useTranslation();
@@ -290,6 +291,7 @@ function RootComponent() {
           <FilterAnalyticsDebugPanel />
           <CommandPalette />
           <Outlet />
+          <HamidVoiceAssistant />
           <Toaster
             position="top-center"
             closeButton
