@@ -2550,7 +2550,16 @@ const ar: typeof en = {
       convertTitle: "تحويل العميل المحتمل إلى صفقة",
       convertHint: "سيتم إنشاء صفقة من هذا العميل ووضعه في مرحلة الفوز.",
       needsProperty: "أضف عقاراً إلى العميل المحتمل أولاً.",
+      search: "ابحث بالاسم أو المصدر أو الملاحظات…",
+      filterStage: "كل المراحل",
+      export: "تصدير",
+      exportCsv: "تصدير CSV",
+      exportXlsx: "تصدير Excel",
+      exportActivities: "تصدير الأنشطة",
+      exportMatches: "تصدير التطابقات",
+      nothingToExport: "لا يوجد بيانات للتصدير",
     },
+
     deals: {
       title: "الصفقات",
       add: "إضافة صفقة",
