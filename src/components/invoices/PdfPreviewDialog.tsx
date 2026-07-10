@@ -186,6 +186,11 @@ export function PdfPreviewDialog({ open, onOpenChange, filename, cacheKey, build
                   : (isAr ? `${report.issues.length} تنبيه` : `${report.issues.length} issue(s)`)}
               </Badge>
             )}
+            {fromCache && !loading && (
+              <Badge variant="outline" className="ms-1 text-[10px]">
+                {isAr ? "من الذاكرة المؤقتة" : "cached"}
+              </Badge>
+            )}
           </DialogTitle>
         </DialogHeader>
 
