@@ -542,6 +542,8 @@ export function HamidVoiceAssistant() {
     stopSpeaking();
     setCallActive(false);
     setSpeaking(false);
+    // Flush the on-screen reveal so the last spoken words don't stay half-shown.
+    setSpokenText((prev) => (reply ? reply.text : prev));
   };
 
   const submitText = (e: React.FormEvent) => {
