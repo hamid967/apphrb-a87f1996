@@ -247,57 +247,94 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
             </DropdownMenu>
 
             {voice.supported ? (
-              <motion.div
-                initial={false}
-                animate={
-                  phase === "recording"
-                    ? { scale: [1, 1.06, 1] }
-                    : { scale: 1 }
-                }
-                transition={
-                  phase === "recording"
-                    ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
-                    : { duration: 0.2 }
-                }
-              >
-                <Button
-                  type="button"
-                  size="icon"
-                  variant={phase === "recording" ? "destructive" : "outline"}
-                  onClick={handleMic}
-                  disabled={disabled || isBusy}
-                  aria-label={PHASE_LABEL[phase] || "إدخال صوتي"}
-                  title={PHASE_LABEL[phase] || "إدخال صوتي"}
-                  className={cn(
-                    "h-8 w-8 relative overflow-hidden",
-                    phase === "recording" &&
-                      "shadow-[0_0_0_0_hsl(var(--destructive)/0.5)] animate-[pulse_1.4s_ease-in-out_infinite]",
-                  )}
-                >
-                  <AnimatePresence mode="wait" initial={false}>
-                    <motion.span
-                      key={phase}
-                      initial={{ opacity: 0, scale: 0.6, rotate: -15 }}
-                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                      exit={{ opacity: 0, scale: 0.6, rotate: 15 }}
+              <>
+                <AnimatePresence initial={false}>
+                  {(phase === "recording" || phase === "paused") && (
+                    <motion.div
+                      key="pause"
+                      initial={{ opacity: 0, scale: 0.7, width: 0 }}
+                      animate={{ opacity: 1, scale: 1, width: "auto" }}
+                      exit={{ opacity: 0, scale: 0.7, width: 0 }}
                       transition={{ duration: 0.18, ease: "easeOut" }}
-                      className="flex items-center justify-center"
                     >
-                      {phase === "transcribing" || phase === "starting" ? (
-                        <Loader2 className="size-4 animate-spin" />
-                      ) : phase === "done" ? (
-                        <Check className="size-4" />
-                      ) : phase === "error" ? (
-                        <AlertCircle className="size-4" />
-                      ) : phase === "recording" ? (
-                        <Square className="size-4" />
-                      ) : (
-                        <Mic className="size-4" />
-                      )}
-                    </motion.span>
-                  </AnimatePresence>
-                </Button>
-              </motion.div>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        onClick={togglePause}
+                        disabled={disabled}
+                        aria-label={phase === "paused" ? "استكمال التسجيل" : "إيقاف مؤقت"}
+                        title={phase === "paused" ? "استكمال التسجيل" : "إيقاف مؤقت"}
+                        className="h-8 w-8"
+                      >
+                        {phase === "paused" ? (
+                          <Play className="size-4" />
+                        ) : (
+                          <Pause className="size-4" />
+                        )}
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <motion.div
+                  initial={false}
+                  animate={
+                    phase === "recording"
+                      ? { scale: [1, 1.06, 1] }
+                      : { scale: 1 }
+                  }
+                  transition={
+                    phase === "recording"
+                      ? { duration: 1.2, repeat: Infinity, ease: "easeInOut" }
+                      : { duration: 0.2 }
+                  }
+                >
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant={
+                      phase === "recording"
+                        ? "destructive"
+                        : phase === "paused"
+                          ? "secondary"
+                          : "outline"
+                    }
+                    onClick={handleMic}
+                    disabled={disabled || isBusy}
+                    aria-label={PHASE_LABEL[phase] || "إدخال صوتي"}
+                    title={PHASE_LABEL[phase] || "إدخال صوتي"}
+                    className={cn(
+                      "h-8 w-8 relative overflow-hidden",
+                      phase === "recording" &&
+                        "shadow-[0_0_0_0_hsl(var(--destructive)/0.5)] animate-[pulse_1.4s_ease-in-out_infinite]",
+                    )}
+                  >
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.span
+                        key={phase}
+                        initial={{ opacity: 0, scale: 0.6, rotate: -15 }}
+                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                        exit={{ opacity: 0, scale: 0.6, rotate: 15 }}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                        className="flex items-center justify-center"
+                      >
+                        {phase === "transcribing" || phase === "starting" ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : phase === "done" ? (
+                          <Check className="size-4" />
+                        ) : phase === "error" ? (
+                          <AlertCircle className="size-4" />
+                        ) : phase === "recording" || phase === "paused" ? (
+                          <Square className="size-4" />
+                        ) : (
+                          <Mic className="size-4" />
+                        )}
+                      </motion.span>
+                    </AnimatePresence>
+                  </Button>
+                </motion.div>
+              </>
             ) : (
               <div
                 className="flex h-8 w-8 items-center justify-center text-muted-foreground"
