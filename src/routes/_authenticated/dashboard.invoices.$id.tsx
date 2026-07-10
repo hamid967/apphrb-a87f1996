@@ -21,7 +21,7 @@ import {
   sealZatcaInvoice,
 } from "@/lib/invoices-zatca.functions";
 import { InvoiceNotesSection } from "@/components/invoices/InvoiceNotesSection";
-import { PdfPreviewDialog } from "@/components/invoices/PdfPreviewDialog";
+import { PdfPreviewDialog, invalidatePdfCache } from "@/components/invoices/PdfPreviewDialog";
 import { FileDown } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/invoices/$id")({
