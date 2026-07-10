@@ -306,3 +306,73 @@ export const listPolicyViolationsForClaims = createServerFn({ method: "POST" })
     if (error) throw error;
     return rows ?? [];
   });
+
+// ── Single-claim view (violation + policy metadata + linked receipt) ──
+const oneClaimSchema = z.object({ claim_id: z.string().uuid() });
+
+export type ClaimViolationRow = {
+  id: string;
+  claim_id: string;
+  rule_type: string;
+  severity: string;
+  category: string | null;
+  reason: string;
+  amount: number | string | null;
+  limit_amount: number | string | null;
+  currency: string | null;
+  created_at: string;
+  policy: {
+    id: string;
+    category: string;
+    rule_type: string;
+    note: string | null;
+    max_amount: number | string | null;
+    period_days: number | null;
+    keywords: string[] | null;
+  } | null;
+};
+
+export type ClaimViolationsPayload = {
+  claim: {
+    id: string;
+    claim_number: string | null;
+    title: string | null;
+    receipt_url: string | null;
+    amount: number | string;
+    currency: string | null;
+  } | null;
+  violations: ClaimViolationRow[];
+};
+
+/**
+ * Loads all policy_violations for a single claim, joined with the originating
+ * spending_policies row (so the UI can show a human-readable policy name/note),
+ * plus the claim header (for the linked receipt/document). Scoped by RLS.
+ */
+export const listPolicyViolationsForClaim = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: z.infer<typeof oneClaimSchema>) => oneClaimSchema.parse(d))
+  .handler(async ({ data, context }): Promise<ClaimViolationsPayload> => {
+    const { supabase } = context;
+
+    const [{ data: claim, error: cErr }, { data: rows, error: vErr }] = await Promise.all([
+      supabase
+        .from("expense_claims")
+        .select("id, claim_number, title, receipt_url, amount, currency")
+        .eq("id", data.claim_id)
+        .maybeSingle(),
+      supabase
+        .from("policy_violations")
+        .select(
+          "id, claim_id, rule_type, severity, category, reason, amount, limit_amount, currency, created_at, policy:spending_policies(id, category, rule_type, note, max_amount, period_days, keywords)",
+        )
+        .eq("claim_id", data.claim_id)
+        .order("created_at", { ascending: true }),
+    ]);
+    if (cErr) throw cErr;
+    if (vErr) throw vErr;
+    return {
+      claim: (claim ?? null) as ClaimViolationsPayload["claim"],
+      violations: (rows ?? []) as unknown as ClaimViolationRow[],
+    };
+  });
