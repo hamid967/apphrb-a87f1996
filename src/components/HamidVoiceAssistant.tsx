@@ -326,6 +326,13 @@ async function speakSaudi(
     currentAudio = audio;
     let started = false;
     let finalized = false;
+    const cleanup = () => {
+      if (finalized) return;
+      finalized = true;
+      URL.revokeObjectURL(url);
+      if (currentAudio === audio) currentAudio = null;
+      onEnd?.();
+    };
     audio.onplay = () => {
       // Late-arrival guard: another speak() already superseded us between
       // schedule and the actual play tick — silence this one immediately.
@@ -337,13 +344,6 @@ async function speakSaudi(
       started = true;
       pushLog("ok", "تشغيل صوت الخادم (Lovable AI TTS)");
       onStart?.();
-    };
-    const cleanup = () => {
-      if (finalized) return;
-      finalized = true;
-      URL.revokeObjectURL(url);
-      if (currentAudio === audio) currentAudio = null;
-      onEnd?.();
     };
     audio.onended = cleanup;
     audio.onerror = () => {
