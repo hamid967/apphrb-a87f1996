@@ -6411,6 +6411,126 @@ export type Database = {
           },
         ]
       }
+      zatca_csid: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          csid_binary_token: string
+          csid_secret: string
+          disposition_message: string | null
+          environment: string
+          expires_at: string | null
+          id: string
+          issued_at: string
+          org_id: string
+          request_id: string | null
+          revoked_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          csid_binary_token: string
+          csid_secret: string
+          disposition_message?: string | null
+          environment: string
+          expires_at?: string | null
+          id?: string
+          issued_at?: string
+          org_id: string
+          request_id?: string | null
+          revoked_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          csid_binary_token?: string
+          csid_secret?: string
+          disposition_message?: string | null
+          environment?: string
+          expires_at?: string | null
+          id?: string
+          issued_at?: string
+          org_id?: string
+          request_id?: string | null
+          revoked_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zatca_csid_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      zatca_submission_attempts: {
+        Row: {
+          attempt_no: number
+          attempted_at: string
+          clearance_uuid: string | null
+          endpoint: string
+          error_message: string | null
+          http_status: number | null
+          id: string
+          invoice_id: string
+          org_id: string
+          response_body: Json | null
+          status: string
+        }
+        Insert: {
+          attempt_no?: number
+          attempted_at?: string
+          clearance_uuid?: string | null
+          endpoint: string
+          error_message?: string | null
+          http_status?: number | null
+          id?: string
+          invoice_id: string
+          org_id: string
+          response_body?: Json | null
+          status: string
+        }
+        Update: {
+          attempt_no?: number
+          attempted_at?: string
+          clearance_uuid?: string | null
+          endpoint?: string
+          error_message?: string | null
+          http_status?: number | null
+          id?: string
+          invoice_id?: string
+          org_id?: string
+          response_body?: Json | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zatca_submission_attempts_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "zatca_submission_attempts_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "v_ar_aging"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "zatca_submission_attempts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       mv_billing_pay_om: {

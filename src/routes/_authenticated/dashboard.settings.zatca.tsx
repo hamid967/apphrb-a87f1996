@@ -23,6 +23,7 @@ import {
   type ZatcaCheckItem,
   type ZatcaCheckStatus,
 } from "@/lib/zatca-check.functions";
+import { ZatcaCsidCard } from "@/components/zatca/ZatcaCsidCard";
 
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute("/_authenticated/dashboard/settings/zatca")({
@@ -99,6 +100,9 @@ function ZatcaPage() {
           {t("zatca.rerun")}
         </Button>
       </div>
+
+      {org && <ZatcaCsidCard orgId={org.id} />}
+
 
       {reportQ.isLoading && (
         <Card className="mt-6">
