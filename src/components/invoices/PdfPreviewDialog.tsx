@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Check, X, FileDown, Eye, Loader2 } from "lucide-react";
+import { Check, X, FileDown, Eye, Loader2, QrCode, FileCode, ExternalLink, Copy } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
+import { QrImage } from "@/components/zatca/QrImage";
 // Local mirror of types from src/lib/zatca/pdf-invoice.client.ts
 // (that module is browser-only and blocked from the SSR graph).
 type InvoicePdfInput = {
