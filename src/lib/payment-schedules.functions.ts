@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { regenerateZatcaPayload } from "@/lib/zatca/regenerate";
+
 
 /**
  * Wave 2 — Payment schedule engine.
@@ -260,3 +262,182 @@ export const generateDueVouchers = createServerFn({ method: "POST" })
     }
     return { ok: true, scanned: rows?.length ?? 0, created, errors };
   });
+
+/* -------------------------------------------------------------------------- */
+/*  Wave 2 — payment_schedules → invoices (with ZATCA) integration           */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Resolve the buyer contact id for a schedule based on its source.
+ * Contracts → tenants have no `contact_id` column in this schema, so we
+ * leave the invoice's `contact_id` NULL. Deals may already carry a
+ * contact_id; commissions don't. Best-effort — returns null when unknown.
+ */
+async function resolveContactId(
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
+  row: { source_type: string; contract_id: string | null; deal_id: string | null; commission_id: string | null },
+): Promise<string | null> {
+  if (row.source_type === "deal" && row.deal_id) {
+    const { data } = await supabase
+      .from("deals")
+      .select("contact_id")
+      .eq("id", row.deal_id)
+      .maybeSingle();
+    return (data?.contact_id as string | null) ?? null;
+  }
+  return null;
+}
+
+/**
+ * Idempotent: creates a draft invoice for a schedule row, links
+ * `payment_schedules.invoice_id`, marks the schedule as `invoiced`, and
+ * generates the ZATCA payload (UBL + hash + QR TLV). Returns the linked
+ * invoice regardless of whether it was newly created.
+ */
+async function ensureInvoiceForSchedule(
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
+  scheduleId: string,
+): Promise<{ invoiceId: string; number: string; created: boolean }> {
+  const { data: sched, error: sErr } = await supabase
+    .from("payment_schedules")
+    .select(
+      "id, org_id, source_type, contract_id, deal_id, commission_id, installment_no, due_date, amount, vat_rate, vat_amount, total_amount, invoice_id, status, notes",
+    )
+    .eq("id", scheduleId)
+    .single();
+  if (sErr) throw new Error(sErr.message);
+  if (!sched) throw new Error("Schedule not found");
+  if (sched.status === "cancelled") throw new Error("Schedule is cancelled");
+
+  if (sched.invoice_id) {
+    const { data: existing } = await supabase
+      .from("invoices")
+      .select("id, number")
+      .eq("id", sched.invoice_id)
+      .maybeSingle();
+    if (existing) {
+      return { invoiceId: existing.id, number: existing.number, created: false };
+    }
+    // Dangling link → fall through and create a fresh invoice.
+  }
+
+  const contactId = await resolveContactId(supabase, sched);
+
+  // Per-org monotonic sequence for invoice numbers.
+  const { data: seqRaw, error: seqErr } = await supabase.rpc("next_org_sequence", {
+    _org: sched.org_id,
+    _kind: "invoice",
+  });
+  if (seqErr) throw new Error(seqErr.message);
+  const seq = Number(seqRaw ?? 0);
+  const year = new Date().getUTCFullYear();
+  const number = `INV-${year}-${String(seq).padStart(6, "0")}`;
+
+  const description = sched.source_type === "contract"
+    ? `Rent installment #${sched.installment_no}`
+    : sched.source_type === "deal"
+      ? `Deal installment #${sched.installment_no}`
+      : `Commission installment #${sched.installment_no}`;
+
+  const { data: inv, error: iErr } = await supabase
+    .from("invoices")
+    .insert({
+      org_id: sched.org_id,
+      number,
+      contact_id: contactId,
+      deal_id: sched.source_type === "deal" ? sched.deal_id : null,
+      issue_date: new Date().toISOString().slice(0, 10),
+      due_date: sched.due_date,
+      subtotal: sched.amount,
+      vat_rate: sched.vat_rate,
+      vat_amount: sched.vat_amount,
+      total: sched.total_amount,
+      currency: "SAR",
+      status: "draft",
+      invoice_type: "simplified",
+
+      description,
+      notes: sched.notes ?? null,
+    })
+    .select("id, number")
+    .single();
+  if (iErr) throw new Error(iErr.message);
+
+  // Link schedule → invoice + status transition.
+  const { error: linkErr } = await supabase
+    .from("payment_schedules")
+    .update({ invoice_id: inv.id, status: "invoiced" })
+    .eq("id", scheduleId);
+  if (linkErr) throw new Error(linkErr.message);
+
+  // Immediately populate the ZATCA payload so the invoice is submit-ready.
+  try {
+    await regenerateZatcaPayload(supabase, inv.id);
+  } catch (e) {
+    // Non-fatal: the invoice exists and can be regenerated later from
+    // the invoice detail page. Surface via an audit note.
+    try {
+      await supabase.rpc("log_audit", {
+        _entity: "invoices",
+        _entity_id: inv.id,
+        _action: "zatca.generate.failed",
+        _diff: { error: (e as Error).message } as unknown as never,
+        _actor: null,
+      });
+    } catch { /* ignore */ }
+  }
+
+  return { invoiceId: inv.id, number: inv.number, created: true };
+}
+
+const CreateInvoiceSchema = z.object({ scheduleId: z.string().uuid() });
+export const createInvoiceFromSchedule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => CreateInvoiceSchema.parse(data))
+  .handler(async ({ data, context }) => {
+    const res = await ensureInvoiceForSchedule(context.supabase, data.scheduleId);
+    return { ok: true, ...res };
+  });
+
+/**
+ * Batch — issue draft ZATCA invoices for every pending/overdue installment
+ * due on/before `throughDate` that isn't already invoiced. Mirrors
+ * `generateDueVouchers` for the invoicing side.
+ */
+const GenerateDueInvoicesSchema = z.object({
+  orgId: z.string().uuid().optional(),
+  throughDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  limit: z.number().int().min(1).max(500).default(200),
+});
+export const generateDueInvoices = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => GenerateDueInvoicesSchema.parse(data ?? {}))
+  .handler(async ({ data, context }) => {
+    const through = data.throughDate ?? new Date().toISOString().slice(0, 10);
+    let q = context.supabase
+      .from("payment_schedules")
+      .select("id")
+      .is("invoice_id", null)
+      .in("status", ["pending", "overdue"])
+      .lte("due_date", through)
+      .order("due_date", { ascending: true })
+      .limit(data.limit);
+    if (data.orgId) q = q.eq("org_id", data.orgId);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+
+    let created = 0;
+    const errors: Array<{ id: string; message: string }> = [];
+    for (const r of rows ?? []) {
+      try {
+        const res = await ensureInvoiceForSchedule(context.supabase, r.id);
+        if (res.created) created += 1;
+      } catch (e) {
+        errors.push({ id: r.id, message: (e as Error).message });
+      }
+    }
+    return { ok: true, scanned: rows?.length ?? 0, created, errors };
+  });
+

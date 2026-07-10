@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Download, Ban, Check, RefreshCw, Receipt, Zap, FileSpreadsheet, FileText, X, Loader2 } from "lucide-react";
+import { Download, Ban, Check, RefreshCw, Receipt, Zap, FileSpreadsheet, FileText, X, Loader2, FileCheck2 } from "lucide-react";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -27,7 +27,10 @@ import {
   cancelInstallment,
   createVoucherFromSchedule,
   generateDueVouchers,
+  createInvoiceFromSchedule,
+  generateDueInvoices,
 } from "@/lib/payment-schedules.functions";
+
 import { listMyOrganizations } from "@/lib/organizations.functions";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -132,6 +135,36 @@ function PaymentSchedulesPage() {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const invoiceMut = useMutation({
+    mutationFn: (id: string) => createInvoiceFromSchedule({ data: { scheduleId: id } }),
+    onSuccess: (res) => {
+      toast.success(
+        res.created
+          ? (isAr ? `تم إنشاء فاتورة ZATCA ${res.number}` : `Invoice ${res.number} created`)
+          : (isAr ? `الفاتورة موجودة (${res.number})` : `Invoice already exists (${res.number})`),
+      );
+      qc.invalidateQueries({ queryKey: ["payment-schedules"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const generateInvoicesMut = useMutation({
+    mutationFn: () =>
+      generateDueInvoices({
+        data: { orgId: orgId === "all" ? undefined : orgId },
+      }),
+    onSuccess: (res) => {
+      toast.success(
+        isAr
+          ? `تم إصدار ${res.created} فاتورة ZATCA من أصل ${res.scanned}`
+          : `Issued ${res.created} of ${res.scanned} ZATCA invoices`,
+      );
+      qc.invalidateQueries({ queryKey: ["payment-schedules"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
 
   const rows = (listQ.data?.items ?? []) as Row[];
 
@@ -355,7 +388,9 @@ function PaymentSchedulesPage() {
   const isRefetching = listQ.isFetching && !listQ.isLoading;
   const busyRowId = (voucherMut.isPending && voucherMut.variables) ||
     (payMut.isPending && payMut.variables) ||
-    (cancelMut.isPending && cancelMut.variables) || null;
+    (cancelMut.isPending && cancelMut.variables) ||
+    (invoiceMut.isPending && invoiceMut.variables) || null;
+
 
   const btnPress = "transition-all duration-150 active:scale-[0.97] hover:-translate-y-0.5";
 
@@ -386,8 +421,25 @@ function PaymentSchedulesPage() {
             <span className="hidden sm:inline">
               {isAr ? "توليد سندات الأقساط المستحقة" : "Generate due vouchers"}
             </span>
-            <span className="sm:hidden">{isAr ? "توليد" : "Generate"}</span>
+            <span className="sm:hidden">{isAr ? "سندات" : "Vouchers"}</span>
           </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => generateInvoicesMut.mutate()}
+            disabled={generateInvoicesMut.isPending}
+            className={btnPress}
+            title={isAr ? "إصدار فواتير ZATCA لكل الأقساط المستحقة" : "Issue ZATCA invoices for all due installments"}
+          >
+            {generateInvoicesMut.isPending
+              ? <Loader2 className="h-4 w-4 me-1 animate-spin" />
+              : <FileCheck2 className="h-4 w-4 me-1" />}
+            <span className="hidden sm:inline">
+              {isAr ? "فواتير ZATCA المستحقة" : "Issue ZATCA invoices"}
+            </span>
+            <span className="sm:hidden">ZATCA</span>
+          </Button>
+
           <Button variant="outline" size="sm" onClick={exportCsv} className={btnPress}>
             <Download className="h-4 w-4 me-1" />
             <span className="hidden sm:inline">{isAr ? "تصدير CSV" : "Export CSV"}</span>
@@ -580,6 +632,19 @@ function PaymentSchedulesPage() {
                     </Button>
                     <Button
                       size="sm" variant="outline"
+                      disabled={disabled || Boolean(r.invoice_id) || rowBusy}
+                      onClick={() => invoiceMut.mutate(r.id)}
+                      title={isAr ? "إصدار فاتورة ZATCA" : "Issue ZATCA invoice"}
+                      className={btnPress}
+                    >
+                      {invoiceMut.isPending && invoiceMut.variables === r.id
+                        ? <Loader2 className="h-3.5 w-3.5 me-1 animate-spin" />
+                        : <FileCheck2 className="h-3.5 w-3.5 me-1" />}
+                      {isAr ? "فاتورة" : "Invoice"}
+                    </Button>
+
+                    <Button
+                      size="sm" variant="outline"
                       disabled={disabled || rowBusy}
                       onClick={() => payMut.mutate(r.id)}
                       className={btnPress}
@@ -671,7 +736,7 @@ function PaymentSchedulesPage() {
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-1.5 pt-1">
+              <div className="grid grid-cols-4 gap-1.5 pt-1">
                 <Button
                   size="sm" variant="outline"
                   disabled={disabled || Boolean(r.voucher_id) || rowBusy}
@@ -682,6 +747,17 @@ function PaymentSchedulesPage() {
                     ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                     : <Receipt className="h-3.5 w-3.5 me-1" />}
                   <span className="text-xs">{isAr ? "سند" : "Voucher"}</span>
+                </Button>
+                <Button
+                  size="sm" variant="outline"
+                  disabled={disabled || Boolean(r.invoice_id) || rowBusy}
+                  onClick={() => invoiceMut.mutate(r.id)}
+                  className={btnPress}
+                >
+                  {invoiceMut.isPending && invoiceMut.variables === r.id
+                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    : <FileCheck2 className="h-3.5 w-3.5 me-1" />}
+                  <span className="text-xs">{isAr ? "فاتورة" : "Invoice"}</span>
                 </Button>
                 <Button
                   size="sm" variant="default"
@@ -705,6 +781,7 @@ function PaymentSchedulesPage() {
                     : <Ban className="h-3.5 w-3.5 me-1" />}
                   <span className="text-xs">{isAr ? "إلغاء" : "Cancel"}</span>
                 </Button>
+
               </div>
             </Card>
           );
