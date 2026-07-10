@@ -96,6 +96,44 @@ function InvoiceDetailPage() {
     URL.revokeObjectURL(url);
   };
 
+  const pdfMut = useMutation({
+    mutationFn: async () => {
+      if (!b) throw new Error("No invoice data");
+      const parties = await getInvoicePartiesForPdf({ data: { invoiceId: id } });
+      const { generateInvoicePdf, downloadPdfBlob } = await import("@/lib/zatca/pdf-invoice.client");
+      const bytes = await generateInvoicePdf({
+        invoice: {
+          number: b.number ?? id,
+          issue_date: b.issue_date ?? "",
+          due_date: b.due_date ?? null,
+          zatca_uuid: b.zatca_uuid,
+          zatca_counter: b.zatca_counter,
+          subtotal: Number(b.subtotal ?? 0),
+          vat_amount: Number(b.vat_amount ?? 0),
+          total: Number(b.total ?? 0),
+          currency: b.currency ?? "SAR",
+          qr_tlv: b.qr_tlv,
+          xml_ubl: b.xml_ubl,
+          notes: b.notes ?? null,
+        },
+        seller: parties.seller,
+        buyer: parties.buyer,
+        lines: [
+          {
+            description: b.description || (isAr ? "خدمة" : "Service"),
+            qty: 1,
+            unit_price: Number(b.subtotal ?? 0),
+            vat_rate: Number(b.vat_rate ?? 15),
+            amount: Number(b.subtotal ?? 0),
+          },
+        ],
+      });
+      downloadPdfBlob(bytes, `invoice-${b.number ?? id}.pdf`);
+    },
+    onError: (e: Error) => toast.error(e.message),
+    onSuccess: () => toast.success(isAr ? "تم تنزيل PDF" : "PDF downloaded"),
+  });
+
   return (
     <div className="p-4 md:p-6 space-y-4" dir={isAr ? "rtl" : "ltr"}>
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
