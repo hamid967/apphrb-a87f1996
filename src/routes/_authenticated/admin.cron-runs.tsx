@@ -1,13 +1,15 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import {
   Activity,
   CheckCircle2,
   Clock,
   Loader2,
   Pause,
+  Pencil,
   Play,
   RefreshCw,
   XCircle,
@@ -16,13 +18,41 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
+import {
+  EDITABLE_CRON_JOBS,
   getCronRunsSummary,
+  updateCronSchedule,
   type CronHttpResponse,
   type CronJobSummary,
   type CronRun,
+  type EditableCronJob,
 } from "@/lib/cron-runs.functions";
 import { sectionHead } from "@/lib/section-og-head";
+
+const PRESETS: Array<{ ar: string; en: string; expr: string }> = [
+  { ar: "كل دقيقة", en: "Every minute", expr: "* * * * *" },
+  { ar: "كل 5 دقائق", en: "Every 5 minutes", expr: "*/5 * * * *" },
+  { ar: "كل 15 دقيقة", en: "Every 15 minutes", expr: "*/15 * * * *" },
+  { ar: "كل ساعة", en: "Hourly", expr: "0 * * * *" },
+  { ar: "يومياً 9 صباحاً UTC", en: "Daily 09:00 UTC", expr: "0 9 * * *" },
+  { ar: "يومياً منتصف الليل UTC", en: "Daily midnight UTC", expr: "0 0 * * *" },
+];
+
+function isEditable(name: string): name is EditableCronJob {
+  return (EDITABLE_CRON_JOBS as readonly string[]).includes(name);
+}
 
 export const Route = createFileRoute("/_authenticated/admin/cron-runs")({
   head: () =>
