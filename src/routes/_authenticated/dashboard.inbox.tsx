@@ -140,6 +140,8 @@ function InboxPage() {
         </div>
       </div>
 
+      <PushStatusCard />
+
       <div className="surface-card divide-y divide-border/60">
         {q.isLoading ? (
           <div className="space-y-2 p-4">
