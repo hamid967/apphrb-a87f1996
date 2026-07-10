@@ -247,7 +247,16 @@ function stopSpeaking() {
   window.speechSynthesis?.cancel();
 }
 
-function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
+type SpeakCallbacks = {
+  onStart?: (source: "server" | "browser") => void;
+  onEnd?: () => void;
+};
+
+function speakBrowserFallback(
+  text: string,
+  settings: HamidVoiceSettings,
+  cb?: SpeakCallbacks,
+) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     pushLog("error", "Web Speech API غير متاحة في هذا المتصفح", "استعمل Chrome أو Edge على سطح المكتب.");
     return false;
@@ -265,14 +274,18 @@ function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
   } else {
     pushLog("warn", "لا يوجد صوت عربي مثبت في النظام", "سيُستخدم الصوت الافتراضي. ثبّت حزمة صوت ar-SA من إعدادات نظامك.");
   }
+  u.onstart = () => cb?.onStart?.("browser");
+  u.onend = () => cb?.onEnd?.();
   u.onerror = (e: SpeechSynthesisErrorEvent) => {
     pushLog("error", `فشل نطق المتصفح: ${e.error}`, "قد يكون بسبب حظر التشغيل التلقائي. تفاعل مع الصفحة أولاً.");
+    cb?.onEnd?.();
   };
   try {
     window.speechSynthesis.speak(u);
     return true;
   } catch (err) {
     pushLog("error", "SpeechSynthesis.speak رمى استثناء", String(err));
+    cb?.onEnd?.();
     return false;
   }
 }
