@@ -250,9 +250,11 @@ export async function generateInvoicePdf(input: InvoicePdfInput): Promise<Uint8A
     drawLeftText(page, label, metaX + 8, metaY - dy, { font: ar, size: 9, color: rgb(0.4, 0.44, 0.5) });
     drawRightText(page, value, metaX + 200 - 8, metaY - dy, { font: arBold, size: 10 });
   };
-  metaLine("Invoice #", input.invoice.number, 12);
+  const numberLabel = kind === "credit_note" ? "Credit Note #" : kind === "debit_note" ? "Debit Note #" : "Invoice #";
+  metaLine(numberLabel, input.invoice.number, 12);
   metaLine("Issue date", input.invoice.issue_date, 28);
-  if (input.invoice.due_date) metaLine("Due date", input.invoice.due_date, 44);
+  if (input.reference?.number) metaLine("Ref. Invoice", input.reference.number, 44);
+  else if (input.invoice.due_date) metaLine("Due date", input.invoice.due_date, 44);
   if (input.invoice.zatca_counter) metaLine("ICV", `#${input.invoice.zatca_counter}`, 58);
 
   // -------------------- Line items table --------------------
