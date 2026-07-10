@@ -415,6 +415,7 @@ export function HamidVoiceAssistant() {
   const [textInput, setTextInput] = useState("");
   const [history, setHistory] = useState<Turn[]>([]);
   const [reply, setReply] = useState<HamidIntent | null>(null);
+  const [spokenText, setSpokenText] = useState(""); // portion of reply revealed in sync with audio
   const [error, setError] = useState<string | null>(null);
   const [speaking, setSpeaking] = useState(false);
   const { settings, update, reset } = useHamidVoiceSettings();
