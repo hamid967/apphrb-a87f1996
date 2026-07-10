@@ -114,7 +114,7 @@ export function DashboardSidebar() {
         { url: "/dashboard/applications", icon: ClipboardList, ar: "طلبات السكن", en: "Applications" },
         { url: "/leads", icon: Target, ar: "العملاء المحتملون", en: "Leads" },
         { url: "/deals", icon: Handshake, ar: "الصفقات", en: "Deals" },
-        { url: "/dashboard/crm/meetings", icon: CalendarClock, ar: "الاجتماعات", en: "Meetings" },
+        { url: "/meetings", icon: CalendarClock, ar: "الاجتماعات", en: "Meetings" },
       ],
     },
     {
