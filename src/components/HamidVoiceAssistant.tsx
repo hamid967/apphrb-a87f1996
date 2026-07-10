@@ -247,7 +247,16 @@ function stopSpeaking() {
   window.speechSynthesis?.cancel();
 }
 
-function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
+type SpeakCallbacks = {
+  onStart?: (source: "server" | "browser") => void;
+  onEnd?: () => void;
+};
+
+function speakBrowserFallback(
+  text: string,
+  settings: HamidVoiceSettings,
+  cb?: SpeakCallbacks,
+) {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     pushLog("error", "Web Speech API غير متاحة في هذا المتصفح", "استعمل Chrome أو Edge على سطح المكتب.");
     return false;
@@ -265,14 +274,18 @@ function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
   } else {
     pushLog("warn", "لا يوجد صوت عربي مثبت في النظام", "سيُستخدم الصوت الافتراضي. ثبّت حزمة صوت ar-SA من إعدادات نظامك.");
   }
+  u.onstart = () => cb?.onStart?.("browser");
+  u.onend = () => cb?.onEnd?.();
   u.onerror = (e: SpeechSynthesisErrorEvent) => {
     pushLog("error", `فشل نطق المتصفح: ${e.error}`, "قد يكون بسبب حظر التشغيل التلقائي. تفاعل مع الصفحة أولاً.");
+    cb?.onEnd?.();
   };
   try {
     window.speechSynthesis.speak(u);
     return true;
   } catch (err) {
     pushLog("error", "SpeechSynthesis.speak رمى استثناء", String(err));
+    cb?.onEnd?.();
     return false;
   }
 }
@@ -286,8 +299,7 @@ function speakBrowserFallback(text: string, settings: HamidVoiceSettings) {
 async function speakSaudi(
   text: string,
   settings: HamidVoiceSettings,
-  onStart?: () => void,
-  onEnd?: () => void,
+  cb?: SpeakCallbacks,
 ): Promise<boolean> {
   const clean = prepareArabicForSpeech(text);
   stopSpeaking();
@@ -305,7 +317,7 @@ async function speakSaudi(
       }),
       signal: controller.signal,
     });
-    if (mySeq !== ttsSeq) return false; // superseded
+    if (mySeq !== ttsSeq) return false;
     if (!res.ok) {
       const body = await res.text().catch(() => "");
       pushLog("warn", `خادم TTS رجّع ${res.status}`, body.slice(0, 140) || "سنستخدم صوت المتصفح الاحتياطي.");
@@ -317,8 +329,6 @@ async function speakSaudi(
       pushLog("warn", "استجابة TTS فارغة", "التبديل لصوت المتصفح.");
       throw new Error("empty tts");
     }
-    // Guard: if a newer speak() request has arrived while we were awaiting the
-    // blob, discard this audio entirely so it never plays late.
     if (mySeq !== ttsSeq) return false;
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
@@ -331,11 +341,9 @@ async function speakSaudi(
       finalized = true;
       URL.revokeObjectURL(url);
       if (currentAudio === audio) currentAudio = null;
-      onEnd?.();
+      cb?.onEnd?.();
     };
     audio.onplay = () => {
-      // Late-arrival guard: another speak() already superseded us between
-      // schedule and the actual play tick — silence this one immediately.
       if (mySeq !== ttsSeq) {
         try { audio.pause(); audio.src = ""; } catch { /* noop */ }
         cleanup();
@@ -343,12 +351,10 @@ async function speakSaudi(
       }
       started = true;
       pushLog("ok", "تشغيل صوت الخادم (Lovable AI TTS)");
-      onStart?.();
+      cb?.onStart?.("server");
     };
     audio.onended = cleanup;
     audio.onerror = () => {
-      // Only try the browser fallback if playback never actually started —
-      // otherwise the user would hear the same reply spoken twice.
       const shouldFallback = !started;
       pushLog(
         shouldFallback ? "error" : "warn",
@@ -356,21 +362,18 @@ async function speakSaudi(
         shouldFallback ? "سنجرّب صوت المتصفح." : "المقطع بدأ التشغيل — لن نكرر النطق.",
       );
       cleanup();
-      if (shouldFallback && mySeq === ttsSeq) speakBrowserFallback(text, settings);
+      if (shouldFallback && mySeq === ttsSeq) speakBrowserFallback(text, settings, cb);
     };
     try {
       await audio.play();
     } catch (playErr) {
-      // play() rejected (autoplay blocked, etc.) — treat like start failure.
       cleanup();
       if (mySeq === ttsSeq) {
         pushLog("warn", "تعذّر بدء تشغيل الصوت — تحويل لصوت المتصفح", String((playErr as Error).message ?? playErr));
-        return speakBrowserFallback(text, settings);
+        return speakBrowserFallback(text, settings, cb);
       }
       return false;
     }
-    // Final post-play guard: a request that superseded us between the play()
-    // resolve and the first onplay tick should still be silenced.
     if (mySeq !== ttsSeq) {
       try { audio.pause(); audio.src = ""; } catch { /* noop */ }
       cleanup();
@@ -380,7 +383,7 @@ async function speakSaudi(
   } catch (err) {
     if ((err as Error).name === "AbortError" || mySeq !== ttsSeq) return false;
     pushLog("warn", "تعذّر استخدام TTS الخادم — تحويل لصوت المتصفح", String((err as Error).message ?? err));
-    return speakBrowserFallback(text, settings);
+    return speakBrowserFallback(text, settings, cb);
   } finally {
     if (currentTtsAbort === controller) currentTtsAbort = null;
   }
@@ -531,6 +534,7 @@ export function HamidVoiceAssistant() {
   const [reply, setReply] = useState<HamidIntent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [speaking, setSpeaking] = useState(false);
+  const [voiceSource, setVoiceSource] = useState<"server" | "browser" | null>(null);
   const [signupMode, setSignupMode] = useState(false);
   const { settings, update, reset } = useHamidVoiceSettings();
   const settingsRef = useRef(settings);
@@ -550,7 +554,16 @@ export function HamidVoiceAssistant() {
       return true;
     }
     lastSpeakRef.current = { text: t, at: now };
-    void speakSaudi(t, settingsRef.current);
+    void speakSaudi(t, settingsRef.current, {
+      onStart: (src) => {
+        setVoiceSource(src);
+        setSpeaking(true);
+      },
+      onEnd: () => {
+        setSpeaking(false);
+        setVoiceSource(null);
+      },
+    });
     return true;
   };
 
@@ -1131,6 +1144,64 @@ export function HamidVoiceAssistant() {
             />
           </Suspense>
         </button>
+
+
+        {/* Live voice status pill: state + source */}
+        {(() => {
+          const state: "listening" | "speaking" | "idle" = listening
+            ? "listening"
+            : speaking
+              ? "speaking"
+              : "idle";
+          const stateLabel =
+            state === "listening" ? "يستمع" : state === "speaking" ? "يتحدث" : "متوقف";
+          const stateColor =
+            state === "listening"
+              ? "bg-emerald-500"
+              : state === "speaking"
+                ? "bg-sky-500"
+                : "bg-slate-400";
+          const sourceLabel = speaking
+            ? voiceSource === "server"
+              ? "صوت الخادم (Lovable AI)"
+              : voiceSource === "browser"
+                ? "صوت المتصفح (Web Speech)"
+                : "جاري التحضير…"
+            : null;
+          return (
+            <div
+              className="flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-[11px] font-medium text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200"
+              role="status"
+              aria-live="polite"
+            >
+              <span
+                className={cn(
+                  "inline-block h-2 w-2 rounded-full",
+                  stateColor,
+                  state !== "idle" && "animate-pulse",
+                )}
+              />
+              <span>{stateLabel}</span>
+              {sourceLabel && (
+                <>
+                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                      voiceSource === "server"
+                        ? "bg-sky-500/15 text-sky-700 dark:text-sky-300"
+                        : voiceSource === "browser"
+                          ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                          : "bg-slate-500/15 text-slate-600 dark:text-slate-300",
+                    )}
+                  >
+                    {sourceLabel}
+                  </span>
+                </>
+              )}
+            </div>
+          );
+        })()}
 
         <p className="max-w-[280px] text-center text-sm leading-relaxed text-slate-600 dark:text-slate-300">
           {callActive
