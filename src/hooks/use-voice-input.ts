@@ -172,7 +172,31 @@ export function useVoiceInput({
     setState("idle");
   }, [cleanup]);
 
+  const pause = useCallback(() => {
+    const rec = recorderRef.current;
+    if (rec && rec.state === "recording") {
+      try {
+        rec.pause();
+        setState("paused");
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []);
+
+  const resume = useCallback(() => {
+    const rec = recorderRef.current;
+    if (rec && rec.state === "paused") {
+      try {
+        rec.resume();
+        setState("recording");
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []);
+
   useEffect(() => () => cancel(), [cancel]);
 
-  return { state, supported, start, stop, cancel };
+  return { state, supported, start, stop, cancel, pause, resume };
 }
