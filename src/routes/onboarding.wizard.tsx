@@ -28,6 +28,7 @@ import {
 import { PhoneVerifyInput } from "@/components/PhoneVerifyInput";
 import { OnboardingAiHelper } from "@/components/onboarding/OnboardingAiHelper";
 import { registerCompany, getMyAccessContext } from "@/lib/company.functions";
+import { describeCompanyCreateError } from "@/lib/company-errors";
 import { createProperty } from "@/lib/properties.functions";
 import { setOnboardingStep } from "@/lib/onboarding.functions";
 import { createOnboardingBranch } from "@/lib/onboarding-branches.functions";
