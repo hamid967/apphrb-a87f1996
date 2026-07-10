@@ -77,15 +77,10 @@ export const Route = createFileRoute("/")({
 
 function HBSproHome() {
   return (
-    <div
-      className="theme-luxe min-h-screen font-sans antialiased text-white"
-      style={{
-        background: `radial-gradient(1200px 800px at 20% -10%, #14264f 0%, ${HBS.bg} 55%, #0a1128 100%)`,
-      }}
-    >
+    <div className="theme-luxe min-h-screen font-sans antialiased bg-[#fdfcfb] text-[#043927]">
       <Navbar />
       <main>
-        <OpeningExperience />
+        <EmeraldSplitHero />
         <Stats />
         <Features />
         <AISection />
@@ -103,3 +98,4 @@ function HBSproHome() {
     </div>
   );
 }
+
