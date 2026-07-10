@@ -736,7 +736,7 @@ function PaymentSchedulesPage() {
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-1.5 pt-1">
+              <div className="grid grid-cols-4 gap-1.5 pt-1">
                 <Button
                   size="sm" variant="outline"
                   disabled={disabled || Boolean(r.voucher_id) || rowBusy}
@@ -747,6 +747,17 @@ function PaymentSchedulesPage() {
                     ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                     : <Receipt className="h-3.5 w-3.5 me-1" />}
                   <span className="text-xs">{isAr ? "سند" : "Voucher"}</span>
+                </Button>
+                <Button
+                  size="sm" variant="outline"
+                  disabled={disabled || Boolean(r.invoice_id) || rowBusy}
+                  onClick={() => invoiceMut.mutate(r.id)}
+                  className={btnPress}
+                >
+                  {invoiceMut.isPending && invoiceMut.variables === r.id
+                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    : <FileCheck2 className="h-3.5 w-3.5 me-1" />}
+                  <span className="text-xs">{isAr ? "فاتورة" : "Invoice"}</span>
                 </Button>
                 <Button
                   size="sm" variant="default"
@@ -770,6 +781,7 @@ function PaymentSchedulesPage() {
                     : <Ban className="h-3.5 w-3.5 me-1" />}
                   <span className="text-xs">{isAr ? "إلغاء" : "Cancel"}</span>
                 </Button>
+
               </div>
             </Card>
           );
