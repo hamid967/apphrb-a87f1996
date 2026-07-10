@@ -200,6 +200,21 @@ function EditLeadPage() {
           </Button>
         </div>
       </div>
+
+      {lead && (
+        <ConvertLeadDialog
+          open={convertOpen}
+          onOpenChange={setConvertOpen}
+          lead={{
+            id: lead.id,
+            org_id: lead.org_id,
+            property_id: lead.property_id,
+            currency: lead.currency,
+            budget_max: lead.budget_max,
+            budget_min: lead.budget_min,
+          }}
+        />
+      )}
     </div>
   );
 }
