@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, forwardRef, type TextareaHTMLAttributes } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { AlertCircle, Check, Globe, Loader2, Mic, MicOff, Square } from "lucide-react";
+import { AlertCircle, Check, Globe, Loader2, Mic, MicOff, RotateCcw, Square, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useVoiceInput } from "@/hooks/use-voice-input";
