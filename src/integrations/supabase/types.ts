@@ -2302,6 +2302,7 @@ export type Database = {
           xml_ubl: string | null
           zatca_counter: number | null
           zatca_hash: string | null
+          zatca_rejection_reason: string | null
           zatca_reported_at: string | null
           zatca_sealed_at: string | null
           zatca_status: Database["public"]["Enums"]["zatca_status"]
@@ -2334,6 +2335,7 @@ export type Database = {
           xml_ubl?: string | null
           zatca_counter?: number | null
           zatca_hash?: string | null
+          zatca_rejection_reason?: string | null
           zatca_reported_at?: string | null
           zatca_sealed_at?: string | null
           zatca_status?: Database["public"]["Enums"]["zatca_status"]
@@ -2366,6 +2368,7 @@ export type Database = {
           xml_ubl?: string | null
           zatca_counter?: number | null
           zatca_hash?: string | null
+          zatca_rejection_reason?: string | null
           zatca_reported_at?: string | null
           zatca_sealed_at?: string | null
           zatca_status?: Database["public"]["Enums"]["zatca_status"]
