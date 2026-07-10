@@ -27,7 +27,10 @@ import {
   cancelInstallment,
   createVoucherFromSchedule,
   generateDueVouchers,
+  createInvoiceFromSchedule,
+  generateDueInvoices,
 } from "@/lib/payment-schedules.functions";
+
 import { listMyOrganizations } from "@/lib/organizations.functions";
 import { supabase } from "@/integrations/supabase/client";
 
