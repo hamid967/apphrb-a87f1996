@@ -236,7 +236,33 @@ const RESOURCES_LINKS: NavLink[] = [
   },
 ];
 
-function MegaPanel({ groups, isAr }: { groups: NavGroup[]; isAr: boolean }) {
+function isLinkActive(pathname: string, to: string) {
+  if (to === "/") return pathname === "/";
+  return pathname === to || pathname.startsWith(to + "/");
+}
+
+function groupsHaveActive(groups: NavGroup[], pathname: string) {
+  return groups.some((g) => g.links.some((l) => isLinkActive(pathname, l.to)));
+}
+
+function linksHaveActive(links: NavLink[], pathname: string) {
+  return links.some((l) => isLinkActive(pathname, l.to));
+}
+
+const activeLinkClass =
+  "bg-primary/10 text-foreground ring-1 ring-inset ring-primary/30";
+const activeTriggerClass =
+  "text-foreground after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-primary";
+
+function MegaPanel({
+  groups,
+  isAr,
+  pathname,
+}: {
+  groups: NavGroup[];
+  isAr: boolean;
+  pathname: string;
+}) {
   return (
     <div className="grid w-[640px] gap-6 p-6 md:grid-cols-2">
       {groups.map((g) => (
@@ -245,22 +271,31 @@ function MegaPanel({ groups, isAr }: { groups: NavGroup[]; isAr: boolean }) {
             {isAr ? g.headerAr : g.headerEn}
           </div>
           <ul className="space-y-1">
-            {g.links.map((l) => (
-              <li key={l.labelEn + l.to}>
-                <Link
-                  to={l.to}
-                  className="flex items-start gap-3 rounded-md p-2 hover:bg-muted/60"
-                >
-                  <l.icon className="mt-0.5 h-4 w-4 text-primary" />
-                  <div>
-                    <div className="text-sm font-medium">{isAr ? l.labelAr : l.labelEn}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {isAr ? l.descAr : l.descEn}
+            {g.links.map((l) => {
+              const active = isLinkActive(pathname, l.to);
+              return (
+                <li key={l.labelEn + l.to}>
+                  <Link
+                    to={l.to}
+                    aria-current={active ? "page" : undefined}
+                    data-active={active ? "" : undefined}
+                    className={`flex items-start gap-3 rounded-md p-2 hover:bg-muted/60 ${
+                      active ? activeLinkClass : ""
+                    }`}
+                  >
+                    <l.icon className="mt-0.5 h-4 w-4 text-primary" />
+                    <div>
+                      <div className="text-sm font-medium">
+                        {isAr ? l.labelAr : l.labelEn}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {isAr ? l.descAr : l.descEn}
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </li>
-            ))}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       ))}
@@ -268,20 +303,32 @@ function MegaPanel({ groups, isAr }: { groups: NavGroup[]; isAr: boolean }) {
   );
 }
 
-function ResourcesPanel({ isAr }: { isAr: boolean }) {
+function ResourcesPanel({ isAr, pathname }: { isAr: boolean; pathname: string }) {
   return (
     <ul className="grid w-[360px] gap-1 p-4">
-      {RESOURCES_LINKS.map((l) => (
-        <li key={l.labelEn}>
-          <Link to={l.to} className="flex items-start gap-3 rounded-md p-2 hover:bg-muted/60">
-            <l.icon className="mt-0.5 h-4 w-4 text-primary" />
-            <div>
-              <div className="text-sm font-medium">{isAr ? l.labelAr : l.labelEn}</div>
-              <div className="text-xs text-muted-foreground">{isAr ? l.descAr : l.descEn}</div>
-            </div>
-          </Link>
-        </li>
-      ))}
+      {RESOURCES_LINKS.map((l) => {
+        const active = isLinkActive(pathname, l.to);
+        return (
+          <li key={l.labelEn}>
+            <Link
+              to={l.to}
+              aria-current={active ? "page" : undefined}
+              data-active={active ? "" : undefined}
+              className={`flex items-start gap-3 rounded-md p-2 hover:bg-muted/60 ${
+                active ? activeLinkClass : ""
+              }`}
+            >
+              <l.icon className="mt-0.5 h-4 w-4 text-primary" />
+              <div>
+                <div className="text-sm font-medium">{isAr ? l.labelAr : l.labelEn}</div>
+                <div className="text-xs text-muted-foreground">
+                  {isAr ? l.descAr : l.descEn}
+                </div>
+              </div>
+            </Link>
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -290,6 +337,12 @@ export function PublicNav() {
   const { i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  const platformActive = groupsHaveActive(PLATFORM_GROUPS, pathname);
+  const solutionsActive = groupsHaveActive(SOLUTIONS_GROUPS, pathname);
+  const resourcesActive = linksHaveActive(RESOURCES_LINKS, pathname);
+  const pricingActive = isLinkActive(pathname, "/pricing");
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur">
@@ -303,21 +356,36 @@ export function PublicNav() {
         <NavigationMenu className="hidden lg:flex" dir={isAr ? "rtl" : "ltr"}>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>{isAr ? "المنصة" : "Platform"}</NavigationMenuTrigger>
+              <NavigationMenuTrigger
+                data-active={platformActive ? "" : undefined}
+                className={`relative ${platformActive ? activeTriggerClass : ""}`}
+              >
+                {isAr ? "المنصة" : "Platform"}
+              </NavigationMenuTrigger>
               <NavigationMenuContent>
-                <MegaPanel groups={PLATFORM_GROUPS} isAr={!!isAr} />
+                <MegaPanel groups={PLATFORM_GROUPS} isAr={!!isAr} pathname={pathname} />
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>{isAr ? "الحلول" : "Solutions"}</NavigationMenuTrigger>
+              <NavigationMenuTrigger
+                data-active={solutionsActive ? "" : undefined}
+                className={`relative ${solutionsActive ? activeTriggerClass : ""}`}
+              >
+                {isAr ? "الحلول" : "Solutions"}
+              </NavigationMenuTrigger>
               <NavigationMenuContent>
-                <MegaPanel groups={SOLUTIONS_GROUPS} isAr={!!isAr} />
+                <MegaPanel groups={SOLUTIONS_GROUPS} isAr={!!isAr} pathname={pathname} />
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>{isAr ? "المصادر" : "Resources"}</NavigationMenuTrigger>
+              <NavigationMenuTrigger
+                data-active={resourcesActive ? "" : undefined}
+                className={`relative ${resourcesActive ? activeTriggerClass : ""}`}
+              >
+                {isAr ? "المصادر" : "Resources"}
+              </NavigationMenuTrigger>
               <NavigationMenuContent>
-                <ResourcesPanel isAr={!!isAr} />
+                <ResourcesPanel isAr={!!isAr} pathname={pathname} />
               </NavigationMenuContent>
             </NavigationMenuItem>
           </NavigationMenuList>
@@ -326,7 +394,10 @@ export function PublicNav() {
         <div className="hidden items-center gap-3 lg:flex">
           <Link
             to="/pricing"
-            className="text-sm text-muted-foreground hover:text-foreground"
+            aria-current={pricingActive ? "page" : undefined}
+            className={`text-sm hover:text-foreground ${
+              pricingActive ? "text-foreground font-medium" : "text-muted-foreground"
+            }`}
           >
             {isAr ? "الأسعار" : "Pricing"}
           </Link>
@@ -354,12 +425,19 @@ export function PublicNav() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side={isAr ? "right" : "left"} className="w-[86vw] max-w-sm overflow-y-auto">
+            <SheetContent
+              side={isAr ? "right" : "left"}
+              className="w-[86vw] max-w-sm overflow-y-auto"
+            >
               <SheetTitle className="mb-4 flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-primary" />
                 HBSpro
               </SheetTitle>
-              <MobileGroups isAr={!!isAr} onNavigate={() => setMobileOpen(false)} />
+              <MobileGroups
+                isAr={!!isAr}
+                pathname={pathname}
+                onNavigate={() => setMobileOpen(false)}
+              />
             </SheetContent>
           </Sheet>
         </div>
@@ -368,19 +446,30 @@ export function PublicNav() {
   );
 }
 
-function MobileGroups({ isAr, onNavigate }: { isAr: boolean; onNavigate: () => void }) {
+function MobileGroups({
+  isAr,
+  pathname,
+  onNavigate,
+}: {
+  isAr: boolean;
+  pathname: string;
+  onNavigate: () => void;
+}) {
+  const pricingActive = isLinkActive(pathname, "/pricing");
   return (
     <div className="space-y-6 pb-8">
       <MobileSection
         title={isAr ? "المنصة" : "Platform"}
         groups={PLATFORM_GROUPS}
         isAr={isAr}
+        pathname={pathname}
         onNavigate={onNavigate}
       />
       <MobileSection
         title={isAr ? "الحلول" : "Solutions"}
         groups={SOLUTIONS_GROUPS}
         isAr={isAr}
+        pathname={pathname}
         onNavigate={onNavigate}
       />
       <div>
@@ -388,18 +477,24 @@ function MobileGroups({ isAr, onNavigate }: { isAr: boolean; onNavigate: () => v
           {isAr ? "المصادر" : "Resources"}
         </div>
         <ul className="space-y-1">
-          {RESOURCES_LINKS.map((l) => (
-            <li key={l.labelEn}>
-              <Link
-                to={l.to}
-                onClick={onNavigate}
-                className="flex items-center gap-2 rounded-md p-2 text-sm hover:bg-muted/60"
-              >
-                <l.icon className="h-4 w-4 text-primary" />
-                {isAr ? l.labelAr : l.labelEn}
-              </Link>
-            </li>
-          ))}
+          {RESOURCES_LINKS.map((l) => {
+            const active = isLinkActive(pathname, l.to);
+            return (
+              <li key={l.labelEn}>
+                <Link
+                  to={l.to}
+                  onClick={onNavigate}
+                  aria-current={active ? "page" : undefined}
+                  className={`flex items-center gap-2 rounded-md p-2 text-sm hover:bg-muted/60 ${
+                    active ? activeLinkClass : ""
+                  }`}
+                >
+                  <l.icon className="h-4 w-4 text-primary" />
+                  {isAr ? l.labelAr : l.labelEn}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </div>
       <div className="border-t border-border/60 pt-4">
@@ -408,7 +503,10 @@ function MobileGroups({ isAr, onNavigate }: { isAr: boolean; onNavigate: () => v
             <Link
               to="/pricing"
               onClick={onNavigate}
-              className="block rounded-md p-2 text-sm hover:bg-muted/60"
+              aria-current={pricingActive ? "page" : undefined}
+              className={`block rounded-md p-2 text-sm hover:bg-muted/60 ${
+                pricingActive ? activeLinkClass : ""
+              }`}
             >
               {isAr ? "الأسعار" : "Pricing"}
             </Link>
@@ -431,22 +529,35 @@ function MobileSection({
   title,
   groups,
   isAr,
+  pathname,
   onNavigate,
 }: {
   title: string;
   groups: NavGroup[];
   isAr: boolean;
+  pathname: string;
   onNavigate: () => void;
 }) {
-  const [open, setOpen] = useState(true);
+  const sectionActive = groupsHaveActive(groups, pathname);
+  const [open, setOpen] = useState(sectionActive);
   return (
     <div>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+        className={`flex w-full items-center justify-between text-xs font-semibold uppercase tracking-wider ${
+          sectionActive ? "text-foreground" : "text-muted-foreground"
+        }`}
       >
-        {title}
+        <span className="inline-flex items-center gap-2">
+          {title}
+          {sectionActive && (
+            <span
+              aria-hidden
+              className="inline-block h-1.5 w-1.5 rounded-full bg-primary"
+            />
+          )}
+        </span>
         <ChevronDown className={`h-4 w-4 transition ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
@@ -457,18 +568,24 @@ function MobileSection({
                 {isAr ? g.headerAr : g.headerEn}
               </div>
               <ul className="space-y-1">
-                {g.links.map((l) => (
-                  <li key={l.labelEn + l.to}>
-                    <Link
-                      to={l.to}
-                      onClick={onNavigate}
-                      className="flex items-center gap-2 rounded-md p-2 text-sm hover:bg-muted/60"
-                    >
-                      <l.icon className="h-4 w-4 text-primary" />
-                      {isAr ? l.labelAr : l.labelEn}
-                    </Link>
-                  </li>
-                ))}
+                {g.links.map((l) => {
+                  const active = isLinkActive(pathname, l.to);
+                  return (
+                    <li key={l.labelEn + l.to}>
+                      <Link
+                        to={l.to}
+                        onClick={onNavigate}
+                        aria-current={active ? "page" : undefined}
+                        className={`flex items-center gap-2 rounded-md p-2 text-sm hover:bg-muted/60 ${
+                          active ? activeLinkClass : ""
+                        }`}
+                      >
+                        <l.icon className="h-4 w-4 text-primary" />
+                        {isAr ? l.labelAr : l.labelEn}
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
@@ -477,3 +594,4 @@ function MobileSection({
     </div>
   );
 }
+
