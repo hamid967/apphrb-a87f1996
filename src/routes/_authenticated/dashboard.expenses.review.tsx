@@ -422,7 +422,12 @@ function ClaimsReviewPage() {
                     {expanded.has(r.id) && (
                       <TableRow key={`${r.id}-audit`} className="bg-muted/20 hover:bg-muted/20">
                         <TableCell colSpan={7} className="p-3 space-y-3">
-                          <ClaimPolicyViolations claimId={r.id} />
+                          <ClaimPolicyViolations
+                            claimId={r.id}
+                            activeViolationId={
+                              focusClaimId === r.id ? activeViolationId : null
+                            }
+                          />
                           <ApprovalAuditTrail entity="expense_claims" entityId={r.id} />
                         </TableCell>
                       </TableRow>
