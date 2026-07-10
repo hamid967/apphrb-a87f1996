@@ -201,6 +201,50 @@ function OnboardingWizardPage() {
     }
   };
 
+  const parseDepartments = (raw: string): string[] =>
+    Array.from(
+      new Set(
+        raw
+          .split(/[،,\n]/g)
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0 && s.length <= 80),
+      ),
+    ).slice(0, 20);
+
+  const submitBranch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!orgId) return toast.error("مساحة العمل غير جاهزة");
+    if (brName.trim().length < 2) return toast.error("يرجى إدخال اسم الفرع");
+    setBusy(true);
+    try {
+      const departments = parseDepartments(brDepartments);
+      const res = await createBranch({
+        data: {
+          org_id: orgId,
+          name: brName.trim(),
+          phone: brPhone.trim() || null,
+          address: brAddress.trim() || null,
+          departments,
+        },
+      });
+      await markStep({ data: { step: "branch", done: true } }).catch(() => {});
+      toast.success(
+        res.departments > 0
+          ? `تم إنشاء الفرع و${res.departments} قسمًا`
+          : "تم إنشاء الفرع",
+      );
+      setStep(3);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "تعذّر إنشاء الفرع");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const skipBranch = () => {
+    setStep(3);
+  };
+
   const submitProperty = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!orgId) return goDashboard();
