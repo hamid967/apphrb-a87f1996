@@ -98,7 +98,7 @@ export function ZatcaCsidCard({ orgId }: { orgId: string }) {
                   <KeyRound className="size-4 text-muted-foreground" />
                   <div>
                     <div className="flex items-center gap-2 text-sm font-medium">
-                      {envLabel(r.environment, isAr)}
+                      {envLabel(r.environment as Env, isAr)}
                       {r.active ? (
                         <Badge variant="outline" className="border-emerald-500/40 text-emerald-600">
                           {isAr ? "فعّالة" : "Active"}
