@@ -32,7 +32,7 @@ export const Route = createFileRoute("/onboarding/wizard")({
   component: OnboardingWizardPage,
 });
 
-type StepKey = "profile" | "company" | "property";
+type StepKey = "profile" | "company" | "branch" | "property";
 const STEPS: {
   key: StepKey;
   label_ar: string;
@@ -40,7 +40,8 @@ const STEPS: {
   icon: React.ComponentType<{ className?: string }>;
 }[] = [
   { key: "profile", label_ar: "بياناتك", label_en: "You", icon: UserRound },
-  { key: "company", label_ar: "مساحة العمل", label_en: "Workspace", icon: Building2 },
+  { key: "company", label_ar: "الشركة", label_en: "Company", icon: Building2 },
+  { key: "branch", label_ar: "الفرع والأقسام", label_en: "Branch & Depts", icon: Network },
   { key: "property", label_ar: "أول عقار", label_en: "First property", icon: Home },
 ];
 
