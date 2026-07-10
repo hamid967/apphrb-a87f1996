@@ -545,7 +545,50 @@ export function HamidVoiceAssistant() {
   // Guard against rapid duplicate speak() calls (double-clicks, StrictMode,
   // repeated identical intents). Same text within 900ms is dropped silently.
   const lastSpeakRef = useRef<{ text: string; at: number }>({ text: "", at: 0 });
-  const speak = (text: string) => {
+  // Live reveal of the reply text, synced to audio playback.
+  const [revealText, setRevealText] = useState<string>("");
+  const [revealDone, setRevealDone] = useState<boolean>(true);
+  const revealRafRef = useRef<number | null>(null);
+  const stopReveal = () => {
+    if (revealRafRef.current != null) {
+      cancelAnimationFrame(revealRafRef.current);
+      revealRafRef.current = null;
+    }
+  };
+  const startReveal = (full: string, durationSec?: number) => {
+    stopReveal();
+    if (!full) return;
+    // If we know the audio length, match it. Otherwise estimate ~14 chars/s
+    // at rate 1.0 for Arabic and scale by the user's playback rate.
+    const rate = settingsRef.current.rate || 1;
+    const estimated = full.length / (14 * rate);
+    const total = Math.max(0.4, (durationSec ?? estimated));
+    const t0 = performance.now();
+    setRevealDone(false);
+    const tick = () => {
+      const elapsed = (performance.now() - t0) / 1000;
+      const ratio = Math.min(1, elapsed / total);
+      const shown = Math.max(1, Math.floor(full.length * ratio));
+      setRevealText(full.slice(0, shown));
+      if (ratio < 1) {
+        revealRafRef.current = requestAnimationFrame(tick);
+      } else {
+        revealRafRef.current = null;
+        setRevealText(full);
+        setRevealDone(true);
+      }
+    };
+    revealRafRef.current = requestAnimationFrame(tick);
+  };
+  const finishReveal = (full: string) => {
+    stopReveal();
+    setRevealText(full);
+    setRevealDone(true);
+  };
+  useEffect(() => () => stopReveal(), []);
+
+  type SpeakExtras = { syncText?: string };
+  const speak = (text: string, extras?: SpeakExtras) => {
     const t = (text ?? "").trim();
     if (!t) return false;
     const now = Date.now();
@@ -555,18 +598,27 @@ export function HamidVoiceAssistant() {
       return true;
     }
     lastSpeakRef.current = { text: t, at: now };
+    const syncFull = extras?.syncText;
+    if (syncFull) {
+      // Hide the reply until the first audible chunk lands.
+      setRevealText("");
+      setRevealDone(false);
+    }
     void speakSaudi(t, settingsRef.current, {
-      onStart: (src) => {
+      onStart: (src, dur) => {
         setVoiceSource(src);
         setSpeaking(true);
+        if (syncFull) startReveal(syncFull, dur);
       },
       onEnd: () => {
         setSpeaking(false);
         setVoiceSource(null);
+        if (syncFull) finishReveal(syncFull);
       },
     });
     return true;
   };
+
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const Recognition = useMemo(getSpeechRecognition, []);
