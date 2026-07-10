@@ -133,7 +133,7 @@ export const updateCronSchedule = createServerFn({ method: "POST" })
     const { data: rows, error } = await supabaseAdmin.rpc("admin_update_cron_schedule", {
       _jobname: data.jobname,
       _schedule: data.schedule,
-      _active: data.active ?? null,
+      _active: data.active ?? undefined,
     });
     if (error) throw new Error(`admin_update_cron_schedule failed: ${error.message}`);
     return (rows ?? [])[0] ?? null;
