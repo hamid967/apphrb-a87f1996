@@ -248,6 +248,76 @@
           "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
+      },
+      {
+        "name": "create_expense_claim",
+        "title": "Create expense claim",
+        "description": "Create a new expense claim (submitted) for the signed-in user's company. Captures amount, currency, expense date, merchant, category, notes, and an optional uploaded receipt URL. The claim number is generated automatically. Enters status 'submitted' immediately unless `as_draft` is true.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 10000000,
+              "description": "Amount in the given currency."
+            },
+            "currency": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3,
+              "default": "SAR",
+              "description": "ISO 4217 currency code, e.g. SAR."
+            },
+            "expense_date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "Date the expense was incurred (YYYY-MM-DD)."
+            },
+            "merchant": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "Merchant / vendor name."
+            },
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "Expense category (e.g. travel, fuel, maintenance, office)."
+            },
+            "notes": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "Free-form notes describing the expense."
+            },
+            "receipt_url": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 2000,
+              "description": "URL of the uploaded receipt file. Use the app's receipt upload flow to get a signed or public URL first."
+            },
+            "as_draft": {
+              "type": "boolean",
+              "default": false,
+              "description": "Save as draft instead of submitting for approval."
+            }
+          },
+          "required": [
+            "amount",
+            "expense_date",
+            "merchant"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
       }
     ]
   }
