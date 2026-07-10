@@ -511,6 +511,8 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="rounded-md border border-primary/30 bg-primary/5 p-2"
+              role="group"
+              aria-label="مراجعة النص المُفرَّغ"
             >
               <div className="mb-1 flex items-center justify-between">
                 <span className="text-[11px] font-medium text-primary">راجع النص قبل الإضافة</span>
@@ -523,6 +525,16 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
                 autoFocus
                 className="resize-none text-sm"
                 dir="auto"
+                aria-label="النص المُفرَّغ القابل للتعديل"
+                onKeyDown={(e) => {
+                  if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                    e.preventDefault();
+                    if (pending.trim()) confirm();
+                  } else if (e.key === "Escape") {
+                    e.preventDefault();
+                    discard();
+                  }
+                }}
               />
               <div className="mt-2 flex items-center justify-end gap-2">
                 <Button type="button" variant="ghost" size="sm" onClick={discard}>
