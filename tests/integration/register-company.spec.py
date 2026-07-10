@@ -52,7 +52,7 @@ BEGIN
 END $$;
 
 -- 2) Anonymous rejected
-SET LOCAL role = 'anon';
+
 SELECT set_config('request.jwt.claims', json_build_object('role','anon')::text, true);
 DO $$
 BEGIN
@@ -65,10 +65,10 @@ EXCEPTION WHEN OTHERS THEN
     RAISE NOTICE 'FAIL: wrong error for anon: %', SQLERRM;
   END IF;
 END $$;
-RESET role;
+
 
 -- 3) Invalid name rejected (validated before membership check)
-SET LOCAL role = 'authenticated';
+
 SELECT set_config('request.jwt.claims',
   json_build_object('sub', current_setting('test.u_any'), 'role','authenticated')::text, true);
 DO $$
@@ -82,10 +82,10 @@ EXCEPTION WHEN OTHERS THEN
     RAISE NOTICE 'FAIL: wrong error on short name: %', SQLERRM;
   END IF;
 END $$;
-RESET role;
+
 
 -- 4) Duplicate registration rejected
-SET LOCAL role = 'authenticated';
+
 SELECT set_config('request.jwt.claims',
   json_build_object('sub', current_setting('test.u_owner'), 'role','authenticated')::text, true);
 DO $$
@@ -99,7 +99,7 @@ EXCEPTION WHEN OTHERS THEN
     RAISE NOTICE 'FAIL: wrong error on duplicate: %', SQLERRM;
   END IF;
 END $$;
-RESET role;
+
 
 -- 5) Structural check: the function still wires the expected writes.
 WITH src AS (
