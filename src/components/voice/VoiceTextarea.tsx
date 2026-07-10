@@ -488,6 +488,9 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
               className="relative overflow-hidden rounded-full bg-primary/10"
+              role="progressbar"
+              aria-label="جارٍ تحويل الصوت إلى نص"
+              aria-valuetext="جارٍ التحويل"
             >
               <motion.span
                 className="absolute inset-y-0 w-1/3 rounded-full bg-primary/70"
