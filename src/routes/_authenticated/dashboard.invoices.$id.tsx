@@ -49,6 +49,7 @@ function InvoiceDetailPage() {
   const isAr = i18n.language?.startsWith("ar");
   const qc = useQueryClient();
   const [xmlOpen, setXmlOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const bundleQ = useQuery({
     queryKey: ["invoice-zatca", id],
