@@ -78,7 +78,6 @@ const PROP_TYPES: {
 function OnboardingWizardPage() {
   const nav = useNavigate();
   const search = Route.useSearch();
-  const nav = useNavigate();
   const { i18n } = useTranslation();
   const isAr = (i18n.language || "ar").startsWith("ar");
   const { user, ready } = useAuth();
