@@ -45,6 +45,7 @@ export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
   const { t, i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const qc = useQueryClient();
+  const reducedMotion = useReducedMotion();
 
   const [overrideTarget, setOverrideTarget] = useState<{ id: string } | null>(null);
   const [reason, setReason] = useState("");
