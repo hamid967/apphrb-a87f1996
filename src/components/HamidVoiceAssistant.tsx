@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Activity, ArrowRight, CheckCircle2, Loader2, Minimize2, Phone, PhoneOff, RotateCcw, Send, Settings2, XCircle } from "lucide-react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Activity, ArrowRight, CheckCircle2, Loader2, Minimize2, Phone, PhoneOff, RotateCcw, Send, Settings2, UserPlus, XCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { askHamidAgent } from "@/lib/hamid-agent.functions";
 import {
@@ -8,6 +8,10 @@ import {
   type HamidVoiceSettings,
 } from "@/lib/hamid-voice-settings";
 import { cn } from "@/lib/utils";
+import { HamidSignupWizard } from "@/components/hamid/HamidSignupWizard";
+const HamidCore3D = lazy(() => import("@/components/hamid/HamidCore3D").then((m) => ({ default: m.HamidCore3D })));
+
+const SIGNUP_INTENT = /(اب[يى]|ابغ[ىا]|ودي|ابدا)?\s*(اسج[لّ]|تسجيل|فتح\s*حساب|انشا[ءا]?\s*حساب|اشترك|طلب\s*تسجيل|signup|register|sign\s*up)/i;
 
 type LogLevel = "info" | "warn" | "error" | "ok";
 type LogEntry = { id: number; ts: number; level: LogLevel; msg: string; hint?: string };
