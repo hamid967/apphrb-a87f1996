@@ -17,6 +17,16 @@ import {
   sendTestPushNotification,
 } from "@/lib/push.functions";
 import { PushPermissionHelpDialog } from "@/components/notifications/PushPermissionHelpDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -47,6 +57,7 @@ export function PushStatusCard() {
   const [busy, setBusy] = useState<null | "enable" | "disable" | "refresh" | "test">(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const [helpReason, setHelpReason] = useState<"denied" | "dismissed" | "unsupported">("denied");
+  const [confirmTestOpen, setConfirmTestOpen] = useState(false);
 
   const openHelp = (reason: "denied" | "dismissed" | "unsupported") => {
     setHelpReason(reason);
@@ -352,7 +363,7 @@ export function PushStatusCard() {
                 size="sm"
                 variant="outline"
                 disabled={busy !== null}
-                onClick={sendTest}
+                onClick={() => setConfirmTestOpen(true)}
                 title={
                   isAr
                     ? "إرسال إشعار تجريبي لأحدث مخالفة سياسة (يفتح رابط العنصر)"
@@ -388,6 +399,35 @@ export function PushStatusCard() {
         onOpenChange={setHelpOpen}
         reason={helpReason}
       />
+      <AlertDialog open={confirmTestOpen} onOpenChange={setConfirmTestOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {isAr ? "تأكيد إرسال إشعار تجريبي" : "Confirm test push"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isAr
+                ? "سيتم إرسال إشعار حقيقي إلى هذا المتصفح لاختبار Service Worker ورابط الانتقال (deep link) لأحدث مخالفة سياسة يمكنك رؤيتها. هل تريد المتابعة؟"
+                : "A real notification will be delivered to this browser to test the Service Worker and the deep link for the most recent policy violation you can see. Continue?"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy === "test"}>
+              {isAr ? "إلغاء" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={busy === "test"}
+              onClick={(e) => {
+                e.preventDefault();
+                setConfirmTestOpen(false);
+                void sendTest();
+              }}
+            >
+              {isAr ? "إرسال الآن" : "Send now"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
