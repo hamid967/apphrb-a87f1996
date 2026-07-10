@@ -399,6 +399,35 @@ export function PushStatusCard() {
         onOpenChange={setHelpOpen}
         reason={helpReason}
       />
+      <AlertDialog open={confirmTestOpen} onOpenChange={setConfirmTestOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {isAr ? "تأكيد إرسال إشعار تجريبي" : "Confirm test push"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isAr
+                ? "سيتم إرسال إشعار حقيقي إلى هذا المتصفح لاختبار Service Worker ورابط الانتقال (deep link) لأحدث مخالفة سياسة يمكنك رؤيتها. هل تريد المتابعة؟"
+                : "A real notification will be delivered to this browser to test the Service Worker and the deep link for the most recent policy violation you can see. Continue?"}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy === "test"}>
+              {isAr ? "إلغاء" : "Cancel"}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={busy === "test"}
+              onClick={(e) => {
+                e.preventDefault();
+                setConfirmTestOpen(false);
+                void sendTest();
+              }}
+            >
+              {isAr ? "إرسال الآن" : "Send now"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
