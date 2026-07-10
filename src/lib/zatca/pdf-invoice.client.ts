@@ -173,10 +173,7 @@ export async function generateInvoicePdf(input: InvoicePdfInput): Promise<Uint8A
   const { w, h } = { w: A4.w, h: A4.h };
 
   // -------------------- Header band --------------------
-  page.drawRectangle({
-    x: 0, y: h - 90, width: w, height: 90,
-    color: rgb(0.06, 0.09, 0.13),
-  });
+  // header rectangle drawn below with docKind-aware color
 
   const kind = input.docKind ?? "invoice";
   const titles = {
