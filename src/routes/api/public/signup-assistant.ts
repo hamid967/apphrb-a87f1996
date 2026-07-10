@@ -79,6 +79,28 @@ function pickSystem(lang: unknown) {
   return SYSTEM_AUTO;
 }
 
+function getTextSize(messages: UIMessage[]) {
+  return messages.reduce((total, message) => {
+    const parts = Array.isArray(message.parts) ? message.parts : [];
+    return (
+      total +
+      parts.reduce((sum, part) => {
+        return sum + (part.type === "text" ? part.text.length : 0);
+      }, 0)
+    );
+  }, 0);
+}
+
+function validateMessages(messages: UIMessage[]) {
+  if (messages.length > 24) {
+    return "Too many messages";
+  }
+  if (getTextSize(messages) > 12000) {
+    return "Conversation too large";
+  }
+  return null;
+}
+
 export const Route = createFileRoute("/api/public/signup-assistant")({
   server: {
     handlers: {
@@ -87,6 +109,8 @@ export const Route = createFileRoute("/api/public/signup-assistant")({
           const body = (await request.json()) as { messages?: UIMessage[]; lang?: string };
           const { messages } = body;
           if (!Array.isArray(messages)) return new Response("Bad request", { status: 400 });
+          const validationError = validateMessages(messages);
+          if (validationError) return new Response(validationError, { status: 413 });
 
           const apiKey = process.env.LOVABLE_API_KEY;
           if (!apiKey) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
