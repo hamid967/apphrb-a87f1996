@@ -20,9 +20,9 @@ export const Route = createFileRoute("/about")({
           "قصة عقاري Aqari، رؤيتنا ورسالتنا، والفريق الذي يبني نظام التشغيل الذكي للعقار السعودي.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://apphrb.lovable.app/about" },
+      { property: "og:url", content: "https://hrhbs.com/about" },
     ],
-    links: [{ rel: "canonical", href: "https://apphrb.lovable.app/about" }],
+    links: [{ rel: "canonical", href: "https://hrhbs.com/about" }],
   }),
   component: AboutPage,
 });

@@ -28,7 +28,7 @@ export const Route = createFileRoute("/blog/$slug")({
     }
     const title = loaderData.title_ar || loaderData.title_en;
     const desc = loaderData.excerpt_ar || loaderData.excerpt_en || title;
-    const url = `https://apphrb.lovable.app/blog/${params.slug}`;
+    const url = `https://hrhbs.com/blog/${params.slug}`;
     return {
       meta: [
         { title: `${title} — Aqari` },
@@ -40,6 +40,21 @@ export const Route = createFileRoute("/blog/$slug")({
         ...(loaderData.cover_url ? [{ property: "og:image", content: loaderData.cover_url }] : []),
       ],
       links: [{ rel: "canonical", href: url }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: title,
+            description: desc,
+            ...(loaderData.cover_url ? { image: loaderData.cover_url } : {}),
+            ...(loaderData.published_at ? { datePublished: loaderData.published_at } : {}),
+            mainEntityOfPage: url,
+            url,
+          }),
+        },
+      ],
     };
   },
   notFoundComponent: PostNotFound,
