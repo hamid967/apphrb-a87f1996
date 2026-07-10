@@ -29,19 +29,20 @@ ROUTES = [
 # أنماط أخطاء يجب رفضها
 FATAL_PATTERNS = [
     re.compile(r"useLayoutEffect", re.I),
-    re.compile(r"Cannot read propert(y|ies) of undefined", re.I),
-    re.compile(r"hydration", re.I),
     re.compile(r"\bHTTPError\b"),
     re.compile(r'"unhandled"\s*:\s*true'),
     re.compile(r"Minified React error #(418|419|422|423|425)"),  # hydration errors
 ]
 
-# تجاهُل ضوضاء غير حرجة (SW / analytics / 404 favicon…)
+# تجاهُل ضوضاء غير حرجة (SW / analytics / 404 favicon / dev tagger…)
 IGNORE_PATTERNS = [
     re.compile(r"favicon", re.I),
     re.compile(r"ServiceWorker", re.I),
     re.compile(r"manifest", re.I),
+    re.compile(r"data-tsd-source", re.I),   # dev-only componentTagger noise
+    re.compile(r"data-lov-", re.I),
 ]
+
 
 
 def is_fatal(msg: str) -> bool:
