@@ -457,20 +457,43 @@ function MiniOrb({ size = 44 }: { size?: number }) {
       style={{ width: size, height: size }}
       aria-hidden
     >
-      <svg viewBox="0 0 200 200" width={size} height={size}>
-        <defs>
-          <radialGradient id="hamidOrbMini" cx="35%" cy="35%" r="75%">
-            <stop offset="0%" stopColor="#f3ecb0" />
-            <stop offset="30%" stopColor="#b8c96a" />
-            <stop offset="60%" stopColor="#4fa39a" />
-            <stop offset="90%" stopColor="#2b6fb3" />
-            <stop offset="100%" stopColor="#0b2a4a" />
-          </radialGradient>
-        </defs>
-        <circle cx="100" cy="100" r="92" fill="url(#hamidOrbMini)" />
-        <circle cx="100" cy="100" r="30" fill="#ffffff" />
-      </svg>
-      <Phone className="absolute h-3.5 w-3.5 text-black" />
+      {/* Soft outer glow ring */}
+      <span
+        className="absolute inset-0 rounded-full bg-gradient-to-tr from-sky-400 via-cyan-300 to-emerald-300 opacity-70 blur-[6px]"
+      />
+      {/* Pulsing halo */}
+      <span
+        className="absolute inset-0 rounded-full bg-sky-400/40 animate-ping"
+        style={{ animationDuration: "2.2s" }}
+      />
+      {/* Core disc */}
+      <span className="relative grid h-full w-full place-items-center rounded-full bg-gradient-to-br from-slate-900 via-slate-800 to-sky-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_8px_24px_-8px_rgba(14,165,233,0.7)] ring-1 ring-white/20">
+        {/* Waveform bars */}
+        <svg viewBox="0 0 24 24" width={size * 0.5} height={size * 0.5} fill="none">
+          <g className="[&>rect]:origin-center">
+            <rect x="3"  y="10" width="2.4" height="4"  rx="1.2" fill="#7dd3fc">
+              <animate attributeName="height" values="4;10;4"  dur="1.1s" repeatCount="indefinite" />
+              <animate attributeName="y"      values="10;7;10" dur="1.1s" repeatCount="indefinite" />
+            </rect>
+            <rect x="7"  y="7"  width="2.4" height="10" rx="1.2" fill="#38bdf8">
+              <animate attributeName="height" values="10;16;10" dur="0.9s" repeatCount="indefinite" />
+              <animate attributeName="y"      values="7;4;7"    dur="0.9s" repeatCount="indefinite" />
+            </rect>
+            <rect x="11" y="5"  width="2.4" height="14" rx="1.2" fill="#22d3ee">
+              <animate attributeName="height" values="14;20;14" dur="1.3s" repeatCount="indefinite" />
+              <animate attributeName="y"      values="5;2;5"    dur="1.3s" repeatCount="indefinite" />
+            </rect>
+            <rect x="15" y="7"  width="2.4" height="10" rx="1.2" fill="#38bdf8">
+              <animate attributeName="height" values="10;16;10" dur="1.0s" repeatCount="indefinite" />
+              <animate attributeName="y"      values="7;4;7"    dur="1.0s" repeatCount="indefinite" />
+            </rect>
+            <rect x="19" y="10" width="2.4" height="4"  rx="1.2" fill="#7dd3fc">
+              <animate attributeName="height" values="4;10;4"  dur="1.2s" repeatCount="indefinite" />
+              <animate attributeName="y"      values="10;7;10" dur="1.2s" repeatCount="indefinite" />
+            </rect>
+          </g>
+        </svg>
+      </span>
     </span>
   );
 }
