@@ -426,6 +426,10 @@ function MiniOrb({ size = 44 }: { size?: number }) {
 export function HamidVoiceAssistant() {
   const [open, setOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [diagOpen, setDiagOpen] = useState(false);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [checks, setChecks] = useState<DiagCheck[]>([]);
+  const [checking, setChecking] = useState(false);
   const [callActive, setCallActive] = useState(false);
   const [listening, setListening] = useState(false);
   const [loading, setLoading] = useState(false);
