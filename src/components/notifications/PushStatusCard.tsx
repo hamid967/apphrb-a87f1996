@@ -7,13 +7,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { BellPlus, BellOff, HelpCircle, Loader2, RefreshCw, ShieldAlert } from "lucide-react";
+import { BellPlus, BellOff, HelpCircle, Loader2, RefreshCw, Send, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   deletePushSubscription,
   getVapidKey,
   savePushSubscription,
+  sendTestPushNotification,
 } from "@/lib/push.functions";
 import { PushPermissionHelpDialog } from "@/components/notifications/PushPermissionHelpDialog";
 
