@@ -295,6 +295,16 @@ export function PushStatusCard() {
               {isAr ? "تفعيل" : "Enable"}
             </Button>
           )}
+          {supported && !subscribed && permission === "denied" && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => openHelp("denied")}
+            >
+              <HelpCircle className="size-4 me-2" />
+              {isAr ? "كيفية التفعيل" : "How to enable"}
+            </Button>
+          )}
           {supported && subscribed && (
             <Button
               size="sm"
@@ -312,6 +322,11 @@ export function PushStatusCard() {
           )}
         </div>
       </div>
+      <PushPermissionHelpDialog
+        open={helpOpen}
+        onOpenChange={setHelpOpen}
+        reason={helpReason}
+      />
     </div>
   );
 }
