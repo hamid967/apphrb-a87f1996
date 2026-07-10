@@ -101,6 +101,7 @@ export function DashboardSidebar() {
         { url: "/dashboard/contracts", icon: FileText, ar: "العقود", en: "Contracts" },
         { url: "/dashboard/payments", icon: Coins, ar: "المدفوعات", en: "Payments" },
         { url: "/dashboard/invoices", icon: Receipt, ar: "الفواتير", en: "Invoices" },
+        { url: "/dashboard/zatca-customers", icon: Users2, ar: "عملاء ZATCA", en: "ZATCA Customers" },
         { url: "/dashboard/vouchers", icon: Wallet, ar: "السندات", en: "Vouchers" },
         { url: "/dashboard/expenses", icon: Receipt, ar: "المصروفات", en: "Expenses" },
         { url: "/dashboard/commissions", icon: Target, ar: "العمولات", en: "Commissions" },
