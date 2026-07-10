@@ -6407,6 +6407,7 @@ export type Database = {
           created_at: string
           enabled: boolean
           event_key: string
+          frequency: string
           id: string
           org_id: string
           updated_at: string
@@ -6417,6 +6418,7 @@ export type Database = {
           created_at?: string
           enabled?: boolean
           event_key: string
+          frequency?: string
           id?: string
           org_id: string
           updated_at?: string
@@ -6427,6 +6429,7 @@ export type Database = {
           created_at?: string
           enabled?: boolean
           event_key?: string
+          frequency?: string
           id?: string
           org_id?: string
           updated_at?: string
