@@ -771,7 +771,7 @@ export function HamidVoiceAssistant() {
       };
       setReply(next);
       setHistory((h) => [...h.slice(-6), { user: clean, assistant: next.text, mode: next.mode }]);
-      const spoken = speak(next.text);
+      const spoken = speak(next.text, { syncText: next.text });
       if (!spoken) setError("الصوت المحلي غير مدعوم في هذا المتصفح.");
     } catch (err) {
       const fallback = getLocalIntent(clean, history);
