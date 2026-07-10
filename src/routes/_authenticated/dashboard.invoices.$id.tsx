@@ -157,7 +157,15 @@ function InvoiceDetailPage() {
             )}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => pdfMut.mutate()}
+            disabled={pdfMut.isPending || !b}
+          >
+            <FileDown className={`h-4 w-4 me-1 ${pdfMut.isPending ? "animate-pulse" : ""}`} />
+            {isAr ? "تنزيل PDF" : "Download PDF"}
+          </Button>
           <Button
             variant="outline"
             onClick={() => genMut.mutate()}
