@@ -97,6 +97,7 @@ import { Route as AuthenticatedPortalAppointmentsRouteImport } from './routes/_a
 import { Route as AuthenticatedOwnersContractsRouteImport } from './routes/_authenticated/owners.contracts'
 import { Route as AuthenticatedOwnersIdRouteImport } from './routes/_authenticated/owners.$id'
 import { Route as AuthenticatedMaintenanceTechniciansRouteImport } from './routes/_authenticated/maintenance.technicians'
+import { Route as AuthenticatedLeadsNewRouteImport } from './routes/_authenticated/leads.new'
 import { Route as AuthenticatedLeadsIdRouteImport } from './routes/_authenticated/leads.$id'
 import { Route as AuthenticatedDocumentsIdRouteImport } from './routes/_authenticated/documents.$id'
 import { Route as AuthenticatedDealsIdRouteImport } from './routes/_authenticated/deals.$id'
@@ -721,6 +722,11 @@ const AuthenticatedMaintenanceTechniciansRoute =
     path: '/maintenance/technicians',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedLeadsNewRoute = AuthenticatedLeadsNewRouteImport.update({
+  id: '/leads/new',
+  path: '/leads/new',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedLeadsIdRoute = AuthenticatedLeadsIdRouteImport.update({
   id: '/leads/$id',
   path: '/leads/$id',
@@ -1683,6 +1689,7 @@ export interface FileRoutesByFullPath {
   '/deals/$id': typeof AuthenticatedDealsIdRoute
   '/documents/$id': typeof AuthenticatedDocumentsIdRoute
   '/leads/$id': typeof AuthenticatedLeadsIdRoute
+  '/leads/new': typeof AuthenticatedLeadsNewRoute
   '/maintenance/technicians': typeof AuthenticatedMaintenanceTechniciansRoute
   '/owners/$id': typeof AuthenticatedOwnersIdRouteWithChildren
   '/owners/contracts': typeof AuthenticatedOwnersContractsRoute
@@ -1912,6 +1919,7 @@ export interface FileRoutesByTo {
   '/deals/$id': typeof AuthenticatedDealsIdRoute
   '/documents/$id': typeof AuthenticatedDocumentsIdRoute
   '/leads/$id': typeof AuthenticatedLeadsIdRoute
+  '/leads/new': typeof AuthenticatedLeadsNewRoute
   '/maintenance/technicians': typeof AuthenticatedMaintenanceTechniciansRoute
   '/owners/$id': typeof AuthenticatedOwnersIdRouteWithChildren
   '/owners/contracts': typeof AuthenticatedOwnersContractsRoute
@@ -2147,6 +2155,7 @@ export interface FileRoutesById {
   '/_authenticated/deals/$id': typeof AuthenticatedDealsIdRoute
   '/_authenticated/documents/$id': typeof AuthenticatedDocumentsIdRoute
   '/_authenticated/leads/$id': typeof AuthenticatedLeadsIdRoute
+  '/_authenticated/leads/new': typeof AuthenticatedLeadsNewRoute
   '/_authenticated/maintenance/technicians': typeof AuthenticatedMaintenanceTechniciansRoute
   '/_authenticated/owners/$id': typeof AuthenticatedOwnersIdRouteWithChildren
   '/_authenticated/owners/contracts': typeof AuthenticatedOwnersContractsRoute
@@ -2384,6 +2393,7 @@ export interface FileRouteTypes {
     | '/deals/$id'
     | '/documents/$id'
     | '/leads/$id'
+    | '/leads/new'
     | '/maintenance/technicians'
     | '/owners/$id'
     | '/owners/contracts'
@@ -2613,6 +2623,7 @@ export interface FileRouteTypes {
     | '/deals/$id'
     | '/documents/$id'
     | '/leads/$id'
+    | '/leads/new'
     | '/maintenance/technicians'
     | '/owners/$id'
     | '/owners/contracts'
@@ -2847,6 +2858,7 @@ export interface FileRouteTypes {
     | '/_authenticated/deals/$id'
     | '/_authenticated/documents/$id'
     | '/_authenticated/leads/$id'
+    | '/_authenticated/leads/new'
     | '/_authenticated/maintenance/technicians'
     | '/_authenticated/owners/$id'
     | '/_authenticated/owners/contracts'
@@ -3649,6 +3661,13 @@ declare module '@tanstack/react-router' {
       path: '/maintenance/technicians'
       fullPath: '/maintenance/technicians'
       preLoaderRoute: typeof AuthenticatedMaintenanceTechniciansRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/leads/new': {
+      id: '/_authenticated/leads/new'
+      path: '/leads/new'
+      fullPath: '/leads/new'
+      preLoaderRoute: typeof AuthenticatedLeadsNewRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/leads/$id': {
@@ -5264,6 +5283,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDealsIdRoute: typeof AuthenticatedDealsIdRoute
   AuthenticatedDocumentsIdRoute: typeof AuthenticatedDocumentsIdRoute
   AuthenticatedLeadsIdRoute: typeof AuthenticatedLeadsIdRoute
+  AuthenticatedLeadsNewRoute: typeof AuthenticatedLeadsNewRoute
   AuthenticatedMaintenanceTechniciansRoute: typeof AuthenticatedMaintenanceTechniciansRoute
   AuthenticatedOwnersIdRoute: typeof AuthenticatedOwnersIdRouteWithChildren
   AuthenticatedOwnersContractsRoute: typeof AuthenticatedOwnersContractsRoute
@@ -5310,6 +5330,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDealsIdRoute: AuthenticatedDealsIdRoute,
   AuthenticatedDocumentsIdRoute: AuthenticatedDocumentsIdRoute,
   AuthenticatedLeadsIdRoute: AuthenticatedLeadsIdRoute,
+  AuthenticatedLeadsNewRoute: AuthenticatedLeadsNewRoute,
   AuthenticatedMaintenanceTechniciansRoute:
     AuthenticatedMaintenanceTechniciansRoute,
   AuthenticatedOwnersIdRoute: AuthenticatedOwnersIdRouteWithChildren,
