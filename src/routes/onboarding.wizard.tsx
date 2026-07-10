@@ -228,7 +228,8 @@ function OnboardingWizardPage() {
       toast.success(`تم إنشاء مساحة العمل — تجربة مجانية ${res.trial_days} يومًا`);
       setStep(2);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "تعذّر الإنشاء");
+      const hint = describeCompanyCreateError(err);
+      toast.error(hint.title, { description: hint.description });
     } finally {
       setBusy(false);
     }
