@@ -579,6 +579,14 @@ export function HamidVoiceAssistant() {
   const answer = async (text: string) => {
     const clean = text.trim();
     if (!clean || loading) return;
+    // Intercept signup intent: switch to voice signup wizard flow
+    if (SIGNUP_INTENT.test(clean)) {
+      setTranscript(clean);
+      setReply(null);
+      setSignupMode(true);
+      speak("أبشر، بنسجّل طلبك ويوصل للأدمن للموافقة. نبدأ بالاسم الكامل.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
