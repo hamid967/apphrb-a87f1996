@@ -52,7 +52,7 @@ SERVICE_ROLE_ONLY: list[str] = [
     "enqueue_email", "delete_email", "read_email_batch", "move_to_dlq",
 ]
 
-RLS_HELPERS: list[str] = ["has_role", "has_any_role", "has_permission", "is_super_admin"]
+RLS_HELPERS: list[str] = ["has_role", "has_any_role", "has_permission", "is_org_admin"]
 
 
 @dataclass
