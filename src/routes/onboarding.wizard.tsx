@@ -372,9 +372,35 @@ function OnboardingWizardPage() {
             })}
           </ol>
 
-          <div className="mb-2 text-xs text-muted-foreground">
-            {isAr ? `الخطوة ${step + 1} من ${STEPS.length}` : `Step ${step + 1} of ${STEPS.length}`}
-          </div>
+          {/* Dynamic progress bar */}
+          {(() => {
+            const pct = Math.round(((step + 1) / STEPS.length) * 100);
+            return (
+              <div className="mb-3">
+                <div
+                  className="h-1.5 w-full overflow-hidden rounded-full bg-muted"
+                  role="progressbar"
+                  aria-valuenow={pct}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={isAr ? "تقدّم التفعيل" : "Activation progress"}
+                >
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-primary to-teal-500 transition-[width] duration-500 ease-out"
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+                <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
+                  <span>
+                    {isAr
+                      ? `الخطوة ${step + 1} من ${STEPS.length}`
+                      : `Step ${step + 1} of ${STEPS.length}`}
+                  </span>
+                  <span className="tabular-nums">{pct}%</span>
+                </div>
+              </div>
+            );
+          })()}
 
           {checking ? (
             <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
