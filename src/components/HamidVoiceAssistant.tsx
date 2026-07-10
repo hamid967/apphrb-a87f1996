@@ -248,7 +248,7 @@ function stopSpeaking() {
 }
 
 type SpeakCallbacks = {
-  onStart?: (source: "server" | "browser") => void;
+  onStart?: (source: "server" | "browser", durationSec?: number) => void;
   onEnd?: () => void;
 };
 
