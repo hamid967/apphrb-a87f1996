@@ -149,6 +149,7 @@ export function OnboardingAiHelper({
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useState<DraftState>(EMPTY_DRAFT);
+  const [pendingTranscript, setPendingTranscript] = useState<string | null>(null);
   const voice = useVoiceInput({
     language: "ar",
     onError: (msg) => toast.error(msg),
@@ -157,24 +158,34 @@ export function OnboardingAiHelper({
   const handleMicClick = async () => {
     if (voice.state === "recording") {
       try {
-        const heard = await voice.stop();
-        if (heard.trim()) {
-          setText((prev) => (prev.trim() ? `${prev.trim()} ${heard}` : heard));
-        }
+        const heard = (await voice.stop()).trim();
+        if (heard) setPendingTranscript(heard);
       } catch {
         /* toast surfaced via onError */
       }
       return;
     }
     if (voice.state === "idle") {
+      setPendingTranscript(null);
       await voice.start();
     }
   };
+
+  const confirmTranscript = () => {
+    const heard = (pendingTranscript ?? "").trim();
+    if (heard) {
+      setText((prev) => (prev.trim() ? `${prev.trim()} ${heard}` : heard));
+    }
+    setPendingTranscript(null);
+  };
+
+  const discardTranscript = () => setPendingTranscript(null);
 
   const reset = () => {
     setMode("input");
     setText("");
     setDraft(EMPTY_DRAFT);
+    setPendingTranscript(null);
   };
 
   const run = async () => {
@@ -303,6 +314,44 @@ export function OnboardingAiHelper({
             )}
             {voice.state === "transcribing" && (
               <p className="mt-1 text-[11px] text-muted-foreground">جارٍ تحويل الصوت إلى نص…</p>
+            )}
+            {pendingTranscript !== null && (
+              <div className="mt-2 rounded-md border border-primary/30 bg-primary/5 p-2">
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="text-[11px] font-medium text-primary">
+                    راجع النص قبل الإضافة
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    عدّل ثم اضغط «إضافة»
+                  </span>
+                </div>
+                <Textarea
+                  value={pendingTranscript}
+                  onChange={(e) => setPendingTranscript(e.target.value)}
+                  rows={3}
+                  autoFocus
+                  className="resize-none text-sm"
+                  dir="auto"
+                />
+                <div className="mt-2 flex items-center justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={discardTranscript}
+                  >
+                    تجاهل
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={confirmTranscript}
+                    disabled={!pendingTranscript.trim()}
+                  >
+                    إضافة إلى النص
+                  </Button>
+                </div>
+              </div>
             )}
             <div className="mt-2 flex items-center justify-end gap-2">
               <Button
