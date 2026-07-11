@@ -421,7 +421,46 @@ function AuthPage() {
                 ))}
               </div>
 
+              {reason && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="mt-4 rounded-lg border p-3 text-sm"
+                  style={{
+                    background:
+                      reason === "session_expired"
+                        ? "rgba(234,179,8,0.10)"
+                        : reason === "access_denied"
+                          ? "rgba(239,68,68,0.10)"
+                          : "rgba(59,130,246,0.10)",
+                    borderColor:
+                      reason === "session_expired"
+                        ? "rgba(234,179,8,0.35)"
+                        : reason === "access_denied"
+                          ? "rgba(239,68,68,0.35)"
+                          : "rgba(59,130,246,0.35)",
+                    color: HBS.gray,
+                  }}
+                >
+                  <div className="font-medium">
+                    {reason === "session_expired"
+                      ? "انتهت جلستك"
+                      : reason === "access_denied"
+                        ? "لا تملك صلاحية الوصول"
+                        : "الدخول مطلوب"}
+                  </div>
+                  <div className="mt-0.5 text-xs opacity-90">
+                    {reason === "session_expired"
+                      ? "انتهت صلاحية جلسة الدخول. سجّل الدخول مجدداً للمتابعة إلى الصفحة المطلوبة."
+                      : reason === "access_denied"
+                        ? "الحساب الحالي لا يملك صلاحية فتح هذه الصفحة. سجّل الدخول بحساب لديه الصلاحية المناسبة."
+                        : "هذه الصفحة تتطلب تسجيل الدخول. أكمل تسجيل الدخول وسنعيدك تلقائياً إلى الصفحة التي طلبتها."}
+                  </div>
+                </div>
+              )}
+
               <form onSubmit={onSubmit} className="mt-6 space-y-4">
+
                 {mode === "signin" && (
                   <div className="space-y-1.5">
                     <Label
