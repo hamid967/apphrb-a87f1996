@@ -1,173 +1,129 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import svcProperties from "@/assets/dashboard/svc-properties.png";
-import svcContracts from "@/assets/dashboard/svc-contracts.png";
-import svcPayments from "@/assets/dashboard/svc-payments.png";
-import svcMaintenance from "@/assets/dashboard/svc-maintenance.png";
-import svcReports from "@/assets/dashboard/svc-reports.png";
-import svcAssistant from "@/assets/dashboard/svc-assistant.png";
-
-type Service = {
-  to: string;
-  img: string;
-  titleAr: string;
-  titleEn: string;
-  descAr: string;
-  descEn: string;
-};
-
-const SERVICES: Service[] = [
-  {
-    to: "/dashboard/properties",
-    img: svcProperties,
-    titleAr: "العقارات",
-    titleEn: "Properties",
-    descAr: "إدارة العقارات والوحدات",
-    descEn: "Manage properties & units",
-  },
-  {
-    to: "/dashboard/contracts",
-    img: svcContracts,
-    titleAr: "العقود",
-    titleEn: "Contracts",
-    descAr: "إنشاء ومتابعة العقود",
-    descEn: "Create & track contracts",
-  },
-  {
-    to: "/dashboard/payments",
-    img: svcPayments,
-    titleAr: "المدفوعات",
-    titleEn: "Payments",
-    descAr: "الفواتير والسندات",
-    descEn: "Invoices & vouchers",
-  },
-  {
-    to: "/dashboard/maintenance",
-    img: svcMaintenance,
-    titleAr: "الصيانة",
-    titleEn: "Maintenance",
-    descAr: "طلبات وفنيّون",
-    descEn: "Requests & technicians",
-  },
-  {
-    to: "/dashboard/reports",
-    img: svcReports,
-    titleAr: "التقارير",
-    titleEn: "Reports",
-    descAr: "تحليلات ومؤشرات",
-    descEn: "Analytics & KPIs",
-  },
-  {
-    to: "/assistant",
-    img: svcAssistant,
-    titleAr: "المساعد الذكي",
-    titleEn: "AI Assistant",
-    descAr: "إجابات فورية بالذكاء الاصطناعي",
-    descEn: "Instant AI answers",
-  },
-];
+import { ArrowLeft, ArrowRight, LockKeyhole, Sparkles } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
+import {
+  SERVICE_CATALOG,
+  serviceIsEnabled,
+  categoryLabel,
+  type ServiceKey,
+} from "@/lib/service-catalog";
+import { getMyServiceEntitlements } from "@/lib/service-entitlements.functions";
 
 export function ServicesGrid({ isAr }: { isAr: boolean }) {
   const Arrow = isAr ? ArrowLeft : ArrowRight;
+  const getEntitlements = useServerFn(getMyServiceEntitlements);
+  const entitlementsQ = useQuery({
+    queryKey: ["my-service-entitlements"],
+    queryFn: () => getEntitlements(),
+    staleTime: 60_000,
+  });
+  const enabled = entitlementsQ.data?.enabled as ServiceKey[] | undefined;
+  const visibleServices = SERVICE_CATALOG.slice(0, 8);
+
   return (
-    <section aria-label={isAr ? "الخدمات" : "Services"}>
-      <div className="mb-3 flex items-end justify-between">
+    <section aria-label={isAr ? "الخدمات" : "Services"} className="studio-card-lg p-4 sm:p-5">
+      <div className="mb-4 flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold tracking-tight">
-            {isAr ? "الخدمات" : "Services"}
+          <div className="studio-eyebrow mb-2">
+            <Sparkles className="size-3.5" />
+            {isAr ? "خدمات حسابك" : "Your Services"}
+          </div>
+          <h2 className="studio-title text-xl">
+            {isAr ? "الخدمات المفعّلة" : "Enabled Services"}
           </h2>
-          <p className="text-xs text-muted-foreground">
-            {isAr ? "اختصارات لأكثر الأقسام استخدامًا" : "Shortcuts to your most-used sections"}
+          <p className="studio-copy mt-1 text-xs">
+            {isAr
+              ? "الأدمن يحدد الخدمات المتاحة لكل عميل من لوحة التحكم."
+              : "Admin controls which services are available for each customer."}
           </p>
         </div>
         <Link
           to="/dashboard/services-report"
-          className="inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/40 hover:bg-primary/5"
+          className="studio-button-ghost px-3 py-2 text-xs font-bold"
         >
           {isAr ? "كل الخدمات" : "All services"}
           <Arrow className="size-3" />
         </Link>
       </div>
       <motion.div
-        className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"
+        className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
         initial="hidden"
         animate="show"
         variants={{
           hidden: {},
-          show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
+          show: { transition: { staggerChildren: 0.05, delayChildren: 0.04 } },
         }}
       >
-        {SERVICES.map((s, i) => (
-          <motion.div
-            key={s.to}
-            variants={{
-              hidden: { opacity: 0, y: 14, scale: 0.96 },
-              show: {
-                opacity: 1,
-                y: 0,
-                scale: 1,
-                transition: { type: "spring", stiffness: 260, damping: 22 },
-              },
-            }}
-            whileHover={{ y: -4, scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 400, damping: 24 }}
-            className="touch-manipulation"
-          >
-            <Link
-              to={s.to}
-              className="group relative flex h-full flex-col items-center gap-2 overflow-hidden rounded-2xl border border-border bg-card p-4 text-center shadow-[0_4px_16px_-8px_hsl(var(--primary)/0.25)] transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 active:border-primary/60"
+        {visibleServices.map((service) => {
+          const Icon = service.icon;
+          const unlocked = serviceIsEnabled(enabled, service.key);
+          const content = (
+            <div
+              className={[
+                "group relative flex h-full min-h-40 flex-col overflow-hidden rounded-2xl border p-4 text-start transition",
+                unlocked
+                  ? "border-[#C5A059]/25 bg-white/80 shadow-[0_18px_48px_-34px_rgba(4,57,39,0.45)] hover:-translate-y-1 hover:border-[#C5A059]/60"
+                  : "border-border bg-muted/45 opacity-75",
+              ].join(" ")}
             >
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 -top-10 h-24 opacity-60 blur-2xl transition group-hover:opacity-90"
-                style={{
-                  background:
-                    "radial-gradient(ellipse at center, hsl(var(--primary) / 0.25), transparent 70%)",
-                }}
-              />
-              <motion.img
-                src={s.img}
-                alt=""
-                width={72}
-                height={72}
-                loading="lazy"
-                draggable={false}
-                className="relative z-10 h-16 w-16 select-none object-contain"
-                whileHover={{ rotate: [0, -6, 6, -3, 0], scale: 1.08 }}
-                transition={{ duration: 0.6, ease: "easeInOut" }}
-              />
-              <div className="relative z-10">
-                <div className="text-sm font-semibold text-foreground">
-                  {isAr ? s.titleAr : s.titleEn}
-                </div>
-                <div className="mt-0.5 line-clamp-2 text-[11px] leading-tight text-muted-foreground">
-                  {isAr ? s.descAr : s.descEn}
-                </div>
-              </div>
-              <motion.span
-                className="relative z-10 mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-primary"
-                initial={{ opacity: 0, x: 0 }}
-                whileHover={{ opacity: 1 }}
-                animate={{ opacity: 0 }}
-                variants={{
-                  rest: { opacity: 0 },
-                  hover: { opacity: 1 },
-                }}
-              >
-                {isAr ? "فتح" : "Open"}
-                <motion.span
-                  animate={{ x: [0, isAr ? -3 : 3, 0] }}
-                  transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
-                  className="inline-flex"
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <span
+                  className={[
+                    "grid size-11 place-items-center rounded-2xl",
+                    unlocked ? "bg-[#043927] text-[#C5A059]" : "bg-muted text-muted-foreground",
+                  ].join(" ")}
                 >
-                  <Arrow className="size-3" />
-                </motion.span>
-              </motion.span>
-            </Link>
-          </motion.div>
-        ))}
+                  <Icon className="size-5" />
+                </span>
+                <span className="rounded-full border border-[#C5A059]/25 bg-[#C5A059]/10 px-2 py-1 text-[10px] font-bold text-[#043927]">
+                  {categoryLabel(service.category, isAr)}
+                </span>
+              </div>
+              <div className="font-black text-foreground">
+                {isAr ? service.titleAr : service.titleEn}
+              </div>
+              <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                {isAr ? service.descAr : service.descEn}
+              </p>
+              <div className="mt-auto pt-4">
+                {unlocked ? (
+                  <span className="inline-flex items-center gap-1 text-xs font-black text-primary">
+                    {isAr ? "فتح الخدمة" : "Open service"}
+                    <Arrow className="size-3" />
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-[11px] font-bold text-muted-foreground">
+                    <LockKeyhole className="size-3" />
+                    {isAr ? "تحتاج تفعيل الأدمن" : "Admin activation required"}
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+
+          return (
+            <motion.div
+              key={service.key}
+              variants={{
+                hidden: { opacity: 0, y: 12, scale: 0.97 },
+                show: { opacity: 1, y: 0, scale: 1 },
+              }}
+              className="touch-manipulation"
+            >
+              {unlocked ? (
+                <Link to={service.to} className="block h-full">
+                  {content}
+                </Link>
+              ) : (
+                <div className="h-full" aria-disabled="true">
+                  {content}
+                </div>
+              )}
+            </motion.div>
+          );
+        })}
       </motion.div>
     </section>
   );
