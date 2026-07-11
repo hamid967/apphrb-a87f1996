@@ -33,8 +33,8 @@ SHOTS = Path("/tmp/browser/auth-admin-redirect-reason")
 SHOTS.mkdir(parents=True, exist_ok=True)
 
 ADMIN_CASES = [
-    # (path, expected redirect param value or None if omitted for "/")
-    ("/admin", None),
+    # (path, expected redirect param value)
+    ("/admin", "/admin"),
     ("/admin/users", "/admin/users"),
     ("/admin/companies", "/admin/companies"),
 ]
