@@ -11,7 +11,6 @@ export const Route = createFileRoute("/_authenticated/assistant/elevenlabs")({
       entityAr: "حامد ElevenLabs",
       entityEn: "Hamid ElevenLabs",
       descAr: "محادثة صوتية مباشرة مع وكيل حامد عبر ElevenLabs داخل HBSpro.",
-      descEn: "Live voice conversation with the Hamid ElevenLabs agent inside HBSpro.",
       path: "/assistant/elevenlabs",
     }),
 });
