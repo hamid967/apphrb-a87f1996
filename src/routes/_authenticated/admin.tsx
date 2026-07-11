@@ -20,10 +20,14 @@ import { logAdminEvent } from "@/lib/admin-telemetry.functions";
  * and next steps, instead of silently bouncing to /dashboard.
  */
 export const Route = createFileRoute("/_authenticated/admin")({
-  loader: async () => {
+  // Run in beforeLoad so child route loaders wait for the admin check
+  // instead of racing it in parallel with the parent loader. This
+  // guarantees no /admin/* sub-route loader runs for a non-admin.
+  beforeLoad: async () => {
     const access = await checkAdminAccess();
     return { access };
   },
+  loader: ({ context }) => ({ access: (context as { access: Awaited<ReturnType<typeof checkAdminAccess>> }).access }),
   component: AdminLayout,
   errorComponent: ({ error }) => {
     if (typeof window !== "undefined") {

@@ -151,6 +151,7 @@ import { Route as AuthenticatedCrmAnalyticsRouteImport } from './routes/_authent
 import { Route as AuthenticatedContractsIdRouteImport } from './routes/_authenticated/contracts.$id'
 import { Route as AuthenticatedAuctionsIdRouteImport } from './routes/_authenticated/auctions.$id'
 import { Route as AuthenticatedAssistantScriptsRouteImport } from './routes/_authenticated/assistant.scripts'
+import { Route as AuthenticatedAssistantElevenlabsRouteImport } from './routes/_authenticated/assistant.elevenlabs'
 import { Route as AuthenticatedAssistantAuditRouteImport } from './routes/_authenticated/assistant.audit'
 import { Route as AuthenticatedAssistantThreadIdRouteImport } from './routes/_authenticated/assistant.$threadId'
 import { Route as AuthenticatedAdminZatcaLogRouteImport } from './routes/_authenticated/admin.zatca-log'
@@ -1053,6 +1054,12 @@ const AuthenticatedAssistantScriptsRoute =
     path: '/scripts',
     getParentRoute: () => AuthenticatedAssistantRoute,
   } as any)
+const AuthenticatedAssistantElevenlabsRoute =
+  AuthenticatedAssistantElevenlabsRouteImport.update({
+    id: '/elevenlabs',
+    path: '/elevenlabs',
+    getParentRoute: () => AuthenticatedAssistantRoute,
+  } as any)
 const AuthenticatedAssistantAuditRoute =
   AuthenticatedAssistantAuditRouteImport.update({
     id: '/audit',
@@ -1836,6 +1843,7 @@ export interface FileRoutesByFullPath {
   '/admin/zatca-log': typeof AuthenticatedAdminZatcaLogRoute
   '/assistant/$threadId': typeof AuthenticatedAssistantThreadIdRoute
   '/assistant/audit': typeof AuthenticatedAssistantAuditRoute
+  '/assistant/elevenlabs': typeof AuthenticatedAssistantElevenlabsRoute
   '/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
   '/auctions/$id': typeof AuthenticatedAuctionsIdRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
@@ -2092,6 +2100,7 @@ export interface FileRoutesByTo {
   '/admin/zatca-log': typeof AuthenticatedAdminZatcaLogRoute
   '/assistant/$threadId': typeof AuthenticatedAssistantThreadIdRoute
   '/assistant/audit': typeof AuthenticatedAssistantAuditRoute
+  '/assistant/elevenlabs': typeof AuthenticatedAssistantElevenlabsRoute
   '/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
   '/auctions/$id': typeof AuthenticatedAuctionsIdRoute
   '/contracts/$id': typeof AuthenticatedContractsIdRoute
@@ -2352,6 +2361,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/zatca-log': typeof AuthenticatedAdminZatcaLogRoute
   '/_authenticated/assistant/$threadId': typeof AuthenticatedAssistantThreadIdRoute
   '/_authenticated/assistant/audit': typeof AuthenticatedAssistantAuditRoute
+  '/_authenticated/assistant/elevenlabs': typeof AuthenticatedAssistantElevenlabsRoute
   '/_authenticated/assistant/scripts': typeof AuthenticatedAssistantScriptsRouteWithChildren
   '/_authenticated/auctions/$id': typeof AuthenticatedAuctionsIdRoute
   '/_authenticated/contracts/$id': typeof AuthenticatedContractsIdRoute
@@ -2615,6 +2625,7 @@ export interface FileRouteTypes {
     | '/admin/zatca-log'
     | '/assistant/$threadId'
     | '/assistant/audit'
+    | '/assistant/elevenlabs'
     | '/assistant/scripts'
     | '/auctions/$id'
     | '/contracts/$id'
@@ -2871,6 +2882,7 @@ export interface FileRouteTypes {
     | '/admin/zatca-log'
     | '/assistant/$threadId'
     | '/assistant/audit'
+    | '/assistant/elevenlabs'
     | '/assistant/scripts'
     | '/auctions/$id'
     | '/contracts/$id'
@@ -3130,6 +3142,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/zatca-log'
     | '/_authenticated/assistant/$threadId'
     | '/_authenticated/assistant/audit'
+    | '/_authenticated/assistant/elevenlabs'
     | '/_authenticated/assistant/scripts'
     | '/_authenticated/auctions/$id'
     | '/_authenticated/contracts/$id'
@@ -4369,6 +4382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAssistantScriptsRouteImport
       parentRoute: typeof AuthenticatedAssistantRoute
     }
+    '/_authenticated/assistant/elevenlabs': {
+      id: '/_authenticated/assistant/elevenlabs'
+      path: '/elevenlabs'
+      fullPath: '/assistant/elevenlabs'
+      preLoaderRoute: typeof AuthenticatedAssistantElevenlabsRouteImport
+      parentRoute: typeof AuthenticatedAssistantRoute
+    }
     '/_authenticated/assistant/audit': {
       id: '/_authenticated/assistant/audit'
       path: '/audit'
@@ -5336,6 +5356,7 @@ const AuthenticatedAssistantScriptsRouteWithChildren =
 interface AuthenticatedAssistantRouteChildren {
   AuthenticatedAssistantThreadIdRoute: typeof AuthenticatedAssistantThreadIdRoute
   AuthenticatedAssistantAuditRoute: typeof AuthenticatedAssistantAuditRoute
+  AuthenticatedAssistantElevenlabsRoute: typeof AuthenticatedAssistantElevenlabsRoute
   AuthenticatedAssistantScriptsRoute: typeof AuthenticatedAssistantScriptsRouteWithChildren
   AuthenticatedAssistantIndexRoute: typeof AuthenticatedAssistantIndexRoute
 }
@@ -5344,6 +5365,8 @@ const AuthenticatedAssistantRouteChildren: AuthenticatedAssistantRouteChildren =
   {
     AuthenticatedAssistantThreadIdRoute: AuthenticatedAssistantThreadIdRoute,
     AuthenticatedAssistantAuditRoute: AuthenticatedAssistantAuditRoute,
+    AuthenticatedAssistantElevenlabsRoute:
+      AuthenticatedAssistantElevenlabsRoute,
     AuthenticatedAssistantScriptsRoute:
       AuthenticatedAssistantScriptsRouteWithChildren,
     AuthenticatedAssistantIndexRoute: AuthenticatedAssistantIndexRoute,
