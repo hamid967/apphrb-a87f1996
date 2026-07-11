@@ -8,7 +8,7 @@ import {
   deleteAssistantThread,
 } from "@/lib/assistant-threads.functions";
 import { Button } from "@/components/ui/button";
-import { MessageSquarePlus, Trash2, Sparkles, Terminal, ScrollText } from "lucide-react";
+import { MessageSquarePlus, Trash2, Sparkles, Terminal, ScrollText, Mic2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -86,6 +86,16 @@ function AssistantLayout() {
             }}
           >
             <ScrollText className="size-3.5" /> {t("assistant.auditLink")}
+          </Link>
+          <Link
+            to="/assistant/elevenlabs"
+            className="mt-2 flex items-center gap-2 rounded-md border border-[#C5A059]/30 bg-[#C5A059]/10 px-3 py-1.5 text-xs font-bold text-[#043927] hover:bg-[#C5A059]/20"
+            activeProps={{
+              className:
+                "mt-2 flex items-center gap-2 rounded-md border border-[#C5A059]/40 bg-[#C5A059]/20 px-3 py-1.5 text-xs font-bold text-[#043927]",
+            }}
+          >
+            <Mic2 className="size-3.5" /> {isRtl ? "حامد ElevenLabs" : "Hamid ElevenLabs"}
           </Link>
         </div>
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
