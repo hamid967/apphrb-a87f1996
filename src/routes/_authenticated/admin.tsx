@@ -141,3 +141,29 @@ function AdminLayout() {
     </SidebarProvider>
   );
 }
+
+/**
+ * Wrapper around AdminAccessCheck that records an `access_denied` audit
+ * event exactly once per mount. The event carries only the internal
+ * reason enum + pathname — never the email or diagnostic detail shown
+ * on-screen — so the log stays free of sensitive data.
+ */
+function AdminAccessDeniedScreen({
+  access,
+  onRetry,
+}: {
+  access: Awaited<ReturnType<typeof checkAdminAccess>>;
+  onRetry: () => void;
+}) {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    void logAdminAccessDenied({
+      data: {
+        kind: "access_denied",
+        path: window.location.pathname,
+        subReason: access.reason,
+      },
+    }).catch(() => {});
+  }, [access.reason]);
+  return <AdminAccessCheck result={access} onRetry={onRetry} />;
+}
