@@ -65,12 +65,7 @@ function AdminLayout() {
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (!access.isAdmin) {
-    return (
-      <AdminAccessCheck
-        result={access}
-        onRetry={() => router.invalidate()}
-      />
-    );
+    return <AdminAccessDeniedScreen access={access} onRetry={() => router.invalidate()} />;
   }
   const enteredAtRef = useRef<number>(
     typeof performance !== "undefined" ? performance.now() : Date.now(),
