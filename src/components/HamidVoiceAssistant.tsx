@@ -371,7 +371,16 @@ async function speakSaudi(
       const dur = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : undefined;
       cb?.onStart?.("server", dur);
     };
-    audio.onended = cleanup;
+    audio.ontimeupdate = () => {
+      const d = audio.duration;
+      if (!Number.isFinite(d) || d <= 0) return;
+      cb?.onProgress?.(Math.min(1, audio.currentTime / d));
+    };
+    audio.onended = () => {
+      cb?.onProgress?.(1);
+      cleanup();
+    };
+
     audio.onerror = () => {
       const shouldFallback = !started;
       pushLog(
