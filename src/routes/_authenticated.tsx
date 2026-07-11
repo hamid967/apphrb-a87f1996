@@ -248,14 +248,15 @@ function AuthenticatedShell() {
 
   useEffect(() => {
     if (ready && !user) {
-      // Preserve where the visitor was heading so /auth can bounce them
-      // back after sign-in. Skip when we're already on /auth to avoid
-      // ?redirect=/auth loops.
+      // Session ended mid-visit (sign-out, expired token, revoked).
+      // Preserve where the visitor was so /auth can bounce them back after sign-in.
       const target = `${pathname}${search ?? ""}`;
       const isOnAuth = pathname === "/auth" || pathname.startsWith("/auth?");
       nav({
         to: "/auth",
-        search: isOnAuth || pathname === "/" ? {} : { redirect: target },
+        search: isOnAuth || pathname === "/"
+          ? { reason: "session_expired" }
+          : { redirect: target, reason: "session_expired" },
         replace: true,
       });
     }
