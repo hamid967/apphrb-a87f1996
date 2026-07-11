@@ -526,8 +526,8 @@ body::-webkit-scrollbar,
 .theme-luxe {
   color-scheme: dark;
   /* Emerald Gold Luxury: #043927 / #0a5238 / #0d7a5f / #C5A059 / #f5f0e0 */
-  --font-sans: 'Fira Sans', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
-  --font-display: 'DM Serif Display', 'Almarai', 'IBM Plex Sans Arabic', serif;
+  --font-sans: 'Almarai', 'IBM Plex Sans Arabic', 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
   --background: oklch(0.26 0.05 165);           /* #043927 emerald base */
   --foreground: oklch(0.96 0.02 85);            /* #f5f0e0 paper */
   --card: oklch(0.32 0.06 165 / 92%);           /* #0a5238 emerald surface */
