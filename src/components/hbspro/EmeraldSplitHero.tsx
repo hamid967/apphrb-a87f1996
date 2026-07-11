@@ -50,10 +50,10 @@ export function EmeraldSplitHero() {
   return (
     <section
       dir="rtl"
-      className="w-full bg-[#fdfcfb] flex items-center justify-center p-4 sm:p-6 lg:p-12"
+      className="studio-shell w-full flex items-center justify-center p-4 sm:p-6 lg:p-12"
       style={{ fontFamily: "'Tajawal', 'IBM Plex Sans Arabic', sans-serif" }}
     >
-      <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 bg-white rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(4,57,39,0.15)]">
+      <div className="studio-card-lg max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
         <div className="lg:col-span-5 bg-[#043927] p-8 sm:p-10 lg:p-16 flex flex-col justify-center relative overflow-hidden">
           <div className="absolute inset-0 opacity-10 pointer-events-none" aria-hidden="true">
             <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -143,7 +143,7 @@ export function EmeraldSplitHero() {
                     transition={{ delay: i * 0.08, duration: 0.4, ease: "easeOut" }}
                     whileHover={{ y: -6, boxShadow: "0 24px 60px -30px rgba(4,57,39,0.35)" }}
                     whileTap={{ scale: 0.98 }}
-                    className="group p-6 rounded-3xl border border-stone-100 bg-stone-50/70 hover:bg-white hover:border-[#C5A059]/40 cursor-pointer"
+                    className="studio-card studio-hover group p-6 cursor-pointer"
                   >
                     <motion.div
                       whileHover={{ rotate: -6, scale: 1.1 }}
