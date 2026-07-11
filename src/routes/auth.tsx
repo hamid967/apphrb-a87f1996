@@ -98,12 +98,22 @@ export async function routeAfterLogin(nav: ReturnType<typeof useNavigate>, redir
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
-  validateSearch: (raw): { redirect?: string; mode?: "signin" | "signup" } => {
+  validateSearch: (raw): {
+    redirect?: string;
+    mode?: "signin" | "signup";
+    reason?: "signin_required" | "session_expired" | "access_denied";
+  } => {
     const r = raw?.redirect;
     const m = raw?.mode;
-    const out: { redirect?: string; mode?: "signin" | "signup" } = {};
+    const rn = raw?.reason;
+    const out: {
+      redirect?: string;
+      mode?: "signin" | "signup";
+      reason?: "signin_required" | "session_expired" | "access_denied";
+    } = {};
     if (typeof r === "string" && r.length > 0 && r.length < 2000) out.redirect = r;
     if (m === "signin" || m === "signup") out.mode = m;
+    if (rn === "signin_required" || rn === "session_expired" || rn === "access_denied") out.reason = rn;
     return out;
   },
   head: () => ({
