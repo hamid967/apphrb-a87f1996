@@ -31,9 +31,9 @@ function NotFoundComponent() {
   return (
     <main
       dir={isAr ? "rtl" : "ltr"}
-      className="flex min-h-screen items-center justify-center bg-background px-4"
+      className="studio-shell studio-grid flex min-h-screen items-center justify-center px-4"
     >
-      <div className="max-w-md text-center">
+      <div className="studio-card-lg max-w-md p-8 text-center">
         <p className="text-sm font-medium text-primary">HBSpro</p>
         <h1 className="mt-2 text-7xl font-semibold tracking-tight text-foreground">404</h1>
         <h2 className="mt-4 text-xl font-medium">
@@ -46,7 +46,7 @@ function NotFoundComponent() {
         </p>
         <Link
           to="/"
-          className="mt-6 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
+          className="studio-button mt-6 px-5 py-2.5 text-sm"
         >
           {isAr ? "العودة إلى الرئيسية" : "Go home"}
         </Link>
@@ -65,9 +65,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <main
       dir={isAr ? "rtl" : "ltr"}
       role="alert"
-      className="flex min-h-screen items-center justify-center bg-background px-4"
+      className="studio-shell studio-grid flex min-h-screen items-center justify-center px-4"
     >
-      <div className="max-w-md text-center">
+      <div className="studio-card-lg max-w-md p-8 text-center">
         <p className="text-sm font-medium text-primary">HBSpro</p>
         <h1 className="mt-3 text-2xl font-semibold">
           {isAr ? "تعذّر إكمال الطلب" : "We couldn't complete that request"}
@@ -84,13 +84,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               router.invalidate();
               reset();
             }}
-            className="rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground"
+            className="studio-button px-5 py-2.5 text-sm"
           >
             {isAr ? "إعادة المحاولة" : "Try again"}
           </button>
           <Link
             to="/"
-            className="rounded-full border border-border px-5 py-2.5 text-sm font-medium"
+            className="studio-button-ghost px-5 py-2.5 text-sm font-bold"
           >
             {isAr ? "الرئيسية" : "Home"}
           </Link>
@@ -105,7 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "theme-color", content: "#2563EB" },
+      { name: "theme-color", content: "#043927" },
       // PWA / iOS home-screen
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "mobile-web-app-capable", content: "yes" },
