@@ -1,7 +1,7 @@
 import {
   createFileRoute,
   Outlet,
-  redirect,
+  useRouter,
   useRouterState,
 } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
@@ -9,20 +9,20 @@ import { checkAdminAccess } from "@/lib/admin-guard.functions";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { AdminErrorBoundary } from "@/components/admin/AdminErrorBoundary";
+import { AdminAccessCheck } from "@/components/admin/AdminAccessCheck";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { logAdminEvent } from "@/lib/admin-telemetry.functions";
 
 /**
- * Pathless-ish layout for /admin/* — enforces admin role via server-verified has_role check.
- * Non-admins are redirected to /dashboard.
+ * Layout for /admin/* — enforces super_admin role via server-verified check.
+ * When the check fails we render an in-place diagnostic screen (AdminAccessCheck)
+ * so the user sees the exact reason (missing role, 2FA missing, RPC error)
+ * and next steps, instead of silently bouncing to /dashboard.
  */
 export const Route = createFileRoute("/_authenticated/admin")({
-  beforeLoad: async () => {
-    const { isAdmin } = await checkAdminAccess();
-    if (!isAdmin) {
-      throw redirect({ to: "/dashboard" });
-    }
-    return { isAdmin };
+  loader: async () => {
+    const access = await checkAdminAccess();
+    return { access };
   },
   component: AdminLayout,
   errorComponent: ({ error }) => {
