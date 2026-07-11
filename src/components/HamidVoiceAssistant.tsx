@@ -681,21 +681,25 @@ export function HamidVoiceAssistant() {
       },
       onBoundary: (charIndex, wordLength) => {
         if (!syncFull || !revealCtxRef.current) return;
-        engineDriven = true;
-        stopReveal(); // real timings take over from the RAF estimate
+        if (!engineDriven) {
+          engineDriven = true;
+          stopReveal(); // real timings take over from the RAF estimate
+        }
         revealUpTo(charIndex + (wordLength ?? 0));
       },
       onProgress: (ratio) => {
         if (!syncFull || !revealCtxRef.current) return;
-        // Only used when no boundary events fire (server audio). Snap to nearest word.
-        if (engineDriven) return;
-        stopReveal();
-        engineDriven = true;
-        // fall-through: seed a per-timeupdate reveal
+        // Server engines give no per-word boundary; drive reveal by real
+        // playback ratio and snap to whole-word boundaries.
+        if (!engineDriven) {
+          engineDriven = true;
+          stopReveal();
+        }
         const ctx = revealCtxRef.current;
         const target = Math.floor(ctx.full.length * Math.min(1, Math.max(0, ratio)));
         revealUpTo(target);
       },
+
       onEnd: () => {
         clearWatchdog();
         setSpeaking(false);
