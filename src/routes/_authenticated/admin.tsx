@@ -41,7 +41,17 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 function AdminLayout() {
+  const { access } = Route.useLoaderData();
+  const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (!access.isAdmin) {
+    return (
+      <AdminAccessCheck
+        result={access}
+        onRetry={() => router.invalidate()}
+      />
+    );
+  }
   const enteredAtRef = useRef<number>(
     typeof performance !== "undefined" ? performance.now() : Date.now(),
   );
