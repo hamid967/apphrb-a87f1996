@@ -77,7 +77,7 @@ export const Route = createFileRoute("/")({
 
 function HBSproHome() {
   return (
-    <div className="theme-luxe min-h-screen font-sans antialiased bg-[#043927] text-[#f5f0e0]">
+    <div className="theme-luxe min-h-screen font-sans antialiased bg-[#043927] text-[#f5f0e0] selection:bg-[#C5A059]/30 selection:text-white">
       <Navbar />
       <main>
         <CinematicIntro />
