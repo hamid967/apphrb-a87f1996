@@ -53,14 +53,14 @@ export function AdminListShell<T extends { id?: string }>(props: Props<T>) {
   }, [query.data, q, props]);
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="studio-shell min-h-dvh space-y-6 p-4 md:p-6">
+      <div className="studio-panel-dark studio-noise flex flex-wrap items-start justify-between gap-3 p-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-3xl font-black tracking-tight text-white">
             {isAr ? props.titleAr : props.titleEn}
           </h1>
           {(props.descAr || props.descEn) && (
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-[#c9ddd4]">
               {isAr ? props.descAr : props.descEn}
             </p>
           )}
@@ -68,7 +68,7 @@ export function AdminListShell<T extends { id?: string }>(props: Props<T>) {
         <div className="flex items-center gap-2">{props.toolbar}</div>
       </div>
 
-      <Card>
+      <Card className="studio-card-lg border-[#C5A059]/20">
         <CardHeader className="pb-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <CardTitle className="text-base">
