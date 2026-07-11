@@ -33,11 +33,25 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
   errorComponent: ({ error }) => {
     if (typeof window !== "undefined") {
+      const msg = error?.message ?? String(error);
+      // Unauthorized bubbling up from requireSupabaseAuth means either
+      // no session at all (signin_required) or a stale/expired session
+      // whose token was rejected (session_expired). Distinguish by
+      // consulting the local Supabase session.
+      const isUnauthorized = /unauthorized/i.test(msg);
+      if (isUnauthorized) {
+        void supabase.auth.getSession().then(({ data }) => {
+          const kind = data.session ? "session_expired" : "signin_required";
+          return logAdminAccessDenied({
+            data: { kind, path: window.location.pathname, subReason: null },
+          });
+        }).catch(() => {});
+      }
       void logAdminEvent({
         data: {
           kind: "route_error",
           path: window.location.pathname,
-          message: error?.message ?? String(error),
+          message: msg,
           stack: error?.stack ?? null,
         },
       }).catch(() => {});
