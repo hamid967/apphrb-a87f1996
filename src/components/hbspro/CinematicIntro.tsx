@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { Link, ClientOnly } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ArrowLeft, Building2, Sparkles, ShieldCheck, Wand2 } from "lucide-react";
 
 const HeroCanvas = lazy(() => import("./HeroCanvas"));
