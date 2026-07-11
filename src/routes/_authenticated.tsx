@@ -44,6 +44,21 @@ import { CoachMarks } from "@/components/dashboard/CoachMarks";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
+  // Pre-render gate: reject unauthenticated visits BEFORE the shell renders,
+  // so protected pages never flash their skeleton for a signed-out user.
+  // Runs client-only because the layout is ssr:false.
+  beforeLoad: async ({ location }) => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) return;
+    const path = location.pathname;
+    if (path === "/auth" || path.startsWith("/auth/")) return;
+    const target = `${path}${location.searchStr ?? ""}`;
+    throw redirect({
+      to: "/auth",
+      search: path === "/" ? { reason: "signin_required" } : { redirect: target, reason: "signin_required" },
+      replace: true,
+    });
+  },
   head: () => ({
     meta: [
       { title: "لوحة التحكم — HBSpro" },
