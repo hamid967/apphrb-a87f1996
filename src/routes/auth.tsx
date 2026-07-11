@@ -296,7 +296,7 @@ function AuthPage() {
   return (
     <div
       className="theme-luxe relative min-h-[var(--app-height,100vh)] overflow-hidden"
-      style={{ background: HBS.bg, color: HBS.white }}
+      style={{ background: "radial-gradient(circle at 18% 12%, rgba(197,160,89,0.18), transparent 34%), linear-gradient(135deg, #031f17 0%, #043927 58%, #0a5238 100%)", color: HBS.white }}
     >
       <div className="absolute top-4 end-4 z-30">
         <LanguageSwitcher />
@@ -312,12 +312,12 @@ function AuthPage() {
         {/* RIGHT — luxury glass panel */}
         <div
           className="relative flex items-center justify-center px-4 py-10 sm:px-8"
-          style={{ background: `linear-gradient(180deg, ${HBS.bg}, #04101c)` }}
+          style={{ background: "linear-gradient(180deg, rgba(3,31,23,0.96), rgba(4,57,39,0.98))" }}
         >
           <div
             className="pointer-events-none absolute inset-0 opacity-70"
             style={{
-              background: `radial-gradient(500px 400px at 80% 20%, rgba(212,175,55,0.14), transparent 60%), radial-gradient(500px 400px at 10% 80%, rgba(30,136,229,0.14), transparent 60%)`,
+              background: `radial-gradient(500px 400px at 80% 20%, rgba(212,175,55,0.14), transparent 60%), radial-gradient(500px 400px at 10% 80%, rgba(13,122,95,0.22), transparent 60%)`,
             }}
           />
 
@@ -342,7 +342,7 @@ function AuthPage() {
             <motion.div
               animate={{ y: [0, -6, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="relative rounded-[30px] border p-8 backdrop-blur-2xl sm:p-10"
+              className="studio-card-lg relative rounded-[30px] border p-8 backdrop-blur-2xl sm:p-10"
               style={{
                 borderColor: HBS.border,
                 background:
