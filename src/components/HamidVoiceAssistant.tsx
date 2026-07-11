@@ -250,7 +250,12 @@ function stopSpeaking() {
 type SpeakCallbacks = {
   onStart?: (source: "server" | "browser", durationSec?: number) => void;
   onEnd?: () => void;
+  /** Fired on real playback progress (0..1). Server: timeupdate. Browser: boundary. */
+  onProgress?: (ratio: number) => void;
+  /** Fired for word/segment boundaries when the engine reports them. */
+  onBoundary?: (charIndex: number, wordLength?: number) => void;
 };
+
 
 function speakBrowserFallback(
   text: string,
