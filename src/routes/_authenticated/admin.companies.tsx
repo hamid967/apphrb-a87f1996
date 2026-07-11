@@ -11,8 +11,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { SERVICE_CATALOG, categoryLabel, serviceIsEnabled, type ServiceKey } from "@/lib/service-catalog";
+import { listOrgServiceSettings, updateOrgServiceSettings } from "@/lib/service-entitlements.functions";
 import { toast } from "sonner";
-import { Building2, RefreshCcw, Search, Copy } from "lucide-react";
+import { Building2, CheckCircle2, Copy, LockKeyhole, RefreshCcw, Search, Sparkles } from "lucide-react";
 
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute("/_authenticated/admin/companies")({
@@ -42,12 +45,28 @@ function AdminCompaniesPage() {
   const isAr = i18n.language?.startsWith("ar");
   const listFn = useServerFn(listCompaniesWithEstablishmentNo);
   const regenFn = useServerFn(regenerateEstablishmentNo);
+  const listServicesFn = useServerFn(listOrgServiceSettings);
+  const updateServicesFn = useServerFn(updateOrgServiceSettings);
   const qc = useQueryClient();
   const [q, setQ] = useState("");
 
   const companiesQ = useQuery({
     queryKey: ["admin-companies-est-no"],
     queryFn: () => listFn(),
+  });
+  const servicesQ = useQuery({
+    queryKey: ["admin-org-services"],
+    queryFn: () => listServicesFn(),
+    staleTime: 30_000,
+  });
+
+  const serviceM = useMutation({
+    mutationFn: (v: { orgId: string; enabled: ServiceKey[] }) => updateServicesFn({ data: v }),
+    onSuccess: () => {
+      toast.success(isAr ? "تم تحديث خدمات العميل" : "Customer services updated");
+      qc.invalidateQueries({ queryKey: ["admin-org-services"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
 
   const regenM = useMutation({
@@ -83,20 +102,36 @@ function AdminCompaniesPage() {
     );
   }
 
+  const servicesByOrg = useMemo(() => {
+    return new Map((servicesQ.data ?? []).map((row: any) => [row.id, row]));
+  }, [servicesQ.data]);
+
+  function toggleService(orgId: string, service: ServiceKey, checked: boolean) {
+    const current = servicesByOrg.get(orgId);
+    const enabled = new Set<ServiceKey>((current?.enabled ?? []) as ServiceKey[]);
+    if (checked) enabled.add(service);
+    else enabled.delete(service);
+    serviceM.mutate({ orgId, enabled: Array.from(enabled) });
+  }
+
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6" dir={isAr ? "rtl" : "ltr"}>
-      <div>
-        <h1 className="text-2xl font-semibold">
-          {isAr ? "أرقام المنشآت" : "Establishment Numbers"}
+      <div className="studio-panel-dark studio-noise p-6">
+        <div className="studio-eyebrow mb-3 border-white/15 bg-white/10 text-[#E8D9A6]">
+          <Sparkles className="size-3.5" />
+          {isAr ? "تحكم خدمات العملاء" : "Customer Service Control"}
+        </div>
+        <h1 className="text-3xl font-black text-white">
+          {isAr ? "الشركات والخدمات المفعّلة" : "Companies & Enabled Services"}
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="mt-2 max-w-2xl text-sm leading-7 text-[#c9ddd4]">
           {isAr
-            ? "عرض وإعادة توليد رقم المنشأة (HBS-XXXXXX) لكل شركة."
-            : "View and regenerate the establishment number (HBS-XXXXXX) for each company."}
+            ? "من هنا يحدد الأدمن الخدمات التي تظهر وتفتح لكل عميل داخل لوحة المستخدم."
+            : "Admins control which services appear and open for every customer dashboard."}
         </p>
       </div>
 
-      <Card>
+      <Card className="studio-card-lg border-[#C5A059]/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Building2 className="w-4 h-4" />
@@ -173,6 +208,76 @@ function AdminCompaniesPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="studio-card-lg border-[#C5A059]/20">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="size-4 text-[#C5A059]" />
+            {isAr ? "مصفوفة الخدمات حسب العميل" : "Service Matrix by Customer"}
+          </CardTitle>
+          <CardDescription>
+            {isAr
+              ? "فعّل أو أوقف الخدمات فورًا. ستظهر الخدمات المقفلة للمستخدم كخدمات تحتاج تفعيل."
+              : "Enable or disable services instantly. Locked services appear to users as requiring admin activation."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {servicesQ.isLoading ? (
+            <p className="text-sm text-muted-foreground">{isAr ? "جارٍ تحميل الخدمات..." : "Loading services..."}</p>
+          ) : (
+            <div className="space-y-4">
+              {rows.map((company: any) => {
+                const serviceRow = servicesByOrg.get(company.id);
+                const enabled = (serviceRow?.enabled ?? []) as ServiceKey[];
+                return (
+                  <div key={company.id} className="rounded-2xl border border-[#C5A059]/20 bg-white/70 p-4">
+                    <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <div className="font-black text-[#043927]">{company.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {company.establishment_no || "—"} · {serviceRow?.services_count ?? enabled.length}/{SERVICE_CATALOG.length}
+                        </div>
+                      </div>
+                      <Badge className="bg-[#043927] text-[#E8D9A6]">
+                        {isAr ? "تحكم مباشر" : "Live control"}
+                      </Badge>
+                    </div>
+                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                      {SERVICE_CATALOG.map((service) => {
+                        const Icon = service.icon;
+                        const checked = serviceIsEnabled(enabled, service.key);
+                        return (
+                          <label
+                            key={service.key}
+                            className="flex items-center gap-3 rounded-2xl border border-border bg-background/70 p-3"
+                          >
+                            <span className={checked ? "grid size-10 place-items-center rounded-xl bg-[#043927] text-[#C5A059]" : "grid size-10 place-items-center rounded-xl bg-muted text-muted-foreground"}>
+                              {checked ? <CheckCircle2 className="size-4" /> : <LockKeyhole className="size-4" />}
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-sm font-bold">
+                                {isAr ? service.titleAr : service.titleEn}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground">
+                                {categoryLabel(service.category, !!isAr)}
+                              </span>
+                            </span>
+                            <Switch
+                              checked={checked}
+                              disabled={serviceM.isPending}
+                              onCheckedChange={(value) => toggleService(company.id, service.key, value)}
+                            />
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </CardContent>
