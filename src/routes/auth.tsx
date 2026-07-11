@@ -129,7 +129,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { t, i18n } = useTranslation();
   const nav = useNavigate();
-  const { redirect: redirectTarget } = useSearch({ from: "/auth" });
+  const { redirect: redirectTarget, reason } = useSearch({ from: "/auth" });
   const { user, ready } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [establishmentNo, setEstablishmentNo] = useState("");
