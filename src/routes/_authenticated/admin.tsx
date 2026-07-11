@@ -12,6 +12,8 @@ import { AdminErrorBoundary } from "@/components/admin/AdminErrorBoundary";
 import { AdminAccessCheck } from "@/components/admin/AdminAccessCheck";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { logAdminEvent } from "@/lib/admin-telemetry.functions";
+import { logAdminAccessDenied } from "@/lib/admin-access-audit.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Layout for /admin/* — enforces super_admin role via server-verified check.
@@ -31,11 +33,25 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
   errorComponent: ({ error }) => {
     if (typeof window !== "undefined") {
+      const msg = error?.message ?? String(error);
+      // Unauthorized bubbling up from requireSupabaseAuth means either
+      // no session at all (signin_required) or a stale/expired session
+      // whose token was rejected (session_expired). Distinguish by
+      // consulting the local Supabase session.
+      const isUnauthorized = /unauthorized/i.test(msg);
+      if (isUnauthorized) {
+        void supabase.auth.getSession().then(({ data }) => {
+          const kind = data.session ? "session_expired" : "signin_required";
+          return logAdminAccessDenied({
+            data: { kind, path: window.location.pathname, subReason: null },
+          });
+        }).catch(() => {});
+      }
       void logAdminEvent({
         data: {
           kind: "route_error",
           path: window.location.pathname,
-          message: error?.message ?? String(error),
+          message: msg,
           stack: error?.stack ?? null,
         },
       }).catch(() => {});
@@ -49,12 +65,7 @@ function AdminLayout() {
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (!access.isAdmin) {
-    return (
-      <AdminAccessCheck
-        result={access}
-        onRetry={() => router.invalidate()}
-      />
-    );
+    return <AdminAccessDeniedScreen access={access} onRetry={() => router.invalidate()} />;
   }
   const enteredAtRef = useRef<number>(
     typeof performance !== "undefined" ? performance.now() : Date.now(),
@@ -129,4 +140,30 @@ function AdminLayout() {
       </div>
     </SidebarProvider>
   );
+}
+
+/**
+ * Wrapper around AdminAccessCheck that records an `access_denied` audit
+ * event exactly once per mount. The event carries only the internal
+ * reason enum + pathname — never the email or diagnostic detail shown
+ * on-screen — so the log stays free of sensitive data.
+ */
+function AdminAccessDeniedScreen({
+  access,
+  onRetry,
+}: {
+  access: Awaited<ReturnType<typeof checkAdminAccess>>;
+  onRetry: () => void;
+}) {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    void logAdminAccessDenied({
+      data: {
+        kind: "access_denied",
+        path: window.location.pathname,
+        subReason: access.reason,
+      },
+    }).catch(() => {});
+  }, [access.reason]);
+  return <AdminAccessCheck result={access} onRetry={onRetry} />;
 }
