@@ -370,7 +370,7 @@ function OnboardingWizardPage() {
   };
 
   return (
-    <div className="page-shell relative min-h-[var(--app-height,100vh)] overflow-hidden">
+    <div className="studio-shell studio-grid relative min-h-[var(--app-height,100vh)] overflow-hidden">
       <div className="pointer-events-none absolute inset-0 -z-0">
         <div className="absolute -top-48 -start-40 size-[560px] rounded-full bg-[#C5A059]/20 blur-3xl" />
         <div className="absolute -bottom-48 -end-40 size-[560px] rounded-full bg-[#0d7a5f]/20 blur-3xl" />
@@ -378,7 +378,7 @@ function OnboardingWizardPage() {
 
       <div className="relative z-10 mx-auto grid min-h-[var(--app-height,100vh)] w-full max-w-6xl items-center gap-6 px-4 py-8 lg:grid-cols-[0.85fr_1.15fr] lg:px-6">
         <aside className="hidden lg:block">
-          <div className="template-hero p-8">
+          <div className="studio-panel-dark studio-noise p-8">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#C5A059]/35 bg-[#C5A059]/10 px-4 py-2 text-sm font-bold text-[#E8D9A6]">
               <Sparkles className="size-4" />
               تفعيل HBSpro
@@ -409,7 +409,7 @@ function OnboardingWizardPage() {
           </div>
         </aside>
 
-        <div className="w-full rounded-[2rem] border border-[#C5A059]/20 bg-card/85 p-5 shadow-2xl shadow-[#043927]/10 backdrop-blur-xl sm:p-7">
+        <div className="studio-card-lg w-full p-5 backdrop-blur-xl sm:p-7">
           <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="template-pill mb-3">
@@ -566,7 +566,7 @@ function OnboardingWizardPage() {
                 </div>
                 <Button
                   type="submit"
-                  className="h-11 w-full rounded-xl template-cta"
+                  className="h-11 w-full studio-button"
                   disabled={busy}
                 >
                   {busy && <Loader2 className="me-2 size-4 animate-spin" />} متابعة
@@ -627,7 +627,7 @@ function OnboardingWizardPage() {
                   </Button>
                   <Button
                     type="submit"
-                    className="h-11 flex-1 rounded-xl template-cta"
+                    className="h-11 flex-1 studio-button"
                     disabled={busy}
                   >
                     {busy && <Loader2 className="me-2 size-4 animate-spin" />} إنشاء ومتابعة
@@ -714,7 +714,7 @@ function OnboardingWizardPage() {
                     </Button>
                     <Button
                       type="submit"
-                      className="h-11 flex-1 rounded-xl template-cta"
+                      className="h-11 flex-1 studio-button"
                       disabled={busy}
                     >
                       {busy && <Loader2 className="me-2 size-4 animate-spin" />} حفظ ومتابعة
@@ -809,7 +809,7 @@ function OnboardingWizardPage() {
                     </Button>
                     <Button
                       type="submit"
-                      className="h-11 flex-1 rounded-xl template-cta"
+                      className="h-11 flex-1 studio-button"
                       disabled={busy}
                     >
                       {busy && <Loader2 className="me-2 size-4 animate-spin" />} إنشاء وبدء العمل
