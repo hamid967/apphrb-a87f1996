@@ -51,11 +51,10 @@ export const getMyServiceEntitlements = createServerFn({ method: "GET" })
     const orgId = membership?.org_id ?? null;
     if (!orgId) {
       return {
-        org_id: null,
-        org_name: null,
-        role: null,
-        enabled: DEFAULT_SERVICE_KEYS,
-        catalog: SERVICE_CATALOG,
+        org_id: null as string | null,
+        org_name: null as string | null,
+        role: null as string | null,
+        enabled: DEFAULT_SERVICE_KEYS as ServiceKey[],
       };
     }
 
@@ -67,11 +66,10 @@ export const getMyServiceEntitlements = createServerFn({ method: "GET" })
 
     const payload = parsePayload(data?.value);
     return {
-      org_id: orgId,
-      org_name: membership.organizations?.name ?? null,
-      role: membership.role ?? null,
-      enabled: payload.enabled,
-      catalog: SERVICE_CATALOG,
+      org_id: orgId as string | null,
+      org_name: (membership.organizations?.name ?? null) as string | null,
+      role: (membership.role ?? null) as string | null,
+      enabled: payload.enabled as ServiceKey[],
     };
   });
 
