@@ -85,6 +85,19 @@ const PROP_TYPES: {
   { v: "land", label: "أرض" },
 ];
 
+const TRUST_ITEMS = [
+  "تجربة مجانية مفعّلة بعد إنشاء الشركة",
+  "إعداد سريع بدون بيانات حساسة",
+  "يمكن تعديل كل شيء لاحقًا من لوحة التحكم",
+];
+
+const STEP_HINTS: Record<StepKey, string> = {
+  profile: "عرّفنا عليك حتى يضبط حامد التجربة واللغة والتنبيهات.",
+  company: "أنشئ مساحة العمل التي ستضم العقارات والفريق والتقارير.",
+  branch: "أضف الفرع والأقسام لتجهيز الصلاحيات وسير العمل.",
+  property: "ابدأ بأول عقار أو تخطّ الخطوة وأكمل من لوحة التحكم.",
+};
+
 function OnboardingWizardPage() {
   const nav = useNavigate();
   const search = Route.useSearch();
@@ -357,64 +370,105 @@ function OnboardingWizardPage() {
   };
 
   return (
-    <div className="relative min-h-[var(--app-height,100vh)] overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="page-shell relative min-h-[var(--app-height,100vh)] overflow-hidden">
       <div className="pointer-events-none absolute inset-0 -z-0">
-        <div className="absolute -top-40 -start-40 size-[520px] rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute -bottom-40 -end-40 size-[520px] rounded-full bg-teal-400/20 blur-3xl" />
+        <div className="absolute -top-48 -start-40 size-[560px] rounded-full bg-[#C5A059]/20 blur-3xl" />
+        <div className="absolute -bottom-48 -end-40 size-[560px] rounded-full bg-[#0d7a5f]/20 blur-3xl" />
       </div>
 
-      <div className="relative z-10 mx-auto grid min-h-[var(--app-height,100vh)] w-full max-w-2xl place-items-center px-4 py-10">
-        <div className="w-full rounded-3xl border border-border/60 bg-card/70 p-6 shadow-2xl shadow-primary/10 backdrop-blur-xl sm:p-8">
-          <div className="mb-3 flex items-center justify-end">
-            <Button asChild variant="ghost" size="sm" className="h-7 gap-1 text-xs">
+      <div className="relative z-10 mx-auto grid min-h-[var(--app-height,100vh)] w-full max-w-6xl items-center gap-6 px-4 py-8 lg:grid-cols-[0.85fr_1.15fr] lg:px-6">
+        <aside className="hidden lg:block">
+          <div className="template-hero p-8">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#C5A059]/35 bg-[#C5A059]/10 px-4 py-2 text-sm font-bold text-[#E8D9A6]">
+              <Sparkles className="size-4" />
+              تفعيل HBSpro
+            </div>
+            <h1 className="text-4xl font-black leading-tight text-white">
+              ابدأ تشغيل محفظتك العقارية خلال دقائق
+            </h1>
+            <p className="mt-4 text-sm leading-7 text-[#c9ddd4]">
+              هذه الخطوات تجهز حسابك، شركتك، فرعك الأول، وأول عقار حتى تدخل لوحة التحكم وفيها كل شيء جاهز للعمل.
+            </p>
+            <div className="mt-8 space-y-3">
+              {TRUST_ITEMS.map((item) => (
+                <div key={item} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4 text-sm text-[#E8D9A6]">
+                  <Check className="mt-0.5 size-4 shrink-0 text-[#C5A059]" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[#E8D9A6]">
+                <Sparkles className="size-4 text-[#C5A059]" />
+                حامد يساعدك أثناء التسجيل
+              </div>
+              <p className="text-xs leading-6 text-[#c9ddd4]">
+                استخدم زر المساعد في كل خطوة لتعبئة البيانات المقترحة أو معرفة الخطوة التالية بدون مغادرة التسجيل.
+              </p>
+            </div>
+          </div>
+        </aside>
+
+        <div className="w-full rounded-[2rem] border border-[#C5A059]/20 bg-card/85 p-5 shadow-2xl shadow-[#043927]/10 backdrop-blur-xl sm:p-7">
+          <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div className="template-pill mb-3">
+                <Sparkles className="size-3.5" />
+                إعداد ذكي للحساب
+              </div>
+              <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">
+                تفعيل حساب HBSpro
+              </h1>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+                أكمل البيانات الأساسية مرة واحدة، وبعدها ينقلك النظام مباشرة إلى لوحة التحكم.
+              </p>
+            </div>
+            <Button asChild variant="ghost" size="sm" className="h-8 gap-1 text-xs">
               <Link to="/onboarding/summary">
                 <ListChecks className="size-3.5" />
                 عرض الملخّص
               </Link>
             </Button>
           </div>
-          {/* Stepper */}
-          <ol
-            className="mb-6 flex items-center justify-between gap-2"
-            aria-label={isAr ? "خطوات التفعيل" : "Activation steps"}
-          >
+
+          <div className="mb-6 grid gap-2 sm:grid-cols-4">
             {STEPS.map((s, i) => {
-              const done = i < step;
-              const active = i === step;
               const Icon = s.icon;
+              const active = i === step;
+              const done = i < step;
               return (
-                <li key={s.key} className="flex flex-1 items-center gap-2">
-                  <div
-                    className={[
-                      "grid size-9 shrink-0 place-items-center rounded-full border transition",
-                      done
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : active
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-muted text-muted-foreground",
-                    ].join(" ")}
-                    aria-current={active ? "step" : undefined}
-                  >
-                    {done ? <Check className="size-4" /> : <Icon className="size-4" />}
+                <button
+                  key={s.key}
+                  type="button"
+                  onClick={() => {
+                    if (i <= step) setStep(i as 0 | 1 | 2 | 3);
+                  }}
+                  className={[
+                    "rounded-2xl border p-3 text-start transition",
+                    active
+                      ? "border-primary bg-primary/10 text-foreground shadow-sm"
+                      : done
+                        ? "border-[#C5A059]/35 bg-[#C5A059]/10 text-foreground"
+                        : "border-border bg-muted/30 text-muted-foreground",
+                  ].join(" ")}
+                  aria-current={active ? "step" : undefined}
+                >
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <span className="grid size-8 place-items-center rounded-xl bg-background/70">
+                      {done ? <Check className="size-4 text-primary" /> : <Icon className="size-4" />}
+                    </span>
+                    <span className="text-[11px] font-bold tabular-nums">{i + 1}/4</span>
                   </div>
-                  <span
-                    className={[
-                      "text-xs sm:text-sm font-medium truncate",
-                      active ? "text-foreground" : "text-muted-foreground",
-                    ].join(" ")}
-                  >
-                    {isAr ? s.label_ar : s.label_en}
-                  </span>
-                  {i < STEPS.length - 1 && (
-                    <div
-                      className={["mx-1 h-px flex-1", done ? "bg-primary" : "bg-border"].join(" ")}
-                    />
-                  )}
-                </li>
+                  <div className="text-sm font-bold">{isAr ? s.label_ar : s.label_en}</div>
+                  <p className="mt-1 line-clamp-2 text-[11px] leading-5 opacity-75">
+                    {STEP_HINTS[s.key]}
+                  </p>
+                </button>
               );
             })}
-          </ol>
+          </div>
 
+          {/* Stepper */}
           {/* Dynamic progress bar */}
           {(() => {
             const pct = Math.round(((step + 1) / STEPS.length) * 100);
@@ -453,9 +507,9 @@ function OnboardingWizardPage() {
             <>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h1 className="text-2xl font-semibold tracking-tight">أكمل بياناتك</h1>
+                  <h2 className="text-2xl font-black tracking-tight">أكمل بياناتك</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    لن تستغرق دقيقة — لتخصيص تجربتك.
+                    ابدأ بمعلوماتك الأساسية حتى يخصص النظام التجربة والتنبيهات لك.
                   </p>
                 </div>
                 <OnboardingAiHelper
@@ -512,7 +566,7 @@ function OnboardingWizardPage() {
                 </div>
                 <Button
                   type="submit"
-                  className="h-11 w-full rounded-xl bg-gradient-to-r from-primary to-teal-500 text-primary-foreground"
+                  className="h-11 w-full rounded-xl template-cta"
                   disabled={busy}
                 >
                   {busy && <Loader2 className="me-2 size-4 animate-spin" />} متابعة
@@ -523,9 +577,9 @@ function OnboardingWizardPage() {
             <>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h1 className="text-2xl font-semibold tracking-tight">بيانات الشركة</h1>
+                  <h2 className="text-2xl font-black tracking-tight">بيانات الشركة</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    سنُنشئ المنظمة تلقائيًا — تجربة 14 يومًا مجانًا.
+                    أنشئ مساحة العمل التي ستضم العقارات والفريق والتقارير.
                   </p>
                 </div>
                 <OnboardingAiHelper
@@ -573,7 +627,7 @@ function OnboardingWizardPage() {
                   </Button>
                   <Button
                     type="submit"
-                    className="h-11 flex-1 rounded-xl bg-gradient-to-r from-primary to-teal-500 text-primary-foreground"
+                    className="h-11 flex-1 rounded-xl template-cta"
                     disabled={busy}
                   >
                     {busy && <Loader2 className="me-2 size-4 animate-spin" />} إنشاء ومتابعة
@@ -585,9 +639,9 @@ function OnboardingWizardPage() {
             <>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h1 className="text-2xl font-semibold tracking-tight">
-                    الفرع والأقسام (اختياري)
-                  </h1>
+                  <h2 className="text-2xl font-black tracking-tight">
+                    الفرع والأقسام
+                  </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     أضف فرعك الرئيسي وأقسامه الأساسية — يمكنك إضافة المزيد لاحقًا من الإعدادات.
                   </p>
@@ -660,7 +714,7 @@ function OnboardingWizardPage() {
                     </Button>
                     <Button
                       type="submit"
-                      className="h-11 flex-1 rounded-xl bg-gradient-to-r from-primary to-teal-500 text-primary-foreground"
+                      className="h-11 flex-1 rounded-xl template-cta"
                       disabled={busy}
                     >
                       {busy && <Loader2 className="me-2 size-4 animate-spin" />} حفظ ومتابعة
@@ -673,9 +727,9 @@ function OnboardingWizardPage() {
             <>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h1 className="text-2xl font-semibold tracking-tight">
-                    أضف أول عقار (اختياري)
-                  </h1>
+                  <h2 className="text-2xl font-black tracking-tight">
+                    أضف أول عقار
+                  </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     ابدأ فورًا بأحد عقاراتك، أو تخطَّ هذه الخطوة وأضفه لاحقًا.
                   </p>
@@ -755,7 +809,7 @@ function OnboardingWizardPage() {
                     </Button>
                     <Button
                       type="submit"
-                      className="h-11 flex-1 rounded-xl bg-gradient-to-r from-primary to-teal-500 text-primary-foreground"
+                      className="h-11 flex-1 rounded-xl template-cta"
                       disabled={busy}
                     >
                       {busy && <Loader2 className="me-2 size-4 animate-spin" />} إنشاء وبدء العمل
