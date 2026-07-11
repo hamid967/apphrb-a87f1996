@@ -2078,3 +2078,213 @@ html.theme-lux :where(:not(.theme-luxe *)) textarea:focus {
     animation-timing-function: linear;
   }
 }
+
+
+/* ===================================================================
+   HBSpro Product Template System — Ramotion-inspired direction
+   Clean product storytelling, generous rhythm, tactile cards, and
+   consistent dashboard/onboarding surfaces across every route.
+   =================================================================== */
+:root {
+  --studio-bg: #fbfaf5;
+  --studio-ink: #052f24;
+  --studio-emerald: #043927;
+  --studio-emerald-2: #0d7a5f;
+  --studio-gold: #c5a059;
+  --studio-cream: #f5f0e0;
+  --studio-line: color-mix(in oklab, #043927 12%, transparent);
+  --studio-soft-line: color-mix(in oklab, #c5a059 24%, transparent);
+  --studio-shadow: 0 24px 80px -46px color-mix(in oklab, #043927 55%, transparent);
+  --studio-shadow-sm: 0 14px 44px -34px color-mix(in oklab, #043927 45%, transparent);
+}
+
+@layer base {
+  body {
+    background:
+      radial-gradient(58rem 32rem at 92% -12%, color-mix(in oklab, #c5a059 15%, transparent), transparent 58%),
+      radial-gradient(52rem 30rem at -8% 8%, color-mix(in oklab, #0d7a5f 10%, transparent), transparent 56%),
+      var(--color-background);
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  main :where(input, textarea, select, button, [role="button"]) {
+    transition:
+      border-color .22s ease,
+      box-shadow .22s ease,
+      background-color .22s ease,
+      transform .22s ease;
+  }
+
+  main :where(input, textarea, [data-slot="input"]) {
+    border-radius: 1rem;
+    border-color: color-mix(in oklab, var(--studio-emerald) 14%, var(--color-border));
+    background: color-mix(in oklab, var(--color-card) 92%, transparent);
+  }
+
+  main :where(input, textarea, [data-slot="input"]):focus-visible {
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--studio-gold) 20%, transparent);
+  }
+}
+
+@utility studio-shell {
+  min-height: var(--app-height);
+  background:
+    radial-gradient(62rem 34rem at 86% -14%, color-mix(in oklab, var(--studio-gold) 20%, transparent), transparent 58%),
+    radial-gradient(52rem 32rem at 0% 18%, color-mix(in oklab, var(--studio-emerald-2) 14%, transparent), transparent 60%),
+    linear-gradient(180deg, #fffdf7 0%, var(--studio-bg) 52%, #f2efe4 100%);
+  color: var(--studio-ink);
+}
+
+@utility studio-section {
+  width: min(100% - 2rem, 78rem);
+  margin-inline: auto;
+  padding-block: clamp(3rem, 7vw, 7rem);
+}
+
+@utility studio-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  border: 1px solid var(--studio-soft-line);
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--studio-gold) 12%, white);
+  color: var(--studio-emerald);
+  padding: .5rem .875rem;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+@utility studio-title {
+  color: var(--studio-emerald);
+  font-weight: 900;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+}
+
+@utility studio-copy {
+  color: color-mix(in oklab, var(--studio-emerald) 66%, white);
+  line-height: 1.85;
+}
+
+@utility studio-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid var(--studio-line);
+  background:
+    linear-gradient(180deg, color-mix(in oklab, white 94%, transparent), color-mix(in oklab, #fbfaf5 92%, transparent));
+  box-shadow: var(--studio-shadow-sm);
+}
+
+@utility studio-card-lg {
+  border-radius: 2rem;
+  border: 1px solid var(--studio-soft-line);
+  background:
+    linear-gradient(145deg, color-mix(in oklab, white 94%, transparent), color-mix(in oklab, #f5f0e0 74%, transparent));
+  box-shadow: var(--studio-shadow);
+}
+
+@utility studio-panel-dark {
+  border-radius: 2rem;
+  border: 1px solid color-mix(in oklab, var(--studio-gold) 32%, transparent);
+  background:
+    radial-gradient(circle at 20% 12%, color-mix(in oklab, var(--studio-gold) 20%, transparent), transparent 34%),
+    linear-gradient(135deg, #031f17 0%, #043927 48%, #0a5238 100%);
+  color: var(--studio-cream);
+  box-shadow: 0 34px 120px -58px color-mix(in oklab, #043927 88%, transparent);
+}
+
+@utility studio-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, var(--studio-gold), #efd58c);
+  color: var(--studio-emerald);
+  font-weight: 900;
+  box-shadow: 0 18px 44px -22px color-mix(in oklab, var(--studio-gold) 90%, transparent);
+}
+
+@utility studio-button-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in oklab, var(--studio-emerald) 14%, transparent);
+  background: color-mix(in oklab, white 70%, transparent);
+  color: var(--studio-emerald);
+  backdrop-filter: blur(16px);
+}
+
+@utility studio-hover {
+  transition: transform .24s ease, box-shadow .24s ease, border-color .24s ease;
+  &:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in oklab, var(--studio-gold) 48%, var(--studio-line));
+    box-shadow: var(--studio-shadow);
+  }
+}
+
+@utility studio-grid {
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--studio-emerald) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--studio-emerald) 6%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+@utility studio-noise {
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .05;
+    background-image:
+      radial-gradient(circle at 20% 20%, #043927 0 1px, transparent 1px),
+      radial-gradient(circle at 80% 30%, #c5a059 0 1px, transparent 1px);
+    background-size: 18px 18px, 24px 24px;
+  }
+}
+
+/* Upgrade common shadcn cards and app surfaces without touching every route. */
+main :where(.rounded-2xl, .rounded-3xl):where(.border) {
+  border-color: color-mix(in oklab, var(--studio-gold) 18%, var(--color-border));
+}
+
+main :where(.bg-card\/70, .bg-card\/80, .bg-card\/85, .bg-card\/90, .bg-card) {
+  box-shadow: var(--studio-shadow-sm);
+}
+
+.theme-luxe {
+  --studio-bg: #043927;
+  --studio-ink: #f5f0e0;
+}
+
+.theme-luxe .studio-title {
+  color: #ffffff;
+}
+
+.theme-luxe .studio-copy {
+  color: #c9ddd4;
+}
+
+@media (max-width: 640px) {
+  .studio-section {
+    padding-block: 2.5rem;
+  }
+
+  .studio-card-lg,
+  .studio-panel-dark {
+    border-radius: 1.4rem;
+  }
+}
