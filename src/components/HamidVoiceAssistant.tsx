@@ -575,17 +575,42 @@ export function HamidVoiceAssistant() {
   const [revealText, setRevealText] = useState<string>("");
   const [revealDone, setRevealDone] = useState<boolean>(true);
   const revealRafRef = useRef<number | null>(null);
+  // Snapshot of the current utterance being revealed and its precomputed word
+  // boundaries — end-of-word char indexes so we can snap engine progress to
+  // whole-word reveals instead of mid-word chops.
+  const revealCtxRef = useRef<{ full: string; wordEnds: number[]; shown: number } | null>(null);
   const stopReveal = () => {
     if (revealRafRef.current != null) {
       cancelAnimationFrame(revealRafRef.current);
       revealRafRef.current = null;
     }
   };
+  const computeWordEnds = (s: string): number[] => {
+    const ends: number[] = [];
+    const re = /\S+/g;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(s)) !== null) ends.push(m.index + m[0].length);
+    if (!ends.length || ends[ends.length - 1] !== s.length) ends.push(s.length);
+    return ends;
+  };
+  /** Reveal up to (and including) the word that covers `charIndex`. */
+  const revealUpTo = (charIndex: number) => {
+    const ctx = revealCtxRef.current;
+    if (!ctx) return;
+    let target = ctx.wordEnds[0] ?? ctx.full.length;
+    for (const e of ctx.wordEnds) {
+      if (e <= charIndex) target = e;
+      else { target = e; break; }
+    }
+    if (target > ctx.shown) {
+      ctx.shown = target;
+      setRevealText(ctx.full.slice(0, target));
+    }
+  };
+  /** Fallback timer-based reveal when no engine timings are available. */
   const startReveal = (full: string, durationSec?: number) => {
     stopReveal();
     if (!full) return;
-    // If we know the audio length, match it. Otherwise estimate ~14 chars/s
-    // at rate 1.0 for Arabic and scale by the user's playback rate.
     const rate = settingsRef.current.rate || 1;
     const estimated = full.length / (14 * rate);
     const total = Math.max(0.4, (durationSec ?? estimated));
@@ -594,8 +619,7 @@ export function HamidVoiceAssistant() {
     const tick = () => {
       const elapsed = (performance.now() - t0) / 1000;
       const ratio = Math.min(1, elapsed / total);
-      const shown = Math.max(1, Math.floor(full.length * ratio));
-      setRevealText(full.slice(0, shown));
+      revealUpTo(Math.floor(full.length * ratio));
       if (ratio < 1) {
         revealRafRef.current = requestAnimationFrame(tick);
       } else {
@@ -610,6 +634,7 @@ export function HamidVoiceAssistant() {
     stopReveal();
     setRevealText(full);
     setRevealDone(true);
+    if (revealCtxRef.current) revealCtxRef.current.shown = full.length;
   };
   useEffect(() => () => stopReveal(), []);
 
@@ -626,9 +651,17 @@ export function HamidVoiceAssistant() {
     lastSpeakRef.current = { text: t, at: now };
     const syncFull = extras?.syncText;
     let watchdog: number | null = null;
+    // Tracks whether the engine gave us real timings (boundary or timeupdate).
+    // If yes, we cancel the RAF fallback so the two don't fight.
+    let engineDriven = false;
     if (syncFull) {
       setRevealText("");
       setRevealDone(false);
+      revealCtxRef.current = {
+        full: syncFull,
+        wordEnds: computeWordEnds(syncFull),
+        shown: 0,
+      };
       // Safety: if the audio pipeline never signals start within 3.5s,
       // reveal the full text so the user is never left with an empty bubble.
       watchdog = window.setTimeout(() => finishReveal(syncFull), 3500);
@@ -646,6 +679,23 @@ export function HamidVoiceAssistant() {
         setSpeaking(true);
         if (syncFull) startReveal(syncFull, dur);
       },
+      onBoundary: (charIndex, wordLength) => {
+        if (!syncFull || !revealCtxRef.current) return;
+        engineDriven = true;
+        stopReveal(); // real timings take over from the RAF estimate
+        revealUpTo(charIndex + (wordLength ?? 0));
+      },
+      onProgress: (ratio) => {
+        if (!syncFull || !revealCtxRef.current) return;
+        // Only used when no boundary events fire (server audio). Snap to nearest word.
+        if (engineDriven) return;
+        stopReveal();
+        engineDriven = true;
+        // fall-through: seed a per-timeupdate reveal
+        const ctx = revealCtxRef.current;
+        const target = Math.floor(ctx.full.length * Math.min(1, Math.max(0, ratio)));
+        revealUpTo(target);
+      },
       onEnd: () => {
         clearWatchdog();
         setSpeaking(false);
@@ -655,6 +705,7 @@ export function HamidVoiceAssistant() {
     });
     return true;
   };
+
 
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
