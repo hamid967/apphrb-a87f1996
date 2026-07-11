@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -44,6 +44,21 @@ import { CoachMarks } from "@/components/dashboard/CoachMarks";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
+  // Pre-render gate: reject unauthenticated visits BEFORE the shell renders,
+  // so protected pages never flash their skeleton for a signed-out user.
+  // Runs client-only because the layout is ssr:false.
+  beforeLoad: async ({ location }) => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session) return;
+    const path = location.pathname;
+    if (path === "/auth" || path.startsWith("/auth/")) return;
+    const target = `${path}${location.searchStr ?? ""}`;
+    throw redirect({
+      to: "/auth",
+      search: path === "/" ? { reason: "signin_required" } : { redirect: target, reason: "signin_required" },
+      replace: true,
+    });
+  },
   head: () => ({
     meta: [
       { title: "لوحة التحكم — HBSpro" },
@@ -233,14 +248,15 @@ function AuthenticatedShell() {
 
   useEffect(() => {
     if (ready && !user) {
-      // Preserve where the visitor was heading so /auth can bounce them
-      // back after sign-in. Skip when we're already on /auth to avoid
-      // ?redirect=/auth loops.
+      // Session ended mid-visit (sign-out, expired token, revoked).
+      // Preserve where the visitor was so /auth can bounce them back after sign-in.
       const target = `${pathname}${search ?? ""}`;
       const isOnAuth = pathname === "/auth" || pathname.startsWith("/auth?");
       nav({
         to: "/auth",
-        search: isOnAuth || pathname === "/" ? {} : { redirect: target },
+        search: isOnAuth || pathname === "/"
+          ? { reason: "session_expired" }
+          : { redirect: target, reason: "session_expired" },
         replace: true,
       });
     }

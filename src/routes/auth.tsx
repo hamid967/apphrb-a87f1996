@@ -98,12 +98,22 @@ export async function routeAfterLogin(nav: ReturnType<typeof useNavigate>, redir
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
-  validateSearch: (raw): { redirect?: string; mode?: "signin" | "signup" } => {
+  validateSearch: (raw): {
+    redirect?: string;
+    mode?: "signin" | "signup";
+    reason?: "signin_required" | "session_expired" | "access_denied";
+  } => {
     const r = raw?.redirect;
     const m = raw?.mode;
-    const out: { redirect?: string; mode?: "signin" | "signup" } = {};
+    const rn = raw?.reason;
+    const out: {
+      redirect?: string;
+      mode?: "signin" | "signup";
+      reason?: "signin_required" | "session_expired" | "access_denied";
+    } = {};
     if (typeof r === "string" && r.length > 0 && r.length < 2000) out.redirect = r;
     if (m === "signin" || m === "signup") out.mode = m;
+    if (rn === "signin_required" || rn === "session_expired" || rn === "access_denied") out.reason = rn;
     return out;
   },
   head: () => ({
@@ -119,7 +129,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const { t, i18n } = useTranslation();
   const nav = useNavigate();
-  const { redirect: redirectTarget } = useSearch({ from: "/auth" });
+  const { redirect: redirectTarget, reason } = useSearch({ from: "/auth" });
   const { user, ready } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [establishmentNo, setEstablishmentNo] = useState("");
@@ -411,7 +421,46 @@ function AuthPage() {
                 ))}
               </div>
 
+              {reason && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="mt-4 rounded-lg border p-3 text-sm"
+                  style={{
+                    background:
+                      reason === "session_expired"
+                        ? "rgba(234,179,8,0.10)"
+                        : reason === "access_denied"
+                          ? "rgba(239,68,68,0.10)"
+                          : "rgba(59,130,246,0.10)",
+                    borderColor:
+                      reason === "session_expired"
+                        ? "rgba(234,179,8,0.35)"
+                        : reason === "access_denied"
+                          ? "rgba(239,68,68,0.35)"
+                          : "rgba(59,130,246,0.35)",
+                    color: HBS.gray,
+                  }}
+                >
+                  <div className="font-medium">
+                    {reason === "session_expired"
+                      ? "انتهت جلستك"
+                      : reason === "access_denied"
+                        ? "لا تملك صلاحية الوصول"
+                        : "الدخول مطلوب"}
+                  </div>
+                  <div className="mt-0.5 text-xs opacity-90">
+                    {reason === "session_expired"
+                      ? "انتهت صلاحية جلسة الدخول. سجّل الدخول مجدداً للمتابعة إلى الصفحة المطلوبة."
+                      : reason === "access_denied"
+                        ? "الحساب الحالي لا يملك صلاحية فتح هذه الصفحة. سجّل الدخول بحساب لديه الصلاحية المناسبة."
+                        : "هذه الصفحة تتطلب تسجيل الدخول. أكمل تسجيل الدخول وسنعيدك تلقائياً إلى الصفحة التي طلبتها."}
+                  </div>
+                </div>
+              )}
+
               <form onSubmit={onSubmit} className="mt-6 space-y-4">
+
                 {mode === "signin" && (
                   <div className="space-y-1.5">
                     <Label
