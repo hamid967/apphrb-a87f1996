@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import {
   BarChart3,
   ArrowLeft,
@@ -15,7 +15,7 @@ import {
 /**
  * Emerald / Gold luxury split hero — chosen design direction for the home page.
  * RTL, deep emerald #043927 brand panel + cream #fdfcfb feature grid.
- * Typography: Tajawal (Arabic body), DM Serif Display (accent italic), Fira Sans (Latin chip).
+ * Typography: Almarai/IBM Plex Arabic for Arabic body, Space Grotesk/DM Sans for product accents.
  */
 export function EmeraldSplitHero() {
   const features = [
@@ -51,7 +51,7 @@ export function EmeraldSplitHero() {
     <section
       dir="rtl"
       className="studio-shell w-full flex items-center justify-center p-4 sm:p-6 lg:p-12"
-      style={{ fontFamily: "'Tajawal', 'IBM Plex Sans Arabic', sans-serif" }}
+      style={{ fontFamily: "'Almarai', 'IBM Plex Sans Arabic', sans-serif" }}
     >
       <div className="studio-card-lg max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
         <div className="lg:col-span-5 bg-[#043927] p-8 sm:p-10 lg:p-16 flex flex-col justify-center relative overflow-hidden">
@@ -71,14 +71,14 @@ export function EmeraldSplitHero() {
           <div className="relative z-10">
             <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#C5A059]/30 bg-[#C5A059]/10 px-4 py-1.5">
               <Sparkles className="h-4 w-4 text-[#C5A059]" />
-              <span className="text-[#C5A059] text-sm font-medium tracking-wide uppercase" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
+              <span className="text-[#C5A059] text-sm font-medium tracking-wide uppercase" style={{ fontFamily: "'DM Sans', 'Inter', sans-serif" }}>
                 HBSpro 2030
               </span>
             </div>
 
             <h1 className="text-4xl lg:text-6xl font-bold text-white leading-tight mb-6">
               مركز قيادة ذكي
-              <span className="italic text-[#C5A059] block" style={{ fontFamily: "'DM Serif Display', serif" }}>
+              <span className="italic text-[#C5A059] block" style={{ fontFamily: "'Space Grotesk', 'Almarai', sans-serif" }}>
                 لمحفظتك العقارية
               </span>
             </h1>
@@ -90,7 +90,7 @@ export function EmeraldSplitHero() {
             <div className="mb-10 grid grid-cols-3 gap-3 max-w-xl">
               {proof.map((p) => (
                 <div key={p.label} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                  <div className="text-2xl font-bold text-[#C5A059]" style={{ fontFamily: "'DM Serif Display', serif" }}>
+                  <div className="text-2xl font-bold text-[#C5A059]" style={{ fontFamily: "'Space Grotesk', 'Almarai', sans-serif" }}>
                     {p.value}
                   </div>
                   <div className="mt-1 text-[11px] text-white/65">{p.label}</div>
