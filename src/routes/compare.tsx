@@ -515,9 +515,9 @@ function ComparePage() {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="studio-shell min-h-screen text-foreground">
       {/* Top bar */}
-      <header className="border-b border-border/60 bg-background/80 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-[#C5A059]/20 bg-white/70 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2">
             <BrandMark />
@@ -533,7 +533,7 @@ function ComparePage() {
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border/60">
+      <section className="relative overflow-hidden border-b border-[#C5A059]/20 studio-grid">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
