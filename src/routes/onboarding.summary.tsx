@@ -68,16 +68,16 @@ function OnboardingSummaryPage() {
   }, [ready, user, nav, load]);
 
   return (
-    <div className="relative min-h-[var(--app-height,100vh)] overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="studio-shell relative min-h-[var(--app-height,100vh)] overflow-hidden">
       <div className="pointer-events-none absolute inset-0 -z-0">
-        <div className="absolute -top-40 -start-40 size-[520px] rounded-full bg-primary/20 blur-3xl" />
-        <div className="absolute -bottom-40 -end-40 size-[520px] rounded-full bg-teal-400/20 blur-3xl" />
+        <div className="absolute -top-40 -start-40 size-[520px] rounded-full bg-[#C5A059]/20 blur-3xl" />
+        <div className="absolute -bottom-40 -end-40 size-[520px] rounded-full bg-[#0d7a5f]/20 blur-3xl" />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-3xl px-4 py-10">
+      <div className="relative z-10 mx-auto w-full max-w-4xl px-4 py-10">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">ملخّص بيانات التفعيل</h1>
+            <h1 className="studio-title text-3xl tracking-tight">ملخّص بيانات التفعيل</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               هذه البيانات التي تمّ حفظها من المعالج — يمكنك تعديل أي قسم لاحقًا.
             </p>
@@ -91,7 +91,7 @@ function OnboardingSummaryPage() {
         </div>
 
         {loading ? (
-          <div className="flex items-center gap-2 rounded-2xl border border-border/60 bg-card/70 p-6 text-sm text-muted-foreground shadow-lg backdrop-blur-xl">
+          <div className="flex items-center gap-2 studio-card-lg p-6 text-sm text-muted-foreground">
             <Loader2 className="size-4 animate-spin" /> جارٍ تحميل البيانات…
           </div>
         ) : err ? (
@@ -153,7 +153,7 @@ function OnboardingSummaryPage() {
                   {data.branches.map((b) => (
                     <div
                       key={b.id}
-                      className="rounded-xl border border-border/60 bg-background/40 p-3"
+                      className="rounded-2xl border border-[#043927]/10 bg-white/70 p-3"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="font-medium">{b.name}</div>
@@ -200,7 +200,7 @@ function OnboardingSummaryPage() {
                       key={p.id}
                       to="/dashboard/properties/$id"
                       params={{ id: p.id }}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/40 p-3 transition hover:border-primary/40 hover:bg-primary/5"
+                      className="flex items-center justify-between gap-3 rounded-2xl border border-[#043927]/10 bg-white/70 p-3 transition hover:border-primary/40 hover:bg-primary/5"
                     >
                       <div className="min-w-0">
                         <div className="truncate font-medium">
@@ -253,7 +253,7 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-border/60 bg-card/70 p-4 shadow-lg backdrop-blur-xl sm:p-5">
+    <section className="studio-card studio-hover p-4 sm:p-5">
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <div
