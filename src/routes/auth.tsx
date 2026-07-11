@@ -456,6 +456,37 @@ function AuthPage() {
                         ? "الحساب الحالي لا يملك صلاحية فتح هذه الصفحة. سجّل الدخول بحساب لديه الصلاحية المناسبة."
                         : "هذه الصفحة تتطلب تسجيل الدخول. أكمل تسجيل الدخول وسنعيدك تلقائياً إلى الصفحة التي طلبتها."}
                   </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={!ready}
+                      onClick={async () => {
+                        const { data } = await supabase.auth.getSession();
+                        if (data.session) {
+                          await routeAfterLogin(nav, redirectTarget);
+                        } else {
+                          toast(
+                            i18n.language?.startsWith("ar")
+                              ? "أكمل تسجيل الدخول أدناه ثم اضغط متابعة."
+                              : "Sign in below, then press Continue.",
+                          );
+                        }
+                      }}
+                      className="h-8 rounded-lg px-3 text-xs font-semibold"
+                      style={{
+                        background: `linear-gradient(140deg, ${HBS.gold}, ${HBS.blue})`,
+                        color: HBS.white,
+                      }}
+                    >
+                      {i18n.language?.startsWith("ar") ? "متابعة الآن" : "Continue now"}
+                    </Button>
+                    {redirectTarget && safeRedirect(redirectTarget) && (
+                      <span className="truncate text-[10px] opacity-70" style={{ color: HBS.gray }}>
+                        → {safeRedirect(redirectTarget)}
+                      </span>
+                    )}
+                  </div>
                 </div>
               )}
 
