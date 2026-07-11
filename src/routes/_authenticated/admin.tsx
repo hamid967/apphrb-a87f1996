@@ -12,6 +12,8 @@ import { AdminErrorBoundary } from "@/components/admin/AdminErrorBoundary";
 import { AdminAccessCheck } from "@/components/admin/AdminAccessCheck";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { logAdminEvent } from "@/lib/admin-telemetry.functions";
+import { logAdminAccessDenied } from "@/lib/admin-access-audit.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Layout for /admin/* — enforces super_admin role via server-verified check.
