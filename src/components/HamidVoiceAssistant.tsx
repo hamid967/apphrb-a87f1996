@@ -280,8 +280,20 @@ function speakBrowserFallback(
     pushLog("warn", "لا يوجد صوت عربي مثبت في النظام", "سيُستخدم الصوت الافتراضي. ثبّت حزمة صوت ar-SA من إعدادات نظامك.");
   }
   u.onstart = () => cb?.onStart?.("browser");
-  u.onend = () => cb?.onEnd?.();
+  u.onboundary = (e: SpeechSynthesisEvent) => {
+    // Fires per-word (and sometimes per-sentence) with charIndex into the utterance.
+    const total = u.text?.length || 1;
+    const idx = Math.max(0, Math.min(total, e.charIndex ?? 0));
+    const len = (e as SpeechSynthesisEvent & { charLength?: number }).charLength;
+    cb?.onBoundary?.(idx, len);
+    cb?.onProgress?.(Math.min(1, (idx + (len ?? 0)) / total));
+  };
+  u.onend = () => {
+    cb?.onProgress?.(1);
+    cb?.onEnd?.();
+  };
   u.onerror = (e: SpeechSynthesisErrorEvent) => {
+
     pushLog("error", `فشل نطق المتصفح: ${e.error}`, "قد يكون بسبب حظر التشغيل التلقائي. تفاعل مع الصفحة أولاً.");
     cb?.onEnd?.();
   };
