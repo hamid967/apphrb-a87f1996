@@ -1,9 +1,54 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+const TTS_RATE_LIMIT = {
+  windowMs: 60_000,
+  maxRequests: 12,
+};
+
+type RateBucket = { count: number; resetAt: number };
+const ttsBuckets = new Map<string, RateBucket>();
+
+function getClientKey(request: Request) {
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const ip = forwarded || request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip");
+  return ip || "anonymous";
+}
+
+function checkRateLimit(request: Request) {
+  const now = Date.now();
+  const key = getClientKey(request);
+  const current = ttsBuckets.get(key);
+  if (!current || current.resetAt <= now) {
+    ttsBuckets.set(key, { count: 1, resetAt: now + TTS_RATE_LIMIT.windowMs });
+    return { ok: true, retryAfter: 0 };
+  }
+  current.count += 1;
+  if (current.count > TTS_RATE_LIMIT.maxRequests) {
+    return { ok: false, retryAfter: Math.ceil((current.resetAt - now) / 1000) };
+  }
+  return { ok: true, retryAfter: 0 };
+}
+
+function pruneRateBuckets() {
+  const now = Date.now();
+  for (const [key, bucket] of ttsBuckets) {
+    if (bucket.resetAt <= now) ttsBuckets.delete(key);
+  }
+}
+
 export const Route = createFileRoute("/api/hamid-tts")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        pruneRateBuckets();
+        const rate = checkRateLimit(request);
+        if (!rate.ok) {
+          return new Response("Too many TTS requests", {
+            status: 429,
+            headers: { "Retry-After": String(rate.retryAfter) },
+          });
+        }
+
         const key = process.env.LOVABLE_API_KEY;
         if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
 
