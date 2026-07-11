@@ -42,12 +42,12 @@ function DashboardLayout() {
 
   return (
     <SidebarProvider>
-      <div data-testid="dashboard-shell" className="flex min-h-dvh w-full bg-background">
+      <div data-testid="dashboard-shell" className="studio-shell flex min-h-dvh w-full">
         <div className="hidden md:contents">
           <DashboardSidebar />
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="sticky top-0 z-20 flex h-12 items-center gap-2 border-b border-border/60 bg-background/70 px-3 backdrop-blur-xl">
+          <header className="sticky top-0 z-20 flex h-12 items-center gap-2 border-b border-[#C5A059]/20 bg-white/70 px-3 backdrop-blur-2xl">
             <SidebarTrigger className="hidden md:inline-flex" />
             <div className="mx-2 hidden h-4 w-px bg-border/60 md:block" />
             <DashboardBreadcrumbs />
