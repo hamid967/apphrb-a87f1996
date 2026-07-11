@@ -15,7 +15,7 @@ export function CinematicIntro() {
   return (
     <section
       dir="rtl"
-      className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-[#031f17] px-4 pb-12 pt-28 text-[#f5f0e0] sm:px-6 lg:px-10"
+      className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-[#031f17] px-4 pb-12 pt-28 text-[#f5f0e0] sm:px-6 lg:px-10 studio-noise"
       aria-label="HBSpro cinematic intro"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(197,160,89,0.18),transparent_34%),radial-gradient(circle_at_10%_90%,rgba(13,122,95,0.28),transparent_34%)]" />
@@ -89,7 +89,7 @@ export function CinematicIntro() {
           className="hidden lg:block"
           aria-hidden="true"
         >
-          <div className="ms-auto w-full max-w-md rounded-[2rem] border border-[#C5A059]/25 bg-[#fdfcfb]/95 p-5 text-[#043927] shadow-[0_40px_120px_-55px_rgba(0,0,0,0.7)] backdrop-blur-2xl">
+          <div className="studio-card-lg ms-auto w-full max-w-md p-5 text-[#043927] backdrop-blur-2xl">
             <div className="mb-5 flex items-center justify-between gap-3">
               <div>
                 <div className="text-xs font-bold text-[#C5A059]">مركز قيادة حي</div>
