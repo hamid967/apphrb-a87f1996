@@ -180,37 +180,47 @@ function UnitsIndex() {
         </Select>
       </div>
 
-      <div className="mt-6 surface-card overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t("units.colUnit")}</TableHead>
-              <TableHead>{t("units.colBuilding")}</TableHead>
-              <TableHead>{t("units.colType")}</TableHead>
-              <TableHead>{t("units.colStatus")}</TableHead>
-              <TableHead className="text-end">{t("units.colArea")}</TableHead>
-              <TableHead className="text-end">{t("units.colRent")}</TableHead>
-              <TableHead />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {unitsQ.isLoading ? (
-              <TableRow>
-                <TableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
-                  {t("units.loading")}
-                </TableCell>
-              </TableRow>
-            ) : rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="py-10 text-center text-sm text-muted-foreground">
-                  {t("units.empty")}
-                </TableCell>
-              </TableRow>
-            ) : (
-              rows.map((u) => {
+      <div className="mt-6">
+        <DataTable<(typeof rows)[number]>
+          data={rows}
+          columns={[
+            {
+              id: "code",
+              header: t("units.colUnit"),
+              width: 130,
+              accessor: (u) => u.code,
+              cell: (u) => <span className="font-medium">{u.code}</span>,
+            },
+            {
+              id: "building",
+              header: t("units.colBuilding"),
+              width: 220,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              accessor: (u) => ((u as any).buildings?.name ?? ""),
+              cell: (u) => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const b: any = (u as any).buildings;
                 const propTitle = isAr ? b?.properties?.title_ar : b?.properties?.title_en;
+                return (
+                  <div className="text-sm text-muted-foreground">
+                    <div>{b?.name ?? "—"}</div>
+                    <div className="text-xs">{propTitle ?? "—"}</div>
+                  </div>
+                );
+              },
+            },
+            {
+              id: "type",
+              header: t("units.colType"),
+              width: 130,
+              accessor: (u) => u.type ?? "",
+            },
+            {
+              id: "status",
+              header: t("units.colStatus"),
+              width: 130,
+              accessor: (u) => u.status ?? "",
+              cell: (u) => {
                 const statusKey = (
                   ["vacant", "occupied", "reserved", "maintenance"] as const
                 ).includes(u.status as never)
@@ -218,51 +228,72 @@ function UnitsIndex() {
                   : null;
                 const statusLabel = statusKey ? t(statusKey) : (u.status ?? "—");
                 return (
-                  <TableRow key={u.id}>
-                    <TableCell className="font-medium">{u.code}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      <div>{b?.name ?? "—"}</div>
-                      <div className="text-xs">{propTitle ?? "—"}</div>
-                    </TableCell>
-                    <TableCell className="text-sm">{u.type ?? "—"}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={statusClass(u.status)}>
-                        {statusLabel}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-end tabular-nums">{u.area ?? "—"}</TableCell>
-                    <TableCell className="text-end tabular-nums">
-                      {u.rent_amount != null
-                        ? `${Number(u.rent_amount).toLocaleString(isAr ? "ar" : "en")} ${u.currency_code ?? "SAR"}`
-                        : "—"}
-                    </TableCell>
-                    <TableCell className="text-end">
-                      {showArchived ? (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => restoreMut.mutate(u.id)}
-                          title={t("units.restore", { defaultValue: "استرجاع" })}
-                        >
-                          <ArchiveRestore className="size-4" />
-                        </Button>
-                      ) : (
-                        <Link
-                          to="/dashboard/units/$id"
-                          params={{ id: u.id }}
-                          className="text-sm text-primary hover:underline"
-                        >
-                          {t("units.view")}
-                        </Link>
-                      )}
-                    </TableCell>
-                  </TableRow>
+                  <Badge variant="outline" className={statusClass(u.status)}>
+                    {statusLabel}
+                  </Badge>
                 );
-              })
-            )}
-          </TableBody>
-        </Table>
+              },
+            },
+            {
+              id: "area",
+              header: t("units.colArea"),
+              align: "end",
+              width: 100,
+              accessor: (u) => Number(u.area ?? 0),
+              cell: (u) => <span className="tabular-nums">{u.area ?? "—"}</span>,
+            },
+            {
+              id: "rent",
+              header: t("units.colRent"),
+              align: "end",
+              width: 160,
+              accessor: (u) => Number(u.rent_amount ?? 0),
+              cell: (u) => (
+                <span className="tabular-nums">
+                  {u.rent_amount != null
+                    ? `${Number(u.rent_amount).toLocaleString(isAr ? "ar" : "en")} ${u.currency_code ?? "SAR"}`
+                    : "—"}
+                </span>
+              ),
+            },
+            {
+              id: "actions",
+              header: "",
+              align: "end",
+              width: 90,
+              sortable: false,
+              filterable: false,
+              accessor: () => "",
+              cell: (u) =>
+                showArchived ? (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => restoreMut.mutate(u.id)}
+                    title={t("units.restore", { defaultValue: "استرجاع" })}
+                  >
+                    <ArchiveRestore className="size-4" />
+                  </Button>
+                ) : (
+                  <Link
+                    to="/dashboard/units/$id"
+                    params={{ id: u.id }}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {t("units.view")}
+                  </Link>
+                ),
+            },
+          ] as DataTableColumn<(typeof rows)[number]>[]}
+          rowKey={(u) => u.id}
+          isAr={!!isAr}
+          loading={unitsQ.isLoading}
+          emptyLabel={t("units.empty")}
+          searchPlaceholder={t("units.searchPlaceholder")}
+          exportFileName="units"
+        />
       </div>
+
     </div>
   );
 }
