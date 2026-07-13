@@ -561,16 +561,103 @@ export function EnterpriseDataTable<T>({
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between border-t border-border/60 px-3 py-2 text-xs text-muted-foreground">
-        <span>
-          {isAr
-            ? `${rowsSorted.length} من ${data.length} سجل`
-            : `${rowsSorted.length} of ${data.length} rows`}
-        </span>
-        {selected.size > 0 && (
-          <span>{isAr ? `تم تحديد ${selected.size}` : `${selected.size} selected`}</span>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 px-3 py-2 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-3">
+          <span>
+            {pagination && totalRows > 0
+              ? isAr
+                ? `${page * pageSize + 1}\u2013${Math.min(totalRows, (page + 1) * pageSize)} من ${totalRows}`
+                : `${page * pageSize + 1}\u2013${Math.min(totalRows, (page + 1) * pageSize)} of ${totalRows}`
+              : isAr
+                ? `${totalRows} من ${data.length} سجل`
+                : `${totalRows} of ${data.length} rows`}
+          </span>
+          {selected.size > 0 && (
+            <span className="text-primary">
+              {isAr ? `تم تحديد ${selected.size}` : `${selected.size} selected`}
+            </span>
+          )}
+          {pagination &&
+            selected.size > 0 &&
+            selected.size < totalRows &&
+            rowsPaged.every((r) => selected.has(rowKey(r))) && (
+              <button
+                type="button"
+                onClick={selectAllFiltered}
+                className="text-primary underline-offset-2 hover:underline"
+              >
+                {isAr
+                  ? `اختيار كل ${totalRows} صفاً`
+                  : `Select all ${totalRows} rows`}
+              </button>
+            )}
+        </div>
+        {pagination && (
+          <div className="flex items-center gap-2">
+            <span className="hidden sm:inline">{isAr ? "الصفحة" : "Rows per page"}</span>
+            <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+              <SelectTrigger className="h-7 w-[70px] text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {pageSizeOptions.map((n) => (
+                  <SelectItem key={n} value={String(n)}>
+                    {n}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span className="tabular-nums">
+              {isAr
+                ? `${page + 1} / ${pageCount}`
+                : `Page ${page + 1} of ${pageCount}`}
+            </span>
+            <div className="flex items-center">
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-7"
+                disabled={page === 0}
+                onClick={() => setPage(0)}
+                aria-label="First page"
+              >
+                {isAr ? <ChevronsRight className="size-4" /> : <ChevronsLeft className="size-4" />}
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-7"
+                disabled={page === 0}
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                aria-label="Previous page"
+              >
+                {isAr ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-7"
+                disabled={page >= pageCount - 1}
+                onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+                aria-label="Next page"
+              >
+                {isAr ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="size-7"
+                disabled={page >= pageCount - 1}
+                onClick={() => setPage(pageCount - 1)}
+                aria-label="Last page"
+              >
+                {isAr ? <ChevronsLeft className="size-4" /> : <ChevronsRight className="size-4" />}
+              </Button>
+            </div>
+          </div>
         )}
       </div>
+
     </div>
   );
 }
