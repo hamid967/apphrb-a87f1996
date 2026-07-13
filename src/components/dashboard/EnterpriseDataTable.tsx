@@ -504,7 +504,7 @@ export function EnterpriseDataTable<T>({
                   {isAr ? "جارٍ التحميل…" : "Loading…"}
                 </td>
               </tr>
-            ) : rowsSorted.length === 0 ? (
+            ) : rowsPaged.length === 0 ? (
               <tr>
                 <td
                   colSpan={visibleCols.length + 1}
@@ -514,7 +514,7 @@ export function EnterpriseDataTable<T>({
                 </td>
               </tr>
             ) : (
-              rowsSorted.map((row) => {
+              rowsPaged.map((row) => {
                 const id = rowKey(row);
                 const checked = selected.has(id);
                 return (
