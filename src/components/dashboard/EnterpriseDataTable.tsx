@@ -146,6 +146,25 @@ export function EnterpriseDataTable<T>({
     return arr;
   }, [rowsFiltered, sort, columns, isAr]);
 
+  // Pagination
+  const [pageSize, setPageSize] = useState<number>(initialPageSize);
+  const [page, setPage] = useState<number>(0);
+  const totalRows = rowsSorted.length;
+  const pageCount = pagination ? Math.max(1, Math.ceil(totalRows / pageSize)) : 1;
+  useEffect(() => {
+    // Reset to first page whenever the filtered/sorted set shrinks past current page
+    if (page > 0 && page >= pageCount) setPage(0);
+  }, [page, pageCount]);
+  useEffect(() => {
+    // Reset page on search / filter changes
+    setPage(0);
+  }, [globalQ, colFilters]);
+  const rowsPaged = useMemo(() => {
+    if (!pagination) return rowsSorted;
+    const start = page * pageSize;
+    return rowsSorted.slice(start, start + pageSize);
+  }, [rowsSorted, page, pageSize, pagination]);
+
   const allChecked = rowsSorted.length > 0 && rowsSorted.every((r) => selected.has(rowKey(r)));
   const someChecked = !allChecked && rowsSorted.some((r) => selected.has(rowKey(r)));
   const toggleAll = () => {
