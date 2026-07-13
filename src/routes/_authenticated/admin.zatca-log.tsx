@@ -82,38 +82,16 @@ function ZatcaLogPage() {
               </div>
               <Badge variant="outline">{rows.length}</Badge>
             </div>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>#</TableHead>
-                    <TableHead>{isAr ? "الرقم" : "Number"}</TableHead>
-                    <TableHead>{isAr ? "الختم" : "Sealed at"}</TableHead>
-                    <TableHead>{isAr ? "الهاش" : "Hash"}</TableHead>
-                    <TableHead>{isAr ? "الحالة" : "Status"}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.map((r) => (
-                    <TableRow key={r.invoice_id}>
-                      <TableCell className="font-mono">{r.zatca_counter}</TableCell>
-                      <TableCell>{r.number ?? "—"}</TableCell>
-                      <TableCell className="text-xs">
-                        {r.zatca_sealed_at
-                          ? new Date(r.zatca_sealed_at).toLocaleString(isAr ? "ar-SA" : "en-US")
-                          : "—"}
-                      </TableCell>
-                      <TableCell className="font-mono text-xs truncate max-w-[16rem]" title={r.zatca_hash ?? ""}>
-                        {r.zatca_hash?.slice(0, 14) ?? "—"}…
-                      </TableCell>
-                      <TableCell>
-                        <ChainBadge row={r} isAr={isAr} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            <DataTable<ZatcaChainRow>
+              data={rows}
+              columns={zatcaColumns(isAr)}
+              rowKey={(r) => r.invoice_id}
+              isAr={isAr}
+              exportFileName={`zatca-${orgId}`}
+              maxHeight="60vh"
+              initialPageSize={25}
+            />
+
           </Card>
         ))
       )}
