@@ -169,3 +169,128 @@ function TicketsListPage() {
     </div>
   );
 }
+
+type TicketRow = Awaited<ReturnType<typeof listStaffTickets>>[number];
+
+function ticketColumns(isAr: boolean, now: number): DataTableColumn<TicketRow>[] {
+  return [
+    {
+      id: "ticket_number",
+      header: "#",
+      width: 100,
+      accessor: (r) => r.ticket_number ?? r.id.slice(0, 6),
+      cell: (r) => (
+        <Link
+          to="/dashboard/tickets/$id"
+          params={{ id: r.id }}
+          className="font-mono text-xs hover:underline"
+        >
+          {r.ticket_number ?? r.id.slice(0, 6)}
+        </Link>
+      ),
+    },
+    {
+      id: "subject",
+      header: isAr ? "الموضوع" : "Subject",
+      width: 320,
+      accessor: (r) => r.subject,
+      cell: (r) => (
+        <Link
+          to="/dashboard/tickets/$id"
+          params={{ id: r.id }}
+          className="truncate hover:underline"
+        >
+          {r.subject}
+        </Link>
+      ),
+    },
+    {
+      id: "status",
+      header: isAr ? "الحالة" : "Status",
+      width: 130,
+      accessor: (r) => r.status,
+      cell: (r) => (
+        <Badge variant="outline" className={STATUS_TONE[r.status] ?? ""}>
+          {isAr ? STATUS_LABEL_AR[r.status] ?? r.status : r.status}
+        </Badge>
+      ),
+    },
+    {
+      id: "priority",
+      header: isAr ? "الأولوية" : "Priority",
+      width: 120,
+      accessor: (r) => r.priority,
+      cell: (r) => (
+        <Badge variant="outline" className={PRIORITY_TONE[r.priority] ?? ""}>
+          {isAr ? PRIORITY_LABEL_AR[r.priority] ?? r.priority : r.priority}
+        </Badge>
+      ),
+    },
+    {
+      id: "category",
+      header: isAr ? "التصنيف" : "Category",
+      width: 130,
+      accessor: (r) => r.category ?? "",
+    },
+    {
+      id: "channel",
+      header: isAr ? "القناة" : "Channel",
+      width: 110,
+      accessor: (r) => r.channel,
+    },
+    {
+      id: "sla",
+      header: "SLA",
+      width: 140,
+      accessor: (r) =>
+        r.resolved_at
+          ? -1
+          : r.sla_due_at
+            ? Math.round((new Date(r.sla_due_at).getTime() - now) / 60000)
+            : 0,
+      cell: (r) => {
+        const overdue = !r.resolved_at && r.sla_due_at && new Date(r.sla_due_at).getTime() < now;
+        const dueDelta = r.sla_due_at
+          ? Math.round((new Date(r.sla_due_at).getTime() - now) / 60000)
+          : null;
+        if (r.resolved_at) {
+          return (
+            <span className="text-success inline-flex items-center gap-1 text-xs">
+              <CheckCircle2 className="h-3 w-3" />
+              {isAr ? "منجزة" : "Done"}
+            </span>
+          );
+        }
+        if (dueDelta === null) return "—";
+        if (overdue) {
+          return (
+            <span className="text-destructive inline-flex items-center gap-1 text-xs">
+              <AlertTriangle className="h-3 w-3" />
+              {isAr ? `متأخرة ${Math.abs(dueDelta)}د` : `${Math.abs(dueDelta)}m overdue`}
+            </span>
+          );
+        }
+        return (
+          <span className="inline-flex items-center gap-1 text-xs">
+            <Clock className="h-3 w-3" />
+            {dueDelta > 1440
+              ? `${Math.round(dueDelta / 1440)}${isAr ? "ي" : "d"}`
+              : `${dueDelta}${isAr ? "د" : "m"}`}
+          </span>
+        );
+      },
+    },
+    {
+      id: "created_at",
+      header: isAr ? "الإنشاء" : "Created",
+      width: 140,
+      accessor: (r) => r.created_at,
+      cell: (r) => (
+        <span className="text-xs text-muted-foreground">
+          {new Date(r.created_at).toLocaleDateString(isAr ? "ar-SA" : "en-US")}
+        </span>
+      ),
+    },
+  ];
+}
+
