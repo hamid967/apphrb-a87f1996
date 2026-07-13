@@ -2,18 +2,31 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, ArrowRight, Search, History, ExternalLink } from "lucide-react";
+import { toast } from "sonner";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Search,
+  History,
+  ExternalLink,
+  AlertTriangle,
+  RefreshCcw,
+  Ban,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar as arLocale, enUS } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { sectionHead } from "@/lib/section-og-head";
 import {
-  HUB_SERVICES,
   HUB_CATEGORIES,
+  isHubServiceAvailable,
   type HubCategoryKey,
   type HubService,
 } from "@/lib/services-hub-catalog";
+import { useHubCatalog } from "@/lib/use-hub-catalog";
 import { recordServiceAccess, useServiceAccessLog } from "@/lib/service-access-log";
 
 export const Route = createFileRoute(
@@ -23,7 +36,6 @@ export const Route = createFileRoute(
   component: ServicesReportPage,
 });
 
-const SERVICES: HubService[] = HUB_SERVICES;
 const CATEGORIES = HUB_CATEGORIES;
 type CategoryKey = HubCategoryKey;
 
@@ -35,24 +47,26 @@ function ServicesReportPage() {
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<CategoryKey>("all");
 
+  const { services, isLoading, error, refetch } = useHubCatalog();
+
   const recent = useServiceAccessLog();
   const recentServices = useMemo(() => {
     const seen = new Set<string>();
     const list: { service: HubService; ts: number }[] = [];
     for (const entry of recent) {
       if (seen.has(entry.id)) continue;
-      const svc = SERVICES.find((s) => s.id === entry.id);
+      const svc = services.find((s) => s.id === entry.id);
       if (!svc) continue;
       seen.add(entry.id);
       list.push({ service: svc, ts: entry.ts });
       if (list.length >= 6) break;
     }
     return list;
-  }, [recent]);
+  }, [recent, services]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return SERVICES.filter((s) => {
+    return services.filter((s) => {
       if (cat !== "all" && s.category !== cat) return false;
       if (!q) return true;
       const hay = [
@@ -67,9 +81,18 @@ function ServicesReportPage() {
         .toLowerCase();
       return hay.includes(q);
     });
-  }, [query, cat]);
+  }, [query, cat, services]);
 
-
+  const handleUnavailable = (svc: HubService) => {
+    toast.warning(
+      isAr ? "الخدمة غير متاحة حاليًا" : "Service currently unavailable",
+      {
+        description: isAr
+          ? (svc.unavailableReasonAr ?? `«${svc.titleAr}» غير متاحة الآن. جرّب لاحقًا.`)
+          : (svc.unavailableReasonEn ?? `"${svc.titleEn}" is not available right now. Try again later.`),
+      },
+    );
+  };
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
@@ -103,6 +126,7 @@ function ServicesReportPage() {
               placeholder={isAr ? "ابحث عن خدمة..." : "Search services..."}
               className="ps-9"
               aria-label={isAr ? "بحث" : "Search"}
+              disabled={isLoading || !!error}
             />
           </div>
           <div className="-mx-1 flex gap-1 overflow-x-auto rounded-lg border bg-card p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -113,7 +137,8 @@ function ServicesReportPage() {
                   key={c.key}
                   type="button"
                   onClick={() => setCat(c.key)}
-                  className={`whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                  disabled={isLoading || !!error}
+                  className={`whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${
                     active
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:bg-muted"
@@ -127,8 +152,98 @@ function ServicesReportPage() {
         </div>
       </section>
 
+      {/* Error state */}
+      {error && (
+        <section
+          role="alert"
+          aria-live="assertive"
+          className="rounded-2xl border border-destructive/30 bg-destructive/5 p-6"
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-start gap-3">
+              <span className="inline-flex size-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+                <AlertTriangle className="size-5" />
+              </span>
+              <div>
+                <h2 className="text-sm font-semibold text-foreground">
+                  {isAr ? "تعذّر تحميل الخدمات" : "Couldn't load services"}
+                </h2>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {isAr
+                    ? "حدث خطأ أثناء جلب قائمة الخدمات. تحقّق من الاتصال ثم أعد المحاولة."
+                    : "Something went wrong while fetching the services list. Check your connection and retry."}
+                </p>
+                <p className="mt-2 font-mono text-[11px] text-destructive/80">
+                  {error.message}
+                </p>
+              </div>
+            </div>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                refetch();
+                toast.info(isAr ? "إعادة المحاولة..." : "Retrying…");
+              }}
+            >
+              <RefreshCcw className="me-1.5 size-3.5" />
+              {isAr ? "إعادة المحاولة" : "Retry"}
+            </Button>
+          </div>
+        </section>
+      )}
+
+      {/* Loading skeletons */}
+      {isLoading && !error && (
+        <>
+          <section aria-hidden className="rounded-2xl border border-border/70 bg-card/60 p-4">
+            <Skeleton className="mb-3 h-4 w-40" />
+            <div className="flex flex-wrap gap-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-7 w-32 rounded-full" />
+              ))}
+            </div>
+          </section>
+          <div aria-hidden className="-mx-1 flex gap-2 overflow-hidden px-1 pb-1">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-7 w-24 shrink-0 rounded-full" />
+            ))}
+          </div>
+          <section
+            aria-busy="true"
+            aria-label={isAr ? "جارٍ تحميل الخدمات" : "Loading services"}
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5"
+              >
+                <div className="flex items-start justify-between">
+                  <Skeleton className="size-11 rounded-xl" />
+                  <Skeleton className="h-4 w-16 rounded-full" />
+                </div>
+                <Skeleton className="mt-2 h-5 w-40" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-4/5" />
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                  <Skeleton className="h-5 w-14 rounded-full" />
+                </div>
+                <div className="mt-3 flex items-center justify-between border-t border-border/60 pt-3">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-7 w-20 rounded-full" />
+                </div>
+              </div>
+            ))}
+          </section>
+        </>
+      )}
+
       {/* Recently visited */}
-      {recentServices.length > 0 && (
+      {!isLoading && !error && recentServices.length > 0 && (
         <section
           aria-label={isAr ? "آخر الخدمات المستخدمة" : "Recently visited services"}
           className="rounded-2xl border border-border/70 bg-card/60 p-4"
@@ -160,116 +275,148 @@ function ServicesReportPage() {
       )}
 
       {/* Quick nav */}
-      <nav
-        aria-label={isAr ? "تنقّل سريع" : "Quick navigation"}
-        className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {filtered.map((s) => (
-          <a
-            key={s.id}
-            href={`#svc-${s.id}`}
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
-          >
-            <s.icon className="size-3.5" />
-            {isAr ? s.titleAr : s.titleEn}
-          </a>
-        ))}
-      </nav>
-
+      {!isLoading && !error && (
+        <nav
+          aria-label={isAr ? "تنقّل سريع" : "Quick navigation"}
+          className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {filtered.map((s) => (
+            <a
+              key={s.id}
+              href={`#svc-${s.id}`}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+            >
+              <s.icon className="size-3.5" />
+              {isAr ? s.titleAr : s.titleEn}
+            </a>
+          ))}
+        </nav>
+      )}
 
       {/* Cards grid */}
-      <motion.section
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-        initial="hidden"
-        animate="show"
-        variants={{
-          hidden: {},
-          show: { transition: { staggerChildren: 0.04 } },
-        }}
-      >
-        <AnimatePresence mode="popLayout">
-          {filtered.map((s) => {
-            const Icon = s.icon;
-            return (
-              <motion.article
-                id={`svc-${s.id}`}
-                key={s.id}
-                layout
-                variants={{
-                  hidden: { opacity: 0, y: 16, scale: 0.97 },
-                  show: {
-                    opacity: 1,
-                    y: 0,
-                    scale: 1,
-                    transition: { type: "spring", stiffness: 260, damping: 22 },
-                  },
-                }}
-                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
-                whileHover={{ y: -4 }}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-[0_4px_20px_-12px_hsl(var(--primary)/0.35)] transition-colors hover:border-primary/40"
-              >
-                <div
-                  aria-hidden
-                  className={`pointer-events-none absolute inset-x-0 -top-12 h-32 bg-gradient-to-b ${s.hue} opacity-70 blur-2xl`}
-                />
-                <div className="relative z-10 flex items-start justify-between gap-3">
-                  <div className="inline-flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
-                    <Icon className="size-5" />
+      {!isLoading && !error && (
+        <motion.section
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          initial="hidden"
+          animate="show"
+          variants={{
+            hidden: {},
+            show: { transition: { staggerChildren: 0.04 } },
+          }}
+        >
+          <AnimatePresence mode="popLayout">
+            {filtered.map((s) => {
+              const Icon = s.icon;
+              const available = isHubServiceAvailable(s);
+              return (
+                <motion.article
+                  id={`svc-${s.id}`}
+                  key={s.id}
+                  layout
+                  variants={{
+                    hidden: { opacity: 0, y: 16, scale: 0.97 },
+                    show: {
+                      opacity: 1,
+                      y: 0,
+                      scale: 1,
+                      transition: { type: "spring", stiffness: 260, damping: 22 },
+                    },
+                  }}
+                  exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
+                  whileHover={available ? { y: -4 } : undefined}
+                  aria-disabled={!available || undefined}
+                  className={`group relative flex flex-col overflow-hidden rounded-2xl border p-5 shadow-[0_4px_20px_-12px_hsl(var(--primary)/0.35)] transition-colors ${
+                    available
+                      ? "border-border bg-card hover:border-primary/40"
+                      : "border-dashed border-border/60 bg-muted/30 opacity-70"
+                  }`}
+                >
+                  <div
+                    aria-hidden
+                    className={`pointer-events-none absolute inset-x-0 -top-12 h-32 bg-gradient-to-b ${s.hue} ${available ? "opacity-70" : "opacity-20"} blur-2xl`}
+                  />
+                  <div className="relative z-10 flex items-start justify-between gap-3">
+                    <div className={`inline-flex size-11 items-center justify-center rounded-xl ring-1 ${available ? "bg-primary/10 text-primary ring-primary/20" : "bg-muted text-muted-foreground ring-border"}`}>
+                      <Icon className="size-5" />
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <Badge variant="outline" className="text-[10px] uppercase">
+                        {isAr
+                          ? CATEGORIES.find((c) => c.key === s.category)?.ar
+                          : CATEGORIES.find((c) => c.key === s.category)?.en}
+                      </Badge>
+                      {!available && (
+                        <Badge variant="destructive" className="gap-1 text-[10px]">
+                          <Ban className="size-3" />
+                          {isAr ? "غير متاحة" : "Unavailable"}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                  <Badge variant="outline" className="text-[10px] uppercase">
-                    {isAr
-                      ? CATEGORIES.find((c) => c.key === s.category)?.ar
-                      : CATEGORIES.find((c) => c.key === s.category)?.en}
-                  </Badge>
-                </div>
-                <h2 className="relative z-10 mt-4 text-base font-bold text-foreground">
-                  {isAr ? s.titleAr : s.titleEn}
-                </h2>
-                <p className="relative z-10 mt-1 text-xs text-muted-foreground">
-                  {isAr ? s.descAr : s.descEn}
-                </p>
-                <ul className="relative z-10 mt-3 flex flex-wrap gap-1.5">
-                  {(isAr ? s.featuresAr : s.featuresEn).map((f) => (
-                    <li
-                      key={f}
-                      className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground"
+                  <h2 className="relative z-10 mt-4 text-base font-bold text-foreground">
+                    {isAr ? s.titleAr : s.titleEn}
+                  </h2>
+                  <p className="relative z-10 mt-1 text-xs text-muted-foreground">
+                    {isAr ? s.descAr : s.descEn}
+                  </p>
+                  {!available && (s.unavailableReasonAr || s.unavailableReasonEn) && (
+                    <p className="relative z-10 mt-2 rounded-md border border-dashed border-destructive/30 bg-destructive/5 px-2 py-1 text-[11px] text-destructive">
+                      {isAr ? s.unavailableReasonAr : s.unavailableReasonEn}
+                    </p>
+                  )}
+                  <ul className="relative z-10 mt-3 flex flex-wrap gap-1.5">
+                    {(isAr ? s.featuresAr : s.featuresEn).map((f) => (
+                      <li
+                        key={f}
+                        className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground"
+                      >
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="relative z-10 mt-4 flex items-center justify-between gap-2 border-t border-border/60 pt-3">
+                    {available ? (
+                      <Link
+                        to={s.to}
+                        onClick={() => recordServiceAccess(s.id, s.to)}
+                        className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground transition hover:text-primary"
+                      >
+                        <ExternalLink className="size-3" />
+                        {isAr ? "فتح مباشر" : "Open direct"}
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleUnavailable(s)}
+                        className="inline-flex cursor-not-allowed items-center gap-1 text-[11px] font-medium text-muted-foreground/70"
+                      >
+                        <Ban className="size-3" />
+                        {isAr ? "غير متاحة" : "Unavailable"}
+                      </button>
+                    )}
+                    <Link
+                      to="/dashboard/services/$key"
+                      params={{ key: s.id }}
+                      className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
                     >
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <div className="relative z-10 mt-4 flex items-center justify-between gap-2 border-t border-border/60 pt-3">
-                  <Link
-                    to={s.to}
-                    onClick={() => recordServiceAccess(s.id, s.to)}
-                    className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground transition hover:text-primary"
-                  >
-                    <ExternalLink className="size-3" />
-                    {isAr ? "فتح مباشر" : "Open direct"}
-                  </Link>
-                  <Link
-                    to="/dashboard/services/$key"
-                    params={{ key: s.id }}
-                    className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
-                  >
-                    {isAr ? "التفاصيل" : "Details"}
-                    <motion.span
-                      animate={{ x: [0, isAr ? -3 : 3, 0] }}
-                      transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-                      className="inline-flex"
-                    >
-                      <Arrow className="size-3.5" />
-                    </motion.span>
-                  </Link>
-                </div>
+                      {isAr ? "التفاصيل" : "Details"}
+                      <motion.span
+                        animate={{ x: [0, isAr ? -3 : 3, 0] }}
+                        transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+                        className="inline-flex"
+                      >
+                        <Arrow className="size-3.5" />
+                      </motion.span>
+                    </Link>
+                  </div>
+                </motion.article>
+              );
+            })}
+          </AnimatePresence>
+        </motion.section>
+      )}
 
-              </motion.article>
-            );
-          })}
-        </AnimatePresence>
-      </motion.section>
-
-      {filtered.length === 0 && (
+      {!isLoading && !error && filtered.length === 0 && (
         <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           {isAr ? "لا توجد نتائج مطابقة." : "No matching services."}
         </div>

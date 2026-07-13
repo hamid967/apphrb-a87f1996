@@ -2,13 +2,17 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
+import { toast } from "sonner";
 import {
+  AlertTriangle,
   ArrowLeft,
   ArrowRight,
+  Ban,
   ExternalLink,
   History,
   ListChecks,
   Link2,
+  RefreshCcw,
   Sparkles,
   Trash2,
 } from "lucide-react";
@@ -16,17 +20,20 @@ import { formatDistanceToNow, format } from "date-fns";
 import { ar as arLocale, enUS } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { sectionHead } from "@/lib/section-og-head";
 import {
   getHubService,
   HUB_CATEGORIES,
   HUB_SERVICES,
+  isHubServiceAvailable,
 } from "@/lib/services-hub-catalog";
 import {
   clearAccessForService,
   recordServiceAccess,
   useServiceAccessLog,
 } from "@/lib/service-access-log";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard/services/$key")({
   head: ({ params }) => {
@@ -44,37 +51,112 @@ export const Route = createFileRoute("/_authenticated/dashboard/services/$key")(
     return { serviceId: svc.id };
   },
   component: ServiceDetailPage,
+  pendingMs: 200,
+  pendingComponent: () => <ServiceDetailSkeleton />,
   notFoundComponent: () => {
     const { key } = Route.useParams();
     return (
       <div className="mx-auto max-w-3xl p-8">
-        <h1 className="text-xl font-bold">Service not found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          No service with id <code>{key}</code>.
-        </p>
-        <Link
-          to="/dashboard/services"
-          className="mt-4 inline-flex text-sm font-semibold text-primary hover:underline"
-        >
-          ← Back to services hub
-        </Link>
+        <div className="flex items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 p-6">
+          <span className="inline-flex size-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+            <AlertTriangle className="size-5" />
+          </span>
+          <div className="flex-1">
+            <h1 className="text-lg font-bold">الخدمة غير موجودة / Service not found</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              لا توجد خدمة بالمعرّف <code className="rounded bg-muted px-1">{key}</code>.
+              قد تكون أُزيلت أو أن الرابط غير صحيح.
+            </p>
+            <Link
+              to="/dashboard/services"
+              className="mt-4 inline-flex text-sm font-semibold text-primary hover:underline"
+            >
+              ← العودة إلى مركز الخدمات
+            </Link>
+          </div>
+        </div>
       </div>
     );
   },
   errorComponent: ({ error, reset }) => (
     <div className="mx-auto max-w-3xl p-8">
-      <h1 className="text-xl font-bold">Something went wrong</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
-      <button
-        type="button"
-        onClick={reset}
-        className="mt-4 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
+      <div
+        role="alert"
+        className="flex flex-col gap-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-6 sm:flex-row sm:items-start"
       >
-        Retry
-      </button>
+        <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+          <AlertTriangle className="size-5" />
+        </span>
+        <div className="flex-1">
+          <h1 className="text-lg font-bold">تعذّر تحميل تفاصيل الخدمة</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            حدث خطأ غير متوقع أثناء عرض هذه الخدمة. حاول مرة أخرى، وإذا استمرّت المشكلة عد إلى مركز الخدمات.
+          </p>
+          <p className="mt-2 font-mono text-[11px] text-destructive/80">{error.message}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button type="button" size="sm" variant="outline" onClick={reset}>
+              <RefreshCcw className="me-1.5 size-3.5" />
+              إعادة المحاولة
+            </Button>
+            <Link
+              to="/dashboard/services"
+              className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
+            >
+              مركز الخدمات
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   ),
 });
+
+function ServiceDetailSkeleton() {
+  return (
+    <div
+      aria-busy="true"
+      aria-label="Loading service details"
+      className="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6"
+    >
+      <Skeleton className="h-3 w-24" />
+      <section className="rounded-3xl border border-border bg-card p-6 sm:p-8">
+        <div className="flex items-start gap-4">
+          <Skeleton className="size-14 rounded-2xl" />
+          <div className="flex-1 space-y-3">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-7 w-64" />
+            <Skeleton className="h-3 w-full max-w-xl" />
+            <Skeleton className="h-3 w-4/5 max-w-lg" />
+          </div>
+          <Skeleton className="h-10 w-32 rounded-lg" />
+        </div>
+      </section>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="rounded-2xl border border-border bg-card p-5">
+              <Skeleton className="mb-3 h-4 w-32" />
+              <div className="space-y-2">
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-5/6" />
+                <Skeleton className="h-3 w-4/6" />
+              </div>
+            </div>
+          ))}
+        </div>
+        <aside className="rounded-2xl border border-border bg-card p-5">
+          <Skeleton className="mb-4 h-4 w-32" />
+          <div className="space-y-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 w-full rounded-lg" />
+            ))}
+          </div>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
 
 function ServiceDetailPage() {
   const { key } = Route.useParams();
@@ -100,6 +182,9 @@ function ServiceDetailPage() {
     (s) => s.category === service.category && s.id !== service.id,
   ).slice(0, 4);
   const Icon = service.icon;
+  const available = isHubServiceAvailable(service);
+  const unavailableReason = isAr ? service.unavailableReasonAr : service.unavailableReasonEn;
+
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6">
@@ -144,17 +229,54 @@ function ServiceDetailPage() {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link
-              to={service.to}
-              onClick={() => recordServiceAccess(service.id, service.to)}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
-            >
-              {isAr ? "فتح الخدمة" : "Open service"}
-              <ExternalLink className="size-4" />
-            </Link>
+            {available ? (
+              <Link
+                to={service.to}
+                onClick={() => recordServiceAccess(service.id, service.to)}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+              >
+                {isAr ? "فتح الخدمة" : "Open service"}
+                <ExternalLink className="size-4" />
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() =>
+                  toast.warning(
+                    isAr ? "الخدمة غير متاحة حاليًا" : "Service currently unavailable",
+                    { description: unavailableReason },
+                  )
+                }
+                aria-disabled="true"
+                className="inline-flex cursor-not-allowed items-center gap-2 rounded-lg border border-dashed border-destructive/40 bg-destructive/5 px-4 py-2 text-sm font-semibold text-destructive"
+              >
+                <Ban className="size-4" />
+                {isAr ? "غير متاحة" : "Unavailable"}
+              </button>
+            )}
           </div>
         </div>
+        {!available && (
+          <div
+            role="status"
+            className="relative z-10 mt-5 flex items-start gap-3 rounded-xl border border-dashed border-destructive/40 bg-destructive/5 p-4 text-xs text-destructive"
+          >
+            <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+            <div>
+              <p className="font-semibold">
+                {isAr ? "هذه الخدمة غير متاحة حاليًا" : "This service is currently unavailable"}
+              </p>
+              <p className="mt-1 text-destructive/80">
+                {unavailableReason ??
+                  (isAr
+                    ? "قد تكون قيد الصيانة أو تحتاج ترقية باقة. حاول لاحقًا أو تواصل مع الدعم."
+                    : "It may be under maintenance or require a plan upgrade. Try again later or contact support.")}
+              </p>
+            </div>
+          </div>
+        )}
       </motion.section>
+
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Left: usage + features + links */}
