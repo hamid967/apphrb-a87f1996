@@ -243,7 +243,11 @@ function AuthPage() {
         await routeAfterLogin(nav, redirectTarget);
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error");
+      const msg = err instanceof Error ? err.message : String(err ?? "Error");
+      toast.error(
+        mode === "signup" ? t("auth.signUpFailed", { defaultValue: "تعذّر إنشاء الحساب" }) : msg,
+        mode === "signup" ? { description: msg } : undefined,
+      );
     } finally {
       setSubmitting(false);
     }
