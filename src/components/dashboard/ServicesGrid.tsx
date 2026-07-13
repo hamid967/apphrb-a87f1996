@@ -49,7 +49,7 @@ export function ServicesGrid({ isAr }: { isAr: boolean }) {
           </p>
         </div>
         <Link
-          to="/dashboard/services-report"
+          to="/dashboard/services"
           className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card px-3 py-2 text-xs font-semibold text-foreground transition hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
         >
           {isAr ? "كل الخدمات" : "All services"}

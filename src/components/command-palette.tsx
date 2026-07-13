@@ -111,7 +111,7 @@ const AUTH_ITEMS: Item[] = [
 
   // Reports & analytics
   { id: "reports", label: "التقارير", labelEn: "Reports", to: "/reports", icon: BarChart3, group: "reports" },
-  { id: "reports-services", label: "مركز التقارير", labelEn: "Reports hub", to: "/dashboard/services-report", icon: FolderKanban, group: "reports" },
+  { id: "services-hub", label: "الخدمات", labelEn: "Services", to: "/dashboard/services", icon: FolderKanban, group: "services" },
   { id: "reports-builder", label: "منشئ التقارير", labelEn: "Report builder", to: "/reports/builder", icon: Sigma, group: "reports" },
   { id: "reports-templates", label: "قوالب التقارير", labelEn: "Report templates", to: "/reports/templates", icon: FileText, group: "reports" },
   { id: "reports-executive", label: "التقرير التنفيذي", labelEn: "Executive report", to: "/reports/executive", icon: BarChart3, group: "reports" },
