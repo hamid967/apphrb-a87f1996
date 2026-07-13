@@ -67,6 +67,12 @@ type Props<T> = {
   onRowClick?: (row: T) => void;
   maxHeight?: string; // e.g. "70vh"
   toolbarExtra?: ReactNode;
+  /** Enable client-side pagination. Set false to render all rows. Default true. */
+  pagination?: boolean;
+  /** Initial page size. Default 25. */
+  initialPageSize?: number;
+  /** Available page-size options. Default [10, 25, 50, 100]. */
+  pageSizeOptions?: number[];
 };
 
 type SortState = { id: string; dir: "asc" | "desc" } | null;
