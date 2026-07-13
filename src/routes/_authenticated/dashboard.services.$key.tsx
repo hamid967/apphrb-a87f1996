@@ -284,16 +284,23 @@ function ServiceDetailPage() {
               <button
                 type="button"
                 onClick={() =>
-                  toast.warning(
-                    isAr ? "الخدمة غير متاحة حاليًا" : "Service currently unavailable",
-                    { description: unavailableReason },
-                  )
+                  restricted
+                    ? toast.error(
+                        isAr ? "لا تملك صلاحية لهذه الخدمة" : "You don't have access",
+                        { description: unavailableReason },
+                      )
+                    : toast.warning(
+                        isAr ? "الخدمة غير متاحة حاليًا" : "Service currently unavailable",
+                        { description: unavailableReason },
+                      )
                 }
                 aria-disabled="true"
                 className="inline-flex cursor-not-allowed items-center gap-2 rounded-lg border border-dashed border-destructive/40 bg-destructive/5 px-4 py-2 text-sm font-semibold text-destructive"
               >
-                <Ban className="size-4" />
-                {isAr ? "غير متاحة" : "Unavailable"}
+                {restricted ? <Lock className="size-4" /> : <Ban className="size-4" />}
+                {restricted
+                  ? isAr ? "بدون صلاحية" : "Restricted"
+                  : isAr ? "غير متاحة" : "Unavailable"}
               </button>
             )}
           </div>
@@ -303,10 +310,16 @@ function ServiceDetailPage() {
             role="status"
             className="relative z-10 mt-5 flex items-start gap-3 rounded-xl border border-dashed border-destructive/40 bg-destructive/5 p-4 text-xs text-destructive"
           >
-            <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+            {restricted ? (
+              <Lock className="mt-0.5 size-4 shrink-0" />
+            ) : (
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+            )}
             <div>
               <p className="font-semibold">
-                {isAr ? "هذه الخدمة غير متاحة حاليًا" : "This service is currently unavailable"}
+                {restricted
+                  ? isAr ? "لا تملك صلاحية لاستخدام هذه الخدمة" : "You don't have access to this service"
+                  : isAr ? "هذه الخدمة غير متاحة حاليًا" : "This service is currently unavailable"}
               </p>
               <p className="mt-1 text-destructive/80">
                 {unavailableReason ??
@@ -318,6 +331,7 @@ function ServiceDetailPage() {
           </div>
         )}
       </motion.section>
+
 
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
