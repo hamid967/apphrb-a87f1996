@@ -239,24 +239,35 @@ async function exportBreakdownPdf(
 type Tone = "primary" | "sky" | "emerald" | "amber" | "rose" | "violet";
 
 const toneRing: Record<Tone, string> = {
-  primary: "ring-primary/25 hover:shadow-[0_0_50px_-10px_hsl(var(--primary)/0.55)]",
-  sky: "ring-info/20 hover:shadow-[0_0_40px_-8px_rgb(14_165_233/0.4)]",
-  emerald: "ring-success/20 hover:shadow-[0_0_40px_-8px_rgb(16_185_129/0.4)]",
-  amber: "ring-warning/20 hover:shadow-[0_0_40px_-8px_rgb(245_158_11/0.4)]",
-  rose: "ring-destructive/20 hover:shadow-[0_0_40px_-8px_rgb(244_63_94/0.4)]",
-  violet: "ring-primary/20 hover:shadow-[0_0_40px_-8px_rgb(139_92_246/0.4)]",
+  primary: "ring-primary/25 hover:shadow-[0_0_46px_-12px_hsl(var(--primary)/0.55)]",
+  sky: "ring-info/25 hover:shadow-[0_0_38px_-10px_hsl(var(--info)/0.45)]",
+  emerald:
+    "ring-success/25 hover:shadow-[0_0_38px_-10px_hsl(var(--success)/0.45)]",
+  amber: "ring-warning/25 hover:shadow-[0_0_38px_-10px_hsl(var(--warning)/0.45)]",
+  rose:
+    "ring-destructive/25 hover:shadow-[0_0_38px_-10px_hsl(var(--destructive)/0.45)]",
+  violet: "ring-primary/20 hover:shadow-[0_0_38px_-10px_hsl(var(--primary)/0.4)]",
+};
+
+const toneAccent: Record<Tone, string> = {
+  primary: "from-transparent via-primary/70 to-transparent",
+  sky: "from-transparent via-info/70 to-transparent",
+  emerald: "from-transparent via-success/70 to-transparent",
+  amber: "from-transparent via-warning/70 to-transparent",
+  rose: "from-transparent via-destructive/70 to-transparent",
+  violet: "from-transparent via-primary/60 to-transparent",
 };
 
 const toneIcon: Record<Tone, string> = {
-  // All hero icons use the signature gold gradient to match the reference.
   primary:
-    "bg-[image:var(--gradient-brand)] text-primary-foreground shadow-[0_6px_20px_-8px_hsl(var(--primary)/0.6)]",
-  sky: "bg-info/10 text-info dark:text-info",
-  emerald: "bg-success/10 text-success dark:text-success",
-  amber: "bg-warning/10 text-warning dark:text-warning",
-  rose: "bg-destructive/10 text-destructive dark:text-destructive",
-  violet: "bg-primary/10 text-primary dark:text-primary",
+    "bg-primary/15 text-primary ring-1 ring-primary/30 shadow-[0_6px_20px_-10px_hsl(var(--primary)/0.55)]",
+  sky: "bg-info/12 text-info ring-1 ring-info/25",
+  emerald: "bg-success/12 text-success ring-1 ring-success/25",
+  amber: "bg-warning/12 text-warning ring-1 ring-warning/25",
+  rose: "bg-destructive/12 text-destructive ring-1 ring-destructive/25",
+  violet: "bg-primary/10 text-primary ring-1 ring-primary/20",
 };
+
 
 function Counter({ value, format }: { value: number; format?: (n: number) => string }) {
   const mv = useMotionValue(0);
