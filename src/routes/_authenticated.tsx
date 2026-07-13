@@ -92,33 +92,33 @@ function AuthenticatedShellWithBoundary() {
         }, 360);
       }
       el.classList.remove(...ALL_MODE_CLASSES);
-      if (mode === "tech") {
-        el.classList.add("theme-tech", "dark");
+      if (mode === "royal") {
+        el.classList.add("theme-royal");
       } else if (mode === "default") {
         el.classList.add("theme-lux");
       } else {
-        // "royal" is the new default
-        el.classList.add("theme-royal");
+        // "tech" is the new default — Slate & Steel dark per brand system
+        el.classList.add("theme-tech", "dark");
       }
     };
     const initial = (() => {
       try {
         const raw = window.localStorage.getItem(KEY);
-        const MIGRATED = "aqari.dashboard.theme.royalMigrated";
-        // One-time migration: promote the historical auto-applied "default"
-        // (Visionary Glass) to the new Royal default so returning users see
-        // the redesign. They can switch back via DashboardThemeToggle.
+        const MIGRATED = "aqari.dashboard.theme.techMigrated";
+        // One-time migration: promote the historical auto-applied defaults
+        // ("default" Visionary Glass, "royal" Emerald Prestige) to the new
+        // Slate & Steel tech default. Users can switch back via the toggle.
         if (!window.localStorage.getItem(MIGRATED)) {
-          if (raw === null || raw === "default") {
-            window.localStorage.setItem(KEY, "royal");
+          if (raw === null || raw === "default" || raw === "royal") {
+            window.localStorage.setItem(KEY, "tech");
             window.localStorage.setItem(MIGRATED, "1");
-            return "royal";
+            return "tech";
           }
           window.localStorage.setItem(MIGRATED, "1");
         }
-        return raw ?? "royal";
+        return raw ?? "tech";
       } catch {
-        return "royal";
+        return "tech";
       }
     })();
     apply(initial, false);
