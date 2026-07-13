@@ -2,13 +2,17 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
+import { toast } from "sonner";
 import {
+  AlertTriangle,
   ArrowLeft,
   ArrowRight,
+  Ban,
   ExternalLink,
   History,
   ListChecks,
   Link2,
+  RefreshCcw,
   Sparkles,
   Trash2,
 } from "lucide-react";
@@ -16,17 +20,20 @@ import { formatDistanceToNow, format } from "date-fns";
 import { ar as arLocale, enUS } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { sectionHead } from "@/lib/section-og-head";
 import {
   getHubService,
   HUB_CATEGORIES,
   HUB_SERVICES,
+  isHubServiceAvailable,
 } from "@/lib/services-hub-catalog";
 import {
   clearAccessForService,
   recordServiceAccess,
   useServiceAccessLog,
 } from "@/lib/service-access-log";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard/services/$key")({
   head: ({ params }) => {
