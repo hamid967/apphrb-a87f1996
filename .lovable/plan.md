@@ -1,97 +1,197 @@
-## Sprint 2 — CSR + XAdES + Fatoora Submission (ZATCA Phase 2)
+## نطاق العمل
 
-### الهدف
-تمكين المؤسسات من إتمام تسجيل ZATCA وتوقيع الفواتير وإرسالها إلى بوابة Fatoora مباشرة من داخل التطبيق، دون الحاجة لأدوات خارجية أو إدخال يدوي للـ CSID.
+إعادة تصميم واجهة لوحة المستخدم المسجّل بالكامل (Home + Shell) بأسلوب SaaS فاخر (Linear/Stripe/Vercel/Notion) — **بدون أي مساس بالـ backend أو الـ routing أو الأعمال أو الصلاحيات**. تعديلات presentational فقط.
 
-### النطاق
-1. توليد CSR (Certificate Signing Request) داخل التطبيق باستخدام مفاتيح `secp256k1` / ECDSA.
-2. طلب Compliance CSID ثم Production CSID من ZATCA (Sandbox أولاً ثم Production).
-3. تعديل UBL 2.1 XML الحالي ليتضمن `UBLExtensions` لـ XAdES-BES (SignedInfo + KeyInfo + QualifyingProperties).
-4. حساب `InvoiceHash`، `PIH` (previous invoice hash)، `QRCode` TLV مع التوقيع، و`SignedProperties` hash وفق مواصفة ZATCA.
-5. إرسال الفاتورة إلى `/invoices/clearance/single` (Standard) أو `/invoices/reporting/single` (Simplified).
-6. تخزين نتيجة المقاصة (Cleared XML + QR + Warnings) في `invoices` وأرشفتها مع `sealZatcaInvoice`.
-7. واجهة إدارية جديدة لتتبع حالة كل فاتورة (Draft → Signed → Cleared/Reported/Rejected).
+الملفات الحالية المستهدفة:
+- `src/routes/_authenticated.tsx` — Shell (Sidebar + Topbar + Outlet)
+- `src/routes/_authenticated/dashboard.index.tsx` — الصفحة الرئيسية
+- `src/components/dashboard/DashboardSidebar.tsx`
+- `src/components/dashboard/DashboardTopbar.tsx`
+- `src/components/dashboard/DashboardHero.tsx`
+- `src/components/dashboard/KpiGrid.tsx`
+- `src/components/dashboard/ServicesGrid.tsx`
+- `src/components/dashboard/AnalyticsPanels.tsx`
+- `src/components/dashboard/AIRecommendations.tsx`
+- `src/components/dashboard/SaudiMap.tsx` (إطار فقط)
+- ملفات جديدة صغيرة عند الحاجة تحت `src/components/dashboard/v2/`
 
-### القرارات التقنية
-- **العملة التشفيرية:** `secp256k1` عبر مكتبة `@noble/curves` (نقية JS، بدون WASM، متوافقة مع Cloudflare Workers). SHA-256 عبر WebCrypto المتاح في Workers.
-- **CSR/ASN.1:** بناء الـ CSR يدوياً باستخدام `@peculiar/asn1-schema` + `@peculiar/x509` (نقية JS، تعمل في Workers) — أو ترميز DER يدوي إذا اقتضى الأمر لتقليل الاعتماديات.
-- **XML/XAdES:** استخدام `xmldom` + `xpath` + تنفيذ يدوي لـ Canonical XML 1.0 (C14N) لأن `xml-crypto` غير متوافق مع Workers. نستفيد من مواصفة ZATCA التي تحدد بالضبط أي عناصر تُوقّع.
-- **تخزين المفاتيح:** المفتاح الخاص يُشفَّر بـ AES-GCM باستخدام مفتاح رئيسي في `secrets` (`ZATCA_KEY_ENCRYPTION_KEY`) ثم يُحفظ في `zatca_csid.private_key_encrypted` (base64). لن يُعاد المفتاح للواجهة أبداً.
-- **بيئة Fatoora:**
-  - Sandbox: `https://gw-fatoora.zatca.gov.sa/e-invoicing/developer-portal/`
-  - Simulation: `https://gw-fatoora.zatca.gov.sa/e-invoicing/simulation/`
-  - Production: `https://gw-fatoora.zatca.gov.sa/e-invoicing/core/`
+---
 
-### التسليمات
+## القيود المُلزمة (لن أكسرها)
 
-#### 1) Migration
-- تعديل `zatca_csid`: إضافة `private_key_encrypted` (text), `public_key` (text), `csr` (text), `otp_used` (text), `compliance_status` (text). الاحتفاظ بالسياسات الحالية.
-- جدول جديد `zatca_invoice_signatures`: `invoice_id` (fk), `signed_xml` (text), `invoice_hash` (text), `qr_code` (text), `zatca_uuid` (text), `submission_status` (enum: pending/cleared/reported/rejected/warnings), `warnings` (jsonb), `errors` (jsonb).
+- لا تعديل على أي server function، migration، RLS، ملف تحت `src/integrations/`، أو منطق الجلب (React Query hooks).
+- لا تغيير مسارات (`createFileRoute`)، ولا loaders، ولا guards، ولا `_authenticated/route.tsx` (integration-managed).
+- الحفاظ على كل الترجمات الحالية (`t(...)`) — أضيف مفاتيح جديدة فقط ولا أحذف.
+- الحفاظ على مبدّل ثيم لوحة التحكم الحالي (Emerald Prestige ↔ Luxe) — التصميم الجديد يعيش داخل `theme-tech` كطبقة presentational.
+- ما زال المكدّس **TanStack Start** (ليس Next.js 15)؛ الاستفادة من `@tanstack/react-router` كما هي.
 
-#### 2) مكتبات
+---
+
+## نظام التصميم (Design tokens جديدة)
+
+يضاف داخل `src/styles.css` بلوك `.theme-tech` **بدون لمس الثيمات الأخرى**:
+
 ```
-bun add @noble/curves @noble/hashes @peculiar/asn1-schema @peculiar/asn1-x509 @peculiar/x509 xmldom xpath fast-xml-parser
+--background: #F7F9FB          Light premium canvas
+--card: #FFFFFF                خالٍ من التدرجات الثقيلة
+--border: #E7ECF2              hairline
+--foreground: #0F172A
+--muted-foreground: #64748B
+--primary: #0F5132             HRHBS deep emerald
+--secondary: #10B981
+--accent: #34D399
+--success: #16A34A / --warning: #F59E0B / --destructive: #EF4444
+--radius: 22px                 (rounded-2xl الافتراضي)
+--shadow-elegant: 0 10px 40px -18px rgba(15,81,50,.18)
+--gradient-primary: linear-gradient(135deg, #0F5132 0%, #10B981 55%, #34D399 100%)
+--gradient-canvas: radial-gradient(1200px 600px at 100% -10%, rgba(16,185,129,.06), transparent 60%)
 ```
 
-#### 3) أدوات التشفير (`src/lib/zatca/crypto.server.ts`)
-- `generateEcKeyPair()` → `{ privateKey, publicKey }` بصيغة PEM.
-- `buildCsr(orgInfo, keyPair, environment)` — يولّد CSR مع الحقول المطلوبة من ZATCA (Common Name، Organization Identifier VAT، Organization Name، Country, Business Category, Invoice Type، Location، Industry).
-- `encryptPrivateKey(pem)` / `decryptPrivateKey(cipher)` باستخدام `ZATCA_KEY_ENCRYPTION_KEY`.
+الخط: **IBM Plex Sans Arabic** يُحمَّل عبر `<link>` في `__root.tsx` head (Tailwind v4 لا يقبل `@import` remote داخل styles.css).
 
-#### 4) عميل Fatoora (`src/lib/zatca/fatoora-client.server.ts`)
-- `requestComplianceCsid({ csr, otp, environment })` → POST `/compliance`.
-- `requestProductionCsid({ complianceRequestId, environment })` → POST `/production/csids`.
-- `submitComplianceInvoice({ signedXml, invoiceHash, uuid, csid })` — فحص أنواع الفواتير الستة المطلوب.
-- `clearanceSingle({...})` (Standard) و `reportingSingle({...})` (Simplified).
+Utilities جديدة عبر `@utility`:
+- `glass-card` — سطح أبيض مع border hairline و shadow ناعم و backdrop-blur خفيف
+- `kpi-tile` — بطاقة KPI مضغوطة بارتفاع موحّد
+- `hover-lift` — رفع + shadow deepen بحركة 200ms
+- `sparkline-fade` — mask gradient للطرفين
 
-#### 5) XAdES Signer (`src/lib/zatca/xades-signer.server.ts`)
-- `buildUblExtensions(unsignedXml, csidCert, privateKey, invoiceCounter, pih)`.
-- حساب `InvoiceHash` (SHA-256 لـ canonicalized XML بعد إزالة العناصر المحددة).
-- بناء `SignedInfo` و`SignedProperties` وتوقيعهما.
-- إعادة الـ XML الموقّع + `qrCode` (TLV base64) + `invoiceHash`.
+---
 
-#### 6) Server Functions (`src/lib/zatca-onboarding.functions.ts`)
-- `generateCsr(environment)` — يولّد المفتاح، يبني CSR، يخزّن مؤقتاً، ويعيد نص CSR للـ UI.
-- `requestComplianceCsid({ csr, otp, environment })` — يستدعي Fatoora ويخزّن CSID.
-- `runComplianceChecks(environment)` — يرسل الفواتير الستة الإلزامية.
-- `requestProductionCsid(environment)` — بعد نجاح الفحص.
+## البنية الجديدة (Shell)
 
-- ملف جديد `src/lib/zatca-submission.functions.ts`:
-  - `signAndSubmitInvoice({ invoiceId })` — يجلب الفاتورة، يبني UBL، يوقّع، يرسل، يخزّن النتيجة، ويستدعي `sealZatcaInvoice` عند النجاح.
-  - `retryFailedSubmission({ invoiceId })`.
+```
+┌─────────────────────────────────────────────────────┐
+│  Topbar 72px (glass, sticky)                        │
+├──────────┬──────────────────────────────────────────┤
+│          │                                          │
+│ Sidebar  │  Content max-w-[1700px]                  │
+│ 288px    │  padding 32px, gap 24px                  │
+│ (72px    │                                          │
+│  when    │  ┌──────────────────────────────────┐    │
+│  mini)   │  │ Welcome + right-side date/time  │    │
+│          │  ├──────────────────────────────────┤    │
+│          │  │ Quick Actions row (6 tiles)      │    │
+│          │  ├──────────────────────────────────┤    │
+│          │  │ KPI grid (4 cols → 2 → 1)        │    │
+│          │  ├──────────────────────────────────┤    │
+│          │  │ Services launcher (search+pin)   │    │
+│          │  ├──────────────────┬───────────────┤    │
+│          │  │ Charts (2/3)     │ AI Assistant  │    │
+│          │  ├──────────────────┴───────────────┤    │
+│          │  │ Map (full width)                 │    │
+│          │  ├──────────────────┬───────────────┤    │
+│          │  │ Activity timeline│ Tasks kanban  │    │
+│          │  └──────────────────┴───────────────┘    │
+└──────────┴──────────────────────────────────────────┘
+```
 
-#### 7) UI
-- تحديث `src/components/zatca/ZatcaCsidCard.tsx`:
-  - زر "توليد CSR" → يعرض النص للنسخ + حقل OTP + زر "طلب CSID تجريبي".
-  - بعد نجاح Compliance: زر "تشغيل فحوصات الامتثال" → يعرض تقدم الفحوصات الستة.
-  - بعد نجاح جميع الفحوصات: زر "طلب CSID الإنتاج".
-- شارة حالة على قائمة الفواتير `src/routes/_authenticated/dashboard.invoices.*.tsx`:
-  - Draft / Signed / Cleared ✓ / Reported ✓ / Warnings ⚠ / Rejected ✗.
-- تعديل صفحة تفاصيل الفاتورة: زر "توقيع وإرسال إلى فاتورة" + عرض QR + تحذيرات ZATCA.
+---
 
-#### 8) Secrets مطلوبة
-- `ZATCA_KEY_ENCRYPTION_KEY` (يُولَّد تلقائياً عبر `generate_secret`, 64 char).
+## التعديلات لكل ملف
 
-#### 9) اختبارات ذكية
-- Golden test vector: فاتورة نموذجية من مستندات ZATCA + hash متوقع.
-- تشغيل `signAndSubmitInvoice` ضد Sandbox من داخل CI/dev قبل الترقية للإنتاج.
+### 1. `src/routes/__root.tsx`
+- إضافة `<link>` لـ IBM Plex Sans Arabic (400/500/600/700).
 
-### الترتيب التنفيذي (5 خطوات مرقمة)
-1. **Foundations:** Migration + install libs + `crypto.server.ts` + توليد `ZATCA_KEY_ENCRYPTION_KEY`.
-2. **CSR + Compliance CSID:** `generateCsr` + `requestComplianceCsid` + تحديث UI.
-3. **XAdES + QR + InvoiceHash:** `xades-signer.server.ts` + اختبارات vs ZATCA vectors.
-4. **Fatoora client + submission flow:** `fatoora-client.server.ts` + `signAndSubmitInvoice` + دمج مع `sealZatcaInvoice`.
-5. **Compliance checks + Production CSID + UI حالات:** الفحوصات الستة + الترقية للإنتاج + شارات الفواتير.
+### 2. `src/styles.css`
+- كتلة جديدة داخل `.theme-tech` بالتوكنز أعلاه.
+- `@utility glass-card`, `hover-lift`, `kpi-tile`, `sparkline-fade`.
+- ضبط `--radius` إلى 22px فقط داخل theme-tech.
 
-### مخاطر معروفة
-- **`secp256k1` ECDSA في Workers:** `@noble/curves` يعمل — تم التحقق. لا حاجة لـ WebCrypto.
-- **C14N XML الدقيق:** أي فرق في المسافات البيضاء يفسد الـ hash. سنتّبع مواصفة ZATCA حرفياً واستخدام golden vectors.
-- **ترتيب `UBLExtensions` قبل `Signature`:** حساس. تم توثيقه في تعليقات الكود.
-- **حجم CSR:** بعض حقول ZATCA (Invoice Type 4-digit) يجب أن تطابق بالضبط `1100` للفواتير الضريبية.
+### 3. `DashboardSidebar.tsx` — إعادة كتابة presentational
+- عرض 288px موسّع / 72px مصغّر مع toggle، مؤشر نشط عائم (`motion.div layoutId`)، أيقونات Lucide موحّدة.
+- المجموعات كما هي في الكود الحالي (Dashboard/Services/Employees/Companies/Licenses/Government/Contracts/Invoices/Payments/Reports/Analytics/AI/Documents/Settings/Support/Logout) — روابط `Link` كما هي.
+- Hover: خلفية `bg-primary/6` + انزلاق الأيقونة بـ 2px.
 
-### خارج النطاق (Sprint 3)
-- طابور إعادة المحاولة التلقائي (`zatca_submission_attempts` retry cron).
-- شاشة إعدادات "التقارير الشهرية Reporting Summary".
-- ربط `contact_id` بالفاتورة (يبقى Sprint 4).
+### 4. `DashboardTopbar.tsx` — إعادة كتابة
+- Sticky glass header بارتفاع 72px.
+- ترتيب RTL: Logo (يمين) — Search 480px — AI button — Notifications — Messages — Language — Avatar — **زر Quick Create** بارز (gradient-primary).
+- Global `⌘K` / `Ctrl+K` يفتح `Command` من shadcn (نتائج فورية من عناصر التنقّل الحالية، لا استعلامات جديدة).
 
-هل أبدأ من الخطوة 1 (Foundations)؟
+### 5. `DashboardHero.tsx`
+- عنوان كبير `text-4xl font-bold`: «مرحباً {الاسم} 👋».
+- سطر ثانوي muted.
+- على اليسار: التاريخ الميلادي/الهجري + الوقت الحيّ (setInterval) + placeholder طقس (بدون طلبات شبكة الآن — أيقونة + «الرياض 32°»؛ نصّي فقط).
+
+### 6. Quick Actions (جديد `QuickActionsRow.tsx`)
+- 6 بطاقات أفقية قابلة للتمرير على الموبايل: طلب جديد / إضافة عميل / إضافة شركة / إصدار رخصة / رفع مستند / دفع فاتورة.
+- كل بطاقة: أيقونة كبيرة داخل دائرة gradient + عنوان + وصف قصير + hover-lift.
+- الأزرار تستخدم نفس روابط navigation الحالية.
+
+### 7. `KpiGrid.tsx`
+- بطاقات بيضاء rounded-2xl، رقم بحجم `text-3xl font-semibold` مع عدّاد framer-motion (0→value)، نسبة تغير ملوّنة، sparkline صغير (recharts موجود مسبقاً — لا مكتبات جديدة).
+- شبكة 4/2/1.
+
+### 8. `ServicesGrid.tsx`
+- Command-style launcher: بحث علوي، تبويبات (المثبّتة / الأخيرة / الكل)، شبكة 4 أعمدة، بطاقات مربّعة بأيقونة كبيرة ووصف سطر، Star icon للتثبيت (يُخزَّن في localStorage فقط — لا تعديل backend).
+
+### 9. `AnalyticsPanels.tsx`
+- إعادة تنسيق بصري باستخدام recharts الموجود (Area/Bar/Radial). تأطير كل شارت داخل `glass-card` بارتفاع 340px.
+- **لن أضيف Tremor** لتجنّب تبعية جديدة كبيرة؛ سأحاكي مظهر Tremor عبر tokens.
+
+### 10. `AIRecommendations.tsx` → AI Widget
+- بطاقة عمودية: header (Sparkles + «مساعدك الذكي»)، shortcut للدردشة، 3 اقتراحات اليوم، قائمة توصيات مع chevron.
+- الروابط والبيانات كما هي.
+
+### 11. SaudiMap — إطار فقط
+- تغليف بحاوية `glass-card` جديدة + header + شرح؛ لا لمس لمنطق الخريطة.
+
+### 12. Activity + Tasks + Notifications
+- Activity: timeline عمودي بخطّ نقطي، شارات ملوّنة حسب النوع، أوقات نسبية (`date-fns` موجود).
+- Tasks: 3 أعمدة (اليوم/قادم/مكتمل) بأسلوب mini-kanban بصريّاً فقط، بيانات كما هي.
+- Notifications drawer: يعاد تنسيق داخلي فقط.
+
+### 13. `dashboard.index.tsx`
+- إعادة ترتيب المكوّنات وفق المخطط أعلاه؛ لا تغيير في hooks أو استعلامات.
+
+---
+
+## Animations
+
+Framer-motion (موجود):
+- Section fade+slide-up on mount (stagger 60ms).
+- Hover lift على البطاقات (`whileHover={{ y: -3 }}`).
+- Sidebar active pill عبر `layoutId`.
+- Number counters في KPIs.
+- Route transitions خفيفة في Outlet wrapper.
+
+يُحترم `prefers-reduced-motion`.
+
+---
+
+## Responsive
+
+- ≥1280px: shell كامل.
+- 1024–1279: sidebar mini افتراضياً، content 2 cols.
+- 768–1023: sidebar drawer (Sheet)، KPI 2 cols.
+- <768: Topbar مضغوط + `MobileDashboardTabbar` الحالي (يبقى)، بطاقات عمود واحد، Quick Actions تمرير أفقي.
+
+---
+
+## A11y
+
+- كل زر icon-only يأخذ `aria-label` مترجم.
+- Landmark واحد `<main>` في Shell.
+- تباين ≥ WCAG AA (النصوص `--foreground #0F172A` على `--background #F7F9FB` = 15.4:1؛ primary على أبيض = 9.1:1).
+- Focus rings واضحة (`ring-2 ring-primary/40`).
+- `⌘K` مع `role="dialog"` (Command من shadcn — جاهز).
+
+---
+
+## ما لن يتم في هذه الجولة
+
+- لا Tremor (تبعية ثقيلة؛ recharts يكفي).
+- لا Weather API حقيقي (placeholder نصّي فقط لتجنّب backend).
+- لا إعادة كتابة صفحات الأدمن الداخلية — الشِلّ الجديد يغلّفها كلها تلقائياً.
+- لا تغيير مسارات أو أسماء ملفات routes.
+
+---
+
+## خطة التنفيذ (3 دفعات)
+
+1. **Tokens + Shell**: `styles.css`، `__root.tsx` (link الخط)، `DashboardSidebar`، `DashboardTopbar` + Command palette.
+2. **Home widgets**: `DashboardHero`، `QuickActionsRow` (جديد)، `KpiGrid`، `ServicesGrid`، `AIRecommendations`.
+3. **Data surfaces**: `AnalyticsPanels`، `SaudiMap` wrapper، Activity/Tasks presentational tweaks، ترتيب `dashboard.index.tsx`.
+
+بعد كل دفعة أتحقّق من الـ build وألتقط لقطات موبايل/ديسكتوب.
+
+هل أبدأ بالدفعة الأولى؟
