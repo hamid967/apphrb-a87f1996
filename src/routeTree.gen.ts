@@ -127,7 +127,6 @@ import { Route as AuthenticatedDashboardTenantsRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardTasksRouteImport } from './routes/_authenticated/dashboard.tasks'
 import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
 import { Route as AuthenticatedDashboardServicesReportRouteImport } from './routes/_authenticated/dashboard.services-report'
-import { Route as AuthenticatedDashboardServicesRouteImport } from './routes/_authenticated/dashboard.services'
 import { Route as AuthenticatedDashboardReportsRouteImport } from './routes/_authenticated/dashboard.reports'
 import { Route as AuthenticatedDashboardRenewRouteImport } from './routes/_authenticated/dashboard.renew'
 import { Route as AuthenticatedDashboardPaymentsReviewRouteImport } from './routes/_authenticated/dashboard.payments-review'
@@ -198,6 +197,7 @@ import { Route as AuthenticatedPortalSettingsIndexRouteImport } from './routes/_
 import { Route as AuthenticatedOwnerPortalIndexRouteImport } from './routes/_authenticated/owner.portal.index'
 import { Route as AuthenticatedDashboardUnitsIndexRouteImport } from './routes/_authenticated/dashboard.units.index'
 import { Route as AuthenticatedDashboardTicketsIndexRouteImport } from './routes/_authenticated/dashboard.tickets.index'
+import { Route as AuthenticatedDashboardServicesIndexRouteImport } from './routes/_authenticated/dashboard.services.index'
 import { Route as AuthenticatedDashboardPropertiesIndexRouteImport } from './routes/_authenticated/dashboard.properties.index'
 import { Route as AuthenticatedDashboardInvoicesIndexRouteImport } from './routes/_authenticated/dashboard.invoices.index'
 import { Route as AuthenticatedDashboardCrmIndexRouteImport } from './routes/_authenticated/dashboard.crm.index'
@@ -237,6 +237,7 @@ import { Route as AuthenticatedDashboardSettingsNotificationsRouteImport } from 
 import { Route as AuthenticatedDashboardSettingsImportRouteImport } from './routes/_authenticated/dashboard.settings.import'
 import { Route as AuthenticatedDashboardSettingsBillingRouteImport } from './routes/_authenticated/dashboard.settings.billing'
 import { Route as AuthenticatedDashboardSettingsApiKeysRouteImport } from './routes/_authenticated/dashboard.settings.api-keys'
+import { Route as AuthenticatedDashboardServicesKeyRouteImport } from './routes/_authenticated/dashboard.services.$key'
 import { Route as AuthenticatedDashboardPropertiesNewRouteImport } from './routes/_authenticated/dashboard.properties.new'
 import { Route as AuthenticatedDashboardPropertiesIdRouteImport } from './routes/_authenticated/dashboard.properties.$id'
 import { Route as AuthenticatedDashboardMaintenanceTechniciansRouteImport } from './routes/_authenticated/dashboard.maintenance.technicians'
@@ -913,12 +914,6 @@ const AuthenticatedDashboardServicesReportRoute =
     path: '/services-report',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
-const AuthenticatedDashboardServicesRoute =
-  AuthenticatedDashboardServicesRouteImport.update({
-    id: '/services',
-    path: '/services',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
 const AuthenticatedDashboardReportsRoute =
   AuthenticatedDashboardReportsRouteImport.update({
     id: '/reports',
@@ -1333,6 +1328,12 @@ const AuthenticatedDashboardTicketsIndexRoute =
     path: '/tickets/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardServicesIndexRoute =
+  AuthenticatedDashboardServicesIndexRouteImport.update({
+    id: '/services/',
+    path: '/services/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardPropertiesIndexRoute =
   AuthenticatedDashboardPropertiesIndexRouteImport.update({
     id: '/properties/',
@@ -1556,6 +1557,12 @@ const AuthenticatedDashboardSettingsApiKeysRoute =
     id: '/api-keys',
     path: '/api-keys',
     getParentRoute: () => AuthenticatedDashboardSettingsRoute,
+  } as any)
+const AuthenticatedDashboardServicesKeyRoute =
+  AuthenticatedDashboardServicesKeyRouteImport.update({
+    id: '/services/$key',
+    path: '/services/$key',
+    getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardPropertiesNewRoute =
   AuthenticatedDashboardPropertiesNewRouteImport.update({
@@ -1883,7 +1890,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/payments-review': typeof AuthenticatedDashboardPaymentsReviewRoute
   '/dashboard/renew': typeof AuthenticatedDashboardRenewRoute
   '/dashboard/reports': typeof AuthenticatedDashboardReportsRoute
-  '/dashboard/services': typeof AuthenticatedDashboardServicesRoute
   '/dashboard/services-report': typeof AuthenticatedDashboardServicesReportRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRouteWithChildren
   '/dashboard/tasks': typeof AuthenticatedDashboardTasksRoute
@@ -1964,6 +1970,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/maintenance/technicians': typeof AuthenticatedDashboardMaintenanceTechniciansRoute
   '/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
+  '/dashboard/services/$key': typeof AuthenticatedDashboardServicesKeyRoute
   '/dashboard/settings/api-keys': typeof AuthenticatedDashboardSettingsApiKeysRoute
   '/dashboard/settings/billing': typeof AuthenticatedDashboardSettingsBillingRoute
   '/dashboard/settings/import': typeof AuthenticatedDashboardSettingsImportRoute
@@ -2003,6 +2010,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/crm/': typeof AuthenticatedDashboardCrmIndexRoute
   '/dashboard/invoices/': typeof AuthenticatedDashboardInvoicesIndexRoute
   '/dashboard/properties/': typeof AuthenticatedDashboardPropertiesIndexRoute
+  '/dashboard/services/': typeof AuthenticatedDashboardServicesIndexRoute
   '/dashboard/tickets/': typeof AuthenticatedDashboardTicketsIndexRoute
   '/dashboard/units/': typeof AuthenticatedDashboardUnitsIndexRoute
   '/owner/portal/': typeof AuthenticatedOwnerPortalIndexRoute
@@ -2141,7 +2149,6 @@ export interface FileRoutesByTo {
   '/dashboard/payments-review': typeof AuthenticatedDashboardPaymentsReviewRoute
   '/dashboard/renew': typeof AuthenticatedDashboardRenewRoute
   '/dashboard/reports': typeof AuthenticatedDashboardReportsRoute
-  '/dashboard/services': typeof AuthenticatedDashboardServicesRoute
   '/dashboard/services-report': typeof AuthenticatedDashboardServicesReportRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRouteWithChildren
   '/dashboard/tasks': typeof AuthenticatedDashboardTasksRoute
@@ -2220,6 +2227,7 @@ export interface FileRoutesByTo {
   '/dashboard/maintenance/technicians': typeof AuthenticatedDashboardMaintenanceTechniciansRoute
   '/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
+  '/dashboard/services/$key': typeof AuthenticatedDashboardServicesKeyRoute
   '/dashboard/settings/api-keys': typeof AuthenticatedDashboardSettingsApiKeysRoute
   '/dashboard/settings/billing': typeof AuthenticatedDashboardSettingsBillingRoute
   '/dashboard/settings/import': typeof AuthenticatedDashboardSettingsImportRoute
@@ -2259,6 +2267,7 @@ export interface FileRoutesByTo {
   '/dashboard/crm': typeof AuthenticatedDashboardCrmIndexRoute
   '/dashboard/invoices': typeof AuthenticatedDashboardInvoicesIndexRoute
   '/dashboard/properties': typeof AuthenticatedDashboardPropertiesIndexRoute
+  '/dashboard/services': typeof AuthenticatedDashboardServicesIndexRoute
   '/dashboard/tickets': typeof AuthenticatedDashboardTicketsIndexRoute
   '/dashboard/units': typeof AuthenticatedDashboardUnitsIndexRoute
   '/owner/portal': typeof AuthenticatedOwnerPortalIndexRoute
@@ -2405,7 +2414,6 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/payments-review': typeof AuthenticatedDashboardPaymentsReviewRoute
   '/_authenticated/dashboard/renew': typeof AuthenticatedDashboardRenewRoute
   '/_authenticated/dashboard/reports': typeof AuthenticatedDashboardReportsRoute
-  '/_authenticated/dashboard/services': typeof AuthenticatedDashboardServicesRoute
   '/_authenticated/dashboard/services-report': typeof AuthenticatedDashboardServicesReportRoute
   '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRouteWithChildren
   '/_authenticated/dashboard/tasks': typeof AuthenticatedDashboardTasksRoute
@@ -2486,6 +2494,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/maintenance/technicians': typeof AuthenticatedDashboardMaintenanceTechniciansRoute
   '/_authenticated/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/_authenticated/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
+  '/_authenticated/dashboard/services/$key': typeof AuthenticatedDashboardServicesKeyRoute
   '/_authenticated/dashboard/settings/api-keys': typeof AuthenticatedDashboardSettingsApiKeysRoute
   '/_authenticated/dashboard/settings/billing': typeof AuthenticatedDashboardSettingsBillingRoute
   '/_authenticated/dashboard/settings/import': typeof AuthenticatedDashboardSettingsImportRoute
@@ -2525,6 +2534,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/crm/': typeof AuthenticatedDashboardCrmIndexRoute
   '/_authenticated/dashboard/invoices/': typeof AuthenticatedDashboardInvoicesIndexRoute
   '/_authenticated/dashboard/properties/': typeof AuthenticatedDashboardPropertiesIndexRoute
+  '/_authenticated/dashboard/services/': typeof AuthenticatedDashboardServicesIndexRoute
   '/_authenticated/dashboard/tickets/': typeof AuthenticatedDashboardTicketsIndexRoute
   '/_authenticated/dashboard/units/': typeof AuthenticatedDashboardUnitsIndexRoute
   '/_authenticated/owner/portal/': typeof AuthenticatedOwnerPortalIndexRoute
@@ -2671,7 +2681,6 @@ export interface FileRouteTypes {
     | '/dashboard/payments-review'
     | '/dashboard/renew'
     | '/dashboard/reports'
-    | '/dashboard/services'
     | '/dashboard/services-report'
     | '/dashboard/settings'
     | '/dashboard/tasks'
@@ -2752,6 +2761,7 @@ export interface FileRouteTypes {
     | '/dashboard/maintenance/technicians'
     | '/dashboard/properties/$id'
     | '/dashboard/properties/new'
+    | '/dashboard/services/$key'
     | '/dashboard/settings/api-keys'
     | '/dashboard/settings/billing'
     | '/dashboard/settings/import'
@@ -2791,6 +2801,7 @@ export interface FileRouteTypes {
     | '/dashboard/crm/'
     | '/dashboard/invoices/'
     | '/dashboard/properties/'
+    | '/dashboard/services/'
     | '/dashboard/tickets/'
     | '/dashboard/units/'
     | '/owner/portal/'
@@ -2929,7 +2940,6 @@ export interface FileRouteTypes {
     | '/dashboard/payments-review'
     | '/dashboard/renew'
     | '/dashboard/reports'
-    | '/dashboard/services'
     | '/dashboard/services-report'
     | '/dashboard/settings'
     | '/dashboard/tasks'
@@ -3008,6 +3018,7 @@ export interface FileRouteTypes {
     | '/dashboard/maintenance/technicians'
     | '/dashboard/properties/$id'
     | '/dashboard/properties/new'
+    | '/dashboard/services/$key'
     | '/dashboard/settings/api-keys'
     | '/dashboard/settings/billing'
     | '/dashboard/settings/import'
@@ -3047,6 +3058,7 @@ export interface FileRouteTypes {
     | '/dashboard/crm'
     | '/dashboard/invoices'
     | '/dashboard/properties'
+    | '/dashboard/services'
     | '/dashboard/tickets'
     | '/dashboard/units'
     | '/owner/portal'
@@ -3192,7 +3204,6 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/payments-review'
     | '/_authenticated/dashboard/renew'
     | '/_authenticated/dashboard/reports'
-    | '/_authenticated/dashboard/services'
     | '/_authenticated/dashboard/services-report'
     | '/_authenticated/dashboard/settings'
     | '/_authenticated/dashboard/tasks'
@@ -3273,6 +3284,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/maintenance/technicians'
     | '/_authenticated/dashboard/properties/$id'
     | '/_authenticated/dashboard/properties/new'
+    | '/_authenticated/dashboard/services/$key'
     | '/_authenticated/dashboard/settings/api-keys'
     | '/_authenticated/dashboard/settings/billing'
     | '/_authenticated/dashboard/settings/import'
@@ -3312,6 +3324,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/crm/'
     | '/_authenticated/dashboard/invoices/'
     | '/_authenticated/dashboard/properties/'
+    | '/_authenticated/dashboard/services/'
     | '/_authenticated/dashboard/tickets/'
     | '/_authenticated/dashboard/units/'
     | '/_authenticated/owner/portal/'
@@ -4240,13 +4253,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardServicesReportRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/_authenticated/dashboard/services': {
-      id: '/_authenticated/dashboard/services'
-      path: '/services'
-      fullPath: '/dashboard/services'
-      preLoaderRoute: typeof AuthenticatedDashboardServicesRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
     '/_authenticated/dashboard/reports': {
       id: '/_authenticated/dashboard/reports'
       path: '/reports'
@@ -4737,6 +4743,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardTicketsIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/services/': {
+      id: '/_authenticated/dashboard/services/'
+      path: '/services'
+      fullPath: '/dashboard/services/'
+      preLoaderRoute: typeof AuthenticatedDashboardServicesIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/properties/': {
       id: '/_authenticated/dashboard/properties/'
       path: '/properties'
@@ -5009,6 +5022,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/settings/api-keys'
       preLoaderRoute: typeof AuthenticatedDashboardSettingsApiKeysRouteImport
       parentRoute: typeof AuthenticatedDashboardSettingsRoute
+    }
+    '/_authenticated/dashboard/services/$key': {
+      id: '/_authenticated/dashboard/services/$key'
+      path: '/services/$key'
+      fullPath: '/dashboard/services/$key'
+      preLoaderRoute: typeof AuthenticatedDashboardServicesKeyRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/properties/new': {
       id: '/_authenticated/dashboard/properties/new'
@@ -5626,7 +5646,6 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardPaymentsReviewRoute: typeof AuthenticatedDashboardPaymentsReviewRoute
   AuthenticatedDashboardRenewRoute: typeof AuthenticatedDashboardRenewRoute
   AuthenticatedDashboardReportsRoute: typeof AuthenticatedDashboardReportsRoute
-  AuthenticatedDashboardServicesRoute: typeof AuthenticatedDashboardServicesRoute
   AuthenticatedDashboardServicesReportRoute: typeof AuthenticatedDashboardServicesReportRoute
   AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRouteWithChildren
   AuthenticatedDashboardTasksRoute: typeof AuthenticatedDashboardTasksRoute
@@ -5642,12 +5661,14 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardInvoicesIdRoute: typeof AuthenticatedDashboardInvoicesIdRoute
   AuthenticatedDashboardPropertiesIdRoute: typeof AuthenticatedDashboardPropertiesIdRoute
   AuthenticatedDashboardPropertiesNewRoute: typeof AuthenticatedDashboardPropertiesNewRoute
+  AuthenticatedDashboardServicesKeyRoute: typeof AuthenticatedDashboardServicesKeyRoute
   AuthenticatedDashboardTicketsIdRoute: typeof AuthenticatedDashboardTicketsIdRoute
   AuthenticatedDashboardTicketsNewRoute: typeof AuthenticatedDashboardTicketsNewRoute
   AuthenticatedDashboardUnitsIdRoute: typeof AuthenticatedDashboardUnitsIdRoute
   AuthenticatedDashboardContractsIndexRoute: typeof AuthenticatedDashboardContractsIndexRoute
   AuthenticatedDashboardInvoicesIndexRoute: typeof AuthenticatedDashboardInvoicesIndexRoute
   AuthenticatedDashboardPropertiesIndexRoute: typeof AuthenticatedDashboardPropertiesIndexRoute
+  AuthenticatedDashboardServicesIndexRoute: typeof AuthenticatedDashboardServicesIndexRoute
   AuthenticatedDashboardTicketsIndexRoute: typeof AuthenticatedDashboardTicketsIndexRoute
   AuthenticatedDashboardUnitsIndexRoute: typeof AuthenticatedDashboardUnitsIndexRoute
 }
@@ -5685,7 +5706,6 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardPaymentsReviewRoute,
     AuthenticatedDashboardRenewRoute: AuthenticatedDashboardRenewRoute,
     AuthenticatedDashboardReportsRoute: AuthenticatedDashboardReportsRoute,
-    AuthenticatedDashboardServicesRoute: AuthenticatedDashboardServicesRoute,
     AuthenticatedDashboardServicesReportRoute:
       AuthenticatedDashboardServicesReportRoute,
     AuthenticatedDashboardSettingsRoute:
@@ -5710,6 +5730,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardPropertiesIdRoute,
     AuthenticatedDashboardPropertiesNewRoute:
       AuthenticatedDashboardPropertiesNewRoute,
+    AuthenticatedDashboardServicesKeyRoute:
+      AuthenticatedDashboardServicesKeyRoute,
     AuthenticatedDashboardTicketsIdRoute: AuthenticatedDashboardTicketsIdRoute,
     AuthenticatedDashboardTicketsNewRoute:
       AuthenticatedDashboardTicketsNewRoute,
@@ -5720,6 +5742,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardInvoicesIndexRoute,
     AuthenticatedDashboardPropertiesIndexRoute:
       AuthenticatedDashboardPropertiesIndexRoute,
+    AuthenticatedDashboardServicesIndexRoute:
+      AuthenticatedDashboardServicesIndexRoute,
     AuthenticatedDashboardTicketsIndexRoute:
       AuthenticatedDashboardTicketsIndexRoute,
     AuthenticatedDashboardUnitsIndexRoute:
