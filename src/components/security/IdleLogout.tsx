@@ -86,19 +86,6 @@ export function IdleLogout() {
     } catch {}
     schedule();
 
-    const bump = () => {
-      try {
-        localStorage.setItem(STORAGE_KEY, String(Date.now()));
-      } catch {}
-      schedule();
-    };
-
-    // Reset activity on mount so a stale timestamp from a previous session
-    // (older than `limit`) doesn't sign the user out immediately after login.
-    try {
-      localStorage.setItem(STORAGE_KEY, String(Date.now()));
-    } catch {}
-    schedule();
 
     const events = [
       "mousemove",
