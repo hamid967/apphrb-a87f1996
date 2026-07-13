@@ -293,34 +293,17 @@ function AuctionDetail() {
             </p>
           ) : (
             <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-                  <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-                  <YAxis
-                    tick={{ fontSize: 11 }}
-                    tickFormatter={(v) => Number(v).toLocaleString()}
-                    domain={["auto", "auto"]}
-                  />
-                  <Tooltip
-                    formatter={(v: number) => [
-                      `${Number(v).toLocaleString()} ${a.currency}`,
-                      t("auctions.common.amount"),
-                    ]}
-                    labelFormatter={(l) => `${t("auctions.common.time")}: ${l}`}
-                  />
-                  <Line
-                    type="stepAfter"
-                    dataKey="amount"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                    activeDot={{ r: 5 }}
-                    isAnimationActive={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <MotionLineChart
+                data={chartData}
+                index="label"
+                categories={["amount"]}
+                colors={["emerald"]}
+                valueFormatter={(v) => `${Number(v).toLocaleString()} ${a.currency}`}
+                showLegend={false}
+                className="h-64 mt-2"
+              />
             </div>
+
           )}
         </CardContent>
       </Card>
