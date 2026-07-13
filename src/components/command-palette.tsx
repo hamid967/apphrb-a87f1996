@@ -46,8 +46,9 @@ type Item = {
   to: string;
   icon: React.ComponentType<{ className?: string }>;
   keywords?: string;
-  group: "nav" | "dashboard" | "reports" | "admin" | "actions";
+  group: "nav" | "dashboard" | "services" | "reports" | "admin" | "actions";
 };
+
 
 const PUBLIC_ITEMS: Item[] = [
   { id: "home", label: "الرئيسية", labelEn: "Home", to: "/", icon: Home, group: "nav" },
