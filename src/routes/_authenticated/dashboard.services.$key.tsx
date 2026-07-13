@@ -240,14 +240,18 @@ function ServiceDetailPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             {available ? (
-              <Link
-                to={service.to}
-                onClick={() => recordServiceAccess(service.id, service.to)}
+              <button
+                type="button"
+                onClick={async () => {
+                  const ok = await safeNavigate(service.to, { isAr });
+                  if (ok) recordServiceAccess(service.id, service.to);
+                }}
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
               >
                 {isAr ? "فتح الخدمة" : "Open service"}
                 <ExternalLink className="size-4" />
-              </Link>
+              </button>
+
             ) : (
               <button
                 type="button"
