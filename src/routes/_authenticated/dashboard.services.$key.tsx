@@ -187,15 +187,24 @@ function ServiceDetailPage() {
   ).slice(0, 4);
   const Icon = service.icon;
   const { isKnownRoute, safeNavigate } = useSafeRouteNavigator();
+  const { roles: myRoles } = useMyRoles();
   const flagged = isHubServiceAvailable(service);
   const routeOk = isKnownRoute(service.to);
-  const available = flagged && routeOk;
-  const brokenLink = flagged && !routeOk;
-  const unavailableReason = isAr
-    ? (service.unavailableReasonAr ??
-        (brokenLink ? `المسار «${service.to}» غير مسجّل حاليًا.` : undefined))
-    : (service.unavailableReasonEn ??
-        (brokenLink ? `Route "${service.to}" isn't registered.` : undefined));
+  const authorized = userCanUseService(myRoles, service.id);
+  const restricted = !authorized;
+  const available = flagged && routeOk && authorized;
+  const brokenLink = flagged && !routeOk && authorized;
+  const serviceRoles = rolesForService(service.id);
+  const unavailableReason = restricted
+    ? isAr
+      ? `تتطلب أحد الأدوار: ${serviceRoles.map((r) => roleLabel(r, true)).join("، ")}.`
+      : `Requires one of: ${serviceRoles.map((r) => roleLabel(r, false)).join(", ")}.`
+    : isAr
+      ? (service.unavailableReasonAr ??
+          (brokenLink ? `المسار «${service.to}» غير مسجّل حاليًا.` : undefined))
+      : (service.unavailableReasonEn ??
+          (brokenLink ? `Route "${service.to}" isn't registered.` : undefined));
+
 
 
 
