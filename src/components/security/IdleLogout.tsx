@@ -59,11 +59,10 @@ export function IdleLogout() {
       schedule();
     };
 
-    // Seed activity if missing.
+    // Reset activity on mount so a stale timestamp from a previous session
+    // (older than `limit`) doesn't sign the user out immediately after login.
     try {
-      if (!localStorage.getItem(STORAGE_KEY)) {
-        localStorage.setItem(STORAGE_KEY, String(Date.now()));
-      }
+      localStorage.setItem(STORAGE_KEY, String(Date.now()));
     } catch {}
     schedule();
 
