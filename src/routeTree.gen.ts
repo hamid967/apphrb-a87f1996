@@ -237,6 +237,7 @@ import { Route as AuthenticatedDashboardSettingsNotificationsRouteImport } from 
 import { Route as AuthenticatedDashboardSettingsImportRouteImport } from './routes/_authenticated/dashboard.settings.import'
 import { Route as AuthenticatedDashboardSettingsBillingRouteImport } from './routes/_authenticated/dashboard.settings.billing'
 import { Route as AuthenticatedDashboardSettingsApiKeysRouteImport } from './routes/_authenticated/dashboard.settings.api-keys'
+import { Route as AuthenticatedDashboardServicesKeyRouteImport } from './routes/_authenticated/dashboard.services.$key'
 import { Route as AuthenticatedDashboardPropertiesNewRouteImport } from './routes/_authenticated/dashboard.properties.new'
 import { Route as AuthenticatedDashboardPropertiesIdRouteImport } from './routes/_authenticated/dashboard.properties.$id'
 import { Route as AuthenticatedDashboardMaintenanceTechniciansRouteImport } from './routes/_authenticated/dashboard.maintenance.technicians'
@@ -1557,6 +1558,12 @@ const AuthenticatedDashboardSettingsApiKeysRoute =
     path: '/api-keys',
     getParentRoute: () => AuthenticatedDashboardSettingsRoute,
   } as any)
+const AuthenticatedDashboardServicesKeyRoute =
+  AuthenticatedDashboardServicesKeyRouteImport.update({
+    id: '/services/$key',
+    path: '/services/$key',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardPropertiesNewRoute =
   AuthenticatedDashboardPropertiesNewRouteImport.update({
     id: '/properties/new',
@@ -1963,6 +1970,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/maintenance/technicians': typeof AuthenticatedDashboardMaintenanceTechniciansRoute
   '/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
+  '/dashboard/services/$key': typeof AuthenticatedDashboardServicesKeyRoute
   '/dashboard/settings/api-keys': typeof AuthenticatedDashboardSettingsApiKeysRoute
   '/dashboard/settings/billing': typeof AuthenticatedDashboardSettingsBillingRoute
   '/dashboard/settings/import': typeof AuthenticatedDashboardSettingsImportRoute
@@ -2219,6 +2227,7 @@ export interface FileRoutesByTo {
   '/dashboard/maintenance/technicians': typeof AuthenticatedDashboardMaintenanceTechniciansRoute
   '/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
+  '/dashboard/services/$key': typeof AuthenticatedDashboardServicesKeyRoute
   '/dashboard/settings/api-keys': typeof AuthenticatedDashboardSettingsApiKeysRoute
   '/dashboard/settings/billing': typeof AuthenticatedDashboardSettingsBillingRoute
   '/dashboard/settings/import': typeof AuthenticatedDashboardSettingsImportRoute
@@ -2485,6 +2494,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/maintenance/technicians': typeof AuthenticatedDashboardMaintenanceTechniciansRoute
   '/_authenticated/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/_authenticated/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
+  '/_authenticated/dashboard/services/$key': typeof AuthenticatedDashboardServicesKeyRoute
   '/_authenticated/dashboard/settings/api-keys': typeof AuthenticatedDashboardSettingsApiKeysRoute
   '/_authenticated/dashboard/settings/billing': typeof AuthenticatedDashboardSettingsBillingRoute
   '/_authenticated/dashboard/settings/import': typeof AuthenticatedDashboardSettingsImportRoute
@@ -2751,6 +2761,7 @@ export interface FileRouteTypes {
     | '/dashboard/maintenance/technicians'
     | '/dashboard/properties/$id'
     | '/dashboard/properties/new'
+    | '/dashboard/services/$key'
     | '/dashboard/settings/api-keys'
     | '/dashboard/settings/billing'
     | '/dashboard/settings/import'
@@ -3007,6 +3018,7 @@ export interface FileRouteTypes {
     | '/dashboard/maintenance/technicians'
     | '/dashboard/properties/$id'
     | '/dashboard/properties/new'
+    | '/dashboard/services/$key'
     | '/dashboard/settings/api-keys'
     | '/dashboard/settings/billing'
     | '/dashboard/settings/import'
@@ -3272,6 +3284,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/maintenance/technicians'
     | '/_authenticated/dashboard/properties/$id'
     | '/_authenticated/dashboard/properties/new'
+    | '/_authenticated/dashboard/services/$key'
     | '/_authenticated/dashboard/settings/api-keys'
     | '/_authenticated/dashboard/settings/billing'
     | '/_authenticated/dashboard/settings/import'
@@ -5010,6 +5023,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardSettingsApiKeysRouteImport
       parentRoute: typeof AuthenticatedDashboardSettingsRoute
     }
+    '/_authenticated/dashboard/services/$key': {
+      id: '/_authenticated/dashboard/services/$key'
+      path: '/services/$key'
+      fullPath: '/dashboard/services/$key'
+      preLoaderRoute: typeof AuthenticatedDashboardServicesKeyRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/properties/new': {
       id: '/_authenticated/dashboard/properties/new'
       path: '/properties/new'
@@ -5641,6 +5661,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardInvoicesIdRoute: typeof AuthenticatedDashboardInvoicesIdRoute
   AuthenticatedDashboardPropertiesIdRoute: typeof AuthenticatedDashboardPropertiesIdRoute
   AuthenticatedDashboardPropertiesNewRoute: typeof AuthenticatedDashboardPropertiesNewRoute
+  AuthenticatedDashboardServicesKeyRoute: typeof AuthenticatedDashboardServicesKeyRoute
   AuthenticatedDashboardTicketsIdRoute: typeof AuthenticatedDashboardTicketsIdRoute
   AuthenticatedDashboardTicketsNewRoute: typeof AuthenticatedDashboardTicketsNewRoute
   AuthenticatedDashboardUnitsIdRoute: typeof AuthenticatedDashboardUnitsIdRoute
@@ -5709,6 +5730,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardPropertiesIdRoute,
     AuthenticatedDashboardPropertiesNewRoute:
       AuthenticatedDashboardPropertiesNewRoute,
+    AuthenticatedDashboardServicesKeyRoute:
+      AuthenticatedDashboardServicesKeyRoute,
     AuthenticatedDashboardTicketsIdRoute: AuthenticatedDashboardTicketsIdRoute,
     AuthenticatedDashboardTicketsNewRoute:
       AuthenticatedDashboardTicketsNewRoute,
