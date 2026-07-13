@@ -12,6 +12,7 @@ import {
   History,
   ListChecks,
   Link2,
+  Lock,
   RefreshCcw,
   Sparkles,
   Trash2,
