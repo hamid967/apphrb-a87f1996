@@ -8,6 +8,9 @@ export type SubscriptionAuditEntry = {
   diff: Record<string, unknown> | null;
 };
 
+type Row = { id: string; action: string; created_at: string; diff: unknown };
+
+
 export const getMySubscriptionAuditTrail = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<SubscriptionAuditEntry[]> => {
