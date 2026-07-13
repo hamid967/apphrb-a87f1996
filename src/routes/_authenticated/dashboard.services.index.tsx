@@ -61,9 +61,19 @@ function ServicesReportPage() {
 
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<CategoryKey>("all");
+  const [roleGroup, setRoleGroup] = useState<RoleGroupKey | "all">("all");
+  const [showAll, setShowAll] = useState(false);
 
   const { services, isLoading, error, refetch } = useHubCatalog();
   const { isKnownRoute, safeNavigate } = useSafeRouteNavigator();
+  const { roles: myRoles, isLoading: rolesLoading } = useMyRoles();
+
+  const isSuperAdmin = myRoles.includes("super_admin");
+
+  const canUse = useMemo(
+    () => (svc: HubService) => userCanUseService(myRoles, svc.id),
+    [myRoles],
+  );
 
   const recent = useServiceAccessLog();
   const recentServices = useMemo(() => {
@@ -80,10 +90,21 @@ function ServicesReportPage() {
     return list;
   }, [recent, services]);
 
+  const activeGroup = useMemo(
+    () => ROLE_GROUPS.find((g) => g.key === roleGroup),
+    [roleGroup],
+  );
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return services.filter((s) => {
       if (cat !== "all" && s.category !== cat) return false;
+      if (!showAll && !canUse(s)) return false;
+      if (activeGroup) {
+        const allowed = rolesForService(s.id);
+        const overlap = activeGroup.roles.some((r) => allowed.includes(r));
+        if (!overlap) return false;
+      }
       if (!q) return true;
       const hay = [
         s.titleAr,
@@ -97,7 +118,13 @@ function ServicesReportPage() {
         .toLowerCase();
       return hay.includes(q);
     });
-  }, [query, cat, services]);
+  }, [query, cat, services, showAll, canUse, activeGroup]);
+
+  const hiddenByRoleCount = useMemo(
+    () => (showAll ? 0 : services.filter((s) => !canUse(s)).length),
+    [services, showAll, canUse],
+  );
+
 
   const handleUnavailable = (svc: HubService) => {
     toast.warning(
