@@ -67,8 +67,9 @@ def main() -> int:
         SELECT set_config('request.jwt.claim.sub', '{uid}', true);
         SELECT set_config('role', 'authenticated', true);
 
-        -- Call the function under test.
-        PERFORM public.register_company('{name}', NULL);
+        -- Call the function under test (discard the jsonb result).
+        SELECT public.register_company('{name}', NULL) IS NOT NULL AS ok;
+
 
 
         -- === Assertions ===
