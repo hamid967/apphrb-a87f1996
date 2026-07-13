@@ -987,39 +987,17 @@ function SummaryPanel({
               {isAr ? "لا توجد بيانات" : "No data"}
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={kinds}
-                layout="vertical"
-                margin={{ top: 4, right: 12, left: 8, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={false} />
-                <XAxis
-                  type="number"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  allowDecimals={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="label"
-                  fontSize={11}
-                  width={90}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--popover))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <MotionBarChart
+              data={kinds}
+              index="label"
+              categories={["count"]}
+              colors={["emerald"]}
+              layout="vertical"
+              yAxisWidth={100}
+              showLegend={false}
+              className="h-[240px] mt-2"
+            />
+
           )}
         </CardContent>
       </Card>
