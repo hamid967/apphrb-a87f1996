@@ -259,50 +259,41 @@ function InvoicesListPage() {
         </CardHeader>
 
         <CardContent>
-          {query.isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="size-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : query.isError ? (
+          {query.isError ? (
             <div className="py-8 text-center text-sm text-destructive">
               {(query.error as Error).message}
             </div>
-          ) : items.length === 0 ? (
-            <div className="py-12 text-center text-sm text-muted-foreground">
-              {isAr ? "لا توجد فواتير مطابقة" : "No matching invoices"}
-            </div>
           ) : (
             <>
-              {/* Desktop table */}
-              <div className="hidden overflow-x-auto md:block">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>#</TableHead>
-                      <TableHead>{isAr ? "الإصدار" : "Issued"}</TableHead>
-                      <TableHead>{isAr ? "الاستحقاق" : "Due"}</TableHead>
-                      <TableHead>{isAr ? "العميل" : "Customer"}</TableHead>
-                      <TableHead className="text-end">
-                        {isAr ? "الإجمالي" : "Total"}
-                      </TableHead>
-                      <TableHead>{isAr ? "الحالة" : "Status"}</TableHead>
-                      <TableHead>ZATCA</TableHead>
-                      <TableHead />
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {items.map((row) => (
-                      <InvoiceRow key={row.id} row={row} isAr={isAr} nf={nf} />
-                    ))}
-                  </TableBody>
-                </Table>
+              {/* Desktop DataTable */}
+              <div className="hidden md:block">
+                <DataTable<InvoiceListRow>
+                  data={items}
+                  columns={invoiceColumns(isAr, nf)}
+                  rowKey={(r) => r.id}
+                  isAr={isAr}
+                  loading={query.isLoading}
+                  emptyLabel={isAr ? "لا توجد فواتير مطابقة" : "No matching invoices"}
+                  searchPlaceholder={isAr ? "بحث برقم أو عميل…" : "Search #, customer…"}
+                  exportFileName={`invoices-${new Date().toISOString().slice(0, 10)}`}
+                />
               </div>
 
               {/* Mobile cards */}
               <div className="space-y-2 md:hidden">
-                {items.map((row) => (
-                  <MobileCard key={row.id} row={row} isAr={isAr} nf={nf} />
-                ))}
+                {query.isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="size-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : items.length === 0 ? (
+                  <div className="py-12 text-center text-sm text-muted-foreground">
+                    {isAr ? "لا توجد فواتير مطابقة" : "No matching invoices"}
+                  </div>
+                ) : (
+                  items.map((row) => (
+                    <MobileCard key={row.id} row={row} isAr={isAr} nf={nf} />
+                  ))
+                )}
               </div>
             </>
           )}
@@ -312,76 +303,89 @@ function InvoicesListPage() {
   );
 }
 
-function SummaryCard({
-  label,
-  value,
-  hint,
-  tone,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  tone?: "success" | "warning";
-}) {
-  const toneCls =
-    tone === "success"
-      ? "text-success"
-      : tone === "warning"
-        ? "text-warning"
-        : "text-foreground";
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="text-xs text-muted-foreground">{label}</div>
-        <div className={`mt-1 text-lg font-bold tabular-nums sm:text-xl ${toneCls}`}>
-          {value}
-        </div>
-        {hint && <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>}
-      </CardContent>
-    </Card>
-  );
-}
-
-function InvoiceRow({
-  row,
-  isAr,
-  nf,
-}: {
-  row: InvoiceListRow;
-  isAr: boolean;
-  nf: Intl.NumberFormat;
-}) {
-  return (
-    <TableRow>
-      <TableCell className="font-mono text-xs">
-        {row.number ?? row.id.slice(0, 8)}
-      </TableCell>
-      <TableCell className="text-muted-foreground">{row.issue_date ?? "—"}</TableCell>
-      <TableCell className="text-muted-foreground">{row.due_date ?? "—"}</TableCell>
-      <TableCell className="max-w-[14rem] truncate">
-        {row.contact_name ?? "—"}
-      </TableCell>
-      <TableCell className="text-end font-semibold tabular-nums">
-        {nf.format(Number(row.total ?? 0))} {row.currency ?? "SAR"}
-      </TableCell>
-      <TableCell>{statusBadge(row.status, isAr)}</TableCell>
-      <TableCell>
-        <Badge variant={row.zatca_counter ? "default" : "secondary"} className="text-[10px]">
-          {row.zatca_status ?? "—"}
-          {row.zatca_counter ? ` · #${row.zatca_counter}` : ""}
+function invoiceColumns(
+  isAr: boolean,
+  nf: Intl.NumberFormat,
+): DataTableColumn<InvoiceListRow>[] {
+  return [
+    {
+      id: "number",
+      header: "#",
+      width: 130,
+      accessor: (r) => r.number ?? r.id.slice(0, 8),
+      cell: (r) => (
+        <span className="font-mono text-xs">{r.number ?? r.id.slice(0, 8)}</span>
+      ),
+    },
+    {
+      id: "issue_date",
+      header: isAr ? "الإصدار" : "Issued",
+      width: 120,
+      accessor: (r) => r.issue_date ?? "",
+    },
+    {
+      id: "due_date",
+      header: isAr ? "الاستحقاق" : "Due",
+      width: 120,
+      accessor: (r) => r.due_date ?? "",
+    },
+    {
+      id: "contact_name",
+      header: isAr ? "العميل" : "Customer",
+      width: 220,
+      accessor: (r) => r.contact_name ?? "",
+    },
+    {
+      id: "total",
+      header: isAr ? "الإجمالي" : "Total",
+      align: "end",
+      width: 150,
+      accessor: (r) => Number(r.total ?? 0),
+      cell: (r) => (
+        <span className="font-semibold tabular-nums">
+          {nf.format(Number(r.total ?? 0))} {r.currency ?? "SAR"}
+        </span>
+      ),
+    },
+    {
+      id: "status",
+      header: isAr ? "الحالة" : "Status",
+      width: 130,
+      accessor: (r) => r.status ?? "",
+      cell: (r) => statusBadge(r.status, isAr),
+    },
+    {
+      id: "zatca_status",
+      header: "ZATCA",
+      width: 140,
+      accessor: (r) => r.zatca_status ?? "",
+      cell: (r) => (
+        <Badge variant={r.zatca_counter ? "default" : "secondary"} className="text-[10px]">
+          {r.zatca_status ?? "—"}
+          {r.zatca_counter ? ` · #${r.zatca_counter}` : ""}
         </Badge>
-      </TableCell>
-      <TableCell className="text-end">
+      ),
+    },
+    {
+      id: "open",
+      header: "",
+      align: "end",
+      width: 90,
+      sortable: false,
+      filterable: false,
+      cell: (r) => (
         <Button asChild size="sm" variant="ghost">
-          <Link to="/dashboard/invoices/$id" params={{ id: row.id }}>
+          <Link to="/dashboard/invoices/$id" params={{ id: r.id }}>
             {isAr ? "فتح" : "Open"}
             <ArrowRight className="ms-1 size-3.5 rtl:rotate-180" />
           </Link>
         </Button>
-      </TableCell>
-    </TableRow>
-  );
+      ),
+      accessor: () => "",
+    },
+  ];
 }
+
 
 function MobileCard({
   row,
