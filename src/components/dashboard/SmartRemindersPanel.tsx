@@ -171,31 +171,31 @@ const toneStyles: Record<
   { bg: string; border: string; icon: string; dot: string; label: { ar: string; en: string } }
 > = {
   info: {
-    bg: "bg-sky-500/8",
-    border: "border-sky-500/25",
-    icon: "text-sky-500",
-    dot: "bg-sky-500",
+    bg: "bg-info/8",
+    border: "border-info/25",
+    icon: "text-info",
+    dot: "bg-info",
     label: { ar: "قيد المعالجة", en: "In progress" },
   },
   warn: {
-    bg: "bg-amber-500/8",
-    border: "border-amber-500/30",
-    icon: "text-amber-500",
-    dot: "bg-amber-500",
+    bg: "bg-warning/8",
+    border: "border-warning/30",
+    icon: "text-warning",
+    dot: "bg-warning",
     label: { ar: "بحاجة إلى إجراء", en: "Action needed" },
   },
   danger: {
-    bg: "bg-rose-500/8",
-    border: "border-rose-500/30",
-    icon: "text-rose-500",
-    dot: "bg-rose-500",
+    bg: "bg-destructive/8",
+    border: "border-destructive/30",
+    icon: "text-destructive",
+    dot: "bg-destructive",
     label: { ar: "تنبيه", en: "Alert" },
   },
   success: {
-    bg: "bg-emerald-500/8",
-    border: "border-emerald-500/25",
-    icon: "text-emerald-500",
-    dot: "bg-emerald-500",
+    bg: "bg-success/8",
+    border: "border-success/25",
+    icon: "text-success",
+    dot: "bg-success",
     label: { ar: "مكتمل", en: "Completed" },
   },
 };
@@ -809,7 +809,7 @@ export function SmartRemindersPanel({
         </div>
       ) : visibleReminders.length === 0 ? (
         <div className="grid place-items-center rounded-xl border border-dashed py-8 text-center">
-          <CheckCircle2 className="size-6 text-emerald-500" />
+          <CheckCircle2 className="size-6 text-success" />
           <p className="mt-2 text-sm font-semibold">
             {isAr ? "لا توجد تذكيرات حالياً" : "You're all caught up"}
           </p>

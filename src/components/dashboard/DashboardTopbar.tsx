@@ -209,7 +209,7 @@ export function DashboardTopbar({
       {/* Search + AI chip */}
       <form onSubmit={submitSearch} className="flex flex-1 items-center gap-2">
         <div className="relative flex-1 max-w-[560px]">
-          <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-amber-300/70" />
+          <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-warning/70" />
           <Input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -385,7 +385,7 @@ export function DashboardTopbar({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button type="button" className="luxe-pill">
-              <Building2 className="size-4 text-amber-300" />
+              <Building2 className="size-4 text-warning" />
               <span className="max-w-[140px] truncate">
                 {activeOrg?.name ?? (isAr ? "الشركة" : "Company")}
               </span>
@@ -421,7 +421,7 @@ export function DashboardTopbar({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button type="button" className="luxe-pill">
-              <MapPin className="size-4 text-amber-300" />
+              <MapPin className="size-4 text-warning" />
               <span className="max-w-[120px] truncate">
                 {activeBranch?.name ?? (isAr ? "كل الفروع" : "All branches")}
               </span>
@@ -487,7 +487,7 @@ export function DashboardTopbar({
                 <div className="truncate text-sm font-semibold leading-tight text-white">
                   {displayName}
                 </div>
-                <div className="truncate text-[10px] text-amber-300/70">{orgs[0]?.role ?? ""}</div>
+                <div className="truncate text-[10px] text-warning/70">{orgs[0]?.role ?? ""}</div>
               </div>
               <ChevronDown className="size-3.5 opacity-60" />
             </button>

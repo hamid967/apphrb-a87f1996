@@ -352,7 +352,7 @@ function DetailBody({ row, isAr }: { row: AuditLogRow; isAr: boolean }) {
                             <span
                               className={
                                 c.changed
-                                  ? "rounded bg-emerald-500/10 px-1.5 py-0.5 text-emerald-700 dark:text-emerald-400"
+                                  ? "rounded bg-success/10 px-1.5 py-0.5 text-success dark:text-success"
                                   : "text-muted-foreground"
                               }
                             >

@@ -221,7 +221,7 @@ export function PendingApprovalsPanel() {
       <CardHeader className="flex flex-col gap-3 pb-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <CardTitle className="flex items-center gap-2 text-base">
-            <ShieldAlert className="size-4 text-amber-500" aria-hidden />
+            <ShieldAlert className="size-4 text-warning" aria-hidden />
             {isAr ? "الموافقات المعلقة" : "Pending approvals"}
             {filtered.length > 0 && (
               <Badge variant="secondary" className="ms-1">
@@ -368,7 +368,7 @@ export function PendingApprovalsPanel() {
                   <Button
                     size="sm"
                     variant="default"
-                    className="bg-emerald-600 hover:bg-emerald-500"
+                    className="bg-success hover:bg-success"
                     disabled={decide.isPending}
                     onClick={() => openAction(r, "approve")}
                   >
@@ -471,7 +471,7 @@ export function PendingApprovalsPanel() {
               }
               className={
                 dialogFor?.kind === "approve"
-                  ? "bg-emerald-600 hover:bg-emerald-500"
+                  ? "bg-success hover:bg-success"
                   : undefined
               }
             >

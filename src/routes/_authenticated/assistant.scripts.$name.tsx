@@ -388,7 +388,7 @@ function ScriptDetailPage() {
           </span>
         ) : mutation.isSuccess && lastUpdatedAt ? (
           <>
-            <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+            <span className="inline-flex items-center gap-1.5 text-success dark:text-success">
               <CheckCircle2 className="size-3.5" />
               {t("assistant.scripts.completed")}
             </span>

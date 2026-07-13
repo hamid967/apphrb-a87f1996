@@ -204,7 +204,7 @@ function HistoryRow({
     <li className="rounded-xl border bg-card">
       <div className="flex items-center gap-3 p-3 flex-wrap">
         {entry.status === "success" ? (
-          <CheckCircle2 className="size-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <CheckCircle2 className="size-5 shrink-0 text-success dark:text-success" />
         ) : (
           <XCircle className="size-5 shrink-0 text-destructive" />
         )}

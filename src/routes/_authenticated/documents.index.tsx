@@ -179,7 +179,7 @@ function DocumentsPage() {
                         {d.category}
                       </Badge>
                       {d.signature_status === "signed" && (
-                        <Badge className="bg-emerald-600 hover:bg-emerald-600">Signed</Badge>
+                        <Badge className="bg-success hover:bg-success">Signed</Badge>
                       )}
                       {d.signature_status === "pending" && <Badge variant="outline">Pending</Badge>}
                       {d.current_version && (

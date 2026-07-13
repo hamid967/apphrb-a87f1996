@@ -134,12 +134,12 @@ function RealtimeDiagnosticsPage() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {/* summary cards below */}
         <SummaryCard
-          icon={<WifiOff className="size-4 text-amber-500" />}
+          icon={<WifiOff className="size-4 text-warning" />}
           label={isAr ? "انقطاعات" : "Disconnects"}
           value={summary?.totalDisconnects ?? 0}
         />
         <SummaryCard
-          icon={<RefreshCcw className="size-4 text-emerald-500" />}
+          icon={<RefreshCcw className="size-4 text-success" />}
           label={isAr ? "إعادات ناجحة" : "Reconnects"}
           value={summary?.totalReconnects ?? 0}
         />
@@ -149,12 +149,12 @@ function RealtimeDiagnosticsPage() {
           value={summary?.totalFailed ?? 0}
         />
         <SummaryCard
-          icon={<PlayCircle className="size-4 text-sky-500" />}
+          icon={<PlayCircle className="size-4 text-info" />}
           label={isAr ? "جلسات Polling" : "Polling sessions"}
           value={summary?.totalPollSessions ?? 0}
         />
         <SummaryCard
-          icon={<Timer className="size-4 text-sky-500" />}
+          icon={<Timer className="size-4 text-info" />}
           label={isAr ? "طلبات Polling" : "Polling fetches"}
           value={summary?.totalPollFetches ?? 0}
         />
@@ -226,7 +226,7 @@ function RealtimeDiagnosticsPage() {
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-end tabular-nums text-emerald-600">
+                      <TableCell className="text-end tabular-nums text-success">
                         {r.reconnects}
                       </TableCell>
                       <TableCell className="text-end tabular-nums">
@@ -236,10 +236,10 @@ function RealtimeDiagnosticsPage() {
                           <span className="text-muted-foreground">0</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-end tabular-nums text-sky-700">
+                      <TableCell className="text-end tabular-nums text-info">
                         {r.poll_sessions}
                       </TableCell>
-                      <TableCell className="text-end tabular-nums text-sky-700">
+                      <TableCell className="text-end tabular-nums text-info">
                         {r.poll_fetches}
                       </TableCell>
                       <TableCell className="text-end tabular-nums">
@@ -291,7 +291,7 @@ function LastKindBadge({ kind, isAr }: { kind: RealtimeEventKind; isAr: boolean 
   switch (kind) {
     case "reconnect":
       return (
-        <Badge variant="outline" className="mt-1 border-emerald-500/40 text-emerald-700">
+        <Badge variant="outline" className="mt-1 border-success/40 text-success">
           {isAr ? "إعادة" : "reconnect"}
         </Badge>
       );
@@ -303,19 +303,19 @@ function LastKindBadge({ kind, isAr }: { kind: RealtimeEventKind; isAr: boolean 
       );
     case "poll_start":
       return (
-        <Badge variant="outline" className="mt-1 border-sky-500/40 text-sky-700">
+        <Badge variant="outline" className="mt-1 border-info/40 text-info">
           {isAr ? "بدء Polling" : "poll start"}
         </Badge>
       );
     case "poll_stop":
       return (
-        <Badge variant="outline" className="mt-1 border-sky-500/40 text-sky-700">
+        <Badge variant="outline" className="mt-1 border-info/40 text-info">
           {isAr ? "إيقاف Polling" : "poll stop"}
         </Badge>
       );
     case "poll_fetch":
       return (
-        <Badge variant="outline" className="mt-1 border-sky-500/40 text-sky-700">
+        <Badge variant="outline" className="mt-1 border-info/40 text-info">
           {isAr ? "طلب Polling" : "poll fetch"}
         </Badge>
       );
@@ -327,7 +327,7 @@ function LastKindBadge({ kind, isAr }: { kind: RealtimeEventKind; isAr: boolean 
       );
     default:
       return (
-        <Badge variant="outline" className="mt-1 border-amber-500/40 text-amber-700">
+        <Badge variant="outline" className="mt-1 border-warning/40 text-warning">
           {isAr ? "انقطاع" : "disconnect"}
         </Badge>
       );

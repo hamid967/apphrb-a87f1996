@@ -11,9 +11,9 @@ export const Route = createFileRoute("/_authenticated/dashboard/tasks")({
 type T = { id: string; title: string | null; description: string | null; due_at: string | null; priority: string | null; status: string | null; assignee_id: string | null; created_at: string };
 
 const prioColor: Record<string, string> = {
-  urgent: "bg-red-500/15 text-red-700 border-red-500/30",
-  high: "bg-orange-500/15 text-orange-700 border-orange-500/30",
-  medium: "bg-amber-500/15 text-amber-700 border-amber-500/30",
+  urgent: "bg-destructive/15 text-destructive border-destructive/30",
+  high: "bg-warning/15 text-warning border-warning/30",
+  medium: "bg-warning/15 text-warning border-warning/30",
   low: "bg-slate-500/15 text-slate-700 border-slate-500/30",
 };
 

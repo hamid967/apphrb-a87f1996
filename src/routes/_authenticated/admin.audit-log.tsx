@@ -459,7 +459,7 @@ function AuditLogPage() {
                                     <td className="px-2 py-1 font-mono text-destructive/80">
                                       {JSON.stringify(f.before) ?? "—"}
                                     </td>
-                                    <td className="px-2 py-1 font-mono text-emerald-600 dark:text-emerald-400">
+                                    <td className="px-2 py-1 font-mono text-success dark:text-success">
                                       {JSON.stringify(f.after) ?? "—"}
                                     </td>
                                   </tr>

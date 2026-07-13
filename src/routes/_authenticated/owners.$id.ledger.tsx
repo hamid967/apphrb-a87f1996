@@ -409,10 +409,10 @@ function OwnerLedgerPage() {
                         <td className="p-3">{r.unit_code ?? "—"}</td>
                         <td className="p-3">{r.description}</td>
                         <td className="p-3 text-muted-foreground">{r.status ?? "—"}</td>
-                        <td className="p-3 text-end tabular-nums text-amber-600">
+                        <td className="p-3 text-end tabular-nums text-warning">
                           {r.debit ? fmt(r.debit, r.currency) : "—"}
                         </td>
-                        <td className="p-3 text-end tabular-nums text-emerald-600">
+                        <td className="p-3 text-end tabular-nums text-success">
                           {r.credit ? fmt(r.credit, r.currency) : "—"}
                         </td>
                         <td className="p-3 text-end tabular-nums">{fmt(r.balance, r.currency)}</td>
@@ -432,10 +432,10 @@ function OwnerLedgerPage() {
                         <td className="p-3" colSpan={6}>
                           {isAr ? "الإجماليات" : "Totals"}
                         </td>
-                        <td className="p-3 text-end tabular-nums text-amber-600">
+                        <td className="p-3 text-end tabular-nums text-warning">
                           {fmt(data.totals.debit, data.currency)}
                         </td>
-                        <td className="p-3 text-end tabular-nums text-emerald-600">
+                        <td className="p-3 text-end tabular-nums text-success">
                           {fmt(data.totals.credit, data.currency)}
                         </td>
                         <td className="p-3 text-end tabular-nums">
@@ -456,7 +456,7 @@ function OwnerLedgerPage() {
 
 function Kpi({ label, value, tone }: { label: string; value: string; tone?: "pos" | "warn" }) {
   const cls =
-    tone === "pos" ? "text-emerald-600" : tone === "warn" ? "text-amber-600" : "text-foreground";
+    tone === "pos" ? "text-success" : tone === "warn" ? "text-warning" : "text-foreground";
   return (
     <Card>
       <CardContent className="p-4">

@@ -742,7 +742,7 @@ function AuctionsReportsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className={`w-full gap-1 ${hasPersistedExtras ? "border-amber-500/70 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10" : ""}`}
+                className={`w-full gap-1 ${hasPersistedExtras ? "border-warning/70 text-warning dark:text-warning hover:bg-warning/10" : ""}`}
                 onClick={clearPersistedFilters}
                 disabled={!hasPersistedExtras || q.isFetching}
                 data-testid="clear-persisted-filters"

@@ -14,15 +14,15 @@ type Entry = {
 
 function iconFor(action: string) {
   if (action.endsWith(".success") || action.endsWith(".subscription_created")) {
-    return { icon: <CheckCircle2 className="size-4" />, tone: "text-emerald-500" };
+    return { icon: <CheckCircle2 className="size-4" />, tone: "text-success" };
   }
   if (action.endsWith(".failed") || action.endsWith(".exception")) {
-    return { icon: <XCircle className="size-4" />, tone: "text-rose-500" };
+    return { icon: <XCircle className="size-4" />, tone: "text-destructive" };
   }
   if (action.endsWith(".no_package") || action.endsWith(".subscription_exists")) {
-    return { icon: <AlertTriangle className="size-4" />, tone: "text-amber-500" };
+    return { icon: <AlertTriangle className="size-4" />, tone: "text-warning" };
   }
-  return { icon: <Info className="size-4" />, tone: "text-sky-500" };
+  return { icon: <Info className="size-4" />, tone: "text-info" };
 }
 
 export function SubscriptionAuditTrail({ isAr }: { isAr: boolean }) {
@@ -75,7 +75,7 @@ export function SubscriptionAuditTrail({ isAr }: { isAr: boolean }) {
             </div>
           )}
           {q.error && (
-            <div className="text-sm text-rose-500">
+            <div className="text-sm text-destructive">
               {t("تعذّر تحميل السجل", "Failed to load log")}
               <Button
                 variant="ghost"

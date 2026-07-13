@@ -61,12 +61,12 @@ export function ImpersonationBanner() {
     .padStart(2, "0");
 
   return (
-    <div className="sticky top-0 z-50 flex items-center gap-3 border-b border-amber-500/40 bg-amber-500/15 px-4 py-2 text-xs text-amber-900 dark:text-amber-100">
+    <div className="sticky top-0 z-50 flex items-center gap-3 border-b border-warning/40 bg-warning/15 px-4 py-2 text-xs text-warning dark:text-warning">
       <ShieldAlert className="size-4 shrink-0" />
       <span className="truncate">
         Viewing as{" "}
         <b>{state.target.full_name ?? state.target.email ?? state.target.id.slice(0, 8)}</b>
-        <span className="ml-2 text-amber-800/70 dark:text-amber-200/70">
+        <span className="ml-2 text-warning/70 dark:text-warning/70">
           since {new Date(state.started_at).toLocaleTimeString()}
         </span>
         <span className="ml-2 tabular-nums">

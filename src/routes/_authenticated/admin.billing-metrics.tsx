@@ -366,7 +366,7 @@ function MetricsContent({
           label={isAr ? "الإيرادات الشهرية (MRR)" : "MRR (this month)"}
           value={fmtMoney(m.mrr_current)}
           sub={
-            <span className={growthPositive ? "text-emerald-600" : "text-rose-600"}>
+            <span className={growthPositive ? "text-success" : "text-destructive"}>
               {growthPositive ? (
                 <TrendingUp className="me-1 inline size-3.5" />
               ) : (
@@ -548,10 +548,10 @@ function MetricsContent({
                       <td className="p-3 font-medium">{r.label}</td>
                       <td className="p-3 text-end tabular-nums">{fmtMoney(Number(r.revenue))}</td>
                       <td className="p-3 text-end tabular-nums">{fmtInt(r.paying_orgs)}</td>
-                      <td className="p-3 text-end tabular-nums text-emerald-600">
+                      <td className="p-3 text-end tabular-nums text-success">
                         {fmtInt(r.new_paying_orgs)}
                       </td>
-                      <td className="p-3 text-end tabular-nums text-rose-600">
+                      <td className="p-3 text-end tabular-nums text-destructive">
                         {fmtInt(r.churned_orgs)}
                       </td>
                     </tr>
@@ -853,11 +853,11 @@ function TrialDrill({
                 <td className="p-3 text-end tabular-nums">{r.created_at.slice(0, 10)}</td>
                 <td className="p-3 text-center">
                   {r.converted ? (
-                    <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                    <span className="rounded-full bg-success/15 px-2 py-0.5 text-xs font-medium text-success dark:text-success">
                       {isAr ? "حوَّلت" : "Converted"}
                     </span>
                   ) : (
-                    <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-400">
+                    <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-medium text-warning dark:text-warning">
                       {isAr ? "قيد التجربة" : "Pending"}
                     </span>
                   )}

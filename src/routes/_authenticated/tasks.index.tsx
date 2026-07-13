@@ -83,9 +83,9 @@ const STATUSES: Status[] = ["open", "in_progress", "done", "cancelled"];
 
 const priorityBadge: Record<Priority, string> = {
   low: "bg-muted text-muted-foreground",
-  medium: "bg-sky-500/10 text-sky-700 dark:text-sky-300",
-  high: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-  urgent: "bg-red-500/15 text-red-700 dark:text-red-300",
+  medium: "bg-info/10 text-info dark:text-info",
+  high: "bg-warning/15 text-warning dark:text-warning",
+  urgent: "bg-destructive/15 text-destructive dark:text-destructive",
 };
 
 function TasksPage() {
@@ -283,12 +283,12 @@ function TasksPage() {
                         </Badge>
                         <Badge variant="outline">{t(`tasks.statuses.${r.status}`)}</Badge>
                         {overdue && (
-                          <Badge className="border-transparent bg-red-500/15 text-red-700 dark:text-red-300">
+                          <Badge className="border-transparent bg-destructive/15 text-destructive dark:text-destructive">
                             <AlertCircle className="me-1 size-3" /> {t("tasks.overdueBadge")}
                           </Badge>
                         )}
                         {today && !overdue && (
-                          <Badge className="border-transparent bg-amber-500/15 text-amber-700 dark:text-amber-300">
+                          <Badge className="border-transparent bg-warning/15 text-warning dark:text-warning">
                             {t("tasks.dueToday")}
                           </Badge>
                         )}

@@ -37,18 +37,18 @@ export const Route = createFileRoute("/_authenticated/dashboard/tickets/")({
 });
 
 const STATUS_TONE: Record<string, string> = {
-  open: "bg-blue-500/20 text-blue-500 border-blue-500/40",
-  in_progress: "bg-amber-500/20 text-amber-500 border-amber-500/40",
-  pending: "bg-purple-500/20 text-purple-500 border-purple-500/40",
-  resolved: "bg-emerald-500/20 text-emerald-500 border-emerald-500/40",
+  open: "bg-info/20 text-info border-info/40",
+  in_progress: "bg-warning/20 text-warning border-warning/40",
+  pending: "bg-primary/20 text-primary border-primary/40",
+  resolved: "bg-success/20 text-success border-success/40",
   closed: "bg-muted text-muted-foreground border-border",
 };
 
 const PRIORITY_TONE: Record<string, string> = {
   low: "bg-slate-500/20 text-slate-400 border-slate-500/40",
-  normal: "bg-blue-500/20 text-blue-400 border-blue-500/40",
-  high: "bg-orange-500/20 text-orange-400 border-orange-500/40",
-  urgent: "bg-red-500/20 text-red-400 border-red-500/40",
+  normal: "bg-info/20 text-info border-info/40",
+  high: "bg-warning/20 text-warning border-warning/40",
+  urgent: "bg-destructive/20 text-destructive border-destructive/40",
 };
 
 const STATUS_LABEL_AR: Record<string, string> = {
@@ -214,7 +214,7 @@ function TicketsListPage() {
                     <TableCell className="text-xs">{r.channel}</TableCell>
                     <TableCell className="text-xs">
                       {r.resolved_at ? (
-                        <span className="text-emerald-500 inline-flex items-center gap-1">
+                        <span className="text-success inline-flex items-center gap-1">
                           <CheckCircle2 className="h-3 w-3" />
                           {isAr ? "منجزة" : "Done"}
                         </span>

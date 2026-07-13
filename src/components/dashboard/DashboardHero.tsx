@@ -94,7 +94,7 @@ export function DashboardHero({ orgName, userName, canCreate, isAr }: Props) {
           <Button
             asChild
             size="sm"
-            className="h-9 shrink-0 gap-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-[0_6px_20px_-6px_hsl(var(--primary)/0.45)] hover:from-amber-400 hover:to-amber-500"
+            className="h-9 shrink-0 gap-2 bg-gradient-to-r from-warning to-warning text-white shadow-[0_6px_20px_-6px_hsl(var(--primary)/0.45)] hover:from-warning hover:to-warning"
           >
             <Link
               to="/dashboard/expenses/claim"
@@ -111,7 +111,7 @@ export function DashboardHero({ orgName, userName, canCreate, isAr }: Props) {
             asChild
             size="sm"
             variant="outline"
-            className="h-9 shrink-0 gap-2 border-amber-500/40 text-amber-700 hover:bg-amber-500/10 dark:text-amber-300"
+            className="h-9 shrink-0 gap-2 border-warning/40 text-warning hover:bg-warning/10 dark:text-warning"
           >
             <Link
               to="/dashboard/expenses/batches"
@@ -120,7 +120,7 @@ export function DashboardHero({ orgName, userName, canCreate, isAr }: Props) {
             >
               <Layers className="size-4" aria-hidden />
               {isAr ? "تقرير جماعي" : "Batch report"}
-              <span className="ms-1 hidden rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold sm:inline">
+              <span className="ms-1 hidden rounded-full bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold sm:inline">
                 {isAr ? "خطوتان" : "2 steps"}
               </span>
             </Link>

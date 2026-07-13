@@ -32,10 +32,10 @@ export const Route = createFileRoute("/_authenticated/rentals/")({
 });
 
 const STATUS_STYLES: Record<string, string> = {
-  active: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+  active: "bg-success/15 text-success dark:text-success",
   draft: "bg-muted text-muted-foreground",
   ended: "bg-muted text-muted-foreground",
-  cancelled: "bg-red-500/15 text-red-600 dark:text-red-400",
+  cancelled: "bg-destructive/15 text-destructive dark:text-destructive",
 };
 
 function daysUntil(dateStr: string) {
@@ -112,19 +112,19 @@ function RentalsDashboard() {
           hint={`${s?.contracts.total ?? 0} total`}
         />
         <Kpi
-          icon={<AlertTriangle className="size-4 text-amber-500" />}
+          icon={<AlertTriangle className="size-4 text-warning" />}
           label="Expiring ≤30d"
           value={s?.contracts.expiring ?? 0}
           tone="amber"
         />
         <Kpi
-          icon={<Wallet className="size-4 text-emerald-500" />}
+          icon={<Wallet className="size-4 text-success" />}
           label="Collected (invoices)"
           value={fmtMoney(s?.invoices.collected ?? 0)}
           tone="emerald"
         />
         <Kpi
-          icon={<FileText className="size-4 text-red-500" />}
+          icon={<FileText className="size-4 text-destructive" />}
           label="Outstanding"
           value={fmtMoney(s?.invoices.outstanding ?? 0)}
           tone="red"
@@ -197,15 +197,15 @@ function RentalsDashboard() {
                     const days = daysUntil(c.end_date);
                     const flag =
                       days < 0 ? (
-                        <Badge className="bg-red-500/15 text-red-600 dark:text-red-400">
+                        <Badge className="bg-destructive/15 text-destructive dark:text-destructive">
                           Expired
                         </Badge>
                       ) : days <= 30 ? (
-                        <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400">
+                        <Badge className="bg-warning/15 text-warning dark:text-warning">
                           {days}d left
                         </Badge>
                       ) : (
-                        <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                        <Badge className="bg-success/15 text-success dark:text-success">
                           <CheckCircle2 className="me-1 size-3 inline" />
                           OK
                         </Badge>

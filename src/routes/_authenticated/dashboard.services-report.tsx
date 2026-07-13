@@ -61,7 +61,7 @@ const SERVICES: Service[] = [
     featuresAr: ["بطاقات KPI", "توصيات ذكية", "خريطة السعودية التفاعلية"],
     featuresEn: ["KPI cards", "Smart recommendations", "Interactive Saudi map"],
     category: "core",
-    hue: "from-violet-500/25 to-fuchsia-500/10",
+    hue: "from-primary/25 to-fuchsia-500/10",
   },
   {
     id: "valuation",
@@ -87,7 +87,7 @@ const SERVICES: Service[] = [
     featuresAr: ["موعد جديد بضغطة", "تصفية بالحالة والفترة", "روابط اتصال وبريد", "مصادر متعددة"],
     featuresEn: ["One-click booking", "Filter by status & range", "Call/email links", "Multi-source"],
     category: "ops",
-    hue: "from-sky-500/25 to-cyan-500/10",
+    hue: "from-info/25 to-info/10",
   },
   {
     id: "archive",
@@ -100,7 +100,7 @@ const SERVICES: Service[] = [
     featuresAr: ["رفع PDF/صور", "بحث بالعنوان والوسوم", "ربط تلقائي بالـ AI", "نسخ وإصدارات"],
     featuresEn: ["Upload PDFs/images", "Title & tag search", "AI auto-link", "Versioned files"],
     category: "ai",
-    hue: "from-indigo-500/25 to-violet-500/10",
+    hue: "from-info/25 to-primary/10",
   },
   {
     id: "maintenance-log",
@@ -113,7 +113,7 @@ const SERVICES: Service[] = [
     featuresAr: ["إسناد الفني بضغطة", "سجل قطع الغيار والتكلفة", "تحديث الحالة", "ملخّص لكل حالة"],
     featuresEn: ["One-click assignment", "Parts & cost ledger", "Status updates", "Per-status totals"],
     category: "ops",
-    hue: "from-amber-500/25 to-orange-500/10",
+    hue: "from-warning/25 to-warning/10",
   },
   {
     id: "properties",
@@ -126,7 +126,7 @@ const SERVICES: Service[] = [
     featuresAr: ["شقق/فلل/مكاتب/أراضٍ", "إضافة/تعديل/أرشفة", "حالات مفصلة"],
     featuresEn: ["Apartments/villas/offices/land", "CRUD + archive", "Detailed statuses"],
     category: "core",
-    hue: "from-emerald-500/25 to-teal-500/10",
+    hue: "from-success/25 to-success/10",
   },
   {
     id: "contracts",
@@ -139,7 +139,7 @@ const SERVICES: Service[] = [
     featuresAr: ["قوالب مرنة", "تذكيرات تجديد", "إيصالات وسندات"],
     featuresEn: ["Flexible templates", "Renewal reminders", "Receipts & vouchers"],
     category: "core",
-    hue: "from-blue-500/25 to-cyan-500/10",
+    hue: "from-info/25 to-info/10",
   },
   {
     id: "accounting",
@@ -152,7 +152,7 @@ const SERVICES: Service[] = [
     featuresAr: ["المصروفات", "P&L", "ضريبة القيمة المضافة", "تحويلات بنكية"],
     featuresEn: ["Expenses", "P&L", "VAT (ZATCA)", "Bank transfers"],
     category: "finance",
-    hue: "from-amber-500/25 to-orange-500/10",
+    hue: "from-warning/25 to-warning/10",
   },
   {
     id: "payments",
@@ -165,7 +165,7 @@ const SERVICES: Service[] = [
     featuresAr: ["فواتير", "سندات قبض/صرف", "تنبيهات استحقاق"],
     featuresEn: ["Invoices", "Receipts & vouchers", "Due alerts"],
     category: "finance",
-    hue: "from-yellow-500/25 to-amber-500/10",
+    hue: "from-warning/25 to-warning/10",
   },
   {
     id: "maintenance",
@@ -178,7 +178,7 @@ const SERVICES: Service[] = [
     featuresAr: ["طلبات", "فنيّون", "ربط بالوحدة"],
     featuresEn: ["Requests", "Technicians", "Unit linking"],
     category: "ops",
-    hue: "from-rose-500/25 to-pink-500/10",
+    hue: "from-destructive/25 to-pink-500/10",
   },
   {
     id: "reports",
@@ -191,7 +191,7 @@ const SERVICES: Service[] = [
     featuresAr: ["قوالب جاهزة", "باني مخصص", "تصدير PDF"],
     featuresEn: ["Ready templates", "Custom builder", "PDF export"],
     category: "core",
-    hue: "from-indigo-500/25 to-violet-500/10",
+    hue: "from-info/25 to-primary/10",
   },
   {
     id: "analytics-builder",
@@ -204,7 +204,7 @@ const SERVICES: Service[] = [
     featuresAr: ["مصادر متعددة", "أعمدة وفلاتر", "قوالب محفوظة", "CSV/XLSX/JSON/PDF"],
     featuresEn: ["Multi source", "Columns & filters", "Saved views", "CSV/XLSX/JSON/PDF"],
     category: "core",
-    hue: "from-violet-500/25 to-fuchsia-500/10",
+    hue: "from-primary/25 to-fuchsia-500/10",
   },
   {
     id: "assistant",
@@ -217,7 +217,7 @@ const SERVICES: Service[] = [
     featuresAr: ["عربي/إنجليزي", "أدوات تنفيذ آمنة", "سجل تدقيق"],
     featuresEn: ["AR/EN", "Safe tool-calls", "Audit trail"],
     category: "ai",
-    hue: "from-purple-500/25 to-violet-500/10",
+    hue: "from-primary/25 to-primary/10",
   },
   {
     id: "listings",
@@ -230,7 +230,7 @@ const SERVICES: Service[] = [
     featuresAr: ["إعلانات عامة", "طلبات مستأجرين", "CRM"],
     featuresEn: ["Public listings", "Tenant applications", "Leads CRM"],
     category: "growth",
-    hue: "from-sky-500/25 to-blue-500/10",
+    hue: "from-info/25 to-info/10",
   },
   {
     id: "auctions",
@@ -243,7 +243,7 @@ const SERVICES: Service[] = [
     featuresAr: ["إنشاء مزاد", "مزايدة", "فلاتر"],
     featuresEn: ["Create auction", "Bidding", "Filters"],
     category: "growth",
-    hue: "from-orange-500/25 to-red-500/10",
+    hue: "from-warning/25 to-destructive/10",
   },
   {
     id: "portals",
@@ -256,7 +256,7 @@ const SERVICES: Service[] = [
     featuresAr: ["مستأجر", "مالك", "موظف", "عميل AI"],
     featuresEn: ["Tenant", "Owner", "Employee", "AI client"],
     category: "growth",
-    hue: "from-teal-500/25 to-emerald-500/10",
+    hue: "from-success/25 to-success/10",
   },
   {
     id: "subscriptions",
@@ -282,7 +282,7 @@ const SERVICES: Service[] = [
     featuresAr: ["2FA/TOTP", "RLS", "أدوار وصلاحيات"],
     featuresEn: ["2FA/TOTP", "RLS", "RBAC"],
     category: "admin",
-    hue: "from-lime-500/25 to-green-500/10",
+    hue: "from-lime-500/25 to-success/10",
   },
   {
     id: "settings",
@@ -308,7 +308,7 @@ const SERVICES: Service[] = [
     featuresAr: ["الشركات", "الفوترة", "التشخيص"],
     featuresEn: ["Companies", "Billing", "Diagnostics"],
     category: "admin",
-    hue: "from-red-500/25 to-rose-500/10",
+    hue: "from-destructive/25 to-destructive/10",
   },
 ];
 

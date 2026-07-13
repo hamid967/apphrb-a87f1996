@@ -23,10 +23,10 @@ const ICONS: Record<ApprovalAuditEvent["action"], React.ComponentType<{ classNam
 
 const TONE: Record<ApprovalAuditEvent["action"], string> = {
   created: "bg-muted text-muted-foreground",
-  submitted: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-  approved: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  submitted: "bg-info/10 text-info dark:text-info",
+  approved: "bg-success/10 text-success dark:text-success",
   rejected: "bg-destructive/10 text-destructive",
-  returned: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  returned: "bg-warning/10 text-warning dark:text-warning",
   updated: "bg-muted text-muted-foreground",
   deleted: "bg-destructive/10 text-destructive",
 };

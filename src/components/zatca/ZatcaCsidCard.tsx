@@ -100,15 +100,15 @@ export function ZatcaCsidCard({ orgId }: { orgId: string }) {
                     <div className="flex items-center gap-2 text-sm font-medium">
                       {envLabel(r.environment as Env, isAr)}
                       {r.active ? (
-                        <Badge variant="outline" className="border-emerald-500/40 text-emerald-600">
+                        <Badge variant="outline" className="border-success/40 text-success">
                           {isAr ? "فعّالة" : "Active"}
                         </Badge>
                       ) : r.revoked_at ? (
-                        <Badge variant="outline" className="border-red-500/40 text-red-600">
+                        <Badge variant="outline" className="border-destructive/40 text-destructive">
                           {isAr ? "ملغاة" : "Revoked"}
                         </Badge>
                       ) : r.expired ? (
-                        <Badge variant="outline" className="border-amber-500/40 text-amber-600">
+                        <Badge variant="outline" className="border-warning/40 text-warning">
                           {isAr ? "منتهية" : "Expired"}
                         </Badge>
                       ) : null}
@@ -130,7 +130,7 @@ export function ZatcaCsidCard({ orgId }: { orgId: string }) {
                     variant="ghost"
                     onClick={() => revoke.mutate({ data: { csidId: r.id } })}
                     disabled={revoke.isPending}
-                    className="text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+                    className="text-destructive hover:bg-destructive dark:hover:bg-destructive/30"
                   >
                     {revoke.isPending ? (
                       <Loader2 className="me-1.5 size-3.5 animate-spin" />

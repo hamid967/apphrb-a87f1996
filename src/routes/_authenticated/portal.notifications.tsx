@@ -133,11 +133,11 @@ function OrgDeliveryLog({ isAr }: { isAr: boolean }) {
   const badge = (s: string) => {
     const tone =
       s === "sent"
-        ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30"
+        ? "bg-success/10 text-success dark:text-success border-success/30"
         : s === "failed"
           ? "bg-destructive/10 text-destructive border-destructive/30"
           : s === "pending_credentials"
-            ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30"
+            ? "bg-warning/10 text-warning dark:text-warning border-warning/30"
             : "bg-muted text-muted-foreground border-border";
     return (
       <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase ${tone}`}>

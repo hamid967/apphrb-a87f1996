@@ -64,40 +64,40 @@ export function SubscriptionStatusCard({ isAr }: { isAr: boolean }) {
           icon: <CheckCircle2 className="size-5" />,
           badgeAr: "نشط",
           badgeEn: "Active",
-          ring: "border-emerald-500/40",
-          bg: "bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent",
-          fg: "text-emerald-600 dark:text-emerald-400",
-          dot: "bg-emerald-500",
+          ring: "border-success/40",
+          bg: "bg-gradient-to-br from-success/10 via-success/5 to-transparent",
+          fg: "text-success dark:text-success",
+          dot: "bg-success",
         };
       case "grace":
         return {
           icon: <AlertTriangle className="size-5" />,
           badgeAr: "فترة سماح",
           badgeEn: "Grace period",
-          ring: "border-amber-500/40",
-          bg: "bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent",
-          fg: "text-amber-600 dark:text-amber-400",
-          dot: "bg-amber-500",
+          ring: "border-warning/40",
+          bg: "bg-gradient-to-br from-warning/10 via-warning/5 to-transparent",
+          fg: "text-warning dark:text-warning",
+          dot: "bg-warning",
         };
       case "expired":
         return {
           icon: <XCircle className="size-5" />,
           badgeAr: "منتهي",
           badgeEn: "Expired",
-          ring: "border-rose-500/40",
-          bg: "bg-gradient-to-br from-rose-500/10 via-rose-500/5 to-transparent",
-          fg: "text-rose-600 dark:text-rose-400",
-          dot: "bg-rose-500",
+          ring: "border-destructive/40",
+          bg: "bg-gradient-to-br from-destructive/10 via-destructive/5 to-transparent",
+          fg: "text-destructive dark:text-destructive",
+          dot: "bg-destructive",
         };
       case "pending":
         return {
           icon: <Clock className="size-5" />,
           badgeAr: "بانتظار الموافقة",
           badgeEn: "Pending approval",
-          ring: "border-sky-500/40",
-          bg: "bg-gradient-to-br from-sky-500/10 via-sky-500/5 to-transparent",
-          fg: "text-sky-600 dark:text-sky-400",
-          dot: "bg-sky-500",
+          ring: "border-info/40",
+          bg: "bg-gradient-to-br from-info/10 via-info/5 to-transparent",
+          fg: "text-info dark:text-info",
+          dot: "bg-info",
         };
       default:
         return {
@@ -177,7 +177,7 @@ export function SubscriptionStatusCard({ isAr }: { isAr: boolean }) {
                 {isAr ? style.badgeAr : style.badgeEn}
               </span>
               {isTrial && access.state === "active" && (
-                <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                <span className="rounded-full bg-warning/15 px-2 py-0.5 text-[11px] font-bold text-warning dark:text-warning">
                   {t("تجربة مجانية", "Free trial")}
                 </span>
               )}
@@ -206,7 +206,7 @@ export function SubscriptionStatusCard({ isAr }: { isAr: boolean }) {
         <div className="mt-4">
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-background/60">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-amber-400 to-emerald-500 transition-all"
+              className="h-full rounded-full bg-gradient-to-r from-warning to-success transition-all"
               style={{ width: `${trialPct}%` }}
             />
           </div>

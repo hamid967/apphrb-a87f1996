@@ -203,7 +203,7 @@ export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
   return (
     <div className="rounded-md border bg-background">
       <div className="flex flex-wrap items-center gap-2 border-b px-3 py-2">
-        <ShieldAlert className="h-4 w-4 text-amber-500" />
+        <ShieldAlert className="h-4 w-4 text-warning" />
         <div className="flex-1 min-w-0">
           <div className="text-sm font-medium">{t("policyViolationsPanel.title")}</div>
           <div className="text-xs text-muted-foreground">
@@ -289,7 +289,7 @@ export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
                           className={
                             r.severity === "block"
                               ? "bg-destructive text-destructive-foreground w-fit"
-                              : "bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 w-fit"
+                              : "bg-warning/15 text-warning dark:text-warning border border-warning/30 w-fit"
                           }
                         >
                           {r.severity === "block"
@@ -304,7 +304,7 @@ export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
                     <TableCell className="text-sm whitespace-pre-wrap align-top">
                       <div>{r.reason}</div>
                       {isOverridden && r.override_reason && (
-                        <div className="mt-1 rounded border border-emerald-500/30 bg-emerald-500/10 p-2 text-[11px] text-emerald-800 dark:text-emerald-300">
+                        <div className="mt-1 rounded border border-success/30 bg-success/10 p-2 text-[11px] text-success dark:text-success">
                           <div className="font-medium">{t("policyViolationsPanel.overrideActive")}</div>
                           <div className="mt-0.5 whitespace-pre-wrap">{r.override_reason}</div>
                           <div className="mt-1 text-[10px] opacity-80">
@@ -331,7 +331,7 @@ export function ClaimPolicyViolations({ claimId, activeViolationId }: Props) {
                     <TableCell className="align-top">
                       {isOverridden ? (
                         <div className="flex flex-col items-start gap-1">
-                          <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 w-fit">
+                          <Badge className="bg-success/15 text-success dark:text-success border border-success/30 w-fit">
                             <CheckCircle2 className="me-1 h-3 w-3" />
                             {t("policyViolationsPanel.overrideActive")}
                           </Badge>

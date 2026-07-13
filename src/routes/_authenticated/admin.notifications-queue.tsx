@@ -331,7 +331,7 @@ function StatCard({
   tone: "ok" | "err" | "muted";
 }) {
   const toneCls =
-    tone === "ok" ? "text-emerald-600" : tone === "err" ? "text-destructive" : "text-muted-foreground";
+    tone === "ok" ? "text-success" : tone === "err" ? "text-destructive" : "text-muted-foreground";
   return (
     <Card>
       <CardContent className="flex items-center gap-3 p-4">
@@ -362,12 +362,12 @@ function ProviderPill({
     <div
       className={
         "flex items-center gap-2 rounded-md border px-3 py-2 text-sm " +
-        (ok ? "border-emerald-500/40 bg-emerald-500/5" : "border-destructive/40 bg-destructive/5")
+        (ok ? "border-success/40 bg-success/5" : "border-destructive/40 bg-destructive/5")
       }
     >
-      <Icon className={"size-4 " + (ok ? "text-emerald-600" : "text-destructive")} />
+      <Icon className={"size-4 " + (ok ? "text-success" : "text-destructive")} />
       <span>{name}</span>
-      <span className={"text-xs " + (ok ? "text-emerald-700" : "text-destructive")}>
+      <span className={"text-xs " + (ok ? "text-success" : "text-destructive")}>
         {ok ? (isAr ? "مفعّل" : "Enabled") : (isAr ? "غير مُعد" : "Not configured")}
       </span>
     </div>

@@ -227,18 +227,18 @@ function ChargesTable({
 function StatusBadge({ tab }: { tab: Tab }) {
   const { t } = useTranslation();
   const map: Record<Tab, { key: string; className: string }> = {
-    due: { key: "payments.stDue", className: "bg-amber-500/15 text-amber-700 border-amber-500/30" },
+    due: { key: "payments.stDue", className: "bg-warning/15 text-warning border-warning/30" },
     overdue: {
       key: "payments.stOverdue",
-      className: "bg-rose-500/15 text-rose-700 border-rose-500/30",
+      className: "bg-destructive/15 text-destructive border-destructive/30",
     },
     upcoming: {
       key: "payments.stUpcoming",
-      className: "bg-blue-500/15 text-blue-700 border-blue-500/30",
+      className: "bg-info/15 text-info border-info/30",
     },
     paid: {
       key: "payments.stPaid",
-      className: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30",
+      className: "bg-success/15 text-success border-success/30",
     },
   };
   const v = map[tab];

@@ -747,13 +747,13 @@ function RoleBuilder() {
                       </div>
                       <div className="rounded-md border p-3">
                         <div className="text-xs text-muted-foreground">{isAr ? "مُسند" : "Assigned"}</div>
-                        <div className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
+                        <div className="text-2xl font-semibold text-success dark:text-success">
                           {bulkReport.assigned}
                         </div>
                       </div>
                       <div className="rounded-md border p-3">
                         <div className="text-xs text-muted-foreground">{isAr ? "مكررات مُتخطاة" : "Duplicates skipped"}</div>
-                        <div className="text-2xl font-semibold text-amber-600 dark:text-amber-400">
+                        <div className="text-2xl font-semibold text-warning dark:text-warning">
                           {bulkReport.skipped}
                         </div>
                       </div>
@@ -768,10 +768,10 @@ function RoleBuilder() {
                       {bulkReport.results.map((r) => (
                         <div key={r.user_id} className="flex items-center gap-3 px-3 py-2 text-sm">
                           {r.status === "assigned" && (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                            <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
                           )}
                           {r.status === "duplicate" && (
-                            <SkipForward className="h-4 w-4 text-amber-500 shrink-0" />
+                            <SkipForward className="h-4 w-4 text-warning shrink-0" />
                           )}
                           {r.status === "error" && (
                             <XCircle className="h-4 w-4 text-destructive shrink-0" />

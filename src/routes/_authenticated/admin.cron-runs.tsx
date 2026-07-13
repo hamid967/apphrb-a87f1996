@@ -190,7 +190,7 @@ function JobCard({ isAr, job }: { isAr: boolean; job: CronJobSummary }) {
                     ? "text-muted-foreground"
                     : job.stats.last_status_code >= 400
                       ? "text-destructive"
-                      : "text-emerald-600")
+                      : "text-success")
                 }
               >
                 {job.stats.last_status_code ?? "—"}
@@ -301,7 +301,7 @@ function RunRow({ r, locale }: { r: CronRun; locale: string }) {
 
 function RespRow({ r, locale }: { r: CronHttpResponse; locale: string }) {
   const bad = (r.status_code ?? 0) >= 400 || r.timed_out || !!r.error_msg;
-  const codeCls = bad ? "text-destructive" : "text-emerald-600";
+  const codeCls = bad ? "text-destructive" : "text-success";
   const bodyText = r.error_msg ?? r.content_preview ?? "—";
   return (
     <tr className="border-t align-top">

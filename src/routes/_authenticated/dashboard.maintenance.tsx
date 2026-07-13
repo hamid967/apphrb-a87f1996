@@ -31,9 +31,9 @@ const PRIORITIES = ["low", "medium", "high", "urgent"] as const;
 
 const PRIORITY_STYLE: Record<string, string> = {
   low: "bg-slate-500/15 text-slate-600 dark:text-slate-300",
-  medium: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
-  high: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
-  urgent: "bg-red-500/15 text-red-600 dark:text-red-400",
+  medium: "bg-info/15 text-info dark:text-info",
+  high: "bg-warning/15 text-warning dark:text-warning",
+  urgent: "bg-destructive/15 text-destructive dark:text-destructive",
 };
 
 function TicketsPage() {
@@ -322,9 +322,9 @@ function Stat({ label, value, tone, icon }: { label: string; value: number; tone
           <span>{label}</span>{icon}
         </div>
         <div className={cn("mt-1 text-2xl font-semibold",
-          tone === "pos" && "text-emerald-600 dark:text-emerald-400",
-          tone === "warn" && "text-red-600 dark:text-red-400",
-          tone === "info" && "text-blue-600 dark:text-blue-400",
+          tone === "pos" && "text-success dark:text-success",
+          tone === "warn" && "text-destructive dark:text-destructive",
+          tone === "info" && "text-info dark:text-info",
         )}>{value}</div>
       </CardContent>
     </Card>

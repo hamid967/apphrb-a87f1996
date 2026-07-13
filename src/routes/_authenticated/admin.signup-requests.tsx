@@ -53,7 +53,7 @@ type Row = {
 };
 
 function statusBadge(s: Row["status"]) {
-  if (s === "approved") return <Badge className="bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/20">مقبول</Badge>;
+  if (s === "approved") return <Badge className="bg-success/15 text-success hover:bg-success/20">مقبول</Badge>;
   if (s === "rejected") return <Badge variant="destructive">مرفوض</Badge>;
   return <Badge variant="outline">قيد المراجعة</Badge>;
 }

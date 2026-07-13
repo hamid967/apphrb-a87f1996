@@ -497,7 +497,7 @@ function Dashboard() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {v === "smart" && <Sparkles className="size-3.5 text-amber-500" aria-hidden />}
+              {v === "smart" && <Sparkles className="size-3.5 text-warning" aria-hidden />}
               {label}
               {v === "smart" && !active && (
                 <span
@@ -1017,11 +1017,11 @@ function StatCard({
 }) {
   const toneCls =
     tone === "emerald"
-      ? "bg-emerald-500/10 text-emerald-600"
+      ? "bg-success/10 text-success"
       : tone === "amber"
-        ? "bg-amber-500/10 text-amber-600"
+        ? "bg-warning/10 text-warning"
         : tone === "sky"
-          ? "bg-sky-500/10 text-sky-600"
+          ? "bg-info/10 text-info"
           : "bg-primary/10 text-primary";
   return (
     <motion.div
@@ -1046,7 +1046,7 @@ function StatCard({
             </motion.div>
           )}
           {delta && (
-            <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">
+            <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-semibold text-success">
               <TrendingUp className="size-3" /> {delta}
             </div>
           )}
@@ -1146,7 +1146,7 @@ function ExpiringContractsCard({ isAr }: { isAr: boolean }) {
               <div className="truncate text-sm font-medium">{r.t}</div>
               <div className="text-[11px] text-muted-foreground">{r.sub}</div>
             </div>
-            <span className="shrink-0 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-medium text-amber-600">
+            <span className="shrink-0 rounded-full bg-warning/10 px-2.5 py-0.5 text-[11px] font-medium text-warning">
               {r.d}
             </span>
           </li>
@@ -1182,8 +1182,8 @@ function RecentPaymentsCard({ isAr }: { isAr: boolean }) {
                 className={
                   "shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium " +
                   (r.status === "paid"
-                    ? "bg-emerald-500/10 text-emerald-600"
-                    : "bg-amber-500/10 text-amber-600")
+                    ? "bg-success/10 text-success"
+                    : "bg-warning/10 text-warning")
                 }
               >
                 {r.status === "paid"
@@ -1205,13 +1205,13 @@ function RecentPaymentsCard({ isAr }: { isAr: boolean }) {
 function NotificationsCard({ isAr }: { isAr: boolean }) {
   const items = [
     {
-      icon: <AlertCircle className="size-4 text-amber-500" />,
+      icon: <AlertCircle className="size-4 text-warning" />,
       text: isAr
         ? "عقد مكتب العليا سينتهي بعد 5 أيام"
         : "Al-Olaya office contract expires in 5 days",
     },
     {
-      icon: <BellRing className="size-4 text-sky-500" />,
+      icon: <BellRing className="size-4 text-info" />,
       text: isAr ? "دفعة شهر يونيو لم يتم استلامها" : "June payment not received",
     },
     {

@@ -266,7 +266,7 @@ function PendingCounter({
         {b ? (
           <span className="text-muted-foreground" data-testid="pending-counter-before">
             batches={b.totalBatches} · events={b.totalEvents} ·{" "}
-            <span className={b.legacyBatches > 0 ? "text-amber-500" : ""}>
+            <span className={b.legacyBatches > 0 ? "text-warning" : ""}>
               قديمة={b.legacyBatches}
             </span>{" "}
             · <span>مضغوطة={b.compactBatches}</span>
@@ -308,7 +308,7 @@ function PendingCounter({
         <div className="mt-1 text-muted-foreground" data-testid="pending-counter-after">
           <span className="text-foreground">after&nbsp;→</span> batches=
           {after.totalBatches} · events={after.totalEvents} ·{" "}
-          <span className={after.legacyBatches > 0 ? "text-amber-500" : ""}>
+          <span className={after.legacyBatches > 0 ? "text-warning" : ""}>
             قديمة={after.legacyBatches}
           </span>{" "}
           · مضغوطة={after.compactBatches}

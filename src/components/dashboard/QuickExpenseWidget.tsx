@@ -563,7 +563,7 @@ export function QuickExpenseWidget({ orgId }: { orgId: string | undefined }) {
               className={cn(
                 "flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px]",
                 ocrState === "scanning" && "border-primary/30 bg-primary/5 text-primary",
-                ocrState === "done" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                ocrState === "done" && "border-success/30 bg-success/10 text-success dark:text-success",
                 ocrState === "failed" && "border-muted bg-muted/40 text-muted-foreground",
               )}
             >
@@ -671,7 +671,7 @@ export function QuickExpenseWidget({ orgId }: { orgId: string | undefined }) {
               ))}
             </div>
             {category === "other" && !notes.trim() && (
-              <p className="flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400">
+              <p className="flex items-center gap-1 text-[11px] text-warning dark:text-warning">
                 <AlertCircle className="h-3 w-3" />
                 {t("quickExpense.errNotesOther")}
               </p>

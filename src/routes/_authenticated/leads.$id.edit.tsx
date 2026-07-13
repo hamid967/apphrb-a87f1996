@@ -229,7 +229,7 @@ function SaveIndicator({ pending, savedAt }: { pending: boolean; savedAt: number
   }
   if (savedAt > 0) {
     return (
-      <span className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+      <span className="flex items-center gap-1 text-xs text-success dark:text-success">
         <Check className="size-3.5" /> saved
       </span>
     );

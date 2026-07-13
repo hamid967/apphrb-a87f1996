@@ -383,7 +383,7 @@ function AdminOverview() {
         <div className="surface-card p-5">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold flex items-center gap-2">
-              <Receipt className="size-4 text-amber-500" />{" "}
+              <Receipt className="size-4 text-warning" />{" "}
               {isAr ? "إيصالات بانتظار المراجعة" : "Receipts awaiting review"}
             </h3>
             <Link
@@ -395,12 +395,12 @@ function AdminOverview() {
           </div>
           {data.kpis.pendingReceipts === 0 ? (
             <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-              <CheckCircle2 className="size-4 text-emerald-500" />{" "}
+              <CheckCircle2 className="size-4 text-success" />{" "}
               {isAr ? "لا توجد إيصالات معلّقة" : "No pending receipts"}
             </div>
           ) : (
-            <div className="mt-3 flex items-center gap-3 rounded-lg bg-amber-500/10 p-3 ring-1 ring-amber-500/20">
-              <AlertTriangle className="size-5 text-amber-600" />
+            <div className="mt-3 flex items-center gap-3 rounded-lg bg-warning/10 p-3 ring-1 ring-warning/20">
+              <AlertTriangle className="size-5 text-warning" />
               <div className="flex-1">
                 <div className="text-sm font-medium">
                   {nf.format(data.kpis.pendingReceipts)}{" "}
@@ -419,13 +419,13 @@ function AdminOverview() {
         <div className="surface-card p-5">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold flex items-center gap-2">
-              <CalendarClock className="size-4 text-rose-500" />{" "}
+              <CalendarClock className="size-4 text-destructive" />{" "}
               {isAr ? "اشتراكات تنتهي خلال 7 أيام" : "Subs expiring in 7 days"}
             </h3>
           </div>
           {data.expiringSoon.length === 0 ? (
             <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-              <CheckCircle2 className="size-4 text-emerald-500" /> {isAr ? "لا يوجد" : "None"}
+              <CheckCircle2 className="size-4 text-success" /> {isAr ? "لا يوجد" : "None"}
             </div>
           ) : (
             <ul className="mt-3 divide-y divide-border">
@@ -605,13 +605,13 @@ function DecisionCenter({
 
   const toneCls = (t: string) =>
     t === "emerald"
-      ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+      ? "bg-success/10 text-success border-success/30"
       : t === "amber"
-        ? "bg-amber-500/10 text-amber-600 border-amber-500/30"
+        ? "bg-warning/10 text-warning border-warning/30"
         : t === "sky"
-          ? "bg-sky-500/10 text-sky-600 border-sky-500/30"
+          ? "bg-info/10 text-info border-info/30"
           : t === "rose"
-            ? "bg-rose-500/10 text-rose-600 border-rose-500/30"
+            ? "bg-destructive/10 text-destructive border-destructive/30"
             : "bg-primary/10 text-primary border-primary/30";
 
   const quick: Array<{ to: string; icon: React.ReactNode; ar: string; en: string }> = [
@@ -790,9 +790,9 @@ function FeedCard({
                   className={
                     "truncate text-xs " +
                     (it.tone === "rose"
-                      ? "text-rose-500"
+                      ? "text-destructive"
                       : it.tone === "emerald"
-                        ? "text-emerald-600"
+                        ? "text-success"
                         : "text-muted-foreground")
                   }
                 >
@@ -948,15 +948,15 @@ function ModuleLauncher({ isAr }: { isAr: boolean }) {
 
   const toneCls = (t: string) =>
     t === "emerald"
-      ? "bg-emerald-500/10 text-emerald-600"
+      ? "bg-success/10 text-success"
       : t === "amber"
-        ? "bg-amber-500/10 text-amber-600"
+        ? "bg-warning/10 text-warning"
         : t === "sky"
-          ? "bg-sky-500/10 text-sky-600"
+          ? "bg-info/10 text-info"
           : t === "rose"
-            ? "bg-rose-500/10 text-rose-600"
+            ? "bg-destructive/10 text-destructive"
             : t === "violet"
-              ? "bg-violet-500/10 text-violet-600"
+              ? "bg-primary/10 text-primary"
               : "bg-primary/10 text-primary";
 
   return (
@@ -1029,11 +1029,11 @@ function KpiCard({
 }) {
   const toneCls =
     tone === "emerald"
-      ? "bg-emerald-500/10 text-emerald-600"
+      ? "bg-success/10 text-success"
       : tone === "amber"
-        ? "bg-amber-500/10 text-amber-600"
+        ? "bg-warning/10 text-warning"
         : tone === "sky"
-          ? "bg-sky-500/10 text-sky-600"
+          ? "bg-info/10 text-info"
           : "bg-primary/10 text-primary";
   return (
     <motion.div
@@ -1052,7 +1052,7 @@ function KpiCard({
 
           {sub && <div className="mt-1 truncate text-[11px] text-muted-foreground">{sub}</div>}
           {delta && (
-            <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600">
+            <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-semibold text-success">
               <TrendingUp className="size-3" /> {delta}
             </div>
           )}
@@ -1119,13 +1119,13 @@ function SystemHealthCard({
     tone: "emerald" | "sky" | "amber" | "rose";
   }> = [
     {
-      icon: <CheckCircle2 className="size-4 text-emerald-500" />,
+      icon: <CheckCircle2 className="size-4 text-success" />,
       label: isAr ? "قاعدة البيانات" : "Database",
       val: "OK",
       tone: "emerald",
     },
     {
-      icon: <CheckCircle2 className="size-4 text-emerald-500" />,
+      icon: <CheckCircle2 className="size-4 text-success" />,
       label: isAr ? "المصادقة" : "Auth",
       val: "OK",
       tone: "emerald",
@@ -1133,10 +1133,10 @@ function SystemHealthCard({
     {
       icon:
         loginTone === "emerald" ? (
-          <CheckCircle2 className="size-4 text-emerald-500" />
+          <CheckCircle2 className="size-4 text-success" />
         ) : (
           <AlertTriangle
-            className={"size-4 " + (loginTone === "rose" ? "text-rose-500" : "text-amber-500")}
+            className={"size-4 " + (loginTone === "rose" ? "text-destructive" : "text-warning")}
           />
         ),
       label: isAr ? "نجاح الدخول (24س)" : "Logins (24h)",
@@ -1146,16 +1146,16 @@ function SystemHealthCard({
     {
       icon:
         receiptsTone === "amber" ? (
-          <AlertTriangle className="size-4 text-amber-500" />
+          <AlertTriangle className="size-4 text-warning" />
         ) : (
-          <CheckCircle2 className="size-4 text-emerald-500" />
+          <CheckCircle2 className="size-4 text-success" />
         ),
       label: isAr ? "إيصالات الاشتراك" : "Subscription receipts",
       val: receiptsVal,
       tone: receiptsTone,
     },
     {
-      icon: <ServerCog className="size-4 text-sky-500" />,
+      icon: <ServerCog className="size-4 text-info" />,
       label: isAr ? "أحداث التدقيق" : "Audit events",
       val: eventsVal,
       tone: eventsTone === "amber" ? "amber" : "sky",
@@ -1163,12 +1163,12 @@ function SystemHealthCard({
   ];
   const toneBg = (t: "emerald" | "sky" | "amber") =>
     t === "emerald"
-      ? "bg-emerald-500/10 text-emerald-600"
+      ? "bg-success/10 text-success"
       : t === "sky"
-        ? "bg-sky-500/10 text-sky-600"
-        : "bg-amber-500/10 text-amber-600";
+        ? "bg-info/10 text-info"
+        : "bg-warning/10 text-warning";
   const toneBgWithRose = (t: "emerald" | "sky" | "amber" | "rose") =>
-    t === "rose" ? "bg-rose-500/10 text-rose-600" : toneBg(t);
+    t === "rose" ? "bg-destructive/10 text-destructive" : toneBg(t);
   const lastCheck = new Date(data.generatedAt).toLocaleTimeString(isAr ? "ar-SA" : "en-US", {
     hour: "2-digit",
     minute: "2-digit",

@@ -420,7 +420,7 @@ export function StatusBadge({ status, isAr }: { status: string; isAr: boolean })
     refunded: {
       icon: <XCircle className="size-3" />,
       label: ["Refunded", "مسترد"],
-      cls: "bg-amber-500/10 text-amber-700 border-amber-500/30",
+      cls: "bg-warning/10 text-warning border-warning/30",
     },
   };
   const v = map[status] ?? map.pending;

@@ -363,12 +363,12 @@ function FilterAnalyticsPage() {
       />
 
       {/* Health banner */}
-      <Card className={healthy ? "border-emerald-500/40" : "border-amber-500/50"}>
+      <Card className={healthy ? "border-success/40" : "border-warning/50"}>
         <CardContent className="flex flex-wrap items-center gap-4 p-4">
           {healthy ? (
-            <CheckCircle2 className="size-5 text-emerald-500" />
+            <CheckCircle2 className="size-5 text-success" />
           ) : (
-            <AlertTriangle className="size-5 text-amber-500" />
+            <AlertTriangle className="size-5 text-warning" />
           )}
           <div className="flex-1 text-sm">
             <div className="font-semibold">
@@ -669,11 +669,11 @@ function Kpi({
 }) {
   const toneCls =
     tone === "emerald"
-      ? "bg-emerald-500/10 text-emerald-600"
+      ? "bg-success/10 text-success"
       : tone === "amber"
-        ? "bg-amber-500/10 text-amber-600"
+        ? "bg-warning/10 text-warning"
         : tone === "sky"
-          ? "bg-sky-500/10 text-sky-600"
+          ? "bg-info/10 text-info"
           : "bg-primary/10 text-primary";
   return (
     <div className="surface-card p-4 sm:p-5">
