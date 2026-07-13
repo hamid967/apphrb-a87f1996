@@ -198,14 +198,33 @@ export function AIRecommendations({ orgId, isAr }: { orgId?: string; isAr: boole
   const recs = q.data ? buildRecs(q.data, isAr) : [];
 
   return (
-    <div className="rounded-2xl border bg-card/60 p-5 shadow-sm backdrop-blur">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="grid size-8 place-items-center rounded-xl bg-primary/10 text-primary">
+    <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-card via-card to-background p-5 shadow-sm backdrop-blur-sm">
+      {/* Top accent rail */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent"
+      />
+      {/* Ambient glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -end-16 -top-16 size-40 rounded-full bg-primary/15 blur-3xl"
+      />
+
+      <div className="relative mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <motion.span
+            animate={{ scale: [1, 1.06, 1] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className="relative grid size-9 place-items-center rounded-xl border border-primary/30 bg-primary/12 text-primary shadow-[0_6px_18px_-10px_hsl(var(--primary)/0.6)]"
+          >
             <Sparkles className="size-4" />
-          </span>
+            <span className="absolute -end-0.5 -top-0.5 flex size-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-70" />
+              <span className="relative inline-flex size-2 rounded-full bg-primary" />
+            </span>
+          </motion.span>
           <div>
-            <h3 className="text-sm font-semibold">
+            <h3 className="text-sm font-bold tracking-tight">
               {isAr ? "توصيات الذكاء الاصطناعي" : "AI Recommendations"}
             </h3>
             <p className="text-[11px] text-muted-foreground">
@@ -218,20 +237,23 @@ export function AIRecommendations({ orgId, isAr }: { orgId?: string; isAr: boole
           onClick={() => q.refetch()}
           disabled={q.isFetching}
           aria-label={isAr ? "تحديث" : "Refresh"}
-          className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-50"
+          className="rounded-lg border border-transparent p-1.5 text-muted-foreground transition hover:border-border/60 hover:bg-muted hover:text-foreground disabled:opacity-50"
         >
           <RefreshCw className={cn("size-4", q.isFetching && "animate-spin")} />
         </button>
       </div>
 
       {q.isLoading ? (
-        <div className="space-y-2">
+        <div className="relative space-y-2">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-muted/50" />
+            <div
+              key={i}
+              className="h-16 animate-pulse rounded-xl border border-border/40 bg-muted/40"
+            />
           ))}
         </div>
       ) : (
-        <ul className="space-y-2">
+        <ul className="relative space-y-2">
           <AnimatePresence initial={false}>
             {recs.map((r, i) => {
               const Icon = r.icon;
@@ -242,19 +264,30 @@ export function AIRecommendations({ orgId, isAr }: { orgId?: string; isAr: boole
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.25, delay: i * 0.04 }}
-                  className="group rounded-xl border bg-background/40 p-3 transition hover:bg-background/70"
+                  whileHover={{ x: 2 }}
+                  className="group relative overflow-hidden rounded-xl border border-border/60 bg-background/40 p-3 transition hover:border-primary/40 hover:bg-background/70"
                 >
+                  <span
+                    aria-hidden
+                    className={cn(
+                      "pointer-events-none absolute inset-y-0 start-0 w-0.5",
+                      r.severity === "good" && "bg-success",
+                      r.severity === "info" && "bg-info",
+                      r.severity === "warn" && "bg-warning",
+                      r.severity === "critical" && "bg-destructive",
+                    )}
+                  />
                   <div className="flex items-start gap-3">
                     <span
                       className={cn(
-                        "grid size-8 shrink-0 place-items-center rounded-lg ring-1",
+                        "grid size-8 shrink-0 place-items-center rounded-lg ring-1 transition-transform group-hover:scale-110",
                         sevStyle[r.severity],
                       )}
                     >
                       <Icon className="size-4" />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-[13px] font-medium">{r.title}</div>
+                      <div className="truncate text-[13px] font-semibold">{r.title}</div>
                       <div className="mt-0.5 text-[11.5px] leading-relaxed text-muted-foreground">
                         {r.detail}
                       </div>
@@ -269,3 +302,4 @@ export function AIRecommendations({ orgId, isAr }: { orgId?: string; isAr: boole
     </div>
   );
 }
+
