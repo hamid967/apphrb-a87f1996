@@ -61,7 +61,9 @@ function OnboardingSummaryPage() {
         const res = await load();
         setData(res);
       } catch (e) {
-        setErr(e instanceof Error ? e.message : "تعذّر تحميل الملخّص");
+        const msg = e instanceof Error ? e.message : "تعذّر تحميل الملخّص";
+        setErr(msg);
+        toast.error("تعذّر تحميل الملخّص", { description: msg });
       } finally {
         setLoading(false);
       }
