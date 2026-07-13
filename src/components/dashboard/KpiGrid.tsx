@@ -821,15 +821,26 @@ function KpiCard({
       whileTap={{ scale: 0.985 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
       className={cn(
-        "group relative cursor-pointer overflow-hidden rounded-2xl border bg-card/70 backdrop-blur-xl ring-1 transition-shadow duration-300",
+        "group relative cursor-pointer overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card via-card to-background/80 ring-1 backdrop-blur-xl transition-all duration-300",
         isHero ? "p-5" : "p-4",
         toneRing[tone],
       )}
     >
-      {/* Gold sheen sweep on hover */}
-      <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/15 to-transparent opacity-0 transition-all duration-700 group-hover:translate-x-full group-hover:opacity-100" />
-      <div className="flex items-start justify-between gap-3">
-        <div
+      {/* Top accent rail */}
+      <span
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r opacity-60 transition-opacity duration-500 group-hover:opacity-100",
+          toneAccent[tone],
+        )}
+      />
+      {/* Sheen sweep on hover */}
+      <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/8 to-transparent opacity-0 transition-all duration-700 group-hover:translate-x-full group-hover:opacity-100" />
+
+      <div className="relative flex items-start justify-between gap-3">
+        <motion.div
+          whileHover={{ rotate: -4, scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300, damping: 18 }}
           className={cn(
             "grid shrink-0 place-items-center rounded-2xl",
             isHero ? "size-12" : "size-10",
@@ -837,25 +848,25 @@ function KpiCard({
           )}
         >
           {icon}
-        </div>
+        </motion.div>
         {suffix ? (
-          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary ring-1 ring-primary/20">
+          <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary tabular-nums">
             {suffix}
           </span>
         ) : null}
       </div>
       <div
         className={cn(
-          "text-sm text-muted-foreground",
-          isHero ? "mt-4 line-clamp-2 min-h-[2.5rem] leading-tight" : "truncate mt-3",
+          "relative text-xs font-medium uppercase tracking-wide text-muted-foreground",
+          isHero ? "mt-4 line-clamp-2 min-h-[2.5rem] leading-tight" : "mt-3 truncate",
         )}
       >
         {label}
       </div>
       <div
         className={cn(
-          "mt-1 font-black tracking-tight tabular-nums",
-          isHero ? "text-3xl text-primary" : "text-2xl",
+          "relative mt-1 font-bold tracking-tight tabular-nums text-foreground",
+          isHero ? "text-3xl" : "text-2xl",
         )}
       >
         {loading ? (
@@ -883,6 +894,7 @@ function KpiCard({
     </motion.div>
   );
 }
+
 
 export function KpiGrid({ orgId, isAr }: { orgId: string | undefined; isAr: boolean }) {
   const q = useQuery({
