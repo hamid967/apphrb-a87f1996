@@ -127,6 +127,38 @@ function ServicesReportPage() {
         </div>
       </section>
 
+      {/* Recently visited */}
+      {recentServices.length > 0 && (
+        <section
+          aria-label={isAr ? "آخر الخدمات المستخدمة" : "Recently visited services"}
+          className="rounded-2xl border border-border/70 bg-card/60 p-4"
+        >
+          <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-muted-foreground">
+            <History className="size-3.5" />
+            {isAr ? "آخر الخدمات المستخدمة" : "Recently visited"}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {recentServices.map(({ service, ts }) => {
+              const Icon = service.icon;
+              return (
+                <Link
+                  key={service.id}
+                  to="/dashboard/services/$key"
+                  params={{ key: service.id }}
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium transition hover:border-primary/50 hover:text-primary"
+                >
+                  <Icon className="size-3.5" />
+                  <span>{isAr ? service.titleAr : service.titleEn}</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    · {formatDistanceToNow(new Date(ts), { addSuffix: true, locale: isAr ? arLocale : enUS })}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       {/* Quick nav */}
       <nav
         aria-label={isAr ? "تنقّل سريع" : "Quick navigation"}
@@ -143,6 +175,7 @@ function ServicesReportPage() {
           </a>
         ))}
       </nav>
+
 
       {/* Cards grid */}
       <motion.section
