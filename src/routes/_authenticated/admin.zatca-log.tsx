@@ -4,9 +4,7 @@ import { useTranslation } from "react-i18next";
 import { AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { getZatcaChainAudit, type ZatcaChainRow } from "@/lib/invoices-zatca.functions";
 
 const auditQuery = queryOptions({
@@ -84,38 +82,16 @@ function ZatcaLogPage() {
               </div>
               <Badge variant="outline">{rows.length}</Badge>
             </div>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>#</TableHead>
-                    <TableHead>{isAr ? "الرقم" : "Number"}</TableHead>
-                    <TableHead>{isAr ? "الختم" : "Sealed at"}</TableHead>
-                    <TableHead>{isAr ? "الهاش" : "Hash"}</TableHead>
-                    <TableHead>{isAr ? "الحالة" : "Status"}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.map((r) => (
-                    <TableRow key={r.invoice_id}>
-                      <TableCell className="font-mono">{r.zatca_counter}</TableCell>
-                      <TableCell>{r.number ?? "—"}</TableCell>
-                      <TableCell className="text-xs">
-                        {r.zatca_sealed_at
-                          ? new Date(r.zatca_sealed_at).toLocaleString(isAr ? "ar-SA" : "en-US")
-                          : "—"}
-                      </TableCell>
-                      <TableCell className="font-mono text-xs truncate max-w-[16rem]" title={r.zatca_hash ?? ""}>
-                        {r.zatca_hash?.slice(0, 14) ?? "—"}…
-                      </TableCell>
-                      <TableCell>
-                        <ChainBadge row={r} isAr={isAr} />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+            <DataTable<ZatcaChainRow>
+              data={rows}
+              columns={zatcaColumns(isAr)}
+              rowKey={(r) => r.invoice_id}
+              isAr={isAr}
+              exportFileName={`zatca-${orgId}`}
+              maxHeight="60vh"
+              initialPageSize={25}
+            />
+
           </Card>
         ))
       )}
@@ -161,3 +137,53 @@ function ChainBadge({ row, isAr }: { row: ZatcaChainRow; isAr: boolean }) {
     </Badge>
   );
 }
+
+function zatcaColumns(isAr: boolean): DataTableColumn<ZatcaChainRow>[] {
+  return [
+    {
+      id: "counter",
+      header: "#",
+      width: 80,
+      accessor: (r) => r.zatca_counter,
+      cell: (r) => <span className="font-mono">{r.zatca_counter}</span>,
+    },
+    {
+      id: "number",
+      header: isAr ? "الرقم" : "Number",
+      width: 160,
+      accessor: (r) => r.number ?? "",
+    },
+    {
+      id: "sealed_at",
+      header: isAr ? "الختم" : "Sealed at",
+      width: 200,
+      accessor: (r) => r.zatca_sealed_at ?? "",
+      cell: (r) => (
+        <span className="text-xs">
+          {r.zatca_sealed_at
+            ? new Date(r.zatca_sealed_at).toLocaleString(isAr ? "ar-SA" : "en-US")
+            : "—"}
+        </span>
+      ),
+    },
+    {
+      id: "hash",
+      header: isAr ? "الهاش" : "Hash",
+      width: 200,
+      accessor: (r) => r.zatca_hash ?? "",
+      cell: (r) => (
+        <span className="font-mono text-xs" title={r.zatca_hash ?? ""}>
+          {r.zatca_hash?.slice(0, 14) ?? "—"}…
+        </span>
+      ),
+    },
+    {
+      id: "status",
+      header: isAr ? "الحالة" : "Status",
+      width: 160,
+      accessor: (r) => (r.hash_break ? "hash_break" : r.counter_gap ? "counter_gap" : "ok"),
+      cell: (r) => <ChainBadge row={r} isAr={isAr} />,
+    },
+  ];
+}
+
