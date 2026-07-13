@@ -50,6 +50,12 @@ export function IdleLogout() {
 
     const schedule = () => {
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+      if (isProtectedFlow()) {
+        // Re-check every minute — as soon as the user leaves the onboarding
+        // flow, normal idle tracking resumes from a fresh timestamp.
+        timeoutRef.current = window.setTimeout(() => schedule(), 60 * 1000);
+        return;
+      }
       let last = Date.now();
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -65,6 +71,20 @@ export function IdleLogout() {
       }
       timeoutRef.current = window.setTimeout(() => void doLogout(), limit - elapsed);
     };
+
+    const bump = () => {
+      try {
+        localStorage.setItem(STORAGE_KEY, String(Date.now()));
+      } catch {}
+      schedule();
+    };
+
+    // Reset activity on mount so a stale timestamp from a previous session
+    // (older than `limit`) doesn't sign the user out immediately after login.
+    try {
+      localStorage.setItem(STORAGE_KEY, String(Date.now()));
+    } catch {}
+    schedule();
 
     const bump = () => {
       try {
