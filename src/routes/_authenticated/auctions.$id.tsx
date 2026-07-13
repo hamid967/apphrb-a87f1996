@@ -30,15 +30,7 @@ import {
   useRealtimePollingConfig,
 } from "@/hooks/use-auctions-realtime";
 import { RealtimeStatusBadge } from "@/components/realtime-status-badge";
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { MotionLineChart } from "@/components/charts/motion-tremor";
 
 export const Route = createFileRoute("/_authenticated/auctions/$id")({
   head: ({ params }) => detailHead({ entityAr: 'مزاد', entityEn: 'Auction', id: String(params.id), path: `/auctions/${params.id}`, kind: 'article' }),
