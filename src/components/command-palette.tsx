@@ -37,7 +37,21 @@ import {
   Bot,
   Handshake,
   ListChecks,
+  Briefcase,
+  Landmark,
+  Receipt,
+  CreditCard,
+  FileBadge,
+  LifeBuoy,
+  Settings as SettingsIcon,
+  Megaphone,
+  Ticket,
+  ClipboardList,
+  Calendar,
+  ScrollText,
+  UsersRound,
 } from "lucide-react";
+
 
 type Item = {
   id: string;
@@ -46,8 +60,9 @@ type Item = {
   to: string;
   icon: React.ComponentType<{ className?: string }>;
   keywords?: string;
-  group: "nav" | "dashboard" | "reports" | "admin" | "actions";
+  group: "nav" | "dashboard" | "services" | "reports" | "admin" | "actions";
 };
+
 
 const PUBLIC_ITEMS: Item[] = [
   { id: "home", label: "الرئيسية", labelEn: "Home", to: "/", icon: Home, group: "nav" },
@@ -59,41 +74,58 @@ const PUBLIC_ITEMS: Item[] = [
 ];
 
 const AUTH_ITEMS: Item[] = [
-  { id: "dashboard", label: "لوحة التحكم", labelEn: "Dashboard", to: "/dashboard", icon: LayoutDashboard, group: "dashboard" },
-  { id: "properties", label: "العقارات", labelEn: "Properties", to: "/properties", icon: Building2, group: "dashboard" },
-  { id: "tenants", label: "المستأجرون", labelEn: "Tenants", to: "/dashboard/tenants", icon: Users, group: "dashboard" },
-  { id: "contracts", label: "العقود", labelEn: "Contracts", to: "/dashboard/contracts", icon: FileText, group: "dashboard" },
-  { id: "maintenance", label: "الصيانة", labelEn: "Maintenance", to: "/dashboard/maintenance", icon: Wrench, group: "dashboard" },
-  { id: "accounting", label: "المحاسبة", labelEn: "Accounting", to: "/accounting", icon: Wallet, group: "dashboard" },
-  { id: "tasks", label: "المهام", labelEn: "Tasks", to: "/tasks", icon: ListChecks, group: "dashboard" },
-  { id: "deals", label: "الصفقات", labelEn: "Deals", to: "/deals", icon: Handshake, group: "dashboard" },
-  { id: "assistant", label: "المساعد الذكي", labelEn: "AI Assistant", to: "/assistant", icon: Bot, group: "dashboard" },
-  {
-    id: "reports-services",
-    label: "مركز التقارير",
-    labelEn: "Reports hub",
-    to: "/dashboard/services-report",
-    icon: FolderKanban,
-    group: "reports",
-  },
-  {
-    id: "reports-builder",
-    label: "منشئ التقارير",
-    labelEn: "Report builder",
-    to: "/reports/builder",
-    icon: Sigma,
-    group: "reports",
-  },
-  {
-    id: "reports-templates",
-    label: "قوالب التقارير",
-    labelEn: "Report templates",
-    to: "/reports/templates",
-    icon: FileText,
-    group: "reports",
-  },
+  // Core dashboard
+  { id: "dashboard", label: "لوحة التحكم", labelEn: "Dashboard", to: "/dashboard", icon: LayoutDashboard, group: "dashboard", keywords: "home main رئيسية" },
+  { id: "inbox", label: "الوارد", labelEn: "Inbox", to: "/dashboard/inbox", icon: ListChecks, group: "dashboard" },
+  { id: "tasks", label: "المهام", labelEn: "Tasks", to: "/tasks", icon: ClipboardList, group: "dashboard" },
+  { id: "meetings", label: "الاجتماعات", labelEn: "Meetings", to: "/meetings", icon: Calendar, group: "dashboard" },
+  { id: "assistant", label: "المساعد الذكي", labelEn: "AI Assistant", to: "/assistant", icon: Bot, group: "dashboard", keywords: "ai ذكاء" },
+
+  // Services (matches the sidebar service groups)
+  { id: "properties", label: "العقارات", labelEn: "Properties", to: "/properties", icon: Building2, group: "services", keywords: "properties units عقارات وحدات" },
+  { id: "rentals", label: "التأجير", labelEn: "Rentals", to: "/rentals", icon: Building2, group: "services" },
+  { id: "leasing", label: "عقود الإيجار", labelEn: "Leasing", to: "/leasing", icon: FileText, group: "services" },
+  { id: "contracts", label: "العقود", labelEn: "Contracts", to: "/dashboard/contracts", icon: FileText, group: "services" },
+  { id: "contracts-new", label: "عقد جديد", labelEn: "New contract", to: "/dashboard/contracts/new", icon: FileText, group: "services" },
+  { id: "invoices", label: "الفواتير", labelEn: "Invoices", to: "/dashboard/invoices", icon: Receipt, group: "services" },
+  { id: "payments", label: "المدفوعات", labelEn: "Payments", to: "/dashboard/payments", icon: CreditCard, group: "services" },
+  { id: "commissions", label: "العمولات", labelEn: "Commissions", to: "/dashboard/commissions", icon: Wallet, group: "services" },
+  { id: "accounting", label: "المحاسبة", labelEn: "Accounting", to: "/accounting", icon: Wallet, group: "services" },
+  { id: "expenses", label: "المصروفات", labelEn: "Expenses", to: "/dashboard/expenses", icon: Wallet, group: "services", keywords: "مصاريف" },
+  { id: "vat", label: "ضريبة القيمة المضافة", labelEn: "VAT", to: "/accounting/vat", icon: FileBadge, group: "services", keywords: "zatca vat" },
+  { id: "maintenance", label: "الصيانة", labelEn: "Maintenance", to: "/maintenance", icon: Wrench, group: "services" },
+  { id: "tickets", label: "بلاغات الدعم", labelEn: "Tickets", to: "/dashboard/tickets", icon: Ticket, group: "services", keywords: "support بلاغ" },
+  { id: "documents", label: "المستندات", labelEn: "Documents", to: "/documents", icon: FileText, group: "services", keywords: "archive أرشيف" },
+  { id: "archive", label: "الأرشيف", labelEn: "Archive", to: "/dashboard/archive", icon: ScrollText, group: "services" },
+
+  // People / partners
+  { id: "owners", label: "الملاك", labelEn: "Owners", to: "/owners", icon: UsersRound, group: "services" },
+  { id: "tenants", label: "المستأجرون", labelEn: "Tenants", to: "/dashboard/tenants", icon: Users, group: "services" },
+  { id: "leads", label: "العملاء المحتملون", labelEn: "Leads", to: "/leads", icon: Users, group: "services" },
+  { id: "deals", label: "الصفقات", labelEn: "Deals", to: "/deals", icon: Handshake, group: "services" },
+  { id: "crm", label: "إدارة العلاقات", labelEn: "CRM", to: "/dashboard/crm", icon: Briefcase, group: "services" },
+  { id: "team", label: "فريق العمل", labelEn: "Team", to: "/team", icon: UsersRound, group: "services", keywords: "employees موظفون" },
+  { id: "members", label: "الأعضاء", labelEn: "Members", to: "/members", icon: Users, group: "services" },
+  { id: "auctions", label: "المزادات", labelEn: "Auctions", to: "/auctions", icon: Landmark, group: "services" },
+  { id: "listings-ads", label: "الإعلانات", labelEn: "Listings", to: "/dashboard/listings", icon: Megaphone, group: "services" },
+
+  // Reports & analytics
+  { id: "reports", label: "التقارير", labelEn: "Reports", to: "/reports", icon: BarChart3, group: "reports" },
+  { id: "reports-services", label: "مركز التقارير", labelEn: "Reports hub", to: "/dashboard/services-report", icon: FolderKanban, group: "reports" },
+  { id: "reports-builder", label: "منشئ التقارير", labelEn: "Report builder", to: "/reports/builder", icon: Sigma, group: "reports" },
+  { id: "reports-templates", label: "قوالب التقارير", labelEn: "Report templates", to: "/reports/templates", icon: FileText, group: "reports" },
+  { id: "reports-executive", label: "التقرير التنفيذي", labelEn: "Executive report", to: "/reports/executive", icon: BarChart3, group: "reports" },
+  { id: "crm-analytics", label: "تحليلات CRM", labelEn: "CRM analytics", to: "/crm/analytics", icon: BarChart3, group: "reports" },
+
+  // Settings & support
+  { id: "settings", label: "الإعدادات", labelEn: "Settings", to: "/portal/settings", icon: SettingsIcon, group: "dashboard" },
+  { id: "notifications", label: "الإشعارات", labelEn: "Notifications", to: "/portal/notifications", icon: Sparkles, group: "dashboard" },
+  { id: "support", label: "الدعم الفني", labelEn: "Support", to: "/portal/support", icon: LifeBuoy, group: "dashboard" },
+
+  // Admin (shown to everyone; RLS gates access)
   { id: "admin", label: "لوحة المشرف", labelEn: "Super admin", to: "/admin", icon: Shield, group: "admin" },
 ];
+
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
@@ -138,6 +170,7 @@ export function CommandPalette() {
     const g: Record<Item["group"], Item[]> = {
       nav: [],
       dashboard: [],
+      services: [],
       reports: [],
       admin: [],
       actions: [],
@@ -145,6 +178,7 @@ export function CommandPalette() {
     for (const it of items) g[it.group].push(it);
     return g;
   }, [items]);
+
 
   const go = (to: string) => {
     setOpen(false);
@@ -195,7 +229,8 @@ export function CommandPalette() {
             {grouped.dashboard.map((it) => (
               <CommandItem
                 key={it.id}
-                value={`${it.label} ${it.labelEn} ${it.to}`}
+                value={`${it.label} ${it.labelEn} ${it.to} ${it.keywords ?? ""}`}
+
                 onSelect={() => go(it.to)}
               >
                 <it.icon className="me-2 size-4 opacity-70" />
@@ -204,6 +239,26 @@ export function CommandPalette() {
             ))}
           </CommandGroup>
         )}
+
+        {user && grouped.services.length > 0 && (
+          <>
+            <CommandSeparator />
+            <CommandGroup heading={groupTitle("الخدمات", "Services")}>
+              {grouped.services.map((it) => (
+                <CommandItem
+                  key={it.id}
+                  value={`${it.label} ${it.labelEn} ${it.to} ${it.keywords ?? ""}`}
+                  onSelect={() => go(it.to)}
+                >
+                  <it.icon className="me-2 size-4 opacity-70" />
+                  {label(it)}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </>
+        )}
+
+
 
         {user && grouped.reports.length > 0 && (
           <>
