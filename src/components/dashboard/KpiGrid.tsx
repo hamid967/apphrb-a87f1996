@@ -239,24 +239,35 @@ async function exportBreakdownPdf(
 type Tone = "primary" | "sky" | "emerald" | "amber" | "rose" | "violet";
 
 const toneRing: Record<Tone, string> = {
-  primary: "ring-primary/25 hover:shadow-[0_0_50px_-10px_hsl(var(--primary)/0.55)]",
-  sky: "ring-info/20 hover:shadow-[0_0_40px_-8px_rgb(14_165_233/0.4)]",
-  emerald: "ring-success/20 hover:shadow-[0_0_40px_-8px_rgb(16_185_129/0.4)]",
-  amber: "ring-warning/20 hover:shadow-[0_0_40px_-8px_rgb(245_158_11/0.4)]",
-  rose: "ring-destructive/20 hover:shadow-[0_0_40px_-8px_rgb(244_63_94/0.4)]",
-  violet: "ring-primary/20 hover:shadow-[0_0_40px_-8px_rgb(139_92_246/0.4)]",
+  primary: "ring-primary/25 hover:shadow-[0_0_46px_-12px_hsl(var(--primary)/0.55)]",
+  sky: "ring-info/25 hover:shadow-[0_0_38px_-10px_hsl(var(--info)/0.45)]",
+  emerald:
+    "ring-success/25 hover:shadow-[0_0_38px_-10px_hsl(var(--success)/0.45)]",
+  amber: "ring-warning/25 hover:shadow-[0_0_38px_-10px_hsl(var(--warning)/0.45)]",
+  rose:
+    "ring-destructive/25 hover:shadow-[0_0_38px_-10px_hsl(var(--destructive)/0.45)]",
+  violet: "ring-primary/20 hover:shadow-[0_0_38px_-10px_hsl(var(--primary)/0.4)]",
+};
+
+const toneAccent: Record<Tone, string> = {
+  primary: "from-transparent via-primary/70 to-transparent",
+  sky: "from-transparent via-info/70 to-transparent",
+  emerald: "from-transparent via-success/70 to-transparent",
+  amber: "from-transparent via-warning/70 to-transparent",
+  rose: "from-transparent via-destructive/70 to-transparent",
+  violet: "from-transparent via-primary/60 to-transparent",
 };
 
 const toneIcon: Record<Tone, string> = {
-  // All hero icons use the signature gold gradient to match the reference.
   primary:
-    "bg-[image:var(--gradient-brand)] text-primary-foreground shadow-[0_6px_20px_-8px_hsl(var(--primary)/0.6)]",
-  sky: "bg-info/10 text-info dark:text-info",
-  emerald: "bg-success/10 text-success dark:text-success",
-  amber: "bg-warning/10 text-warning dark:text-warning",
-  rose: "bg-destructive/10 text-destructive dark:text-destructive",
-  violet: "bg-primary/10 text-primary dark:text-primary",
+    "bg-primary/15 text-primary ring-1 ring-primary/30 shadow-[0_6px_20px_-10px_hsl(var(--primary)/0.55)]",
+  sky: "bg-info/12 text-info ring-1 ring-info/25",
+  emerald: "bg-success/12 text-success ring-1 ring-success/25",
+  amber: "bg-warning/12 text-warning ring-1 ring-warning/25",
+  rose: "bg-destructive/12 text-destructive ring-1 ring-destructive/25",
+  violet: "bg-primary/10 text-primary ring-1 ring-primary/20",
 };
+
 
 function Counter({ value, format }: { value: number; format?: (n: number) => string }) {
   const mv = useMotionValue(0);
@@ -810,15 +821,26 @@ function KpiCard({
       whileTap={{ scale: 0.985 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
       className={cn(
-        "group relative cursor-pointer overflow-hidden rounded-2xl border bg-card/70 backdrop-blur-xl ring-1 transition-shadow duration-300",
+        "group relative cursor-pointer overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card via-card to-background/80 ring-1 backdrop-blur-xl transition-all duration-300",
         isHero ? "p-5" : "p-4",
         toneRing[tone],
       )}
     >
-      {/* Gold sheen sweep on hover */}
-      <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/15 to-transparent opacity-0 transition-all duration-700 group-hover:translate-x-full group-hover:opacity-100" />
-      <div className="flex items-start justify-between gap-3">
-        <div
+      {/* Top accent rail */}
+      <span
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r opacity-60 transition-opacity duration-500 group-hover:opacity-100",
+          toneAccent[tone],
+        )}
+      />
+      {/* Sheen sweep on hover */}
+      <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/8 to-transparent opacity-0 transition-all duration-700 group-hover:translate-x-full group-hover:opacity-100" />
+
+      <div className="relative flex items-start justify-between gap-3">
+        <motion.div
+          whileHover={{ rotate: -4, scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300, damping: 18 }}
           className={cn(
             "grid shrink-0 place-items-center rounded-2xl",
             isHero ? "size-12" : "size-10",
@@ -826,25 +848,25 @@ function KpiCard({
           )}
         >
           {icon}
-        </div>
+        </motion.div>
         {suffix ? (
-          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary ring-1 ring-primary/20">
+          <span className="rounded-full border border-primary/25 bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary tabular-nums">
             {suffix}
           </span>
         ) : null}
       </div>
       <div
         className={cn(
-          "text-sm text-muted-foreground",
-          isHero ? "mt-4 line-clamp-2 min-h-[2.5rem] leading-tight" : "truncate mt-3",
+          "relative text-xs font-medium uppercase tracking-wide text-muted-foreground",
+          isHero ? "mt-4 line-clamp-2 min-h-[2.5rem] leading-tight" : "mt-3 truncate",
         )}
       >
         {label}
       </div>
       <div
         className={cn(
-          "mt-1 font-black tracking-tight tabular-nums",
-          isHero ? "text-3xl text-primary" : "text-2xl",
+          "relative mt-1 font-bold tracking-tight tabular-nums text-foreground",
+          isHero ? "text-3xl" : "text-2xl",
         )}
       >
         {loading ? (
@@ -872,6 +894,7 @@ function KpiCard({
     </motion.div>
   );
 }
+
 
 export function KpiGrid({ orgId, isAr }: { orgId: string | undefined; isAr: boolean }) {
   const q = useQuery({
