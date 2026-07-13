@@ -7334,6 +7334,15 @@ export type Database = {
       }
       get_my_company_id: { Args: never; Returns: string }
       get_my_role: { Args: never; Returns: string }
+      get_my_subscription_audit_trail: {
+        Args: never
+        Returns: {
+          action: string
+          created_at: string
+          diff: Json
+          id: string
+        }[]
+      }
       get_portal_invitation_by_token: {
         Args: { _token: string }
         Returns: {
