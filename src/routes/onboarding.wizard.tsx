@@ -330,7 +330,16 @@ function OnboardingWizardPage() {
 
   const submitProperty = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!orgId) return goDashboard();
+    if (!orgId) {
+      // orgId can be missing if the wizard bootstrap didn't finish loading the
+      // access context yet, or if the company step was skipped somehow. Never
+      // silently redirect — surface the state so the user can retry or go back.
+      toast.error("لم يتم إنشاء مساحة العمل بعد", {
+        description: "ارجع إلى خطوة الشركة وأكملها ثم أعِد المحاولة.",
+      });
+      setStep(1);
+      return;
+    }
     if (propTitle.trim().length < 2) return toast.error("يرجى إدخال اسم العقار");
     const priceNum = Number(propPrice || "0");
     if (!Number.isFinite(priceNum) || priceNum < 0) return toast.error("السعر غير صحيح");
@@ -351,9 +360,15 @@ function OnboardingWizardPage() {
       });
       await markStep({ data: { step: "first_receipt", done: true } }).catch(() => {});
       toast.success("تم تفعيل حسابك بنجاح!");
-      goDashboard();
+      // Defer navigation one tick so the success toast + busy state can render
+      // before the route unmounts — otherwise users see the spinner "stuck".
+      setBusy(false);
+      setTimeout(() => goDashboard(), 50);
+      return;
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "تعذّر إنشاء العقار");
+      toast.error(err instanceof Error ? err.message : "تعذّر إنشاء العقار", {
+        description: "تحقق من اتصالك ثم أعد المحاولة، أو اضغط \"تخطّي\" للمتابعة.",
+      });
     } finally {
       setBusy(false);
     }
@@ -363,11 +378,14 @@ function OnboardingWizardPage() {
     setBusy(true);
     try {
       await markStep({ data: { step: "first_receipt", done: true } }).catch(() => {});
-      goDashboard();
-    } finally {
       setBusy(false);
+      setTimeout(() => goDashboard(), 50);
+    } catch {
+      setBusy(false);
+      goDashboard();
     }
   };
+
 
   return (
     <div className="studio-shell studio-grid relative min-h-[var(--app-height,100vh)] overflow-hidden">
