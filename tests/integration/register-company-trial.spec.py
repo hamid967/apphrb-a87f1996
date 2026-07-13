@@ -198,20 +198,19 @@ def main() -> int:
         return 0
 
     finally:
-        # Cleanup: audit_log.actor FKs to auth.users, so wipe the actor's
-        # audit rows first, then delete the user (CASCADE removes org, subs).
-        http(
-            "DELETE", f"/rest/v1/audit_log?actor=eq.{uid}",
-            key=SERVICE_KEY,
-        )
+        # Cleanup order matters: organizations.created_by is RESTRICT,
+        # audit_log.actor is a plain FK. Wipe org (cascades subs+members),
+        # then audit rows, then the user.
+        http("DELETE", f"/rest/v1/organizations?created_by=eq.{uid}", key=SERVICE_KEY)
+        http("DELETE", f"/rest/v1/audit_log?actor=eq.{uid}", key=SERVICE_KEY)
         del_code, del_body = http(
-            "DELETE", f"/auth/v1/admin/users/{uid}",
-            key=SERVICE_KEY,
+            "DELETE", f"/auth/v1/admin/users/{uid}", key=SERVICE_KEY,
         )
         if del_code not in (200, 204):
             print(f"WARN: cleanup delete returned {del_code}: {del_body!r}")
         else:
             print("✓ cleaned up temp user")
+
 
 
 
