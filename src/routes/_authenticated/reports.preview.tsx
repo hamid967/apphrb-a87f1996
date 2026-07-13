@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { MotionBarChart } from "@/components/charts/motion-tremor";
 import {
   Loader2,
   PlayCircle,
