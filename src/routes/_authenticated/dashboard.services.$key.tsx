@@ -12,6 +12,7 @@ import {
   History,
   ListChecks,
   Link2,
+  Lock,
   RefreshCcw,
   Sparkles,
   Trash2,
@@ -34,6 +35,8 @@ import {
   useServiceAccessLog,
 } from "@/lib/service-access-log";
 import { useSafeRouteNavigator } from "@/lib/use-safe-route-navigator";
+import { useMyRoles } from "@/hooks/use-my-roles";
+import { rolesForService, roleLabel, userCanUseService } from "@/lib/service-roles";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard/services/$key")({
@@ -184,15 +187,24 @@ function ServiceDetailPage() {
   ).slice(0, 4);
   const Icon = service.icon;
   const { isKnownRoute, safeNavigate } = useSafeRouteNavigator();
+  const { roles: myRoles } = useMyRoles();
   const flagged = isHubServiceAvailable(service);
   const routeOk = isKnownRoute(service.to);
-  const available = flagged && routeOk;
-  const brokenLink = flagged && !routeOk;
-  const unavailableReason = isAr
-    ? (service.unavailableReasonAr ??
-        (brokenLink ? `المسار «${service.to}» غير مسجّل حاليًا.` : undefined))
-    : (service.unavailableReasonEn ??
-        (brokenLink ? `Route "${service.to}" isn't registered.` : undefined));
+  const authorized = userCanUseService(myRoles, service.id);
+  const restricted = !authorized;
+  const available = flagged && routeOk && authorized;
+  const brokenLink = flagged && !routeOk && authorized;
+  const serviceRoles = rolesForService(service.id);
+  const unavailableReason = restricted
+    ? isAr
+      ? `تتطلب أحد الأدوار: ${serviceRoles.map((r) => roleLabel(r, true)).join("، ")}.`
+      : `Requires one of: ${serviceRoles.map((r) => roleLabel(r, false)).join(", ")}.`
+    : isAr
+      ? (service.unavailableReasonAr ??
+          (brokenLink ? `المسار «${service.to}» غير مسجّل حاليًا.` : undefined))
+      : (service.unavailableReasonEn ??
+          (brokenLink ? `Route "${service.to}" isn't registered.` : undefined));
+
 
 
 
@@ -225,11 +237,27 @@ function ServiceDetailPage() {
               <Icon className="size-7" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="text-[10px] uppercase">
                   {isAr ? category?.ar : category?.en}
                 </Badge>
+                {restricted && (
+                  <Badge variant="destructive" className="gap-1 text-[10px]">
+                    <Lock className="size-3" />
+                    {isAr ? "بدون صلاحية" : "Restricted"}
+                  </Badge>
+                )}
+                <span className="inline-flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground">
+                  <Lock className="size-3 opacity-60" />
+                  {isAr ? "متاحة لـ:" : "Available to:"}
+                  {serviceRoles.map((r) => (
+                    <Badge key={r} variant="secondary" className="h-5 px-1.5 text-[10px]">
+                      {roleLabel(r, !!isAr)}
+                    </Badge>
+                  ))}
+                </span>
               </div>
+
               <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
                 {isAr ? service.titleAr : service.titleEn}
               </h1>
@@ -256,16 +284,23 @@ function ServiceDetailPage() {
               <button
                 type="button"
                 onClick={() =>
-                  toast.warning(
-                    isAr ? "الخدمة غير متاحة حاليًا" : "Service currently unavailable",
-                    { description: unavailableReason },
-                  )
+                  restricted
+                    ? toast.error(
+                        isAr ? "لا تملك صلاحية لهذه الخدمة" : "You don't have access",
+                        { description: unavailableReason },
+                      )
+                    : toast.warning(
+                        isAr ? "الخدمة غير متاحة حاليًا" : "Service currently unavailable",
+                        { description: unavailableReason },
+                      )
                 }
                 aria-disabled="true"
                 className="inline-flex cursor-not-allowed items-center gap-2 rounded-lg border border-dashed border-destructive/40 bg-destructive/5 px-4 py-2 text-sm font-semibold text-destructive"
               >
-                <Ban className="size-4" />
-                {isAr ? "غير متاحة" : "Unavailable"}
+                {restricted ? <Lock className="size-4" /> : <Ban className="size-4" />}
+                {restricted
+                  ? isAr ? "بدون صلاحية" : "Restricted"
+                  : isAr ? "غير متاحة" : "Unavailable"}
               </button>
             )}
           </div>
@@ -275,10 +310,16 @@ function ServiceDetailPage() {
             role="status"
             className="relative z-10 mt-5 flex items-start gap-3 rounded-xl border border-dashed border-destructive/40 bg-destructive/5 p-4 text-xs text-destructive"
           >
-            <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+            {restricted ? (
+              <Lock className="mt-0.5 size-4 shrink-0" />
+            ) : (
+              <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+            )}
             <div>
               <p className="font-semibold">
-                {isAr ? "هذه الخدمة غير متاحة حاليًا" : "This service is currently unavailable"}
+                {restricted
+                  ? isAr ? "لا تملك صلاحية لاستخدام هذه الخدمة" : "You don't have access to this service"
+                  : isAr ? "هذه الخدمة غير متاحة حاليًا" : "This service is currently unavailable"}
               </p>
               <p className="mt-1 text-destructive/80">
                 {unavailableReason ??
@@ -290,6 +331,7 @@ function ServiceDetailPage() {
           </div>
         )}
       </motion.section>
+
 
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

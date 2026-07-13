@@ -12,7 +12,12 @@ import {
   AlertTriangle,
   RefreshCcw,
   Ban,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  Lock,
 } from "lucide-react";
+
 import { formatDistanceToNow } from "date-fns";
 import { ar as arLocale, enUS } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
@@ -29,6 +34,15 @@ import {
 import { useHubCatalog } from "@/lib/use-hub-catalog";
 import { useSafeRouteNavigator } from "@/lib/use-safe-route-navigator";
 import { recordServiceAccess, useServiceAccessLog } from "@/lib/service-access-log";
+import { useMyRoles } from "@/hooks/use-my-roles";
+import {
+  ROLE_GROUPS,
+  rolesForService,
+  roleLabel,
+  userCanUseService,
+  type RoleGroupKey,
+} from "@/lib/service-roles";
+
 
 export const Route = createFileRoute(
   "/_authenticated/dashboard/services/",
@@ -47,9 +61,19 @@ function ServicesReportPage() {
 
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<CategoryKey>("all");
+  const [roleGroup, setRoleGroup] = useState<RoleGroupKey | "all">("all");
+  const [showAll, setShowAll] = useState(false);
 
   const { services, isLoading, error, refetch } = useHubCatalog();
   const { isKnownRoute, safeNavigate } = useSafeRouteNavigator();
+  const { roles: myRoles, isLoading: rolesLoading } = useMyRoles();
+
+  const isSuperAdmin = myRoles.includes("super_admin");
+
+  const canUse = useMemo(
+    () => (svc: HubService) => userCanUseService(myRoles, svc.id),
+    [myRoles],
+  );
 
   const recent = useServiceAccessLog();
   const recentServices = useMemo(() => {
@@ -66,10 +90,21 @@ function ServicesReportPage() {
     return list;
   }, [recent, services]);
 
+  const activeGroup = useMemo(
+    () => ROLE_GROUPS.find((g) => g.key === roleGroup),
+    [roleGroup],
+  );
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return services.filter((s) => {
       if (cat !== "all" && s.category !== cat) return false;
+      if (!showAll && !canUse(s)) return false;
+      if (activeGroup) {
+        const allowed = rolesForService(s.id);
+        const overlap = activeGroup.roles.some((r) => allowed.includes(r));
+        if (!overlap) return false;
+      }
       if (!q) return true;
       const hay = [
         s.titleAr,
@@ -83,7 +118,13 @@ function ServicesReportPage() {
         .toLowerCase();
       return hay.includes(q);
     });
-  }, [query, cat, services]);
+  }, [query, cat, services, showAll, canUse, activeGroup]);
+
+  const hiddenByRoleCount = useMemo(
+    () => (showAll ? 0 : services.filter((s) => !canUse(s)).length),
+    [services, showAll, canUse],
+  );
+
 
   const handleUnavailable = (svc: HubService) => {
     toast.warning(
@@ -152,7 +193,93 @@ function ServicesReportPage() {
             })}
           </div>
         </div>
+
+        {/* Role filter */}
+        {!error && (
+          <div className="mt-4 flex flex-col gap-2 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                <ShieldCheck className="size-3.5 text-primary" />
+                {isAr ? "الأدوار:" : "Roles:"}
+              </span>
+              <div className="flex flex-wrap gap-1 rounded-lg border bg-card p-1">
+                <button
+                  type="button"
+                  onClick={() => setRoleGroup("all")}
+                  disabled={isLoading}
+                  className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition disabled:opacity-50 ${
+                    roleGroup === "all"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {isAr ? "الكل" : "All"}
+                </button>
+                {ROLE_GROUPS.map((g) => {
+                  const active = roleGroup === g.key;
+                  return (
+                    <button
+                      key={g.key}
+                      type="button"
+                      onClick={() => setRoleGroup(g.key)}
+                      disabled={isLoading}
+                      title={g.roles.map((r) => roleLabel(r, !!isAr)).join(" • ")}
+                      className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition disabled:opacity-50 ${
+                        active
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {isAr ? g.ar : g.en}
+                    </button>
+                  );
+                })}
+              </div>
+              {rolesLoading ? (
+                <Skeleton className="h-5 w-24 rounded-full" />
+              ) : myRoles.length > 0 ? (
+                <span className="hidden items-center gap-1 text-[10px] text-muted-foreground md:inline-flex">
+                  {isAr ? "أدوارك:" : "Your roles:"}
+                  {myRoles.map((r) => (
+                    <Badge key={r} variant="outline" className="h-5 px-1.5 text-[10px]">
+                      {roleLabel(r, !!isAr)}
+                    </Badge>
+                  ))}
+                </span>
+              ) : (
+                <span className="text-[10px] text-muted-foreground">
+                  {isAr ? "لا توجد أدوار مُعيّنة" : "No roles assigned"}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowAll((v) => !v)}
+              disabled={isSuperAdmin}
+              title={
+                isSuperAdmin
+                  ? isAr
+                    ? "المدير العام يرى كل شيء"
+                    : "Super admin sees everything"
+                  : undefined
+              }
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {showAll ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
+              {showAll
+                ? isAr ? "إخفاء غير المسموح" : "Hide restricted"
+                : isAr ? "عرض الكل" : "Show all"}
+              {!showAll && hiddenByRoleCount > 0 && (
+                <Badge variant="secondary" className="h-4 px-1 text-[9px]">
+                  +{hiddenByRoleCount}
+                </Badge>
+              )}
+            </button>
+          </div>
+        )}
       </section>
+
+
 
       {/* Error state */}
       {error && (
@@ -311,8 +438,12 @@ function ServicesReportPage() {
               const Icon = s.icon;
               const routeOk = isKnownRoute(s.to);
               const flagged = isHubServiceAvailable(s);
-              const available = flagged && routeOk;
-              const brokenLink = flagged && !routeOk;
+              const authorized = canUse(s);
+              const restricted = !authorized;
+              const available = flagged && routeOk && authorized;
+              const brokenLink = flagged && !routeOk && authorized;
+              const serviceRoles = rolesForService(s.id);
+
               return (
                 <motion.article
                   id={`svc-${s.id}`}
@@ -362,8 +493,15 @@ function ServicesReportPage() {
                           {isAr ? "رابط مفقود" : "Broken link"}
                         </Badge>
                       )}
+                      {restricted && (
+                        <Badge variant="destructive" className="gap-1 text-[10px]" title={serviceRoles.map((r) => roleLabel(r, !!isAr)).join(", ")}>
+                          <Lock className="size-3" />
+                          {isAr ? "بدون صلاحية" : "Restricted"}
+                        </Badge>
+                      )}
                     </div>
                   </div>
+
                   <h2 className="relative z-10 mt-4 text-base font-bold text-foreground">
                     {isAr ? s.titleAr : s.titleEn}
                   </h2>
@@ -380,6 +518,15 @@ function ServicesReportPage() {
                       {isAr
                         ? `المسار ${s.to} غير مسجّل حاليًا. افتح صفحة التفاصيل للمزيد.`
                         : `The route ${s.to} isn't registered. Open the details page for more info.`}
+                    </p>
+                  )}
+                  {restricted && (
+                    <p className="relative z-10 mt-2 flex items-center gap-1.5 rounded-md border border-dashed border-destructive/30 bg-destructive/5 px-2 py-1 text-[11px] text-destructive">
+                      <Lock className="size-3 shrink-0" />
+                      <span>
+                        {isAr ? "تتطلب:" : "Requires:"}{" "}
+                        {serviceRoles.map((r) => roleLabel(r, !!isAr)).join(" • ")}
+                      </span>
                     </p>
                   )}
                   <ul className="relative z-10 mt-3 flex flex-wrap gap-1.5">
@@ -408,26 +555,48 @@ function ServicesReportPage() {
                     ) : (
                       <button
                         type="button"
-                        onClick={() =>
-                          brokenLink
-                            ? toast.error(
-                                isAr ? "الرابط غير متاح" : "Link unavailable",
-                                {
-                                  description: isAr
-                                    ? `المسار «${s.to}» غير مسجّل في التطبيق.`
-                                    : `Route "${s.to}" isn't registered in the app.`,
-                                },
-                              )
-                            : handleUnavailable(s)
-                        }
+                        onClick={() => {
+                          if (restricted) {
+                            toast.error(
+                              isAr ? "لا تملك صلاحية لهذه الخدمة" : "You don't have access",
+                              {
+                                description: isAr
+                                  ? `تتطلب أحد الأدوار: ${serviceRoles.map((r) => roleLabel(r, true)).join(", ")}.`
+                                  : `Requires one of: ${serviceRoles.map((r) => roleLabel(r, false)).join(", ")}.`,
+                              },
+                            );
+                            return;
+                          }
+                          if (brokenLink) {
+                            toast.error(
+                              isAr ? "الرابط غير متاح" : "Link unavailable",
+                              {
+                                description: isAr
+                                  ? `المسار «${s.to}» غير مسجّل في التطبيق.`
+                                  : `Route "${s.to}" isn't registered in the app.`,
+                              },
+                            );
+                            return;
+                          }
+                          handleUnavailable(s);
+                        }}
                         className="inline-flex cursor-not-allowed items-center gap-1 text-[11px] font-medium text-muted-foreground/70"
                       >
-                        {brokenLink ? <AlertTriangle className="size-3" /> : <Ban className="size-3" />}
-                        {brokenLink
-                          ? isAr ? "رابط مفقود" : "Broken link"
-                          : isAr ? "غير متاحة" : "Unavailable"}
+                        {restricted ? (
+                          <Lock className="size-3" />
+                        ) : brokenLink ? (
+                          <AlertTriangle className="size-3" />
+                        ) : (
+                          <Ban className="size-3" />
+                        )}
+                        {restricted
+                          ? isAr ? "بدون صلاحية" : "Restricted"
+                          : brokenLink
+                            ? isAr ? "رابط مفقود" : "Broken link"
+                            : isAr ? "غير متاحة" : "Unavailable"}
                       </button>
                     )}
+
 
                     <Link
                       to="/dashboard/services/$key"
