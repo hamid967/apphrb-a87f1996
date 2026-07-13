@@ -68,7 +68,8 @@ def main() -> int:
         SELECT set_config('role', 'authenticated', true);
 
         -- Call the function under test.
-        SELECT public.register_company('{name}', NULL) AS result \\gset
+        PERFORM public.register_company('{name}', NULL);
+
 
         -- === Assertions ===
         DO $$
