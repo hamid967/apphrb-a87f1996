@@ -27,6 +27,7 @@ import {
   type HubService,
 } from "@/lib/services-hub-catalog";
 import { useHubCatalog } from "@/lib/use-hub-catalog";
+import { useSafeRouteNavigator } from "@/lib/use-safe-route-navigator";
 import { recordServiceAccess, useServiceAccessLog } from "@/lib/service-access-log";
 
 export const Route = createFileRoute(
