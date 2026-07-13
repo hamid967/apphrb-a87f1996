@@ -239,6 +239,26 @@ export function CommandPalette() {
           </CommandGroup>
         )}
 
+        {user && grouped.services.length > 0 && (
+          <>
+            <CommandSeparator />
+            <CommandGroup heading={groupTitle("الخدمات", "Services")}>
+              {grouped.services.map((it) => (
+                <CommandItem
+                  key={it.id}
+                  value={`${it.label} ${it.labelEn} ${it.to} ${it.keywords ?? ""}`}
+                  onSelect={() => go(it.to)}
+                >
+                  <it.icon className="me-2 size-4 opacity-70" />
+                  {label(it)}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </>
+        )}
+
+
+
         {user && grouped.reports.length > 0 && (
           <>
             <CommandSeparator />
