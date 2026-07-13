@@ -959,48 +959,18 @@ function SummaryPanel({
               {isAr ? "لا توجد بيانات" : "No data"}
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={series} margin={{ top: 8, right: 12, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="gTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="gErr" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--destructive))" stopOpacity={0.55} />
-                    <stop offset="100%" stopColor="hsl(var(--destructive))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="label" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--popover))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Area
-                  type="monotone"
-                  dataKey="total"
-                  name={isAr ? "الإجمالي" : "Total"}
-                  stroke="hsl(var(--primary))"
-                  strokeWidth={2}
-                  fill="url(#gTotal)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="errors"
-                  name={isAr ? "أخطاء" : "Errors"}
-                  stroke="hsl(var(--destructive))"
-                  strokeWidth={2}
-                  fill="url(#gErr)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <MotionAreaChart
+              data={series.map((s: Record<string, unknown>) => ({
+                label: s.label,
+                [isAr ? "الإجمالي" : "Total"]: s.total,
+                [isAr ? "أخطاء" : "Errors"]: s.errors,
+              }))}
+              index="label"
+              categories={[isAr ? "الإجمالي" : "Total", isAr ? "أخطاء" : "Errors"]}
+              colors={["emerald", "rose"]}
+              className="h-[240px] mt-2"
+            />
+
           )}
         </CardContent>
       </Card>
