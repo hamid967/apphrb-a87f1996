@@ -84,21 +84,20 @@ export function DashboardSidebar() {
       ],
     },
     {
-      labelAr: "العقارات",
+      labelAr: "الأملاك",
       labelEn: "Properties",
       items: [
         { url: "/dashboard/properties", icon: Home, ar: "العقارات", en: "Properties" },
         { url: "/dashboard/units", icon: KeyRound, ar: "الوحدات", en: "Units" },
         { url: "/owners", icon: Users2, ar: "الملّاك", en: "Owners" },
         { url: "/dashboard/valuations", icon: Gauge, ar: "التقييمات", en: "Valuations" },
-        { url: "/dashboard/viewings", icon: CalendarClock, ar: "المعاينات", en: "Viewings" },
       ],
     },
     {
       labelAr: "العقود والمالية",
       labelEn: "Contracts & Finance",
       items: [
-        { url: "/dashboard/contracts", icon: FileText, ar: "العقود", en: "Contracts" },
+        { url: "/dashboard/contracts", icon: FileText, ar: "عقود الإيجار", en: "Lease Contracts" },
         { url: "/dashboard/payments", icon: Coins, ar: "المدفوعات", en: "Payments" },
         { url: "/dashboard/invoices", icon: Receipt, ar: "الفواتير", en: "Invoices" },
         { url: "/dashboard/zatca-customers", icon: Users2, ar: "عملاء ZATCA", en: "ZATCA Customers" },
@@ -109,14 +108,11 @@ export function DashboardSidebar() {
       ],
     },
     {
-      labelAr: "المستأجرون و CRM",
-      labelEn: "Tenants & CRM",
+      labelAr: "المستأجرون",
+      labelEn: "Tenants",
       items: [
         { url: "/dashboard/tenants", icon: Users2, ar: "المستأجرون", en: "Tenants" },
         { url: "/dashboard/applications", icon: ClipboardList, ar: "طلبات السكن", en: "Applications" },
-        { url: "/leads", icon: Target, ar: "العملاء المحتملون", en: "Leads" },
-        { url: "/deals", icon: Handshake, ar: "الصفقات", en: "Deals" },
-        { url: "/meetings", icon: CalendarClock, ar: "الاجتماعات", en: "Meetings" },
       ],
     },
     {
