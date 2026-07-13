@@ -248,7 +248,7 @@ function ServiceDetailPage() {
                   </Badge>
                 )}
                 <span className="inline-flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground">
-                  <ShieldRoleIcon />
+                  <Lock className="size-3 opacity-60" />
                   {isAr ? "متاحة لـ:" : "Available to:"}
                   {serviceRoles.map((r) => (
                     <Badge key={r} variant="secondary" className="h-5 px-1.5 text-[10px]">
