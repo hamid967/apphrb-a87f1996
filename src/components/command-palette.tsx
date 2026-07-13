@@ -229,7 +229,8 @@ export function CommandPalette() {
             {grouped.dashboard.map((it) => (
               <CommandItem
                 key={it.id}
-                value={`${it.label} ${it.labelEn} ${it.to}`}
+                value={`${it.label} ${it.labelEn} ${it.to} ${it.keywords ?? ""}`}
+
                 onSelect={() => go(it.to)}
               >
                 <it.icon className="me-2 size-4 opacity-70" />
