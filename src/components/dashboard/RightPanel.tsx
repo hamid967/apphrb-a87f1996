@@ -25,6 +25,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { ActivityTimeline, type TimelineItem, type TimelineStatus } from "@/components/ui/activity-timeline";
+
 
 type Props = { orgId: string | undefined; isAr: boolean };
 
