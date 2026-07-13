@@ -27,7 +27,7 @@ const PUBLIC_PATHS: Array<{ path: string; lastmod?: string }> = [
   { path: "/services" },
   { path: "/pricing" },
   { path: "/compare" },
-  { path: "/listings" },
+  
   { path: "/blog" },
   { path: "/faq" },
   { path: "/contact" },
