@@ -182,8 +182,17 @@ function ServiceDetailPage() {
     (s) => s.category === service.category && s.id !== service.id,
   ).slice(0, 4);
   const Icon = service.icon;
-  const available = isHubServiceAvailable(service);
-  const unavailableReason = isAr ? service.unavailableReasonAr : service.unavailableReasonEn;
+  const { isKnownRoute, safeNavigate } = useSafeRouteNavigator();
+  const flagged = isHubServiceAvailable(service);
+  const routeOk = isKnownRoute(service.to);
+  const available = flagged && routeOk;
+  const brokenLink = flagged && !routeOk;
+  const unavailableReason = isAr
+    ? (service.unavailableReasonAr ??
+        (brokenLink ? `المسار «${service.to}» غير مسجّل حاليًا.` : undefined))
+    : (service.unavailableReasonEn ??
+        (brokenLink ? `Route "${service.to}" isn't registered.` : undefined));
+
 
 
   return (
