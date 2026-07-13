@@ -339,18 +339,33 @@ function ServiceDetailPage() {
                 {isAr ? "روابط مرتبطة" : "Related links"}
               </h2>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {service.links.map((link) => (
-                  <Link
-                    key={link.to}
-                    to={link.to}
-                    className="group inline-flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm transition hover:border-primary/50 hover:bg-primary/5"
-                  >
-                    <span className="font-medium text-foreground">
-                      {isAr ? link.labelAr : link.labelEn}
-                    </span>
-                    <Arrow className="size-4 text-muted-foreground transition group-hover:text-primary" />
-                  </Link>
-                ))}
+                {service.links.map((link) => {
+                  const linkOk = isKnownRoute(link.to);
+                  return (
+                    <button
+                      key={link.to}
+                      type="button"
+                      onClick={() => safeNavigate(link.to, { isAr })}
+                      aria-disabled={!linkOk || undefined}
+                      title={linkOk ? undefined : link.to}
+                      className={`group inline-flex items-center justify-between gap-2 rounded-xl border px-4 py-3 text-sm transition ${
+                        linkOk
+                          ? "border-border bg-background hover:border-primary/50 hover:bg-primary/5"
+                          : "cursor-not-allowed border-dashed border-destructive/40 bg-destructive/5 text-destructive/80"
+                      }`}
+                    >
+                      <span className={`font-medium ${linkOk ? "text-foreground" : "text-destructive"}`}>
+                        {isAr ? link.labelAr : link.labelEn}
+                      </span>
+                      {linkOk ? (
+                        <Arrow className="size-4 text-muted-foreground transition group-hover:text-primary" />
+                      ) : (
+                        <AlertTriangle className="size-4 text-destructive" />
+                      )}
+                    </button>
+                  );
+                })}
+
               </div>
             </section>
           )}
