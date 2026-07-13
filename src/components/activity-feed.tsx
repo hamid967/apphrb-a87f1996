@@ -202,39 +202,45 @@ export function ActivityFeed({ orgId }: { orgId: string }) {
           <SheetTitle>{t("activity.title")}</SheetTitle>
         </SheetHeader>
         <ScrollArea className="mt-4 h-[calc(100vh-6rem)] pe-3">
-          {items.length === 0 ? (
-            <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-              {t("activity.empty")}
-            </div>
-          ) : (
-            <ul className="space-y-2">
-              {items.map((a) => (
-                <li key={a.id} className="flex items-start gap-3 rounded-lg border bg-card p-3">
-                  <div className="mt-0.5 grid size-8 place-items-center rounded-md bg-muted text-muted-foreground">
-                    {a.action === "stage" ? (
-                      <ArrowRightLeft className="size-4" />
-                    ) : a.kind === "task" ? (
-                      <CheckSquare className="size-4" />
-                    ) : a.kind === "lead" ? (
-                      <Sparkles className="size-4" />
-                    ) : (
-                      <Users className="size-4" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium">{a.title}</div>
-                    {a.detail && (
-                      <div className="truncate text-xs text-muted-foreground">{a.detail}</div>
-                    )}
-                    <div className="mt-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                      {new Date(a.at).toLocaleTimeString()}
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+          {(() => {
+            const iconFor = (a: Activity) =>
+              a.action === "stage"
+                ? ArrowRightLeft
+                : a.action === "update"
+                  ? RefreshCw
+                  : a.kind === "task"
+                    ? CheckSquare
+                    : a.kind === "lead"
+                      ? Sparkles
+                      : Users;
+            const statusFor = (a: Activity): TimelineStatus =>
+              a.action === "done"
+                ? "success"
+                : a.action === "insert"
+                  ? "info"
+                  : a.action === "stage"
+                    ? "highlight"
+                    : a.action === "delete"
+                      ? "danger"
+                      : "neutral";
+            const badgeFor = (a: Activity) => {
+              const key = `activity.actions.${a.action}`;
+              const label = t(key);
+              return label === key ? a.action : label;
+            };
+            const timeline: TimelineItem[] = items.map((a) => ({
+              id: a.id,
+              title: a.title,
+              detail: a.detail,
+              at: a.at,
+              icon: iconFor(a),
+              status: statusFor(a),
+              badge: badgeFor(a),
+            }));
+            return <ActivityTimeline items={timeline} emptyLabel={t("activity.empty")} />;
+          })()}
         </ScrollArea>
+
       </SheetContent>
     </Sheet>
   );
