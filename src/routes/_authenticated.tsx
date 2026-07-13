@@ -102,7 +102,7 @@ function AuthenticatedShellWithBoundary() {
       if (next === "luxe") {
         el.classList.add("theme-luxe");
       } else {
-        el.classList.add("theme-tech", "dark");
+        el.classList.add("theme-tech");
       }
     };
     const initial = (() => {
