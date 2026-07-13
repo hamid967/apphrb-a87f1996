@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight, ShieldAlert, Lock, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShieldAlert, Lock, Sparkles, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   HUB_CATEGORIES,
@@ -16,6 +16,7 @@ import {
   type AppRole,
 } from "@/lib/service-roles";
 import { useSafeRouteNavigator } from "@/lib/use-safe-route-navigator";
+import { recordForbiddenAttempt } from "@/lib/service-forbidden-log";
 
 type Props = {
   service: HubService;
@@ -34,6 +35,18 @@ export function ForbiddenScreen({ service, myRoles, isAr }: Props) {
   const { isKnownRoute } = useSafeRouteNavigator();
   const requiredRoles = rolesForService(service.id);
   const category = HUB_CATEGORIES.find((c) => c.key === service.category);
+
+  // Log the blocked attempt (dedup handled inside the recorder).
+  useEffect(() => {
+    recordForbiddenAttempt({
+      id: service.id,
+      reason: "missing_role",
+      requiredRoles,
+      userRoles: myRoles,
+      source: "detail",
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [service.id]);
 
   const suggestions = useMemo(() => {
     const allowed = HUB_SERVICES.filter(
@@ -196,6 +209,13 @@ export function ForbiddenScreen({ service, myRoles, isAr }: Props) {
             className="inline-flex items-center rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted"
           >
             {isAr ? "العودة إلى لوحة التحكم" : "Back to dashboard"}
+          </Link>
+          <Link
+            to="/dashboard/services/forbidden-log"
+            className="inline-flex items-center gap-2 rounded-lg border border-dashed border-border bg-background px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            <History className="size-4" />
+            {isAr ? "سجل المحاولات المحجوبة" : "Forbidden attempts log"}
           </Link>
         </div>
       </section>

@@ -237,6 +237,7 @@ import { Route as AuthenticatedDashboardSettingsNotificationsRouteImport } from 
 import { Route as AuthenticatedDashboardSettingsImportRouteImport } from './routes/_authenticated/dashboard.settings.import'
 import { Route as AuthenticatedDashboardSettingsBillingRouteImport } from './routes/_authenticated/dashboard.settings.billing'
 import { Route as AuthenticatedDashboardSettingsApiKeysRouteImport } from './routes/_authenticated/dashboard.settings.api-keys'
+import { Route as AuthenticatedDashboardServicesForbiddenLogRouteImport } from './routes/_authenticated/dashboard.services.forbidden-log'
 import { Route as AuthenticatedDashboardServicesKeyRouteImport } from './routes/_authenticated/dashboard.services.$key'
 import { Route as AuthenticatedDashboardPropertiesNewRouteImport } from './routes/_authenticated/dashboard.properties.new'
 import { Route as AuthenticatedDashboardPropertiesIdRouteImport } from './routes/_authenticated/dashboard.properties.$id'
@@ -1558,6 +1559,12 @@ const AuthenticatedDashboardSettingsApiKeysRoute =
     path: '/api-keys',
     getParentRoute: () => AuthenticatedDashboardSettingsRoute,
   } as any)
+const AuthenticatedDashboardServicesForbiddenLogRoute =
+  AuthenticatedDashboardServicesForbiddenLogRouteImport.update({
+    id: '/services/forbidden-log',
+    path: '/services/forbidden-log',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardServicesKeyRoute =
   AuthenticatedDashboardServicesKeyRouteImport.update({
     id: '/services/$key',
@@ -1971,6 +1978,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
   '/dashboard/services/$key': typeof AuthenticatedDashboardServicesKeyRoute
+  '/dashboard/services/forbidden-log': typeof AuthenticatedDashboardServicesForbiddenLogRoute
   '/dashboard/settings/api-keys': typeof AuthenticatedDashboardSettingsApiKeysRoute
   '/dashboard/settings/billing': typeof AuthenticatedDashboardSettingsBillingRoute
   '/dashboard/settings/import': typeof AuthenticatedDashboardSettingsImportRoute
@@ -2228,6 +2236,7 @@ export interface FileRoutesByTo {
   '/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
   '/dashboard/services/$key': typeof AuthenticatedDashboardServicesKeyRoute
+  '/dashboard/services/forbidden-log': typeof AuthenticatedDashboardServicesForbiddenLogRoute
   '/dashboard/settings/api-keys': typeof AuthenticatedDashboardSettingsApiKeysRoute
   '/dashboard/settings/billing': typeof AuthenticatedDashboardSettingsBillingRoute
   '/dashboard/settings/import': typeof AuthenticatedDashboardSettingsImportRoute
@@ -2495,6 +2504,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/_authenticated/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
   '/_authenticated/dashboard/services/$key': typeof AuthenticatedDashboardServicesKeyRoute
+  '/_authenticated/dashboard/services/forbidden-log': typeof AuthenticatedDashboardServicesForbiddenLogRoute
   '/_authenticated/dashboard/settings/api-keys': typeof AuthenticatedDashboardSettingsApiKeysRoute
   '/_authenticated/dashboard/settings/billing': typeof AuthenticatedDashboardSettingsBillingRoute
   '/_authenticated/dashboard/settings/import': typeof AuthenticatedDashboardSettingsImportRoute
@@ -2762,6 +2772,7 @@ export interface FileRouteTypes {
     | '/dashboard/properties/$id'
     | '/dashboard/properties/new'
     | '/dashboard/services/$key'
+    | '/dashboard/services/forbidden-log'
     | '/dashboard/settings/api-keys'
     | '/dashboard/settings/billing'
     | '/dashboard/settings/import'
@@ -3019,6 +3030,7 @@ export interface FileRouteTypes {
     | '/dashboard/properties/$id'
     | '/dashboard/properties/new'
     | '/dashboard/services/$key'
+    | '/dashboard/services/forbidden-log'
     | '/dashboard/settings/api-keys'
     | '/dashboard/settings/billing'
     | '/dashboard/settings/import'
@@ -3285,6 +3297,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/properties/$id'
     | '/_authenticated/dashboard/properties/new'
     | '/_authenticated/dashboard/services/$key'
+    | '/_authenticated/dashboard/services/forbidden-log'
     | '/_authenticated/dashboard/settings/api-keys'
     | '/_authenticated/dashboard/settings/billing'
     | '/_authenticated/dashboard/settings/import'
@@ -5023,6 +5036,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardSettingsApiKeysRouteImport
       parentRoute: typeof AuthenticatedDashboardSettingsRoute
     }
+    '/_authenticated/dashboard/services/forbidden-log': {
+      id: '/_authenticated/dashboard/services/forbidden-log'
+      path: '/services/forbidden-log'
+      fullPath: '/dashboard/services/forbidden-log'
+      preLoaderRoute: typeof AuthenticatedDashboardServicesForbiddenLogRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/services/$key': {
       id: '/_authenticated/dashboard/services/$key'
       path: '/services/$key'
@@ -5662,6 +5682,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardPropertiesIdRoute: typeof AuthenticatedDashboardPropertiesIdRoute
   AuthenticatedDashboardPropertiesNewRoute: typeof AuthenticatedDashboardPropertiesNewRoute
   AuthenticatedDashboardServicesKeyRoute: typeof AuthenticatedDashboardServicesKeyRoute
+  AuthenticatedDashboardServicesForbiddenLogRoute: typeof AuthenticatedDashboardServicesForbiddenLogRoute
   AuthenticatedDashboardTicketsIdRoute: typeof AuthenticatedDashboardTicketsIdRoute
   AuthenticatedDashboardTicketsNewRoute: typeof AuthenticatedDashboardTicketsNewRoute
   AuthenticatedDashboardUnitsIdRoute: typeof AuthenticatedDashboardUnitsIdRoute
@@ -5732,6 +5753,8 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardPropertiesNewRoute,
     AuthenticatedDashboardServicesKeyRoute:
       AuthenticatedDashboardServicesKeyRoute,
+    AuthenticatedDashboardServicesForbiddenLogRoute:
+      AuthenticatedDashboardServicesForbiddenLogRoute,
     AuthenticatedDashboardTicketsIdRoute: AuthenticatedDashboardTicketsIdRoute,
     AuthenticatedDashboardTicketsNewRoute:
       AuthenticatedDashboardTicketsNewRoute,
