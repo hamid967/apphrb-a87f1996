@@ -79,6 +79,8 @@ import { ServicesGrid } from "@/components/dashboard/ServicesGrid";
 import { WelcomeChecklist } from "@/components/dashboard/WelcomeChecklist";
 import { SubscriptionStatusCard } from "@/components/dashboard/SubscriptionStatusCard";
 import { SubscriptionAuditTrail } from "@/components/dashboard/SubscriptionAuditTrail";
+import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
+import { supabase } from "@/integrations/supabase/client";
 import { PendingApprovalsPanel } from "@/components/dashboard/PendingApprovalsPanel";
 import { SmartRemindersPanel } from "@/components/dashboard/SmartRemindersPanel";
 import {
