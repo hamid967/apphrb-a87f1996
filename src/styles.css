@@ -1187,7 +1187,7 @@ html[data-holo="off"] .holo-text {
   --sidebar-primary-foreground: oklch(0.16 0.02 165);
   --sidebar-accent: oklch(0.28 0.028 165);
   --sidebar-accent-foreground: oklch(0.97 0.008 150);
-  --sidebar-border: oklch(0.52 0.03 160);
+  --sidebar-border: oklch(0.58 0.03 160);
   --sidebar-ring: oklch(0.75 0.17 160);
 }
 
