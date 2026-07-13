@@ -193,7 +193,93 @@ function ServicesReportPage() {
             })}
           </div>
         </div>
+
+        {/* Role filter */}
+        {!error && (
+          <div className="mt-4 flex flex-col gap-2 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                <ShieldCheck className="size-3.5 text-primary" />
+                {isAr ? "الأدوار:" : "Roles:"}
+              </span>
+              <div className="flex flex-wrap gap-1 rounded-lg border bg-card p-1">
+                <button
+                  type="button"
+                  onClick={() => setRoleGroup("all")}
+                  disabled={isLoading}
+                  className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition disabled:opacity-50 ${
+                    roleGroup === "all"
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {isAr ? "الكل" : "All"}
+                </button>
+                {ROLE_GROUPS.map((g) => {
+                  const active = roleGroup === g.key;
+                  return (
+                    <button
+                      key={g.key}
+                      type="button"
+                      onClick={() => setRoleGroup(g.key)}
+                      disabled={isLoading}
+                      title={g.roles.map((r) => roleLabel(r, !!isAr)).join(" • ")}
+                      className={`rounded-md px-2.5 py-1 text-[11px] font-medium transition disabled:opacity-50 ${
+                        active
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {isAr ? g.ar : g.en}
+                    </button>
+                  );
+                })}
+              </div>
+              {rolesLoading ? (
+                <Skeleton className="h-5 w-24 rounded-full" />
+              ) : myRoles.length > 0 ? (
+                <span className="hidden items-center gap-1 text-[10px] text-muted-foreground md:inline-flex">
+                  {isAr ? "أدوارك:" : "Your roles:"}
+                  {myRoles.map((r) => (
+                    <Badge key={r} variant="outline" className="h-5 px-1.5 text-[10px]">
+                      {roleLabel(r, !!isAr)}
+                    </Badge>
+                  ))}
+                </span>
+              ) : (
+                <span className="text-[10px] text-muted-foreground">
+                  {isAr ? "لا توجد أدوار مُعيّنة" : "No roles assigned"}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowAll((v) => !v)}
+              disabled={isSuperAdmin}
+              title={
+                isSuperAdmin
+                  ? isAr
+                    ? "المدير العام يرى كل شيء"
+                    : "Super admin sees everything"
+                  : undefined
+              }
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {showAll ? <EyeOff className="size-3" /> : <Eye className="size-3" />}
+              {showAll
+                ? isAr ? "إخفاء غير المسموح" : "Hide restricted"
+                : isAr ? "عرض الكل" : "Show all"}
+              {!showAll && hiddenByRoleCount > 0 && (
+                <Badge variant="secondary" className="h-4 px-1 text-[9px]">
+                  +{hiddenByRoleCount}
+                </Badge>
+              )}
+            </button>
+          </div>
+        )}
       </section>
+
+
 
       {/* Error state */}
       {error && (
