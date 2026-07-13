@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight, ShieldAlert, Lock, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShieldAlert, Lock, Sparkles, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   HUB_CATEGORIES,
@@ -16,6 +16,7 @@ import {
   type AppRole,
 } from "@/lib/service-roles";
 import { useSafeRouteNavigator } from "@/lib/use-safe-route-navigator";
+import { recordForbiddenAttempt } from "@/lib/service-forbidden-log";
 
 type Props = {
   service: HubService;
