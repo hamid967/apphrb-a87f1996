@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
-import { Bell, Sparkles, Users, ArrowRightLeft, CheckSquare } from "lucide-react";
+import { Bell, Sparkles, Users, ArrowRightLeft, CheckSquare, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ActivityTimeline, type TimelineItem, type TimelineStatus } from "@/components/ui/activity-timeline";
+
 
 type Kind = "contact" | "lead" | "task";
 type Action = "insert" | "update" | "delete" | "stage" | "done";
