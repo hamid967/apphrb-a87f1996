@@ -78,6 +78,7 @@ import { QuickExpenseWidget } from "@/components/dashboard/QuickExpenseWidget";
 import { ServicesGrid } from "@/components/dashboard/ServicesGrid";
 import { WelcomeChecklist } from "@/components/dashboard/WelcomeChecklist";
 import { SubscriptionStatusCard } from "@/components/dashboard/SubscriptionStatusCard";
+import { SubscriptionAuditTrail } from "@/components/dashboard/SubscriptionAuditTrail";
 import { PendingApprovalsPanel } from "@/components/dashboard/PendingApprovalsPanel";
 import { SmartRemindersPanel } from "@/components/dashboard/SmartRemindersPanel";
 import {
