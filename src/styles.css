@@ -123,6 +123,8 @@
   --success-foreground: oklch(0.99 0 0);
   --warning: oklch(0.78 0.16 70);
   --warning-foreground: oklch(0.23 0.055 165);
+  --info: oklch(0.55 0.16 235);
+  --info-foreground: oklch(0.99 0 0);
   --border: oklch(0.88 0.026 95);
   --input: oklch(0.90 0.022 95);
   --ring: oklch(0.74 0.105 86);
@@ -173,6 +175,8 @@
   --success-foreground: oklch(0.99 0 0);
   --warning: oklch(0.78 0.16 70);
   --warning-foreground: oklch(0.18 0.045 165);
+  --info: oklch(0.75 0.13 225);
+  --info-foreground: oklch(0.16 0.02 230);
   --border: oklch(0.72 0.105 86 / 22%);
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.72 0.105 86);
@@ -1161,6 +1165,8 @@ html[data-holo="off"] .holo-text {
   --success-foreground: oklch(0.15 0.02 165);
   --warning: oklch(0.82 0.15 80);
   --warning-foreground: oklch(0.15 0.02 165);
+  --info: oklch(0.75 0.13 225);
+  --info-foreground: oklch(0.16 0.02 230);
   --border: oklch(0.58 0.03 160);            /* WCAG AA UI 3:1 vs bg AND card */
   --input: oklch(0.58 0.03 160);
 
@@ -1403,6 +1409,8 @@ html.theme-tech nav[aria-label] a[aria-current="page"] > span[aria-hidden="true"
   --success-foreground: oklch(0.98 0.02 92);
   --warning: oklch(0.79 0.14 88);
   --warning-foreground: oklch(0.28 0.06 165);
+  --info: oklch(0.55 0.16 235);
+  --info-foreground: oklch(0.99 0 0);
   --border: oklch(0.32 0.075 165 / 12%);         /* emerald hairline */
   --input: oklch(0.32 0.075 165 / 20%);
 
@@ -1855,6 +1863,8 @@ html.theme-tech :where(:not(.theme-luxe *)) [data-slot="select-trigger"] {
   --success-foreground: oklch(1 0 0);
   --warning: oklch(0.78 0.16 75);
   --warning-foreground: oklch(0.19 0.03 260);
+  --info: oklch(0.55 0.16 235);
+  --info-foreground: oklch(0.99 0 0);
   --border: oklch(0.92 0.008 260);
   --input: oklch(0.90 0.008 260);
   --ring: oklch(0.56 0.20 285);
