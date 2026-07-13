@@ -170,6 +170,7 @@ export function CommandPalette() {
     const g: Record<Item["group"], Item[]> = {
       nav: [],
       dashboard: [],
+      services: [],
       reports: [],
       admin: [],
       actions: [],
@@ -177,6 +178,7 @@ export function CommandPalette() {
     for (const it of items) g[it.group].push(it);
     return g;
   }, [items]);
+
 
   const go = (to: string) => {
     setOpen(false);
