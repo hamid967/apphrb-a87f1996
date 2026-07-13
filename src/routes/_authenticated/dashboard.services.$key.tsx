@@ -35,6 +35,8 @@ import {
   useServiceAccessLog,
 } from "@/lib/service-access-log";
 import { useSafeRouteNavigator } from "@/lib/use-safe-route-navigator";
+import { useMyRoles } from "@/hooks/use-my-roles";
+import { rolesForService, roleLabel, userCanUseService } from "@/lib/service-roles";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard/services/$key")({
