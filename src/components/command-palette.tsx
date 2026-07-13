@@ -37,7 +37,21 @@ import {
   Bot,
   Handshake,
   ListChecks,
+  Briefcase,
+  Landmark,
+  Receipt,
+  CreditCard,
+  FileBadge,
+  LifeBuoy,
+  Settings as SettingsIcon,
+  Megaphone,
+  Ticket,
+  ClipboardList,
+  Calendar,
+  ScrollText,
+  UsersRound,
 } from "lucide-react";
+
 
 type Item = {
   id: string;
