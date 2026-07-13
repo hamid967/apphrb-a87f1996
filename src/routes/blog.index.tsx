@@ -92,9 +92,16 @@ function BlogIndex() {
                     </p>
                   )}
                   <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                    <span>
+                    <span suppressHydrationWarning>
                       {p.published_at
-                        ? new Date(p.published_at).toLocaleDateString(isAr ? "ar-SA" : "en-US")
+                        ? new Intl.DateTimeFormat(isAr ? "ar" : "en", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            calendar: "gregory",
+                            numberingSystem: "latn",
+                            timeZone: "UTC",
+                          }).format(new Date(p.published_at))
                         : ""}
                     </span>
                     <ArrowRight className="h-4 w-4 rtl:rotate-180" />
