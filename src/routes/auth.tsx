@@ -264,11 +264,17 @@ function AuthPage() {
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err ?? "Error");
+      console.error(tag, "step:failed", {
+        message: msg,
+        name: err instanceof Error ? err.name : undefined,
+        stack: err instanceof Error ? err.stack : undefined,
+      });
       toast.error(
         mode === "signup" ? t("auth.signUpFailed", { defaultValue: "تعذّر إنشاء الحساب" }) : msg,
         mode === "signup" ? { description: msg } : undefined,
       );
     } finally {
+      console.info(tag, "step:done");
       setSubmitting(false);
     }
   };
