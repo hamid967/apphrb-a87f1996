@@ -83,6 +83,12 @@ const GROUPS: Group[] = [
       { to: "/admin/subscription-payments", icon: CreditCard, ar: "الإيصالات", en: "Receipts" },
       { to: "/admin/plans", icon: Package, ar: "الباقات", en: "Plans" },
       { to: "/admin/billing-metrics", icon: LineChart, ar: "مؤشرات الفوترة", en: "Billing KPIs" },
+      {
+        to: "/admin/subscription-diagnostics",
+        icon: LifeBuoy,
+        ar: "تشخيص تفعيل الاشتراك",
+        en: "Activation Diagnostics",
+      },
     ],
   },
   {
