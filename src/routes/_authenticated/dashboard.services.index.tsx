@@ -238,28 +238,31 @@ function ServicesReportPage() {
                     </li>
                   ))}
                 </ul>
-                <div className="relative z-10 mt-4 flex items-center justify-between border-t border-border/60 pt-3">
-                  <span className="text-[11px] text-muted-foreground">
-                    {isAr ? "افتح الخدمة" : "Open service"}
-                  </span>
+                <div className="relative z-10 mt-4 flex items-center justify-between gap-2 border-t border-border/60 pt-3">
                   <Link
                     to={s.to}
+                    onClick={() => recordServiceAccess(s.id, s.to)}
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground transition hover:text-primary"
+                  >
+                    <ExternalLink className="size-3" />
+                    {isAr ? "فتح مباشر" : "Open direct"}
+                  </Link>
+                  <Link
+                    to="/dashboard/services/$key"
+                    params={{ key: s.id }}
                     className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
                   >
-                    {isAr ? "فتح" : "Open"}
+                    {isAr ? "التفاصيل" : "Details"}
                     <motion.span
                       animate={{ x: [0, isAr ? -3 : 3, 0] }}
-                      transition={{
-                        duration: 1.4,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
+                      transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
                       className="inline-flex"
                     >
                       <Arrow className="size-3.5" />
                     </motion.span>
                   </Link>
                 </div>
+
               </motion.article>
             );
           })}
