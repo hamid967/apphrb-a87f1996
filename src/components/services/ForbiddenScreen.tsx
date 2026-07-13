@@ -36,6 +36,18 @@ export function ForbiddenScreen({ service, myRoles, isAr }: Props) {
   const requiredRoles = rolesForService(service.id);
   const category = HUB_CATEGORIES.find((c) => c.key === service.category);
 
+  // Log the blocked attempt (dedup handled inside the recorder).
+  useEffect(() => {
+    recordForbiddenAttempt({
+      id: service.id,
+      reason: "missing_role",
+      requiredRoles,
+      userRoles: myRoles,
+      source: "detail",
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [service.id]);
+
   const suggestions = useMemo(() => {
     const allowed = HUB_SERVICES.filter(
       (s) =>
