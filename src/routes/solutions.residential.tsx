@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SolutionPage } from "@/components/marketing/SolutionPage";
-import { Home, Users, CalendarDays, Wrench, Bell, Smartphone } from "lucide-react";
+import { Home, Receipt, CalendarDays, Wrench, Bell, Smartphone } from "lucide-react";
 
 export const Route = createFileRoute("/solutions/residential")({
   head: () => ({
@@ -9,12 +9,12 @@ export const Route = createFileRoute("/solutions/residential")({
       {
         name: "description",
         content:
-          "إدارة الشقق والفلل والمجمعات السكنية على HBSpro: عقود سنوية، طلبات صيانة، وتذكيرات الإيجار الشهرية.",
+          "إدارة الشقق والفلل والمجمعات السكنية على HBSpro: عقود إيجار داخلية، تسجيل المصاريف، وتذكيرات الإيجار الشهرية.",
       },
       { property: "og:title", content: "حلول العقارات السكنية — HBSpro" },
       {
         property: "og:description",
-        content: "إدارة الشقق والفلل مع تذكيرات إيجار شهرية وبوابة مستأجر.",
+        content: "إدارة الشقق والفلل مع تذكيرات إيجار شهرية وتسجيل مصاريف وبوابة مستأجر.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://hrhbs.com/solutions/residential" },
@@ -27,8 +27,8 @@ export const Route = createFileRoute("/solutions/residential")({
       eyebrowEn="For residential"
       titleAr="أدر الشقق والفلل بسلاسة كاملة"
       titleEn="Manage apartments and villas seamlessly"
-      subtitleAr="من توقيع العقد إلى تحصيل الإيجار الشهري وطلبات الصيانة — تجربة مستأجر عصرية عبر بوابة مخصصة."
-      subtitleEn="From contract signing to monthly rent collection and maintenance requests — a modern tenant experience via a dedicated portal."
+      subtitleAr="من عقد الإيجار الداخلي إلى تحصيل الإيجار الشهري وتسجيل مصاريف الصيانة — تشغيل منظّم وتجربة مستأجر عصرية عبر بوابة مخصصة."
+      subtitleEn="From the internal lease to monthly rent collection and maintenance expense tracking — organized operations and a modern tenant portal."
       features={[
         {
           icon: Home,
@@ -45,6 +45,13 @@ export const Route = createFileRoute("/solutions/residential")({
           descEn: "Auto-scheduled payments with both Hijri and Gregorian calendars.",
         },
         {
+          icon: Receipt,
+          titleAr: "تسجيل مصاريف الوحدة",
+          titleEn: "Per-unit expense tracking",
+          descAr: "سجّل مصاريف الصيانة والخدمات لكل شقة وفيلا مع إرفاق الفواتير.",
+          descEn: "Log maintenance and service expenses per apartment or villa with receipts.",
+        },
+        {
           icon: Bell,
           titleAr: "تذكيرات الإيجار",
           titleEn: "Rent reminders",
@@ -55,22 +62,15 @@ export const Route = createFileRoute("/solutions/residential")({
           icon: Wrench,
           titleAr: "طلبات صيانة سريعة",
           titleEn: "Fast maintenance requests",
-          descAr: "يفتح المستأجر بلاغاً بالصور من هاتفه ويتابع الحالة مباشرة.",
-          descEn: "Tenants open a ticket with photos from their phone and track status live.",
+          descAr: "يفتح المستأجر بلاغاً بالصور من هاتفه والتكلفة تُقيَّد تلقائياً في المصاريف.",
+          descEn: "Tenants open tickets with photos; cost is auto-posted as an expense.",
         },
         {
           icon: Smartphone,
           titleAr: "بوابة المستأجر",
           titleEn: "Tenant portal",
-          descAr: "الفواتير، الإيصالات، العقد، والطلبات — في تطبيق ويب مخصص.",
-          descEn: "Invoices, receipts, contract, and requests — in a dedicated web app.",
-        },
-        {
-          icon: Users,
-          titleAr: "إدارة الضيوف والزوّار",
-          titleEn: "Guest & visitor management",
-          descAr: "سجّل الزوّار المتكررين وتحكم بالدخول في المجمعات المسوّرة.",
-          descEn: "Log recurring visitors and control access in gated communities.",
+          descAr: "الفواتير، الإيصالات، عقد الإيجار، والطلبات — في تطبيق ويب مخصص.",
+          descEn: "Invoices, receipts, lease contract, and requests — in a dedicated web app.",
         },
       ]}
     />

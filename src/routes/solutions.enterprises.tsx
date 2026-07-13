@@ -9,12 +9,12 @@ export const Route = createFileRoute("/solutions/enterprises")({
       {
         name: "description",
         content:
-          "HBSpro للمؤسسات: دعم متعدد الفروع، صلاحيات دقيقة (RBAC)، تكامل ZATCA، وSSO — بمستوى أمان مؤسسي.",
+          "HBSpro للمؤسسات: إدارة أملاك متعددة الفروع، صلاحيات دقيقة (RBAC)، تكامل ZATCA، ومركز مصاريف موحّد بمستوى أمان مؤسسي.",
       },
       { property: "og:title", content: "حلول الشركات الكبرى — HBSpro" },
       {
         property: "og:description",
-        content: "متعدد الفروع، صلاحيات مؤسسية، تكامل ZATCA، وSSO لشركات العقارات الكبرى.",
+        content: "إدارة أملاك متعددة الفروع، صلاحيات مؤسسية، تكامل ZATCA، ومركز مصاريف موحّد.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://hrhbs.com/solutions/enterprises" },
@@ -25,17 +25,17 @@ export const Route = createFileRoute("/solutions/enterprises")({
     <SolutionPage
       eyebrowAr="للشركات الكبرى"
       eyebrowEn="For enterprises"
-      titleAr="منصة واحدة لكل فروعك — بمستوى أمان مؤسسي"
-      titleEn="One platform for every branch — with enterprise-grade security"
-      subtitleAr="مصممة للشركات متعددة الفروع مع تحكم صارم في الصلاحيات، تكامل حكومي، وسجلات تدقيق شاملة."
-      subtitleEn="Built for multi-branch companies with fine-grained access control, government integrations, and full audit trails."
+      titleAr="منصة واحدة لإدارة أملاك كل فروعك"
+      titleEn="One platform to manage every branch's properties"
+      subtitleAr="مصممة للشركات متعددة الفروع مع مركز مصاريف موحّد، تحكم صارم في الصلاحيات، وسجلات تدقيق شاملة."
+      subtitleEn="Built for multi-branch companies with a unified expense center, fine-grained access control, and full audit trails."
       features={[
         {
           icon: Building2,
           titleAr: "متعدد الفروع",
           titleEn: "Multi-branch",
-          descAr: "افصل بيانات كل فرع مع تجميع تقارير على مستوى الشركة.",
-          descEn: "Isolate branch data while rolling up reports at company level.",
+          descAr: "افصل بيانات كل فرع مع تجميع تقارير الإيرادات والمصاريف على مستوى الشركة.",
+          descEn: "Isolate branch data while rolling up income and expenses at company level.",
         },
         {
           icon: Users2,
@@ -48,8 +48,8 @@ export const Route = createFileRoute("/solutions/enterprises")({
           icon: ShieldCheck,
           titleAr: "أمان على مستوى المؤسسة",
           titleEn: "Enterprise security",
-          descAr: "2FA إلزامي، سجلات دخول، وسجل تدقيق كامل.",
-          descEn: "Enforced 2FA, login history, and comprehensive audit log.",
+          descAr: "2FA إلزامي، سجلات دخول، وسجل تدقيق كامل لكل مصروف وإجراء.",
+          descEn: "Enforced 2FA, login history, and full audit log on every expense and action.",
         },
         {
           icon: Database,
@@ -69,8 +69,8 @@ export const Route = createFileRoute("/solutions/enterprises")({
           icon: BarChart3,
           titleAr: "تقارير تنفيذية",
           titleEn: "Executive reporting",
-          descAr: "لوحات KPI للإدارة العليا ومقارنات بين الفروع.",
-          descEn: "C-suite KPI boards with cross-branch comparisons.",
+          descAr: "لوحات KPI للإيرادات والمصاريف والإشغال ومقارنات بين الفروع.",
+          descEn: "C-suite KPI boards for revenue, expenses, occupancy, and cross-branch comparisons.",
         },
       ]}
     />

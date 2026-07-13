@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SolutionPage } from "@/components/marketing/SolutionPage";
-import { Building2, Users, ClipboardList, CalendarClock, Wrench, BarChart3 } from "lucide-react";
+import { Building2, Users, ClipboardList, CalendarClock, Wrench, Receipt } from "lucide-react";
 
 export const Route = createFileRoute("/solutions/property-managers")({
   head: () => ({
@@ -9,12 +9,12 @@ export const Route = createFileRoute("/solutions/property-managers")({
       {
         name: "description",
         content:
-          "أدوات مدير العقارات في HBSpro: تفويض المهام، متابعة الصيانة، جدولة العقود، وتقارير أداء لكل عقار.",
+          "أدوات مدير العقارات في HBSpro: تسجيل المصاريف، متابعة الصيانة، جدولة عقود الإيجار، وتقارير أداء لكل عقار.",
       },
       { property: "og:title", content: "حلول مدراء العقارات — HBSpro" },
       {
         property: "og:description",
-        content: "تفويض المهام، متابعة الصيانة، وتقارير الأداء لمدراء العقارات.",
+        content: "تسجيل المصاريف، متابعة الصيانة، وتقارير الأداء لمدراء العقارات.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://hrhbs.com/solutions/property-managers" },
@@ -27,8 +27,8 @@ export const Route = createFileRoute("/solutions/property-managers")({
       eyebrowEn="For property managers"
       titleAr="أدر محفظتك بالكامل من شاشة واحدة"
       titleEn="Manage your entire portfolio from one screen"
-      subtitleAr="من طلبات الصيانة إلى تجديد العقود ومتابعة التحصيل — كل ما يحتاجه مدير العقارات لتشغيل يومي منظّم."
-      subtitleEn="From maintenance tickets to contract renewals and collections — everything a property manager needs for an organized day."
+      subtitleAr="من طلبات الصيانة وتسجيل المصاريف إلى تجديد عقود الإيجار ومتابعة التحصيل — كل ما يحتاجه مدير العقارات لتشغيل يومي منظّم."
+      subtitleEn="From maintenance and expense entry to lease renewals and collections — everything a property manager needs for an organized day."
       features={[
         {
           icon: Building2,
@@ -45,6 +45,13 @@ export const Route = createFileRoute("/solutions/property-managers")({
           descEn: "Granular roles for staff, technicians, and accountants.",
         },
         {
+          icon: Receipt,
+          titleAr: "تسجيل المصاريف",
+          titleEn: "Expense tracking",
+          descAr: "أدخل مصاريف الصيانة والرسوم والخدمات مع إرفاق الفواتير لكل وحدة.",
+          descEn: "Log maintenance, fees, and services with receipts attached per unit.",
+        },
+        {
           icon: ClipboardList,
           titleAr: "قائمة المهام اليومية",
           titleEn: "Daily task list",
@@ -53,24 +60,17 @@ export const Route = createFileRoute("/solutions/property-managers")({
         },
         {
           icon: CalendarClock,
-          titleAr: "تنبيهات التجديد",
-          titleEn: "Renewal alerts",
+          titleAr: "تنبيهات تجديد عقود الإيجار",
+          titleEn: "Lease renewal alerts",
           descAr: "تنبيهات مبكرة قبل انتهاء كل عقد بـ 30 و 60 و 90 يوماً.",
-          descEn: "Early alerts 30, 60, and 90 days before each contract ends.",
+          descEn: "Early alerts 30, 60, and 90 days before each lease ends.",
         },
         {
           icon: Wrench,
           titleAr: "تتبع الصيانة",
           titleEn: "Maintenance tracking",
-          descAr: "من فتح البلاغ إلى إغلاقه، مع صور قبل وبعد وتقييم المستأجر.",
-          descEn: "From ticket open to close, with before/after photos and tenant rating.",
-        },
-        {
-          icon: BarChart3,
-          titleAr: "تقارير الأداء",
-          titleEn: "Performance reports",
-          descAr: "تقارير الإشغال، التحصيل، ومتوسط زمن إغلاق الصيانة لكل عقار.",
-          descEn: "Occupancy, collection, and maintenance-close-time reports per property.",
+          descAr: "من فتح البلاغ إلى إغلاقه، مع صور قبل وبعد وتكلفة مسجّلة في المصاريف.",
+          descEn: "From ticket open to close, with before/after photos and cost recorded as expense.",
         },
       ]}
     />

@@ -9,12 +9,12 @@ export const Route = createFileRoute("/solutions/commercial")({
       {
         name: "description",
         content:
-          "إدارة المحلات والمكاتب والمجمعات التجارية على HBSpro: عقود متعددة السنوات، فوترة ZATCA، وضريبة القيمة المضافة.",
+          "إدارة المحلات والمكاتب والمجمعات التجارية على HBSpro: عقود إيجار متعددة السنوات، فوترة ZATCA، وتسجيل المصاريف التشغيلية.",
       },
       { property: "og:title", content: "حلول العقارات التجارية — HBSpro" },
       {
         property: "og:description",
-        content: "إدارة المحلات والمكاتب مع فوترة ZATCA وضريبة القيمة المضافة.",
+        content: "إدارة المحلات والمكاتب مع فوترة ZATCA وتسجيل المصاريف التشغيلية.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://hrhbs.com/solutions/commercial" },
@@ -25,10 +25,10 @@ export const Route = createFileRoute("/solutions/commercial")({
     <SolutionPage
       eyebrowAr="للعقارات التجارية"
       eyebrowEn="For commercial real estate"
-      titleAr="حلول متخصصة للمحلات والمكاتب والمجمعات"
-      titleEn="Purpose-built for shops, offices, and complexes"
-      subtitleAr="عقود متعددة السنوات، فوترة ضريبية ممتثلة لـ ZATCA، وحسابات مستأجرين تجاريين — بدقة عالية وبساطة تشغيلية."
-      subtitleEn="Multi-year contracts, ZATCA-compliant tax invoices, and commercial tenant ledgers — accurate and simple to operate."
+      titleAr="حلول متخصصة لإدارة المحلات والمكاتب والمجمعات"
+      titleEn="Purpose-built to manage shops, offices, and complexes"
+      subtitleAr="عقود إيجار داخلية متعددة السنوات، فوترة ضريبية ممتثلة لـ ZATCA، وتسجيل مصاريف تشغيلية لكل وحدة — بدقة عالية."
+      subtitleEn="Internal multi-year leases, ZATCA-compliant tax invoices, and per-unit operating expenses — accurate and simple to operate."
       features={[
         {
           icon: Store,
@@ -39,38 +39,38 @@ export const Route = createFileRoute("/solutions/commercial")({
         },
         {
           icon: FileSignature,
-          titleAr: "عقود متعددة السنوات",
-          titleEn: "Multi-year contracts",
+          titleAr: "عقود إيجار متعددة السنوات",
+          titleEn: "Multi-year leases",
           descAr: "زيادة سنوية تلقائية، خيارات تجديد، وشروط إنهاء مبكر.",
           descEn: "Automatic annual escalation, renewal options, and early-termination clauses.",
         },
         {
           icon: Receipt,
-          titleAr: "فوترة ZATCA المرحلة الثانية",
-          titleEn: "ZATCA Phase-2 invoicing",
-          descAr: "فواتير ضريبية موقّعة إلكترونياً ومُرسَلة لبوابة فاتورة.",
-          descEn: "E-signed tax invoices submitted to the Fatoora portal.",
+          titleAr: "تسجيل المصاريف التشغيلية",
+          titleEn: "Operating expense tracking",
+          descAr: "كهرباء، تكييف، أمن، نظافة — مصنّفة لكل وحدة ومجمّع.",
+          descEn: "Utilities, HVAC, security, cleaning — categorized per unit and complex.",
         },
         {
           icon: Calculator,
           titleAr: "ضريبة القيمة المضافة",
           titleEn: "VAT handling",
-          descAr: "احتساب تلقائي بنسبة 15%، تقارير VAT جاهزة للإقرار.",
-          descEn: "Automatic 15% calculation, VAT reports ready for filing.",
+          descAr: "احتساب تلقائي بنسبة 15% على الإيجار والمصاريف، وتقارير VAT جاهزة للإقرار.",
+          descEn: "Automatic 15% on rent and expenses, VAT reports ready for filing.",
         },
         {
           icon: BarChart3,
           titleAr: "إشغال المجمعات",
           titleEn: "Complex occupancy",
-          descAr: "مؤشرات الإشغال لكل طابق ومجمع مع تحليل الوحدات الأعلى إيراداً.",
-          descEn: "Per-floor and per-complex occupancy with top-earning unit analysis.",
+          descAr: "مؤشرات الإشغال لكل طابق ومجمع مع صافي الدخل بعد المصاريف.",
+          descEn: "Per-floor and per-complex occupancy with net income after expenses.",
         },
         {
           icon: ShieldCheck,
           titleAr: "الأرشيف الإلكتروني",
           titleEn: "E-archive",
-          descAr: "احفظ كل العقود والفواتير والمستندات المصدّقة لسنوات.",
-          descEn: "Store contracts, invoices, and stamped documents for years.",
+          descAr: "احفظ كل العقود والفواتير وإيصالات المصاريف المصدّقة لسنوات.",
+          descEn: "Store leases, invoices, and stamped expense receipts for years.",
         },
       ]}
     />
