@@ -1,20 +1,37 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Crown, Moon, Sun } from "lucide-react";
+import { Gem, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const STORAGE_KEY = "aqari.dashboard.theme"; // "royal" | "tech" | "default"
-export type DashboardThemeMode = "royal" | "tech" | "default";
+// Two-mode dashboard theme:
+//   "emerald" — Emerald Prestige (theme-tech + dark) — default
+//   "luxe"    — Luxe (theme-luxe navy/gold marketing skin)
+// Selection is persisted in localStorage so it survives reloads and new sessions.
+const STORAGE_KEY = "aqari.dashboard.theme";
+export type DashboardThemeMode = "emerald" | "luxe";
 
-const ALL_MODE_CLASSES = ["theme-tech", "theme-lux", "theme-royal", "dark"] as const;
-const CYCLE: DashboardThemeMode[] = ["royal", "tech", "default"];
+const ALL_MODE_CLASSES = [
+  "theme-tech",
+  "theme-lux",
+  "theme-luxe",
+  "theme-royal",
+  "dark",
+] as const;
+
+export function normalizeDashboardTheme(v: string | null | undefined): DashboardThemeMode {
+  if (v === "luxe") return "luxe";
+  // Migrate legacy values (tech/royal/default/lux) → emerald
+  return "emerald";
+}
 
 export function readDashboardTheme(): DashboardThemeMode {
-  if (typeof window === "undefined") return "royal";
-  const v = window.localStorage.getItem(STORAGE_KEY);
-  if (v === "tech" || v === "default" || v === "royal") return v;
-  return "royal";
+  if (typeof window === "undefined") return "emerald";
+  try {
+    return normalizeDashboardTheme(window.localStorage.getItem(STORAGE_KEY));
+  } catch {
+    return "emerald";
+  }
 }
 
 let __themeTransitionTimer: number | null = null;
@@ -35,9 +52,11 @@ export function applyDashboardTheme(mode: DashboardThemeMode, animate = true) {
   }
 
   el.classList.remove(...ALL_MODE_CLASSES);
-  if (mode === "tech") el.classList.add("theme-tech", "dark");
-  else if (mode === "default") el.classList.add("theme-lux");
-  else el.classList.add("theme-royal");
+  if (mode === "luxe") {
+    el.classList.add("theme-luxe");
+  } else {
+    el.classList.add("theme-tech", "dark");
+  }
 }
 
 export function DashboardThemeToggle({ className }: { className?: string }) {
@@ -58,16 +77,12 @@ export function DashboardThemeToggle({ className }: { className?: string }) {
 
   useEffect(() => {
     const onEvent = (e: Event) => {
-      const detail = (e as CustomEvent<DashboardThemeMode>).detail;
-      if (detail === "tech" || detail === "default" || detail === "royal") {
-        setMode((prev) => (prev === detail ? prev : detail));
-      }
+      const detail = normalizeDashboardTheme((e as CustomEvent<string>).detail);
+      setMode((prev) => (prev === detail ? prev : detail));
     };
     const onStorage = (e: StorageEvent) => {
       if (e.key !== STORAGE_KEY) return;
-      const v = e.newValue;
-      const next: DashboardThemeMode =
-        v === "tech" || v === "default" || v === "royal" ? v : "royal";
+      const next = normalizeDashboardTheme(e.newValue);
       setMode((prev) => (prev === next ? prev : next));
     };
     window.addEventListener("aqari:dashboard-theme", onEvent);
@@ -78,15 +93,12 @@ export function DashboardThemeToggle({ className }: { className?: string }) {
     };
   }, []);
 
-  const next = CYCLE[(CYCLE.indexOf(mode) + 1) % CYCLE.length];
-  const nextLabel: Record<DashboardThemeMode, string> = {
-    royal: t("theme.dashboard.switchToRoyal", "التبديل إلى الثيم الملكي"),
-    tech: t("theme.dashboard.switchToTech", "التبديل إلى الثيم الداكن"),
-    default: t("theme.dashboard.switchToLux", "التبديل إلى الثيم الفاتح"),
-  };
-  const label = nextLabel[next];
-
-  const Icon = mode === "royal" ? Crown : mode === "tech" ? Moon : Sun;
+  const next: DashboardThemeMode = mode === "emerald" ? "luxe" : "emerald";
+  const label =
+    next === "luxe"
+      ? t("theme.dashboard.switchToLuxe", "التبديل إلى ثيم Luxe")
+      : t("theme.dashboard.switchToEmerald", "التبديل إلى Emerald Prestige");
+  const Icon = mode === "emerald" ? Gem : Sparkles;
 
   return (
     <Button
