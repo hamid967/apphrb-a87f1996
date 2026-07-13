@@ -29,7 +29,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute(
-  "/_authenticated/dashboard/services",
+  "/_authenticated/dashboard/services/",
 )({
   head: () => sectionHead({ section: "dashboard", entityAr: "الخدمات", entityEn: "Services", path: "/dashboard/services" }),
   component: ServicesReportPage,
