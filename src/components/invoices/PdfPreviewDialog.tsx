@@ -424,7 +424,7 @@ function CheckRow({ ok, label }: { ok: boolean; label: string }) {
   return (
     <div className="flex items-center gap-2 text-sm">
       {ok ? (
-        <Check className="h-4 w-4 text-emerald-500 shrink-0" />
+        <Check className="h-4 w-4 text-success shrink-0" />
       ) : (
         <X className="h-4 w-4 text-destructive shrink-0" />
       )}

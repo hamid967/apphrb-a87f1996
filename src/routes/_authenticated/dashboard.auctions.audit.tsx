@@ -316,10 +316,10 @@ function AuctionsAuditPage() {
                 }}
                 placeholder={t("auctions.audit.actorPlaceholder")}
                 dir="ltr"
-                className={actor && !actorIsUuid ? "border-amber-500/60" : ""}
+                className={actor && !actorIsUuid ? "border-warning/60" : ""}
               />
               {actor && !actorIsUuid && (
-                <p className="mt-1 text-[11px] text-amber-600">
+                <p className="mt-1 text-[11px] text-warning">
                   {t("auctions.audit.actorFuzzyWarn")}
                 </p>
               )}

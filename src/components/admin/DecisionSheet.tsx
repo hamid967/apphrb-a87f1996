@@ -124,7 +124,7 @@ export function DecisionSheet({
 function EmptyState({ isAr, kind }: { isAr: boolean; kind: string }) {
   return (
     <div className="rounded-xl border border-dashed p-8 text-center text-xs text-muted-foreground">
-      <CheckCircle2 className="mx-auto mb-2 size-6 text-emerald-500" />
+      <CheckCircle2 className="mx-auto mb-2 size-6 text-success" />
       {isAr ? `لا توجد ${kind}` : `No ${kind}`}
     </div>
   );
@@ -292,7 +292,7 @@ function ReceiptsList({ isAr }: { isAr: boolean }) {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <Receipt className="size-4 text-amber-500" />
+                  <Receipt className="size-4 text-warning" />
                   <span className="truncate text-sm font-semibold">
                     {it.organizations?.name ?? it.org_id?.slice(0, 8)}
                   </span>
@@ -401,7 +401,7 @@ function UsersList({ isAr }: { isAr: boolean }) {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <UserIcon className="size-4 text-sky-500" />
+                  <UserIcon className="size-4 text-info" />
                   <span className="truncate text-sm font-semibold">{u.full_name || (isAr ? "بدون اسم" : "No name")}</span>
                 </div>
                 <div className="mt-1 flex flex-wrap gap-x-3 text-[11px] text-muted-foreground">
@@ -481,7 +481,7 @@ function InvitesList({ isAr }: { isAr: boolean }) {
         <li key={it.id} className="flex items-start justify-between gap-3 rounded-xl border bg-card p-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <Bell className="size-4 text-emerald-500" />
+              <Bell className="size-4 text-success" />
               <span className="truncate text-sm font-semibold">{it.email}</span>
             </div>
             <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-muted-foreground">

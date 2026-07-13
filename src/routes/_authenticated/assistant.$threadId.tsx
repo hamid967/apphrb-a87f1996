@@ -560,7 +560,7 @@ function ThreadView() {
                                 </span>
                               )}
                               {Array.isArray(out.allowed_roles) && out.allowed_roles.length > 0 && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px]">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-success/10 text-success dark:text-success text-[10px]">
                                   {t("assistant.thread.allowedRoles")} {out.allowed_roles.join(isRtl ? "، " : ", ")}
                                 </span>
                               )}
@@ -574,7 +574,7 @@ function ThreadView() {
                                   {out.allowed_fields.map((f: string) => (
                                     <span
                                       key={f}
-                                      className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px] font-mono"
+                                      className="px-1.5 py-0.5 rounded bg-success/10 text-success dark:text-success text-[10px] font-mono"
                                     >
                                       {f}
                                     </span>
@@ -647,7 +647,7 @@ function ThreadView() {
                             title={t("assistant.thread.helpful")}
                             className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] transition hover:bg-muted ${
                               fb === "up"
-                                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/40"
+                                ? "bg-success/15 text-success dark:text-success border-success/40"
                                 : "text-muted-foreground opacity-0 group-hover:opacity-100 focus:opacity-100"
                             }`}
                           >
@@ -660,7 +660,7 @@ function ThreadView() {
                             title={t("assistant.thread.notHelpful")}
                             className={`inline-flex items-center rounded-md border px-1.5 py-0.5 text-[11px] transition hover:bg-muted ${
                               fb === "down"
-                                ? "bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/40"
+                                ? "bg-destructive/15 text-destructive dark:text-destructive border-destructive/40"
                                 : "text-muted-foreground opacity-0 group-hover:opacity-100 focus:opacity-100"
                             }`}
                           >

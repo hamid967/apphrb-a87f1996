@@ -174,7 +174,7 @@ function DocumentDetail() {
               {doc.status}
             </Badge>
             {doc.signature_status === "signed" ? (
-              <Badge className="bg-emerald-600 hover:bg-emerald-600">
+              <Badge className="bg-success hover:bg-success">
                 Signed · {doc.signed_by_name}
               </Badge>
             ) : (
@@ -326,7 +326,7 @@ function DocumentDetail() {
             <CardContent className="text-sm">
               {doc.signature_status === "signed" ? (
                 <div className="space-y-1">
-                  <div className="font-medium text-emerald-600">Signed</div>
+                  <div className="font-medium text-success">Signed</div>
                   <div>
                     By <span className="font-medium">{doc.signed_by_name}</span>
                   </div>

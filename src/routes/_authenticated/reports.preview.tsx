@@ -339,9 +339,9 @@ function PreviewPage() {
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 {bg.job.status === "completed" ? (
-                  <CheckCircle2 className="size-4 text-emerald-500" />
+                  <CheckCircle2 className="size-4 text-success" />
                 ) : bg.job.status === "failed" ? (
-                  <XCircle className="size-4 text-red-500" />
+                  <XCircle className="size-4 text-destructive" />
                 ) : (
                   <Loader2 className="size-4 animate-spin text-primary" />
                 )}
@@ -358,7 +358,7 @@ function PreviewPage() {
               </div>
             </div>
             <Progress value={bg.job.progress ?? 0} />
-            {bg.job.error && <p className="text-xs text-red-500">{bg.job.error}</p>}
+            {bg.job.error && <p className="text-xs text-destructive">{bg.job.error}</p>}
           </CardContent>
         </Card>
       )}

@@ -240,22 +240,22 @@ type Tone = "primary" | "sky" | "emerald" | "amber" | "rose" | "violet";
 
 const toneRing: Record<Tone, string> = {
   primary: "ring-primary/25 hover:shadow-[0_0_50px_-10px_hsl(var(--primary)/0.55)]",
-  sky: "ring-sky-500/20 hover:shadow-[0_0_40px_-8px_rgb(14_165_233/0.4)]",
-  emerald: "ring-emerald-500/20 hover:shadow-[0_0_40px_-8px_rgb(16_185_129/0.4)]",
-  amber: "ring-amber-500/20 hover:shadow-[0_0_40px_-8px_rgb(245_158_11/0.4)]",
-  rose: "ring-rose-500/20 hover:shadow-[0_0_40px_-8px_rgb(244_63_94/0.4)]",
-  violet: "ring-violet-500/20 hover:shadow-[0_0_40px_-8px_rgb(139_92_246/0.4)]",
+  sky: "ring-info/20 hover:shadow-[0_0_40px_-8px_rgb(14_165_233/0.4)]",
+  emerald: "ring-success/20 hover:shadow-[0_0_40px_-8px_rgb(16_185_129/0.4)]",
+  amber: "ring-warning/20 hover:shadow-[0_0_40px_-8px_rgb(245_158_11/0.4)]",
+  rose: "ring-destructive/20 hover:shadow-[0_0_40px_-8px_rgb(244_63_94/0.4)]",
+  violet: "ring-primary/20 hover:shadow-[0_0_40px_-8px_rgb(139_92_246/0.4)]",
 };
 
 const toneIcon: Record<Tone, string> = {
   // All hero icons use the signature gold gradient to match the reference.
   primary:
     "bg-[image:var(--gradient-brand)] text-primary-foreground shadow-[0_6px_20px_-8px_hsl(var(--primary)/0.6)]",
-  sky: "bg-sky-500/10 text-sky-500 dark:text-sky-400",
-  emerald: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-  amber: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-  rose: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-  violet: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
+  sky: "bg-info/10 text-info dark:text-info",
+  emerald: "bg-success/10 text-success dark:text-success",
+  amber: "bg-warning/10 text-warning dark:text-warning",
+  rose: "bg-destructive/10 text-destructive dark:text-destructive",
+  violet: "bg-primary/10 text-primary dark:text-primary",
 };
 
 function Counter({ value, format }: { value: number; format?: (n: number) => string }) {
@@ -471,8 +471,8 @@ function DeltaChip({
                 className={cn(
                   "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 font-semibold tabular-nums transition-transform hover:scale-105",
                   (invert ? !chipUp : chipUp)
-                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                    : "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+                    ? "bg-success/10 text-success dark:text-success"
+                    : "bg-destructive/10 text-destructive dark:text-destructive",
                 )}
               >
                 {chipUp ? (
@@ -549,8 +549,8 @@ function DeltaChip({
               className={cn(
                 "rounded-xl border p-3",
                 good
-                  ? "bg-emerald-500/5 border-emerald-500/20"
-                  : "bg-rose-500/5 border-rose-500/20",
+                  ? "bg-success/5 border-success/20"
+                  : "bg-destructive/5 border-destructive/20",
               )}
             >
               <div className="text-[11px] text-muted-foreground">{isAr ? "التغيّر" : "Change"}</div>
@@ -558,8 +558,8 @@ function DeltaChip({
                 className={cn(
                   "mt-1 text-lg font-bold tabular-nums",
                   good
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-rose-600 dark:text-rose-400",
+                    ? "text-success dark:text-success"
+                    : "text-destructive dark:text-destructive",
                 )}
               >
                 {effPct === null ? "—" : `${up ? "+" : ""}${effPct.toFixed(1)}%`}
@@ -681,8 +681,8 @@ function DeltaChip({
                                       className={cn(
                                         "rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
                                         gd
-                                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                          : "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+                                          ? "bg-success/10 text-success dark:text-success"
+                                          : "bg-destructive/10 text-destructive dark:text-destructive",
                                       )}
                                     >
                                       {d >= 0 ? "+" : ""}
@@ -711,7 +711,7 @@ function DeltaChip({
                             <span className="text-muted-foreground">
                               {isAr ? "مُحصَّل:" : "Collected:"}
                             </span>
-                            <span className="tabular-nums text-emerald-600 dark:text-emerald-400">
+                            <span className="tabular-nums text-success dark:text-success">
                               {fmt(bdQ.data.extra.paid_prev ?? 0)}
                             </span>
                           </div>
@@ -719,7 +719,7 @@ function DeltaChip({
                             <span className="text-muted-foreground">
                               {isAr ? "غير مُحصَّل:" : "Uncollected:"}
                             </span>
-                            <span className="tabular-nums text-rose-600 dark:text-rose-400">
+                            <span className="tabular-nums text-destructive dark:text-destructive">
                               {fmt(
                                 (bdQ.data.extra.invoiced_prev ?? 0) -
                                   (bdQ.data.extra.paid_prev ?? 0),

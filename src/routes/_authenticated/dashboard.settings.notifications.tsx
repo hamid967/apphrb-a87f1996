@@ -874,7 +874,7 @@ function TemplateCard({
           </div>
         </div>
         {smsLen !== null && (
-          <p className={`text-xs ${smsLen > 160 ? "text-amber-600" : "text-muted-foreground"}`}>
+          <p className={`text-xs ${smsLen > 160 ? "text-warning" : "text-muted-foreground"}`}>
             {smsLen}/160 حرف — يُقسّم إلى عدة رسائل عند تجاوز 160.
           </p>
         )}

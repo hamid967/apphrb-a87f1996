@@ -291,7 +291,7 @@ function FiltersUsagePage() {
                 value={stats.swipeFriction.reveals}
               />
               <FrictionRow
-                icon={<Hand className="size-4 text-amber-600" />}
+                icon={<Hand className="size-4 text-warning" />}
                 label={t("auctions.filtersUsage.backBeforeConfirm")}
                 value={stats.swipeFriction.aborts}
               />
@@ -384,7 +384,7 @@ function MetricCard({
   tone?: "default" | "warn";
 }) {
   return (
-    <Card className={tone === "warn" ? "border-amber-500/60" : undefined}>
+    <Card className={tone === "warn" ? "border-warning/60" : undefined}>
       <CardContent className="pt-6">
         <div className="flex items-center gap-2 text-muted-foreground text-xs">
           {icon}

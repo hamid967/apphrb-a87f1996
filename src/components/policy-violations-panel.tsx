@@ -52,7 +52,7 @@ export function PolicyViolationsPanel({
   }
   if (violations.length === 0) {
     return (
-      <div className="flex items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-400">
+      <div className="flex items-center gap-2 rounded-md border border-success/30 bg-success/5 px-3 py-2 text-xs text-success dark:text-success">
         <ShieldCheck className="h-3.5 w-3.5" />
         <span>{emptyMessage ?? t("policyEngine.clean")}</span>
       </div>
@@ -67,7 +67,7 @@ export function PolicyViolationsPanel({
         "rounded-md border p-3 text-xs space-y-2",
         blocked
           ? "border-destructive/40 bg-destructive/5 text-destructive"
-          : "border-amber-500/40 bg-amber-500/5 text-amber-800 dark:text-amber-300",
+          : "border-warning/40 bg-warning/5 text-warning dark:text-warning",
       )}
     >
       <div className="flex items-center gap-2 font-medium">

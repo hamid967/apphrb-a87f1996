@@ -248,11 +248,11 @@ function Row({
       <div
         className={
           tone === "pos"
-            ? "mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400"
+            ? "mt-1 text-2xl font-semibold text-success dark:text-success"
             : tone === "warn"
-              ? "mt-1 text-2xl font-semibold text-amber-600 dark:text-amber-400"
+              ? "mt-1 text-2xl font-semibold text-warning dark:text-warning"
               : tone === "neg"
-                ? "mt-1 text-2xl font-semibold text-red-600 dark:text-red-400"
+                ? "mt-1 text-2xl font-semibold text-destructive dark:text-destructive"
                 : "mt-1 text-2xl font-semibold"
         }
       >

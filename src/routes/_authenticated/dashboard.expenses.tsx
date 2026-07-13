@@ -290,7 +290,7 @@ function ExpensesPage() {
           </Button>
           <Button
             onClick={goToClaim}
-            className="bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg hover:from-amber-400 hover:to-amber-500"
+            className="bg-gradient-to-r from-warning to-warning text-white shadow-lg hover:from-warning hover:to-warning"
           >
             <Sparkles className="me-2 size-4" />
             {isAr ? "طلب سريع" : "Quick Claim"}
@@ -613,10 +613,10 @@ function QuickStartPanel({
       ];
 
   return (
-    <Card className="mt-6 overflow-hidden border-amber-500/20 bg-gradient-to-br from-amber-500/10 via-background to-blue-500/5">
+    <Card className="mt-6 overflow-hidden border-warning/20 bg-gradient-to-br from-warning/10 via-background to-info/5">
       <CardContent className="grid gap-4 p-5 md:grid-cols-[1.15fr_1fr] md:gap-6 md:p-6">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-700 dark:text-amber-300">
+          <div className="inline-flex items-center gap-2 rounded-full border border-warning/30 bg-warning/10 px-3 py-1 text-xs font-medium text-warning dark:text-warning">
             <Sparkles className="size-3.5" />
             {isAr ? "بدء سريع" : "Quick start"}
           </div>
@@ -634,7 +634,7 @@ function QuickStartPanel({
                 key={i}
                 className="rounded-xl border border-border/50 bg-card/60 p-3 text-xs backdrop-blur-sm"
               >
-                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                <div className="flex items-center gap-2 text-warning dark:text-warning">
                   <s.icon className="size-4" />
                   <span className="font-semibold text-foreground">{s.title}</span>
                 </div>
@@ -645,7 +645,7 @@ function QuickStartPanel({
           <div className="mt-4 flex flex-wrap gap-2">
             <Button
               onClick={onOpenWizard}
-              className="bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md hover:from-amber-400 hover:to-amber-500"
+              className="bg-gradient-to-r from-warning to-warning text-white shadow-md hover:from-warning hover:to-warning"
             >
               {isAr ? "ابدأ الآن" : "Start now"}
               <ArrowRight className="ms-2 size-4 rtl:rotate-180" />
@@ -672,11 +672,11 @@ function QuickStartPanel({
           }}
           className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 text-center transition ${
             dragOver
-              ? "border-amber-500 bg-amber-500/10"
-              : "border-border/60 bg-card/40 hover:border-amber-500/50 hover:bg-amber-500/5"
+              ? "border-warning bg-warning/10"
+              : "border-border/60 bg-card/40 hover:border-warning/50 hover:bg-warning/5"
           }`}
         >
-          <div className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-amber-500/20 to-blue-500/10 text-amber-600 dark:text-amber-400">
+          <div className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-warning/20 to-info/10 text-warning dark:text-warning">
             <Upload className="size-6" />
           </div>
           <div className="mt-3 text-sm font-medium">
@@ -754,10 +754,10 @@ function MonthlySummaryPanel({
   const t = (ar: string, en: string) => (isAr ? ar : en);
 
   return (
-    <Card className="mt-6 overflow-hidden border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-background to-amber-500/5">
+    <Card className="mt-6 overflow-hidden border-success/20 bg-gradient-to-br from-success/5 via-background to-warning/5">
       <CardHeader className="flex flex-row items-center justify-between gap-3 pb-3">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+          <div className="inline-flex items-center gap-2 rounded-full border border-success/30 bg-success/10 px-3 py-1 text-xs font-medium text-success dark:text-success">
             <Wallet className="size-3.5" />
             {t("ملخص الشهر الحالي", "Current month summary")}
           </div>
@@ -779,7 +779,7 @@ function MonthlySummaryPanel({
       <CardContent className="grid gap-4 md:grid-cols-[1.3fr_1fr]">
         <div className="rounded-2xl border border-border/50 bg-card/60 p-4 backdrop-blur">
           <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
-            <Layers className="size-4 text-emerald-600 dark:text-emerald-400" />
+            <Layers className="size-4 text-success dark:text-success" />
             {t("الإنفاق حسب الفئة", "Spending by category")}
           </div>
           {loading ? (
@@ -823,7 +823,7 @@ function MonthlySummaryPanel({
                     </div>
                     <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400"
+                        className="h-full rounded-full bg-gradient-to-r from-success to-success"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -888,10 +888,10 @@ function StatusCard({
 }) {
   const toneCls =
     tone === "pos"
-      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+      ? "border-success/30 bg-success/10 text-success dark:text-success"
       : tone === "warn"
-        ? "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300"
-        : "border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300";
+        ? "border-warning/30 bg-warning/10 text-warning dark:text-warning"
+        : "border-destructive/30 bg-destructive/10 text-destructive dark:text-destructive";
   return (
     <div
       className={`rounded-2xl border p-3 backdrop-blur ${toneCls}`}

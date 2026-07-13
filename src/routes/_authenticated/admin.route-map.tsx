@@ -109,15 +109,15 @@ function roleFor(path: string, category: Category, scope: Scope): Role {
 }
 
 const CATEGORY_META: Record<Category, { ar: string; en: string; tone: string }> = {
-  admin:       { ar: "إدارة النظام", en: "Admin",       tone: "bg-amber-500/15 text-amber-300 border-amber-500/30" },
-  employee:    { ar: "الموظفون",     en: "Employee",    tone: "bg-sky-500/15 text-sky-300 border-sky-500/30" },
-  reports:     { ar: "التقارير",     en: "Reports",     tone: "bg-teal-500/15 text-teal-300 border-teal-500/30" },
-  accounting:  { ar: "المحاسبة",     en: "Accounting",  tone: "bg-cyan-500/15 text-cyan-300 border-cyan-500/30" },
+  admin:       { ar: "إدارة النظام", en: "Admin",       tone: "bg-warning/15 text-warning border-warning/30" },
+  employee:    { ar: "الموظفون",     en: "Employee",    tone: "bg-info/15 text-info border-info/30" },
+  reports:     { ar: "التقارير",     en: "Reports",     tone: "bg-success/15 text-success border-success/30" },
+  accounting:  { ar: "المحاسبة",     en: "Accounting",  tone: "bg-info/15 text-info border-info/30" },
   assistant:   { ar: "المساعد",      en: "Assistant",   tone: "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30" },
   onboarding:  { ar: "تهيئة الحساب", en: "Onboarding",  tone: "bg-lime-500/15 text-lime-300 border-lime-500/30" },
-  auth:        { ar: "المصادقة",     en: "Auth",        tone: "bg-rose-500/15 text-rose-300 border-rose-500/30" },
-  public:      { ar: "عام / تسويق",  en: "Public",      tone: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" },
-  api:         { ar: "خادم / API",   en: "API",         tone: "bg-violet-500/15 text-violet-300 border-violet-500/30" },
+  auth:        { ar: "المصادقة",     en: "Auth",        tone: "bg-destructive/15 text-destructive border-destructive/30" },
+  public:      { ar: "عام / تسويق",  en: "Public",      tone: "bg-success/15 text-success border-success/30" },
+  api:         { ar: "خادم / API",   en: "API",         tone: "bg-primary/15 text-primary border-primary/30" },
 };
 
 const ROLE_META: Record<Role, { ar: string; en: string }> = {
@@ -267,25 +267,25 @@ const SCOPE_META: Record<
   public: {
     labelAr: "عام",
     labelEn: "Public",
-    tone: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+    tone: "bg-success/15 text-success border-success/30",
     icon: Globe,
   },
   authenticated: {
     labelAr: "يتطلب تسجيل الدخول",
     labelEn: "Authenticated",
-    tone: "bg-sky-500/15 text-sky-300 border-sky-500/30",
+    tone: "bg-info/15 text-info border-info/30",
     icon: Lock,
   },
   admin: {
     labelAr: "إدارة النظام",
     labelEn: "Admin only",
-    tone: "bg-amber-500/15 text-amber-300 border-amber-500/30",
+    tone: "bg-warning/15 text-warning border-warning/30",
     icon: Shield,
   },
   api: {
     labelAr: "خادم / API",
     labelEn: "Server / API",
-    tone: "bg-violet-500/15 text-violet-300 border-violet-500/30",
+    tone: "bg-primary/15 text-primary border-primary/30",
     icon: Zap,
   },
 };

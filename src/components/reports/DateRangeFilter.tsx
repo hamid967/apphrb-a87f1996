@@ -277,7 +277,7 @@ export function DateRangeFilter({
 
   const dirty = draftFrom !== from || draftTo !== to;
   const dirtyInputClass = dirty
-    ? "ring-2 ring-amber-500/60 border-amber-500/70 focus-visible:ring-amber-500"
+    ? "ring-2 ring-warning/60 border-warning/70 focus-visible:ring-warning"
     : "";
 
   const applyPreset = (key: QuickRangeKey) => {
@@ -390,7 +390,7 @@ export function DateRangeFilter({
             role="status"
             aria-live="polite"
             data-testid="date-range-dirty-hint"
-            className="mt-1 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400"
+            className="mt-1 flex items-center gap-1 text-xs text-warning dark:text-warning"
           >
             <AlertCircle className="size-3.5" aria-hidden="true" />
             {dirtyHint}
@@ -400,7 +400,7 @@ export function DateRangeFilter({
       <div className="flex items-end gap-2">
         <Button
           size="sm"
-          className={`gap-1 flex-1 ${dirty && !isApplying ? "ring-2 ring-amber-500/60 ring-offset-1 animate-pulse" : ""}`}
+          className={`gap-1 flex-1 ${dirty && !isApplying ? "ring-2 ring-warning/60 ring-offset-1 animate-pulse" : ""}`}
           onClick={apply}
           disabled={isApplying || (!dirty && !fromError && !toError)}
           aria-busy={isApplying || undefined}
@@ -418,7 +418,7 @@ export function DateRangeFilter({
         <Button
           variant="outline"
           size="sm"
-          className={`gap-1 ${dirty ? "border-amber-500/70 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10" : ""}`}
+          className={`gap-1 ${dirty ? "border-warning/70 text-warning dark:text-warning hover:bg-warning/10" : ""}`}
           onClick={clearDraft}
           aria-label={L.clearDraft}
           disabled={isApplying || !dirty}
@@ -430,7 +430,7 @@ export function DateRangeFilter({
         <Button
           variant="outline"
           size="sm"
-          className={`gap-1 ${!(draftFrom === minISO && draftTo === maxISO) ? "border-amber-500/70 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10" : ""}`}
+          className={`gap-1 ${!(draftFrom === minISO && draftTo === maxISO) ? "border-warning/70 text-warning dark:text-warning hover:bg-warning/10" : ""}`}
           onClick={clearDateRange}
           aria-label={L.clearRange}
           disabled={isApplying || (draftFrom === minISO && draftTo === maxISO)}
@@ -442,7 +442,7 @@ export function DateRangeFilter({
           <Button
             variant="outline"
             size="sm"
-            className={`gap-1 ${dirty ? "border-amber-500/70 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10" : ""}`}
+            className={`gap-1 ${dirty ? "border-warning/70 text-warning dark:text-warning hover:bg-warning/10" : ""}`}
             onClick={onReset}
             aria-label={L.reset}
             disabled={isApplying}

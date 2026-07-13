@@ -125,8 +125,8 @@ function ZatcaLogPage() {
 
 function StatCard({ label, value, tone = "muted" }: { label: string; value: number; tone?: "ok" | "warn" | "err" | "muted" }) {
   const toneCls =
-    tone === "ok" ? "text-emerald-500" :
-    tone === "warn" ? "text-amber-500" :
+    tone === "ok" ? "text-success" :
+    tone === "warn" ? "text-warning" :
     tone === "err" ? "text-destructive" :
     "text-muted-foreground";
   return (
@@ -148,14 +148,14 @@ function ChainBadge({ row, isAr }: { row: ZatcaChainRow; isAr: boolean }) {
   }
   if (row.counter_gap) {
     return (
-      <Badge className="gap-1 bg-amber-500/20 text-amber-500 border border-amber-500/40">
+      <Badge className="gap-1 bg-warning/20 text-warning border border-warning/40">
         <AlertTriangle className="h-3 w-3" />
         {isAr ? "فجوة عدّاد" : "Counter gap"}
       </Badge>
     );
   }
   return (
-    <Badge variant="outline" className="gap-1 text-emerald-500 border-emerald-500/40">
+    <Badge variant="outline" className="gap-1 text-success border-success/40">
       <CheckCircle2 className="h-3 w-3" />
       {isAr ? "سليم" : "OK"}
     </Badge>

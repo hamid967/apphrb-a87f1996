@@ -197,7 +197,7 @@ function SessionsPage() {
             {eventsQ.data.map((e: any) => (
               <div key={e.id} className="flex items-center gap-3 p-3 rounded-md border text-sm">
                 {e.status === "success" ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <CheckCircle2 className="h-4 w-4 text-success" />
                 ) : (
                   <XCircle className="h-4 w-4 text-destructive" />
                 )}

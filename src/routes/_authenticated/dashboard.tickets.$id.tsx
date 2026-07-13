@@ -174,14 +174,14 @@ function TicketDetailPage() {
                 <div
                   key={c.id}
                   className={`border rounded-md p-3 ${
-                    c.is_internal ? "border-amber-500/40 bg-amber-500/5" : "bg-muted/30"
+                    c.is_internal ? "border-warning/40 bg-warning/5" : "bg-muted/30"
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
                     <span className="font-medium">
                       {memberName(c.author_id)}
                       {c.is_internal && (
-                        <Badge variant="outline" className="ms-2 text-[10px] border-amber-500/50 text-amber-600">
+                        <Badge variant="outline" className="ms-2 text-[10px] border-warning/50 text-warning">
                           <Lock className="h-2.5 w-2.5 me-1" />
                           {isAr ? "داخلي" : "Internal"}
                         </Badge>
@@ -315,7 +315,7 @@ function TicketDetailPage() {
                 : "—"}
             />
             {ticket.resolved_at ? (
-              <Badge variant="outline" className="text-emerald-500 border-emerald-500/40 gap-1 w-fit">
+              <Badge variant="outline" className="text-success border-success/40 gap-1 w-fit">
                 <CheckCircle2 className="h-3 w-3" />
                 {isAr ? "منجزة" : "Done"}
               </Badge>

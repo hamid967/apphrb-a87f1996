@@ -23,10 +23,10 @@ type Rec = {
 };
 
 const sevStyle: Record<Severity, string> = {
-  good: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-emerald-500/20",
-  info: "bg-sky-500/10 text-sky-600 dark:text-sky-400 ring-sky-500/20",
-  warn: "bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-amber-500/20",
-  critical: "bg-rose-500/10 text-rose-600 dark:text-rose-400 ring-rose-500/20",
+  good: "bg-success/10 text-success dark:text-success ring-success/20",
+  info: "bg-info/10 text-info dark:text-info ring-info/20",
+  warn: "bg-warning/10 text-warning dark:text-warning ring-warning/20",
+  critical: "bg-destructive/10 text-destructive dark:text-destructive ring-destructive/20",
 };
 
 function buildRecs(m: DashboardMetrics, isAr: boolean): Rec[] {

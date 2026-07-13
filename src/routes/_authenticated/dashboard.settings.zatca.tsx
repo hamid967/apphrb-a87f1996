@@ -167,9 +167,9 @@ function ZatcaPage() {
 }
 
 function ScoreRing({ score }: { score: number }) {
-  const color = score >= 85 ? "text-emerald-500" : score >= 60 ? "text-amber-500" : "text-red-500";
+  const color = score >= 85 ? "text-success" : score >= 60 ? "text-warning" : "text-destructive";
   const stroke =
-    score >= 85 ? "stroke-emerald-500" : score >= 60 ? "stroke-amber-500" : "stroke-red-500";
+    score >= 85 ? "stroke-success" : score >= 60 ? "stroke-warning" : "stroke-destructive";
   const R = 30;
   const C = 2 * Math.PI * R;
   const off = C - (score / 100) * C;
@@ -221,10 +221,10 @@ function StatusIcon({ status }: { status: ZatcaCheckStatus }) {
 
 function statusChipClass(status: ZatcaCheckStatus) {
   if (status === "pass")
-    return "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300";
+    return "border-success/40 bg-success/10 text-success dark:text-success";
   if (status === "warn")
-    return "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300";
-  if (status === "fail") return "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300";
+    return "border-warning/40 bg-warning/10 text-warning dark:text-warning";
+  if (status === "fail") return "border-destructive/40 bg-destructive/10 text-destructive dark:text-destructive";
   return "border-slate-500/30 bg-slate-500/10 text-slate-600 dark:text-slate-300";
 }
 

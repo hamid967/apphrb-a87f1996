@@ -56,11 +56,11 @@ export const Route = createFileRoute("/_authenticated/dashboard/viewings")({
 type Status = "scheduled" | "confirmed" | "completed" | "cancelled" | "no_show";
 
 const STATUS_STYLES: Record<Status, string> = {
-  scheduled: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-  confirmed: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  scheduled: "bg-info/10 text-info dark:text-info",
+  confirmed: "bg-success/10 text-success dark:text-success",
   completed: "bg-primary/10 text-primary",
   cancelled: "bg-destructive/10 text-destructive",
-  no_show: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+  no_show: "bg-warning/10 text-warning dark:text-warning",
 };
 
 function ViewingsPage() {

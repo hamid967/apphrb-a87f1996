@@ -43,17 +43,17 @@ function levelStyle(level: "ok" | "warn" | "error") {
     case "ok":
       return {
         icon: <CheckCircle2 className="size-4" />,
-        cls: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+        cls: "border-success/40 bg-success/10 text-success dark:text-success",
       };
     case "warn":
       return {
         icon: <AlertTriangle className="size-4" />,
-        cls: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+        cls: "border-warning/40 bg-warning/10 text-warning dark:text-warning",
       };
     case "error":
       return {
         icon: <XCircle className="size-4" />,
-        cls: "border-rose-500/40 bg-rose-500/10 text-rose-700 dark:text-rose-300",
+        cls: "border-destructive/40 bg-destructive/10 text-destructive dark:text-destructive",
       };
   }
 }
@@ -131,7 +131,7 @@ function SubscriptionDiagnosticsPage() {
           </Button>
         </form>
         {mutation.isError && (
-          <p className="mt-3 text-sm text-rose-600 dark:text-rose-400">
+          <p className="mt-3 text-sm text-destructive dark:text-destructive">
             تعذّر إجراء التشخيص: {(mutation.error as Error).message}
           </p>
         )}
@@ -143,7 +143,7 @@ function SubscriptionDiagnosticsPage() {
           <section className="space-y-2">
             <h2 className="text-sm font-semibold text-muted-foreground">النتيجة</h2>
             {result.diagnosis.length === 0 ? (
-              <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:text-emerald-300">
+              <div className="rounded-lg border border-success/40 bg-success/10 p-3 text-sm text-success dark:text-success">
                 <CheckCircle2 className="me-2 inline size-4" />
                 لا توجد ملاحظات — الحالة سليمة.
               </div>
@@ -266,8 +266,8 @@ function SubscriptionDiagnosticsPage() {
                           <span
                             className={
                               s.is_active_now
-                                ? "rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400"
-                                : "rounded-full bg-rose-500/15 px-2 py-0.5 text-xs font-semibold text-rose-600 dark:text-rose-400"
+                                ? "rounded-full bg-success/15 px-2 py-0.5 text-xs font-semibold text-success dark:text-success"
+                                : "rounded-full bg-destructive/15 px-2 py-0.5 text-xs font-semibold text-destructive dark:text-destructive"
                             }
                           >
                             {s.is_active_now ? "نشط" : s.status}

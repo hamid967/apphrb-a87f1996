@@ -198,7 +198,7 @@ function EditAuctionRulesPage() {
         </CardHeader>
         <CardContent className="grid gap-4">
           {!editable && (
-            <div className="rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-sm text-amber-700 dark:text-amber-400">
+            <div className="rounded-md border border-warning/40 bg-warning/5 p-3 text-sm text-warning dark:text-warning">
               {t("auctions.dashboard.editRulesLocked")}
             </div>
           )}

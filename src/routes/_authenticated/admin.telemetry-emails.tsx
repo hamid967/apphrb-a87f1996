@@ -291,9 +291,9 @@ function StatCard({
 }) {
   const toneCls =
     tone === "ok"
-      ? "text-emerald-600"
+      ? "text-success"
       : tone === "warn"
-        ? "text-amber-600"
+        ? "text-warning"
         : tone === "bad"
           ? "text-destructive"
           : "text-foreground";

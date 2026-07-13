@@ -161,7 +161,7 @@ function StatCard({
 }) {
   const color =
     tone === "ok"
-      ? "text-emerald-600 dark:text-emerald-400"
+      ? "text-success dark:text-success"
       : tone === "err"
         ? "text-destructive"
         : "text-foreground";
@@ -184,7 +184,7 @@ function RunRow({ run, lang, t }: { run: any; lang: string; t: any }) {
       >
         <div className="flex items-center gap-2 min-w-0">
           {ok ? (
-            <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <CheckCircle2 className="size-4 text-success dark:text-success shrink-0" />
           ) : (
             <AlertTriangle className="size-4 text-destructive shrink-0" />
           )}

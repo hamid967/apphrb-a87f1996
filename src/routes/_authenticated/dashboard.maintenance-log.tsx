@@ -50,18 +50,18 @@ type Status = "open" | "assigned" | "in_progress" | "on_hold" | "completed" | "c
 const STATUSES: Status[] = ["open", "assigned", "in_progress", "on_hold", "completed", "cancelled"];
 
 const STATUS_STYLES: Record<Status, string> = {
-  open: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-  assigned: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
-  in_progress: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-  on_hold: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
-  completed: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  open: "bg-info/10 text-info dark:text-info",
+  assigned: "bg-info/10 text-info dark:text-info",
+  in_progress: "bg-warning/10 text-warning dark:text-warning",
+  on_hold: "bg-warning/10 text-warning dark:text-warning",
+  completed: "bg-success/10 text-success dark:text-success",
   cancelled: "bg-destructive/10 text-destructive",
 };
 
 const PRIORITY_STYLES: Record<string, string> = {
   low: "bg-muted text-muted-foreground",
-  medium: "bg-sky-500/10 text-sky-600",
-  high: "bg-amber-500/10 text-amber-600",
+  medium: "bg-info/10 text-info",
+  high: "bg-warning/10 text-warning",
   urgent: "bg-destructive/10 text-destructive",
 };
 

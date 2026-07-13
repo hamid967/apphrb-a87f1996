@@ -368,7 +368,7 @@ function AuctionDetail() {
                             {Number(b.amount).toLocaleString()} {a.currency}
                           </span>
                           {delta !== null && delta > 0 && (
-                            <span className="text-[11px] text-emerald-600 tabular-nums">
+                            <span className="text-[11px] text-success tabular-nums">
                               +{delta.toLocaleString()}
                             </span>
                           )}

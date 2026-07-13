@@ -139,20 +139,20 @@ export function AnalyticsPanels({ orgId, isAr }: { orgId: string | undefined; is
             <div className="hidden items-center gap-3 text-[11px] sm:flex">
               <span className="text-muted-foreground">
                 {isAr ? "إيراد" : "Rev"}:{" "}
-                <span className="font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">
+                <span className="font-semibold tabular-nums text-success dark:text-success">
                   {fmt(totals.r)}
                 </span>
               </span>
               <span className="text-muted-foreground">
                 {isAr ? "مصروف" : "Exp"}:{" "}
-                <span className="font-semibold tabular-nums text-rose-600 dark:text-rose-400">
+                <span className="font-semibold tabular-nums text-destructive dark:text-destructive">
                   {fmt(totals.e)}
                 </span>
               </span>
               <span className="text-muted-foreground">
                 {isAr ? "صافي" : "Net"}:{" "}
                 <span
-                  className={`font-semibold tabular-nums ${totals.net >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}
+                  className={`font-semibold tabular-nums ${totals.net >= 0 ? "text-success dark:text-success" : "text-destructive dark:text-destructive"}`}
                 >
                   {fmt(totals.net)}
                 </span>

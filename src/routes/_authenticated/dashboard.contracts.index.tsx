@@ -24,11 +24,11 @@ export const Route = createFileRoute("/_authenticated/dashboard/contracts/")({
 type Filter = "all" | "active" | "expiring" | "expired" | "terminated" | "draft" | "archived";
 
 const STATUS_CLASS: Record<string, string> = {
-  active: "bg-emerald-500/15 text-emerald-700 border-emerald-500/30",
+  active: "bg-success/15 text-success border-success/30",
   draft: "bg-slate-500/15 text-slate-700 border-slate-500/30",
-  expired: "bg-amber-500/15 text-amber-700 border-amber-500/30",
-  terminated: "bg-rose-500/15 text-rose-700 border-rose-500/30",
-  renewed: "bg-blue-500/15 text-blue-700 border-blue-500/30",
+  expired: "bg-warning/15 text-warning border-warning/30",
+  terminated: "bg-destructive/15 text-destructive border-destructive/30",
+  renewed: "bg-info/15 text-info border-info/30",
 };
 
 const daysUntil = (iso: string) =>

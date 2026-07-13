@@ -64,21 +64,21 @@ type Status = "new" | "reviewing" | "approved" | "rejected";
 function statusColor(s: Status) {
   switch (s) {
     case "new":
-      return "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/20";
+      return "bg-info/10 text-info dark:text-info border-info/20";
     case "reviewing":
-      return "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20";
+      return "bg-warning/10 text-warning dark:text-warning border-warning/20";
     case "approved":
-      return "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20";
+      return "bg-success/10 text-success dark:text-success border-success/20";
     case "rejected":
-      return "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20";
+      return "bg-destructive/10 text-destructive dark:text-destructive border-destructive/20";
   }
 }
 
 function scoreColor(score: number | null | undefined) {
   if (score == null) return "text-muted-foreground";
-  if (score >= 75) return "text-emerald-600 dark:text-emerald-400 font-semibold";
-  if (score >= 50) return "text-amber-600 dark:text-amber-400 font-semibold";
-  return "text-rose-600 dark:text-rose-400 font-semibold";
+  if (score >= 75) return "text-success dark:text-success font-semibold";
+  if (score >= 50) return "text-warning dark:text-warning font-semibold";
+  return "text-destructive dark:text-destructive font-semibold";
 }
 
 function ApplicationsPage() {
@@ -327,7 +327,7 @@ function ApplicationsPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="h-7 px-2 text-emerald-600"
+                              className="h-7 px-2 text-success"
                               onClick={() => {
                                 setSelectedId(r.id);
                                 setApproveOpen(true);
@@ -338,7 +338,7 @@ function ApplicationsPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              className="h-7 px-2 text-rose-600"
+                              className="h-7 px-2 text-destructive"
                               onClick={() => statusMut.mutate({ id: r.id, status: "rejected" })}
                             >
                               <XCircle className="h-3.5 w-3.5" />
@@ -819,7 +819,7 @@ function DocumentsList({
                     {isAr ? "تحميل" : "Download"}
                   </a>
                 ) : (
-                  <span className="text-[11px] text-rose-600">
+                  <span className="text-[11px] text-destructive">
                     {isAr ? "تعذّر التوقيع" : "Unavailable"}
                   </span>
                 )}
@@ -1094,7 +1094,7 @@ function ApproveDialog({
               </SelectContent>
             </Select>
             {units.data && units.data.length === 0 && (
-              <p className="text-xs text-amber-600 mt-1">
+              <p className="text-xs text-warning mt-1">
                 {isAr ? "لا توجد وحدات شاغرة" : "No vacant units"}
               </p>
             )}

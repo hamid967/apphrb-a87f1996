@@ -48,9 +48,9 @@ export const Route = createFileRoute("/_authenticated/accounting/")({
 
 const STATUS_VARIANT: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
-  sent: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
-  paid: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
-  overdue: "bg-red-500/15 text-red-600 dark:text-red-400",
+  sent: "bg-info/15 text-info dark:text-info",
+  paid: "bg-success/15 text-success dark:text-success",
+  overdue: "bg-destructive/15 text-destructive dark:text-destructive",
   cancelled: "bg-muted text-muted-foreground line-through",
 };
 
@@ -330,9 +330,9 @@ function StatCard({ label, value, tone }: { label: string; value: string; tone?:
         <div
           className={
             tone === "pos"
-              ? "mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400"
+              ? "mt-1 text-2xl font-semibold text-success dark:text-success"
               : tone === "warn"
-                ? "mt-1 text-2xl font-semibold text-amber-600 dark:text-amber-400"
+                ? "mt-1 text-2xl font-semibold text-warning dark:text-warning"
                 : "mt-1 text-2xl font-semibold"
           }
         >

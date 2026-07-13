@@ -53,7 +53,7 @@ function DashboardLayout() {
             <DashboardBreadcrumbs />
           </header>
           {expired && (
-            <div className="flex flex-wrap items-center gap-3 border-b border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-900 dark:text-amber-200">
+            <div className="flex flex-wrap items-center gap-3 border-b border-warning/30 bg-warning/10 px-4 py-2 text-sm text-warning dark:text-warning">
               <AlertTriangle className="size-4" />
               <span className="flex-1">{t("billing.expiredBanner")}</span>
               <Button asChild size="sm" variant="secondary">
@@ -71,7 +71,7 @@ function DashboardLayout() {
             </div>
           )}
           {showWarning && (
-            <div className="flex flex-wrap items-center gap-3 border-b border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-900 dark:text-amber-200">
+            <div className="flex flex-wrap items-center gap-3 border-b border-warning/30 bg-warning/10 px-4 py-2 text-sm text-warning dark:text-warning">
               <Clock className="size-4" />
               <span className="flex-1">
                 {t("billing.warningBanner", {

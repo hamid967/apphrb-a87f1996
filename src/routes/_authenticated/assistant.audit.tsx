@@ -136,8 +136,8 @@ function AuditPage() {
                   tone === "err"
                     ? "text-destructive"
                     : tone === "warn"
-                      ? "text-amber-500"
-                      : "text-emerald-500";
+                      ? "text-warning"
+                      : "text-success";
                 const open = openId === r.id;
                 return (
                   <Fragment key={r.id}>

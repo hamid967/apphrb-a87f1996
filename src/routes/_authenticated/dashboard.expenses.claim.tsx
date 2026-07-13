@@ -369,7 +369,7 @@ function ClaimWizard() {
                     "flex items-center gap-2 rounded-md border px-3 py-2 text-xs",
                     ocrBusy
                       ? "border-primary/30 bg-primary/5 text-primary"
-                      : "border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400",
+                      : "border-success/30 bg-success/5 text-success dark:text-success",
                   )}
                   role="status"
                   aria-live="polite"

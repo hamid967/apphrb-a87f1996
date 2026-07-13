@@ -789,7 +789,7 @@ function KpiCard({
     tone === "destructive"
       ? "text-destructive"
       : tone === "warning"
-        ? "text-amber-600 dark:text-amber-400"
+        ? "text-warning dark:text-warning"
         : "text-primary";
   return (
     <Card>

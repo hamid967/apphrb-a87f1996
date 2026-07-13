@@ -18,7 +18,7 @@ const CONFIG: Record<
   connected: {
     label: "متصل مباشر",
     variant: "outline",
-    className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+    className: "border-success/40 bg-success/10 text-success dark:text-success",
     icon: Radio,
     pulse: true,
   },
@@ -32,7 +32,7 @@ const CONFIG: Record<
   reconnecting: {
     label: "منقطع — إعادة الاتصال…",
     variant: "outline",
-    className: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+    className: "border-warning/40 bg-warning/10 text-warning dark:text-warning",
     icon: Loader2,
     spin: true,
   },
@@ -87,7 +87,7 @@ export function RealtimeStatusBadge({
       {isPolling && (
         <Badge
           variant="outline"
-          className="gap-1 border-sky-500/40 bg-sky-500/10 text-sky-700 dark:text-sky-400 font-normal"
+          className="gap-1 border-info/40 bg-info/10 text-info dark:text-info font-normal"
           title={`يتم جلب البيانات دوريًا كل ${seconds} ثانية`}
           aria-live="polite"
         >

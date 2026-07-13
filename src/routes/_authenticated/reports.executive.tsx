@@ -126,7 +126,7 @@ export const Route = createFileRoute("/_authenticated/reports/executive")({
     </RequireRole>
   ),
   errorComponent: ({ error }) => (
-    <div className="p-6 text-sm text-red-500">Error: {error.message}</div>
+    <div className="p-6 text-sm text-destructive">Error: {error.message}</div>
   ),
   notFoundComponent: () => <div className="p-6">Not found</div>,
 });
@@ -246,7 +246,7 @@ function ExecutivePage() {
       </div>
     );
   }
-  if (q.error) return <div className="p-6 text-red-500">{(q.error as Error).message}</div>;
+  if (q.error) return <div className="p-6 text-destructive">{(q.error as Error).message}</div>;
   const d = q.data!;
   const k = d.kpis;
 
@@ -631,7 +631,7 @@ function ExecutivePage() {
           </div>
           <div className="max-h-[60vh] overflow-auto rounded-md border">
             {drillQ.error ? (
-              <div className="p-4 text-sm text-red-500">{(drillQ.error as Error).message}</div>
+              <div className="p-4 text-sm text-destructive">{(drillQ.error as Error).message}</div>
             ) : !drillQ.data && drillQ.isLoading ? (
               <SkeletonTable rows={8} />
             ) : !drillQ.data?.records.length ? (
@@ -802,11 +802,11 @@ function KpiCard({
 }) {
   const toneClass =
     tone === "positive"
-      ? "from-emerald-500/15 to-emerald-500/5 text-emerald-500"
+      ? "from-success/15 to-success/5 text-success"
       : tone === "negative"
-        ? "from-red-500/15 to-red-500/5 text-red-500"
+        ? "from-destructive/15 to-destructive/5 text-destructive"
         : tone === "warning"
-          ? "from-amber-500/15 to-amber-500/5 text-amber-500"
+          ? "from-warning/15 to-warning/5 text-warning"
           : "from-primary/15 to-accent/5 text-primary";
   return (
     <Card

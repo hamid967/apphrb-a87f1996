@@ -276,7 +276,7 @@ export function AssistantDock({ orgId, isAr }: { orgId?: string; isAr: boolean }
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             role="alert"
-            className="flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/5 p-3 text-xs text-rose-600 dark:text-rose-400"
+            className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive dark:text-destructive"
           >
             <AlertTriangle className="mt-0.5 size-4 shrink-0" />
             <div className="min-w-0 flex-1">
@@ -290,7 +290,7 @@ export function AssistantDock({ orgId, isAr }: { orgId?: string; isAr: boolean }
             <button
               type="button"
               onClick={retry}
-              className="inline-flex items-center gap-1 rounded-lg border border-rose-500/40 bg-background/40 px-2 py-1 text-[11px] font-medium text-rose-600 transition hover:bg-rose-500/10 dark:text-rose-400"
+              className="inline-flex items-center gap-1 rounded-lg border border-destructive/40 bg-background/40 px-2 py-1 text-[11px] font-medium text-destructive transition hover:bg-destructive/10 dark:text-destructive"
             >
               <RotateCw className="size-3" />
               {isAr ? "إعادة" : "Retry"}
@@ -335,7 +335,7 @@ export function AssistantDock({ orgId, isAr }: { orgId?: string; isAr: boolean }
             type="button"
             onClick={() => stop()}
             aria-label={isAr ? "إيقاف" : "Stop"}
-            className="grid size-9 place-items-center rounded-xl bg-rose-500 text-white transition hover:bg-rose-600"
+            className="grid size-9 place-items-center rounded-xl bg-destructive text-white transition hover:bg-destructive"
           >
             <Square className="size-3.5 fill-current" />
           </button>

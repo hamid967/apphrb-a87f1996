@@ -239,7 +239,7 @@ function SchedulesPage() {
                             {new Date(r.last_run_at).toLocaleString(i18n.language)}
                           </div>
                           {r.last_status === "success" ? (
-                            <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                            <span className="inline-flex items-center gap-1 text-success dark:text-success">
                               <CheckCircle2 className="size-3" /> ok
                               {r.last_duration_ms != null && (
                                 <span className="text-muted-foreground">

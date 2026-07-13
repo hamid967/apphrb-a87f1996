@@ -301,7 +301,7 @@ function PoliciesAdmin() {
         <Card className="border-primary/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-amber-500" />{" "}
+              <AlertTriangle className="h-4 w-4 text-warning" />{" "}
               {isAr ? "نتيجة الاختبار" : "Test result"}
             </CardTitle>
           </CardHeader>
@@ -504,7 +504,7 @@ function Stat({ label, value, highlight }: { label: string; value: number; highl
   return (
     <div>
       <div className="text-xs text-muted-foreground">{label}</div>
-      <div className={"text-2xl font-semibold " + (highlight ? "text-amber-600" : "")}>{value}</div>
+      <div className={"text-2xl font-semibold " + (highlight ? "text-warning" : "")}>{value}</div>
     </div>
   );
 }
@@ -514,7 +514,7 @@ function ViolationsCard({ v, loading, isAr }: { v: Violation[]; loading: boolean
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-amber-500" />
+          <AlertTriangle className="h-4 w-4 text-warning" />
           {isAr ? "المطالبات المُعلَّمة" : "Flagged submissions"}
           <Badge variant="secondary" className="ml-2">
             {v.length}
@@ -540,7 +540,7 @@ function ViolationsCard({ v, loading, isAr }: { v: Violation[]; loading: boolean
                   className={
                     row.severity === "block"
                       ? "bg-destructive text-destructive-foreground"
-                      : "bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+                      : "bg-warning/15 text-warning dark:text-warning border border-warning/30"
                   }
                 >
                   {row.severity}
@@ -984,10 +984,10 @@ function DraftPolicyTester({ form, isAr }: { form: DraftForm; isAr: boolean }) {
         <div className={
           "flex items-start gap-2 rounded-md border p-3 text-sm " +
           (result.pass
-            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300"
+            ? "border-success/30 bg-success/10 text-success dark:text-success"
             : result.severity === "block"
               ? "border-destructive/40 bg-destructive/10 text-destructive"
-              : "border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300")
+              : "border-warning/40 bg-warning/10 text-warning dark:text-warning")
         }>
           {result.pass
             ? <CheckCircle2 className="h-4 w-4 mt-0.5" />

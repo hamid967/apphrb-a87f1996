@@ -262,7 +262,7 @@ function ArchivePage() {
                     <Badge variant="outline">{isAr ? "مؤرشف" : "Archived"}</Badge>
                   )}
                   {d.signature_status === "signed" && (
-                    <Badge className="bg-emerald-500/10 text-emerald-600" variant="secondary">
+                    <Badge className="bg-success/10 text-success" variant="secondary">
                       {isAr ? "موقّع" : "Signed"}
                     </Badge>
                   )}

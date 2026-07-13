@@ -170,14 +170,14 @@ export function MobileDashboardTabbar() {
                   "group relative flex min-w-[68px] shrink-0 snap-center flex-col items-center justify-center gap-1 rounded-xl px-3 py-1.5",
                   "touch-manipulation select-none transition-all duration-200 active:scale-95",
                   active
-                    ? "bg-gradient-to-b from-amber-500/20 to-amber-500/5 text-white shadow-[inset_0_0_0_1px_rgba(212,175,55,0.35)]"
+                    ? "bg-gradient-to-b from-warning/20 to-warning/5 text-white shadow-[inset_0_0_0_1px_rgba(212,175,55,0.35)]"
                     : "text-slate-300 hover:text-white",
                 ].join(" ")}
                 style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 <span className="relative">
                   <Icon
-                    className={`h-5 w-5 shrink-0 transition ${active ? "text-amber-300" : "text-slate-400 group-hover:text-amber-200"}`}
+                    className={`h-5 w-5 shrink-0 transition ${active ? "text-warning" : "text-slate-400 group-hover:text-warning"}`}
                     aria-hidden="true"
                   />
                   {badgeText && (

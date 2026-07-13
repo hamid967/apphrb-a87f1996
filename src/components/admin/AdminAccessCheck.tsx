@@ -107,7 +107,7 @@ export function AdminAccessCheck({
             )}
             <Row label="super_admin">
               {result.hasSuperAdmin ? (
-                <span className="inline-flex items-center gap-1 text-emerald-500">
+                <span className="inline-flex items-center gap-1 text-success">
                   <ShieldCheck className="size-3.5" /> نعم
                 </span>
               ) : (

@@ -397,7 +397,7 @@ function ReportIntroPage() {
                       <span
                         className={
                           r.status === "ready"
-                            ? "text-emerald-600"
+                            ? "text-success"
                             : r.status === "failed"
                               ? "text-destructive"
                               : "text-muted-foreground"

@@ -24,10 +24,10 @@ export function ValuationReport({ data }: { data: ValuationReportData }) {
   });
   const confidenceColor =
     data.confidence === "high"
-      ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30"
+      ? "bg-success/15 text-success border-success/30"
       : data.confidence === "medium"
-        ? "bg-amber-500/15 text-amber-600 border-amber-500/30"
-        : "bg-rose-500/15 text-rose-600 border-rose-500/30";
+        ? "bg-warning/15 text-warning border-warning/30"
+        : "bg-destructive/15 text-destructive border-destructive/30";
 
   return (
     <div className="space-y-4">
@@ -81,9 +81,9 @@ export function ValuationReport({ data }: { data: ValuationReportData }) {
                 f.impact === "positive" ? TrendingUp : f.impact === "negative" ? TrendingDown : Minus;
               const color =
                 f.impact === "positive"
-                  ? "text-emerald-600"
+                  ? "text-success"
                   : f.impact === "negative"
-                    ? "text-rose-600"
+                    ? "text-destructive"
                     : "text-muted-foreground";
               return (
                 <div
@@ -107,7 +107,7 @@ export function ValuationReport({ data }: { data: ValuationReportData }) {
       {data.recommendations?.length > 0 && (
         <div>
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold">
-            <Lightbulb className="size-4 text-amber-500" />
+            <Lightbulb className="size-4 text-warning" />
             {isAr ? "توصيات لرفع القيمة" : "Recommendations"}
           </div>
           <ul className="space-y-1.5">

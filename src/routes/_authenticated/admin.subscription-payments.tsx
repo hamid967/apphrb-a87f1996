@@ -347,7 +347,7 @@ function AdminSubscriptionPayments() {
                     <div className="mt-1 text-[11px] text-destructive">{r.rejection_reason}</div>
                   )}
                   {r.status === "refunded" && r.refund_amount != null && (
-                    <div className="mt-1 text-[11px] text-amber-600">
+                    <div className="mt-1 text-[11px] text-warning">
                       {isAr ? "استرداد" : "Refunded"}: {nf.format(Number(r.refund_amount))} {r.currency}
                     </div>
                   )}
@@ -423,7 +423,7 @@ function AdminSubscriptionPayments() {
                           setRefundReason("");
                           setRefundNote("");
                         }}
-                        className="gap-1 border-amber-500/50 text-amber-700 hover:bg-amber-500/10"
+                        className="gap-1 border-warning/50 text-warning hover:bg-warning/10"
                       >
                         <Undo2 className="size-3.5" />
                         {isAr ? "استرداد" : "Refund"}
@@ -523,7 +523,7 @@ function AdminSubscriptionPayments() {
                   note: refundNote.trim() || undefined,
                 })
               }
-              className="bg-amber-600 hover:bg-amber-600/90"
+              className="bg-warning hover:bg-warning/90"
             >
               {isAr ? "تأكيد الاسترداد" : "Confirm refund"}
             </Button>

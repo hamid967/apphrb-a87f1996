@@ -422,8 +422,8 @@ function InvoiceDetailsCard({ bundle, isAr }: { bundle: Bundle | undefined; isAr
   const invStatusMap: Record<string, { ar: string; en: string; cls: string }> = {
     draft:     { ar: "مسودة",    en: "Draft",     cls: "bg-muted text-foreground" },
     sent:      { ar: "مُرسلة",   en: "Sent",      cls: "bg-primary/15 text-primary" },
-    paid:      { ar: "مدفوعة",   en: "Paid",      cls: "bg-emerald-500/15 text-emerald-600" },
-    overdue:   { ar: "متأخرة",   en: "Overdue",   cls: "bg-amber-500/15 text-amber-600" },
+    paid:      { ar: "مدفوعة",   en: "Paid",      cls: "bg-success/15 text-success" },
+    overdue:   { ar: "متأخرة",   en: "Overdue",   cls: "bg-warning/15 text-warning" },
     cancelled: { ar: "ملغاة",    en: "Cancelled", cls: "bg-destructive/15 text-destructive" },
   };
   const st = invStatusMap[(b.status as string) ?? "draft"] ?? invStatusMap.draft;

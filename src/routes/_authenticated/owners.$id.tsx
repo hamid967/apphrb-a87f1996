@@ -242,10 +242,10 @@ function OwnerStatementPage() {
                           {fmt(r.per_month, r.currency)}
                         </td>
                         <td className="p-3 text-end tabular-nums">{fmt(r.expected, r.currency)}</td>
-                        <td className="p-3 text-end tabular-nums text-emerald-600">
+                        <td className="p-3 text-end tabular-nums text-success">
                           {fmt(r.collected, r.currency)}
                         </td>
-                        <td className="p-3 text-end tabular-nums text-amber-600">
+                        <td className="p-3 text-end tabular-nums text-warning">
                           {fmt(r.outstanding, r.currency)}
                         </td>
                       </tr>
@@ -267,10 +267,10 @@ function OwnerStatementPage() {
                         <td className="p-3 text-end tabular-nums">
                           {fmt(data.totals.expected, data.currency)}
                         </td>
-                        <td className="p-3 text-end tabular-nums text-emerald-600">
+                        <td className="p-3 text-end tabular-nums text-success">
                           {fmt(data.totals.collected, data.currency)}
                         </td>
-                        <td className="p-3 text-end tabular-nums text-amber-600">
+                        <td className="p-3 text-end tabular-nums text-warning">
                           {fmt(data.totals.outstanding, data.currency)}
                         </td>
                       </tr>
@@ -292,11 +292,11 @@ function OwnerStatementPage() {
                 <dt className="text-muted-foreground">
                   Management fee ({data.totals.managementFeePct}%)
                 </dt>
-                <dd className="tabular-nums text-red-600">
+                <dd className="tabular-nums text-destructive">
                   − {fmt(data.totals.managementFee, data.currency)}
                 </dd>
                 <dt className="text-muted-foreground font-semibold">Net payout to owner</dt>
-                <dd className="tabular-nums font-semibold text-emerald-600">
+                <dd className="tabular-nums font-semibold text-success">
                   {fmt(data.totals.netPayout, data.currency)}
                 </dd>
                 <dt className="text-muted-foreground">Payments recorded</dt>
@@ -322,7 +322,7 @@ function Kpi({
   tone?: "pos" | "warn";
 }) {
   const cls =
-    tone === "pos" ? "text-emerald-600" : tone === "warn" ? "text-amber-600" : "text-foreground";
+    tone === "pos" ? "text-success" : tone === "warn" ? "text-warning" : "text-foreground";
   return (
     <Card>
       <CardContent className="p-4">

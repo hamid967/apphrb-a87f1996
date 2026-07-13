@@ -32,9 +32,9 @@ const daysUntil = (iso: string) =>
   Math.ceil((new Date(iso).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
 const STATUS_STYLE: Record<string, string> = {
-  open: "bg-sky-500/10 text-sky-600 ring-sky-500/20 dark:text-sky-400",
-  in_progress: "bg-amber-500/10 text-amber-600 ring-amber-500/20 dark:text-amber-400",
-  done: "bg-emerald-500/10 text-emerald-600 ring-emerald-500/20 dark:text-emerald-400",
+  open: "bg-info/10 text-info ring-info/20 dark:text-info",
+  in_progress: "bg-warning/10 text-warning ring-warning/20 dark:text-warning",
+  done: "bg-success/10 text-success ring-success/20 dark:text-success",
   cancelled: "bg-muted text-muted-foreground ring-border",
 };
 const statusLabel = (s: string, isAr: boolean) => {
@@ -48,9 +48,9 @@ const statusLabel = (s: string, isAr: boolean) => {
   return isAr ? p[0] : p[1];
 };
 const PRIORITY_DOT: Record<string, string> = {
-  urgent: "bg-rose-500",
-  high: "bg-amber-500",
-  medium: "bg-sky-500",
+  urgent: "bg-destructive",
+  high: "bg-warning",
+  medium: "bg-info",
   low: "bg-muted-foreground",
 };
 
@@ -466,8 +466,8 @@ export function RightPanel({ orgId, isAr }: Props) {
                         className={cn(
                           "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1",
                           critical
-                            ? "bg-rose-500/10 text-rose-600 ring-rose-500/20 dark:text-rose-400"
-                            : "bg-amber-500/10 text-amber-600 ring-amber-500/20 dark:text-amber-400",
+                            ? "bg-destructive/10 text-destructive ring-destructive/20 dark:text-destructive"
+                            : "bg-warning/10 text-warning ring-warning/20 dark:text-warning",
                         )}
                       >
                         {d}
@@ -531,8 +531,8 @@ export function RightPanel({ orgId, isAr }: Props) {
                         className={cn(
                           "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1",
                           soon
-                            ? "bg-rose-500/10 text-rose-600 ring-rose-500/20 dark:text-rose-400"
-                            : "bg-emerald-500/10 text-emerald-600 ring-emerald-500/20 dark:text-emerald-400",
+                            ? "bg-destructive/10 text-destructive ring-destructive/20 dark:text-destructive"
+                            : "bg-success/10 text-success ring-success/20 dark:text-success",
                         )}
                       >
                         {soon ? (isAr ? "قريب" : "Soon") : isAr ? "قادم" : "Upcoming"}

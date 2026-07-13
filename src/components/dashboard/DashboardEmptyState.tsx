@@ -78,11 +78,11 @@ export function DashboardEmptyState({
                 key={s.key}
                 className={`flex items-center gap-2.5 rounded-xl border p-3 text-sm ${
                   s.done
-                    ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300"
+                    ? "border-success/30 bg-success/5 text-success dark:text-success"
                     : "border-border/60 bg-card/40"
                 }`}
               >
-                <Icon className={`size-4 ${s.done ? "text-emerald-500" : "text-muted-foreground"}`} />
+                <Icon className={`size-4 ${s.done ? "text-success" : "text-muted-foreground"}`} />
                 <span className="font-medium">{isAr ? meta.ar : meta.en}</span>
               </li>
             );
