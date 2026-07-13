@@ -438,8 +438,12 @@ function ServicesReportPage() {
               const Icon = s.icon;
               const routeOk = isKnownRoute(s.to);
               const flagged = isHubServiceAvailable(s);
-              const available = flagged && routeOk;
-              const brokenLink = flagged && !routeOk;
+              const authorized = canUse(s);
+              const restricted = !authorized;
+              const available = flagged && routeOk && authorized;
+              const brokenLink = flagged && !routeOk && authorized;
+              const serviceRoles = rolesForService(s.id);
+
               return (
                 <motion.article
                   id={`svc-${s.id}`}
