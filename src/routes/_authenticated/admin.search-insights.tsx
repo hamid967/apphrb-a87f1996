@@ -3,16 +3,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation } from "react-i18next";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as RTooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+import { MotionLineChart, TREMOR_PALETTE } from "@/components/charts/motion-tremor";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -235,26 +226,19 @@ function SearchInsightsPage() {
               </CardHeader>
               <CardContent>
                 <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={chartData} margin={{ top: 5, right: 8, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                      <YAxis tick={{ fontSize: 11 }} />
-                      <RTooltip />
-                      <Legend wrapperStyle={{ fontSize: 12 }} />
-                      {data.countries.slice(0, 7).map((c, i) => (
-                        <Line
-                          key={c.db}
-                          type="monotone"
-                          dataKey={isAr ? c.nameAr : c.nameEn}
-                          stroke={LINE_COLORS[i % LINE_COLORS.length]}
-                          strokeWidth={2}
-                          dot={false}
-                        />
-                      ))}
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <MotionLineChart
+                    data={chartData}
+                    index="month"
+                    categories={data.countries
+                      .slice(0, 7)
+                      .map((c) => (isAr ? c.nameAr : c.nameEn))}
+                    colors={data.countries
+                      .slice(0, 7)
+                      .map((_, i) => TREMOR_PALETTE[i % TREMOR_PALETTE.length])}
+                    className="h-72 mt-2"
+                  />
                 </div>
+
                 <p className="text-[11px] text-muted-foreground mt-2">
                   {isAr ? "المصدر: Semrush — آخر تحديث " : "Source: Semrush — updated "}
                   {new Date(data.fetchedAt).toLocaleString(isAr ? "ar-SA" : "en-US")}

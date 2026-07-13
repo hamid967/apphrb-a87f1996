@@ -2,18 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useSuspenseQuery, queryOptions, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo, Suspense } from "react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  Bar,
-  BarChart,
-  Legend,
-} from "recharts";
+import { MotionAreaChart, MotionBarChart } from "@/components/charts/motion-tremor";
 import {
   Download,
   TrendingUp,
@@ -447,40 +436,16 @@ function MetricsContent({
               </h2>
             </div>
             <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={seriesLabelled} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="gRev" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
-                  <XAxis dataKey="label" fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                    width={70}
-                    tickFormatter={(v) =>
-                      new Intl.NumberFormat(isAr ? "ar-SA" : "en-US", {
-                        notation: "compact",
-                      }).format(Number(v))
-                    }
-                  />
-                  <Tooltip
-                    formatter={(v: number) => [fmtMoney(v), isAr ? "الإيراد" : "Revenue"]}
-                    labelFormatter={(l) => String(l)}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="hsl(var(--primary))"
-                    fill="url(#gRev)"
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <MotionAreaChart
+                data={seriesLabelled}
+                index="label"
+                categories={["revenue"]}
+                colors={["emerald"]}
+                valueFormatter={(v) => fmtMoney(v)}
+                showLegend={false}
+                yAxisWidth={72}
+                className="h-64 mt-2"
+              />
             </div>
           </Card>
 
@@ -492,35 +457,21 @@ function MetricsContent({
               </h2>
             </div>
             <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={seriesLabelled} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
-                  <XAxis dataKey="label" fontSize={11} tickLine={false} axisLine={false} />
-                  <YAxis
-                    fontSize={11}
-                    tickLine={false}
-                    axisLine={false}
-                    allowDecimals={false}
-                    width={40}
-                  />
-                  <Tooltip />
-                  <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar
-                    dataKey="new_paying_orgs"
-                    name={isAr ? "جديدة" : "New"}
-                    fill="hsl(var(--primary))"
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <Bar
-                    dataKey="churned_orgs"
-                    name={isAr ? "تسرّبت" : "Churned"}
-                    fill="hsl(var(--destructive))"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              <MotionBarChart
+                data={seriesLabelled.map((r: Record<string, unknown>) => ({
+                  label: r.label,
+                  [isAr ? "جديدة" : "New"]: r.new_paying_orgs,
+                  [isAr ? "تسرّبت" : "Churned"]: r.churned_orgs,
+                }))}
+                index="label"
+                categories={[isAr ? "جديدة" : "New", isAr ? "تسرّبت" : "Churned"]}
+                colors={["emerald", "rose"]}
+                yAxisWidth={40}
+                className="h-64 mt-2"
+              />
             </div>
           </Card>
+
 
           {/* Series table */}
           <Card className="overflow-hidden">

@@ -16,20 +16,10 @@ import {
   Download,
 } from "lucide-react";
 import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from "recharts";
+  MotionAreaChart,
+  MotionBarChart,
+  MotionDonutChart,
+} from "@/components/charts/motion-tremor";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -473,26 +463,18 @@ function FilterAnalyticsPage() {
           {hourly.length === 0 ? (
             <p className="text-sm text-muted-foreground">{isAr ? "لا بيانات" : "No data"}</p>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={hourly}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                <XAxis
-                  dataKey="hour"
-                  tick={{ fontSize: 11 }}
-                  tickFormatter={hourFmt}
-                  reversed={isAr}
-                />
-                <YAxis tick={{ fontSize: 11 }} orientation={isAr ? "right" : "left"} />
-                <Tooltip labelFormatter={hourFmt} />
-                <Area
-                  type="monotone"
-                  dataKey="events"
-                  stroke="hsl(var(--primary))"
-                  fill="hsl(var(--primary) / 0.15)"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <MotionAreaChart
+              data={hourly.map((h: Record<string, unknown>) => ({
+                hour: hourFmt(h.hour as string),
+                events: h.events,
+              }))}
+              index="hour"
+              categories={["events"]}
+              colors={["emerald"]}
+              showLegend={false}
+              className="h-64 mt-2"
+            />
+
           )}
         </CardContent>
       </Card>
@@ -509,37 +491,19 @@ function FilterAnalyticsPage() {
             {top.length === 0 ? (
               <p className="text-sm text-muted-foreground">{isAr ? "لا بيانات" : "No data"}</p>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={top} layout="vertical" margin={{ left: 40 }}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    horizontal={false}
-                    stroke="hsl(var(--border))"
-                  />
-                  <XAxis type="number" tick={{ fontSize: 11 }} />
-                  <YAxis
-                    dataKey="filterKey"
-                    type="category"
-                    tick={{ fontSize: 11 }}
-                    width={120}
-                    orientation={isAr ? "right" : "left"}
-                  />
-                  <Tooltip />
-                  <Legend />
-                  <Bar
-                    dataKey="applyCount"
-                    name={isAr ? "تطبيق" : "Apply"}
-                    stackId="a"
-                    fill="hsl(var(--primary))"
-                  />
-                  <Bar
-                    dataKey="removeCount"
-                    name={isAr ? "إزالة" : "Remove"}
-                    stackId="a"
-                    fill="#F59E0B"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              <MotionBarChart
+                data={top.map((r: Record<string, unknown>) => ({
+                  filterKey: r.filterKey,
+                  [isAr ? "تطبيق" : "Apply"]: r.applyCount,
+                  [isAr ? "إزالة" : "Remove"]: r.removeCount,
+                }))}
+                index="filterKey"
+                categories={[isAr ? "تطبيق" : "Apply", isAr ? "إزالة" : "Remove"]}
+                colors={["emerald", "amber"]}
+                layout="vertical"
+                yAxisWidth={120}
+                className="h-72 mt-2"
+              />
             )}
           </CardContent>
         </Card>
@@ -552,24 +516,13 @@ function FilterAnalyticsPage() {
             {sourcePie.length === 0 ? (
               <p className="text-sm text-muted-foreground">{isAr ? "لا بيانات" : "No data"}</p>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={sourcePie}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={40}
-                    outerRadius={80}
-                    paddingAngle={2}
-                  >
-                    {sourcePie.map((_, i) => (
-                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              <MotionDonutChart
+                data={sourcePie}
+                index="name"
+                category="value"
+                className="h-72 mt-2"
+              />
+
             )}
           </CardContent>
         </Card>

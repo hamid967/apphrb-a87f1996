@@ -56,15 +56,7 @@ import {
   ArrowLeft,
   ArrowRight,
 } from "lucide-react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Tooltip as RTooltip,
-  CartesianGrid,
-} from "recharts";
+import { MotionLineChart } from "@/components/charts/motion-tremor";
 import { can, type OrgRole } from "@/lib/permissions";
 import { KpiGrid } from "@/components/dashboard/KpiGrid";
 import { AnalyticsPanels } from "@/components/dashboard/AnalyticsPanels";
@@ -1078,35 +1070,17 @@ function RevenueChartCard({ isAr }: { isAr: boolean }) {
         </button>
       </div>
       <div className="mt-4 h-56">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={REV_DATA} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-            <XAxis
-              dataKey="m"
-              reversed={isAr}
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 11 }}
-            />
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 11 }}
-              tickFormatter={(v) => `${v}K`}
-              orientation={isAr ? "right" : "left"}
-            />
-            <RTooltip formatter={(v: number) => `${v}K`} />
-            <Line
-              type="monotone"
-              dataKey="v"
-              stroke="hsl(var(--primary))"
-              strokeWidth={2.5}
-              dot={{ r: 3 }}
-              activeDot={{ r: 5 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <MotionLineChart
+          data={REV_DATA}
+          index="m"
+          categories={["v"]}
+          colors={["emerald"]}
+          valueFormatter={(v) => `${v}K`}
+          showLegend={false}
+          className="h-56 mt-2"
+        />
       </div>
+
     </div>
   );
 }

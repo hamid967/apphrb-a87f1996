@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { MotionBarChart } from "@/components/charts/motion-tremor";
 import {
   Loader2,
   PlayCircle,
@@ -569,16 +569,16 @@ function PreviewPage() {
                       <p className="py-8 text-center text-xs text-muted-foreground">No data</p>
                     ) : (
                       <div className="h-56">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={data}>
-                            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                            <XAxis dataKey="key" tick={{ fontSize: 11 }} />
-                            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-                            <Tooltip />
-                            <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                          </BarChart>
-                        </ResponsiveContainer>
+                        <MotionBarChart
+                          data={data}
+                          index="key"
+                          categories={["value"]}
+                          colors={["emerald"]}
+                          showLegend={false}
+                          className="h-56 mt-2"
+                        />
                       </div>
+
                     )}
                   </CardContent>
                 </Card>

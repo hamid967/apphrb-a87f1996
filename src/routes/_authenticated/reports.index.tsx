@@ -17,20 +17,10 @@ import {
 import { Loader2, Download, BarChart3, Wrench, BookOpen } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-  LineChart,
-  Line,
-  CartesianGrid,
-} from "recharts";
+  MotionBarChart,
+  MotionDonutChart,
+  MotionLineChart,
+} from "@/components/charts/motion-tremor";
 
 export const Route = createFileRoute("/_authenticated/reports/")({
   component: ReportsPage,
@@ -239,29 +229,17 @@ function ReportsPage() {
                 <CardTitle>{t("reportsPage.monthlyPerformance")}</CardTitle>
               </CardHeader>
               <CardContent className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={stats.monthly}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" fontSize={12} />
-                    <YAxis fontSize={12} />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="value"
-                      name={t("reportsPage.dealValue")}
-                      stroke="hsl(var(--primary))"
-                      strokeWidth={2}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="commissions"
-                      name={t("reportsPage.commissions")}
-                      stroke="hsl(140 70% 40%)"
-                      strokeWidth={2}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <MotionLineChart
+                  data={stats.monthly.map((m: Record<string, unknown>) => ({
+                    month: m.month,
+                    [t("reportsPage.dealValue")]: m.value,
+                    [t("reportsPage.commissions")]: m.commissions,
+                  }))}
+                  index="month"
+                  categories={[t("reportsPage.dealValue"), t("reportsPage.commissions")]}
+                  colors={["emerald", "blue"]}
+                  className="h-72 mt-2"
+                />
               </CardContent>
             </Card>
 
@@ -270,25 +248,12 @@ function ReportsPage() {
                 <CardTitle>{t("reportsPage.dealsByStatus")}</CardTitle>
               </CardHeader>
               <CardContent className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={stats.statusData}
-                      dataKey="value"
-                      nameKey="name"
-                      outerRadius={90}
-                      label
-                    >
-                      {stats.statusData.map((s) => (
-                        <Cell
-                          key={s.name}
-                          fill={STATUS_COLORS[s.name] ?? "hsl(var(--muted-foreground))"}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                <MotionDonutChart
+                  data={stats.statusData}
+                  index="name"
+                  category="value"
+                  className="h-72 mt-2"
+                />
               </CardContent>
             </Card>
 
@@ -297,21 +262,16 @@ function ReportsPage() {
                 <CardTitle>{t("reportsPage.dealCountByMonth")}</CardTitle>
               </CardHeader>
               <CardContent className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={stats.monthly}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" fontSize={12} />
-                    <YAxis fontSize={12} allowDecimals={false} />
-                    <Tooltip />
-                    <Bar
-                      dataKey="deals"
-                      name={t("reportsPage.deals")}
-                      fill="hsl(var(--primary))"
-                      radius={[4, 4, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+                <MotionBarChart
+                  data={stats.monthly}
+                  index="month"
+                  categories={["deals"]}
+                  colors={["emerald"]}
+                  showLegend={false}
+                  className="h-64 mt-2"
+                />
               </CardContent>
+
             </Card>
           </div>
         </>

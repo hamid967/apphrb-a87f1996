@@ -64,18 +64,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  BarChart,
-  Bar,
-  Legend,
-} from "recharts";
+import { MotionAreaChart, MotionBarChart } from "@/components/charts/motion-tremor";
 
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute("/_authenticated/admin/telemetry")({
@@ -970,48 +959,18 @@ function SummaryPanel({
               {isAr ? "لا توجد بيانات" : "No data"}
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={series} margin={{ top: 8, right: 12, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="gTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.5} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="gErr" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--destructive))" stopOpacity={0.55} />
-                    <stop offset="100%" stopColor="hsl(var(--destructive))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="label" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--popover))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Area
-                  type="monotone"
-                  dataKey="total"
-                  name={isAr ? "الإجمالي" : "Total"}
-                  stroke="hsl(var(--primary))"
-                  strokeWidth={2}
-                  fill="url(#gTotal)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="errors"
-                  name={isAr ? "أخطاء" : "Errors"}
-                  stroke="hsl(var(--destructive))"
-                  strokeWidth={2}
-                  fill="url(#gErr)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <MotionAreaChart
+              data={series.map((s: Record<string, unknown>) => ({
+                label: s.label,
+                [isAr ? "الإجمالي" : "Total"]: s.total,
+                [isAr ? "أخطاء" : "Errors"]: s.errors,
+              }))}
+              index="label"
+              categories={[isAr ? "الإجمالي" : "Total", isAr ? "أخطاء" : "Errors"]}
+              colors={["emerald", "rose"]}
+              className="h-[240px] mt-2"
+            />
+
           )}
         </CardContent>
       </Card>
@@ -1028,39 +987,17 @@ function SummaryPanel({
               {isAr ? "لا توجد بيانات" : "No data"}
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={kinds}
-                layout="vertical"
-                margin={{ top: 4, right: 12, left: 8, bottom: 0 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={false} />
-                <XAxis
-                  type="number"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  allowDecimals={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="label"
-                  fontSize={11}
-                  width={90}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--popover))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <MotionBarChart
+              data={kinds}
+              index="label"
+              categories={["count"]}
+              colors={["emerald"]}
+              layout="vertical"
+              yAxisWidth={100}
+              showLegend={false}
+              className="h-[240px] mt-2"
+            />
+
           )}
         </CardContent>
       </Card>
