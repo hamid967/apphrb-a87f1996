@@ -63,7 +63,7 @@ const STEPS: {
   { key: "profile", label_ar: "بياناتك", label_en: "You", icon: UserRound },
   { key: "company", label_ar: "الشركة", label_en: "Company", icon: Building2 },
   { key: "branch", label_ar: "الفرع والأقسام", label_en: "Branch & Depts", icon: Network },
-  { key: "property", label_ar: "أول عقار", label_en: "First property", icon: Home },
+  { key: "property", label_ar: "أول وحدة", label_en: "First unit", icon: Home },
 ];
 
 const REASONS = [
