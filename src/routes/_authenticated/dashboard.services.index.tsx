@@ -34,6 +34,7 @@ import {
 import { useHubCatalog } from "@/lib/use-hub-catalog";
 import { useSafeRouteNavigator } from "@/lib/use-safe-route-navigator";
 import { recordServiceAccess, useServiceAccessLog } from "@/lib/service-access-log";
+import { recordForbiddenAttempt } from "@/lib/service-forbidden-log";
 import { useMyRoles } from "@/hooks/use-my-roles";
 import {
   ROLE_GROUPS,
