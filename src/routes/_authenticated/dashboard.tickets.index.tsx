@@ -155,93 +155,17 @@ function TicketsListPage() {
         </div>
       </Card>
 
-      <Card>
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>#</TableHead>
-                <TableHead>{isAr ? "الموضوع" : "Subject"}</TableHead>
-                <TableHead>{isAr ? "الحالة" : "Status"}</TableHead>
-                <TableHead>{isAr ? "الأولوية" : "Priority"}</TableHead>
-                <TableHead>{isAr ? "التصنيف" : "Category"}</TableHead>
-                <TableHead>{isAr ? "القناة" : "Channel"}</TableHead>
-                <TableHead>SLA</TableHead>
-                <TableHead>{isAr ? "الإنشاء" : "Created"}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {q.isLoading ? (
-                <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                  {isAr ? "جارٍ التحميل…" : "Loading…"}
-                </TableCell></TableRow>
-              ) : rows.length === 0 ? (
-                <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-8">
-                  {isAr ? "لا توجد تذاكر." : "No tickets."}
-                </TableCell></TableRow>
-              ) : rows.map((r) => {
-                const overdue = !r.resolved_at && r.sla_due_at && new Date(r.sla_due_at).getTime() < now;
-                const dueDelta = r.sla_due_at
-                  ? Math.round((new Date(r.sla_due_at).getTime() - now) / 60000)
-                  : null;
-                return (
-                  <TableRow key={r.id} className="cursor-pointer hover:bg-muted/40">
-                    <TableCell className="font-mono text-xs">
-                      <Link to="/dashboard/tickets/$id" params={{ id: r.id }} className="hover:underline">
-                        {r.ticket_number ?? r.id.slice(0, 6)}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="max-w-[24rem] truncate">
-                      <Link to="/dashboard/tickets/$id" params={{ id: r.id }} className="hover:underline">
-                        {r.subject}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={STATUS_TONE[r.status] ?? ""}>
-                        {isAr ? STATUS_LABEL_AR[r.status] ?? r.status : r.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={PRIORITY_TONE[r.priority] ?? ""}>
-                        {isAr ? PRIORITY_LABEL_AR[r.priority] ?? r.priority : r.priority}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {r.category ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-xs">{r.channel}</TableCell>
-                    <TableCell className="text-xs">
-                      {r.resolved_at ? (
-                        <span className="text-success inline-flex items-center gap-1">
-                          <CheckCircle2 className="h-3 w-3" />
-                          {isAr ? "منجزة" : "Done"}
-                        </span>
-                      ) : dueDelta === null ? "—" : overdue ? (
-                        <span className="text-destructive inline-flex items-center gap-1">
-                          <AlertTriangle className="h-3 w-3" />
-                          {isAr
-                            ? `متأخرة ${Math.abs(dueDelta)}د`
-                            : `${Math.abs(dueDelta)}m overdue`}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {dueDelta > 1440
-                            ? `${Math.round(dueDelta / 1440)}${isAr ? "ي" : "d"}`
-                            : `${dueDelta}${isAr ? "د" : "m"}`}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {new Date(r.created_at).toLocaleDateString(isAr ? "ar-SA" : "en-US")}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
-      </Card>
+      <DataTable<TicketRow>
+        data={rows}
+        columns={ticketColumns(isAr, now)}
+        rowKey={(r) => r.id}
+        isAr={isAr}
+        loading={q.isLoading}
+        emptyLabel={isAr ? "لا توجد تذاكر." : "No tickets."}
+        searchPlaceholder={isAr ? "بحث…" : "Search…"}
+        exportFileName="tickets"
+      />
+
     </div>
   );
 }
