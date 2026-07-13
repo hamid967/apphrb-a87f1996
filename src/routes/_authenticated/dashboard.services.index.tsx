@@ -520,6 +520,15 @@ function ServicesReportPage() {
                         : `The route ${s.to} isn't registered. Open the details page for more info.`}
                     </p>
                   )}
+                  {restricted && (
+                    <p className="relative z-10 mt-2 flex items-center gap-1.5 rounded-md border border-dashed border-destructive/30 bg-destructive/5 px-2 py-1 text-[11px] text-destructive">
+                      <Lock className="size-3 shrink-0" />
+                      <span>
+                        {isAr ? "تتطلب:" : "Requires:"}{" "}
+                        {serviceRoles.map((r) => roleLabel(r, !!isAr)).join(" • ")}
+                      </span>
+                    </p>
+                  )}
                   <ul className="relative z-10 mt-3 flex flex-wrap gap-1.5">
                     {(isAr ? s.featuresAr : s.featuresEn).map((f) => (
                       <li
@@ -546,26 +555,48 @@ function ServicesReportPage() {
                     ) : (
                       <button
                         type="button"
-                        onClick={() =>
-                          brokenLink
-                            ? toast.error(
-                                isAr ? "الرابط غير متاح" : "Link unavailable",
-                                {
-                                  description: isAr
-                                    ? `المسار «${s.to}» غير مسجّل في التطبيق.`
-                                    : `Route "${s.to}" isn't registered in the app.`,
-                                },
-                              )
-                            : handleUnavailable(s)
-                        }
+                        onClick={() => {
+                          if (restricted) {
+                            toast.error(
+                              isAr ? "لا تملك صلاحية لهذه الخدمة" : "You don't have access",
+                              {
+                                description: isAr
+                                  ? `تتطلب أحد الأدوار: ${serviceRoles.map((r) => roleLabel(r, true)).join(", ")}.`
+                                  : `Requires one of: ${serviceRoles.map((r) => roleLabel(r, false)).join(", ")}.`,
+                              },
+                            );
+                            return;
+                          }
+                          if (brokenLink) {
+                            toast.error(
+                              isAr ? "الرابط غير متاح" : "Link unavailable",
+                              {
+                                description: isAr
+                                  ? `المسار «${s.to}» غير مسجّل في التطبيق.`
+                                  : `Route "${s.to}" isn't registered in the app.`,
+                              },
+                            );
+                            return;
+                          }
+                          handleUnavailable(s);
+                        }}
                         className="inline-flex cursor-not-allowed items-center gap-1 text-[11px] font-medium text-muted-foreground/70"
                       >
-                        {brokenLink ? <AlertTriangle className="size-3" /> : <Ban className="size-3" />}
-                        {brokenLink
-                          ? isAr ? "رابط مفقود" : "Broken link"
-                          : isAr ? "غير متاحة" : "Unavailable"}
+                        {restricted ? (
+                          <Lock className="size-3" />
+                        ) : brokenLink ? (
+                          <AlertTriangle className="size-3" />
+                        ) : (
+                          <Ban className="size-3" />
+                        )}
+                        {restricted
+                          ? isAr ? "بدون صلاحية" : "Restricted"
+                          : brokenLink
+                            ? isAr ? "رابط مفقود" : "Broken link"
+                            : isAr ? "غير متاحة" : "Unavailable"}
                       </button>
                     )}
+
 
                     <Link
                       to="/dashboard/services/$key"
