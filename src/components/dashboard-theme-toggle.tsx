@@ -55,8 +55,10 @@ export function applyDashboardTheme(mode: DashboardThemeMode, animate = true) {
   if (mode === "luxe") {
     el.classList.add("theme-luxe");
   } else {
-    el.classList.add("theme-tech", "dark");
+    // Emerald Prestige = HRHBS Premium SaaS light canvas (no `dark` class)
+    el.classList.add("theme-tech");
   }
+
 }
 
 export function DashboardThemeToggle({ className }: { className?: string }) {
