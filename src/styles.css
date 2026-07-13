@@ -1131,92 +1131,117 @@ html[data-holo="off"] .holo-text {
 }
 
 /* ===================================================================
-   Emerald Prestige theme — scoped to authenticated dashboard/admin.
-   Applied by toggling `theme-tech dark` on <html> while any
-   `_authenticated` route is mounted (see src/routes/_authenticated.tsx).
-   Palette: Emerald Prestige (deep emerald + gold)
-     #05271d background   #0a3a2b surface
-     #1f5a45 border       #10b981 signal    #c9a84c gold
-   Type: Sora (display) + Manrope (body)
-   Contrast: 3/5 — balanced, WCAG AA on all text.
+   HRHBS Premium SaaS theme — scoped to authenticated dashboard/admin.
+   Applied by toggling `theme-tech` on <html> while any `_authenticated`
+   route is mounted (see src/routes/_authenticated.tsx).
+   Palette (exact spec):
+     Primary   #0F5132     Secondary #10B981     Accent   #34D399
+     Success   #16A34A     Warning   #F59E0B     Danger   #EF4444
+     Bg        #F7F9FB     Card      #FFFFFF     Border   #E7ECF2
+     Text      #0F172A     Muted     #64748B
+   Type: IBM Plex Sans Arabic (400/500/600/700)
+   Radius 22px, hairline borders, soft shadows, elegant gradients.
    =================================================================== */
 .theme-tech {
-  color-scheme: dark;
-  --font-sans: 'Manrope', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
-  --font-display: 'Sora', 'Manrope', 'Almarai', system-ui, sans-serif;
+  color-scheme: light;
+  --font-sans: 'IBM Plex Sans Arabic', 'Manrope', 'Almarai', system-ui, sans-serif;
+  --font-display: 'IBM Plex Sans Arabic', 'Sora', 'Manrope', system-ui, sans-serif;
 
-  --background: oklch(0.20 0.028 165);       /* deep emerald near-black */
-  --foreground: oklch(0.97 0.008 150);       /* near-white, warm tint */
-  --card: oklch(0.245 0.035 165);            /* emerald surface */
-  --card-foreground: oklch(0.97 0.008 150);
-  --popover: oklch(0.245 0.035 165);
-  --popover-foreground: oklch(0.97 0.008 150);
-  --primary: oklch(0.72 0.16 160);           /* #10b981 emerald signal */
-  --primary-foreground: oklch(0.16 0.02 165);
-  --secondary: oklch(0.32 0.03 165);
-  --secondary-foreground: oklch(0.97 0.008 150);
-  --muted: oklch(0.28 0.028 165);
-  --muted-foreground: oklch(0.78 0.02 155);  /* bumped for AA at contrast 3 */
-  --accent: oklch(0.36 0.09 90);             /* gold accent surface */
-  --accent-foreground: oklch(0.90 0.13 90);  /* warm gold text */
-  --destructive: oklch(0.58 0.22 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.75 0.17 155);
-  --success-foreground: oklch(0.15 0.02 165);
-  --warning: oklch(0.82 0.15 80);
-  --warning-foreground: oklch(0.15 0.02 165);
-  --info: oklch(0.75 0.13 225);
-  --info-foreground: oklch(0.16 0.02 230);
-  --border: oklch(0.58 0.03 160);            /* WCAG AA UI 3:1 vs bg AND card */
-  --input: oklch(0.58 0.03 160);
+  --background: #F7F9FB;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  --primary: #0F5132;
+  --primary-foreground: #FFFFFF;
+  --secondary: #ECFDF5;
+  --secondary-foreground: #0F5132;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #ECFDF5;
+  --accent-foreground: #0F5132;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --success: #16A34A;
+  --success-foreground: #FFFFFF;
+  --warning: #F59E0B;
+  --warning-foreground: #1F1300;
+  --info: #3B82F6;
+  --info-foreground: #FFFFFF;
+  --border: #E7ECF2;
+  --input: #E7ECF2;
+  --ring: #10B981;
 
-  --ring: oklch(0.75 0.17 160);
-  --paper: oklch(0.245 0.035 165);
-  --ink: oklch(0.97 0.008 150);
-  --radius: 0.625rem;
+  --paper: #FFFFFF;
+  --ink: #0F172A;
+  --radius: 1.375rem; /* 22px */
 
-  --shadow-soft: 0 1px 0 0 oklch(1 0 0 / 5%) inset,
-                 0 1px 2px 0 oklch(0 0 0 / 45%);
-  --shadow-elevated: 0 1px 0 0 oklch(1 0 0 / 7%) inset,
-                     0 8px 24px -12px oklch(0 0 0 / 70%);
-  --shadow-glow: 0 0 0 1px color-mix(in oklab, #10b981 45%, transparent),
-                 0 8px 32px -12px color-mix(in oklab, #10b981 50%, transparent);
+  --shadow-soft:
+    0 1px 2px 0 rgba(15, 23, 42, 0.04),
+    0 1px 3px 0 rgba(15, 23, 42, 0.06);
+  --shadow-elevated:
+    0 10px 30px -12px rgba(15, 81, 50, 0.14),
+    0 4px 12px -4px rgba(15, 23, 42, 0.06);
+  --shadow-elegant:
+    0 20px 60px -24px rgba(15, 81, 50, 0.20),
+    0 8px 20px -8px rgba(15, 23, 42, 0.06);
+  --shadow-glow:
+    0 0 0 1px color-mix(in oklab, #10B981 35%, transparent),
+    0 12px 32px -12px color-mix(in oklab, #10B981 45%, transparent);
 
-  --gradient-brand: linear-gradient(135deg, #059669 0%, #10b981 60%, #34d399 100%);
-  --gradient-gold: linear-gradient(135deg, #c9a84c 0%, #f0d78c 100%);
-  --gradient-surface: linear-gradient(180deg,
-                       color-mix(in oklab, var(--card) 100%, transparent),
-                       color-mix(in oklab, var(--background) 60%, transparent));
+  --gradient-brand: linear-gradient(135deg, #0F5132 0%, #10B981 55%, #34D399 100%);
+  --gradient-primary: linear-gradient(135deg, #0F5132 0%, #10B981 55%, #34D399 100%);
+  --gradient-gold: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+  --gradient-canvas:
+    radial-gradient(1200px 600px at 100% -10%, rgba(16, 185, 129, 0.08), transparent 60%),
+    radial-gradient(900px 500px at -10% 100%, rgba(15, 81, 50, 0.06), transparent 60%);
+  --gradient-surface: linear-gradient(180deg, #FFFFFF 0%, #FBFDFE 100%);
 
-  /* Sidebar — flush with background, near-flat */
-  --sidebar: oklch(0.22 0.03 165);
-  --sidebar-foreground: oklch(0.82 0.015 155);
-  --sidebar-primary: oklch(0.72 0.16 160);
-  --sidebar-primary-foreground: oklch(0.16 0.02 165);
-  --sidebar-accent: oklch(0.28 0.028 165);
-  --sidebar-accent-foreground: oklch(0.97 0.008 150);
-  --sidebar-border: oklch(0.58 0.03 160);
-  --sidebar-ring: oklch(0.75 0.17 160);
+  /* Sidebar — matches canvas, hairline border, floating active pill */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0F172A;
+  --sidebar-primary: #0F5132;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #ECFDF5;
+  --sidebar-accent-foreground: #0F5132;
+  --sidebar-border: #E7ECF2;
+  --sidebar-ring: #10B981;
 }
 
 
-/* ===== theme-tech: minimal overrides that override the holo layer ===== */
 
-/* Cards: flat, hairline border, no gradient edge, no lift */
+/* ===== theme-tech (HRHBS Premium SaaS) — presentational overrides ===== */
+
+/* App canvas: soft radial gradient behind everything inside the dashboard */
+html.theme-tech body {
+  background-color: var(--color-background);
+  background-image: var(--gradient-canvas);
+  background-attachment: fixed;
+  color: var(--color-foreground);
+}
+
+/* Cards: pure white surface, hairline border, generous radius, soft shadow */
 html.theme-tech :where(:not(.theme-luxe *)) [data-slot="card"]::before {
   display: none;
 }
 html.theme-tech :where(:not(.theme-luxe *)) [data-slot="card"] {
+  background: var(--color-card);
+  color: var(--color-card-foreground);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
-  transition: border-color .15s ease, background-color .15s ease;
+  transition: transform .25s cubic-bezier(.2,.7,.2,1),
+              box-shadow .25s ease,
+              border-color .2s ease;
 }
 html.theme-tech :where(:not(.theme-luxe *)) [data-slot="card"]:hover {
-  transform: none;
-  box-shadow: var(--shadow-soft);
-  border-color: color-mix(in oklab, var(--color-primary) 45%, var(--color-border));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+  border-color: color-mix(in oklab, var(--color-primary) 30%, var(--color-border));
 }
 
-/* Primary buttons: solid signal blue, no iridescent sheen, subtle focus ring */
+/* Primary buttons: emerald gradient, elegant lift on hover */
 html.theme-tech :where(:not(.theme-luxe *)) button.bg-primary::after,
 html.theme-tech :where(:not(.theme-luxe *)) a.bg-primary::after,
 html.theme-tech :where(:not(.theme-luxe *)) [role="button"].bg-primary::after {
@@ -1225,34 +1250,36 @@ html.theme-tech :where(:not(.theme-luxe *)) [role="button"].bg-primary::after {
 html.theme-tech :where(:not(.theme-luxe *)) button.bg-primary,
 html.theme-tech :where(:not(.theme-luxe *)) a.bg-primary,
 html.theme-tech :where(:not(.theme-luxe *)) [role="button"].bg-primary {
-  box-shadow: 0 1px 0 0 oklch(1 0 0 / 12%) inset;
-  transition: background-color .15s ease, box-shadow .15s ease, transform 0s;
-  transform: none;
+  background: var(--gradient-brand);
+  color: var(--color-primary-foreground);
+  border: 0;
+  box-shadow: 0 6px 18px -8px rgba(15, 81, 50, 0.45);
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
 }
 html.theme-tech :where(:not(.theme-luxe *)) button.bg-primary:hover,
 html.theme-tech :where(:not(.theme-luxe *)) a.bg-primary:hover,
 html.theme-tech :where(:not(.theme-luxe *)) [role="button"].bg-primary:hover {
-  transform: none;
-  box-shadow:
-    0 1px 0 0 oklch(1 0 0 / 16%) inset,
-    0 4px 16px -6px color-mix(in oklab, #10b981 50%, transparent);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px -10px rgba(15, 81, 50, 0.55);
+  filter: saturate(110%);
 }
 
-/* Sidebar active: flat pill, single left indicator bar, no chrome edge */
+/* Sidebar active pill: emerald tint + inset accent bar */
 html.theme-tech :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"]::before {
   display: none;
 }
 html.theme-tech :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"] {
   background: var(--sidebar-accent);
   color: var(--sidebar-accent-foreground);
-  box-shadow: inset 2px 0 0 0 var(--color-primary);
-  border-radius: calc(var(--radius) - 2px);
+  box-shadow: inset 3px 0 0 0 var(--color-primary);
+  border-radius: calc(var(--radius) - 8px);
+  font-weight: 600;
 }
 [dir="rtl"] html.theme-tech :where(:not(.theme-luxe *)) [data-sidebar="menu-button"][data-active="true"] {
-  box-shadow: inset -2px 0 0 0 var(--color-primary);
+  box-shadow: inset -3px 0 0 0 var(--color-primary);
 }
 
-/* Tabs: flat underline, no iridescent bar */
+/* Tabs: hairline underline */
 html.theme-tech :where(:not(.theme-luxe *)) [role="tablist"]::after {
   background: var(--color-border);
   opacity: 1;
@@ -1260,9 +1287,12 @@ html.theme-tech :where(:not(.theme-luxe *)) [role="tablist"]::after {
   height: 1px;
 }
 
-/* Turn off the aurora / holographic backdrops inside tech mode */
+/* Kill leftover holographic overlays inside this theme */
 html.theme-tech .holo-aurora::before,
-html.theme-tech .holo-bg { display: none; background: var(--color-card) !important; }
+html.theme-tech .holo-bg {
+  display: none;
+  background: var(--color-card) !important;
+}
 html.theme-tech .holo-text {
   background: none;
   color: var(--color-foreground);
@@ -1270,60 +1300,60 @@ html.theme-tech .holo-text {
   animation: none;
 }
 
-/* Density-3 spacing: tighten card padding a notch without breaking layouts */
+/* Comfortable card padding */
 html.theme-tech :where(:not(.theme-luxe *)) [data-slot="card"] > * {
-  padding-block: 0.875rem;
+  padding-block: 1rem;
 }
 
-/* Monospace-flavored numerals for KPI values (opt-in via .tabular-nums) */
+/* Tabular numerals for KPI values */
 html.theme-tech .tabular-nums,
 html.theme-tech [class*="font-mono"] {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
 
-/* ============================================================
-   theme-tech overrides for the legacy luxe-styled shell chrome
-   (DashboardTopbar + MobileDashboardTabbar). Those components
-   hardcode navy/gold colors inline; we neutralize them here so
-   the tech theme reads as a cohesive Slate & Steel surface
-   instead of a gold-on-tech mashup. Structural rules (layout,
-   sticky, safe-area padding) are left untouched.
-   ============================================================ */
+/* Comfortable heading rhythm */
+html.theme-tech h1 { letter-spacing: -0.02em; }
+html.theme-tech h2 { letter-spacing: -0.015em; }
 
-/* Sticky desktop topbar wrapper */
+/* -----------------------------------------------------------------
+   Legacy shell chrome (DashboardTopbar + MobileDashboardTabbar) —
+   the components hardcode navy/gold; neutralize to the new palette.
+   ----------------------------------------------------------------- */
+
+/* Sticky glass topbar */
 html.theme-tech header.sticky {
-  background: color-mix(in oklab, var(--color-card) 92%, transparent) !important;
+  background: color-mix(in oklab, #FFFFFF 82%, transparent) !important;
   border-bottom: 1px solid var(--color-border) !important;
-  box-shadow: 0 1px 0 0 oklch(1 0 0 / 4%) inset !important;
-  backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 1px 0 0 rgba(15, 23, 42, 0.02);
+  backdrop-filter: blur(20px) saturate(160%);
 }
 
-/* Luxe gold divider between sections in the topbar */
+/* Gold divider strips → hairline */
 html.theme-tech .bg-\[rgba\(212\,175\,55\,0\.25\)\] {
   background-color: var(--color-border) !important;
 }
 
-/* Luxe icon buttons / pills → tech surface */
+/* Luxe icon buttons / pills → clean chips on white */
 html.theme-tech .luxe-icon-btn,
 html.theme-tech .luxe-pill {
   color: var(--color-foreground);
-  background: color-mix(in oklab, var(--color-card) 60%, transparent);
+  background: #FFFFFF;
   border-color: var(--color-border);
   backdrop-filter: none;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
 }
 html.theme-tech .luxe-icon-btn:hover,
 html.theme-tech .luxe-pill:hover {
   color: var(--color-primary);
-  border-color: color-mix(in oklab, var(--color-primary) 50%, var(--color-border));
-  background: color-mix(in oklab, var(--color-primary) 8%, var(--color-card));
-  box-shadow: none;
-  transform: none;
+  border-color: color-mix(in oklab, var(--color-primary) 40%, var(--color-border));
+  background: var(--color-sidebar-accent);
+  box-shadow: 0 4px 14px -8px rgba(15, 81, 50, 0.25);
 }
 
-/* Search input inside topbar (hardcoded amber border + white/[0.04] bg) */
+/* Search input inside topbar */
 html.theme-tech header.sticky input {
-  background-color: color-mix(in oklab, var(--color-input) 70%, transparent) !important;
+  background-color: #FFFFFF !important;
   border-color: var(--color-border) !important;
   color: var(--color-foreground) !important;
 }
@@ -1331,32 +1361,33 @@ html.theme-tech header.sticky input::placeholder {
   color: var(--color-muted-foreground) !important;
 }
 
-/* Gold "AI Search" chip → signal blue */
+/* Gold "AI Search" chip → brand gradient */
 html.theme-tech header.sticky button[type="button"][class*="from-amber"],
 html.theme-tech header.sticky button[style*="D4AF37"] {
-  background: var(--color-primary) !important;
+  background: var(--gradient-brand) !important;
   color: var(--color-primary-foreground) !important;
-  box-shadow: none !important;
+  box-shadow: 0 6px 18px -8px rgba(15, 81, 50, 0.45) !important;
 }
 
-/* MobileDashboardTabbar wrapper (bg-slate-950/85 + amber border inline) */
+/* MobileDashboardTabbar wrapper */
 html.theme-tech nav[aria-label] > div.mx-2 {
-  background-color: color-mix(in oklab, var(--color-card) 92%, transparent) !important;
+  background-color: color-mix(in oklab, #FFFFFF 92%, transparent) !important;
   border-color: var(--color-border) !important;
-  box-shadow: 0 -12px 32px -20px oklch(0 0 0 / 60%);
+  box-shadow: 0 -12px 32px -20px rgba(15, 23, 42, 0.15);
+  backdrop-filter: blur(20px) saturate(160%);
 }
 
-/* Active tab: replace amber gradient with tech signal */
+/* Active mobile tab: emerald tint */
 html.theme-tech nav[aria-label] a[aria-current="page"] {
-  background: color-mix(in oklab, var(--color-primary) 14%, transparent) !important;
-  color: var(--color-foreground) !important;
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-primary) 45%, transparent) !important;
+  background: color-mix(in oklab, var(--color-primary) 10%, transparent) !important;
+  color: var(--color-primary) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-primary) 30%, transparent) !important;
 }
 html.theme-tech nav[aria-label] a[aria-current="page"] svg {
   color: var(--color-primary) !important;
 }
 
-/* Inactive tabs — tone slate-300/400 to the theme muted */
+/* Inactive mobile tabs */
 html.theme-tech nav[aria-label] a:not([aria-current="page"]) {
   color: var(--color-muted-foreground);
 }
@@ -1370,11 +1401,72 @@ html.theme-tech nav[aria-label] a:not([aria-current="page"]):hover svg {
   color: var(--color-foreground) !important;
 }
 
-/* The 2px gold underline on the active mobile tab (inline gradient) */
+/* 2px active-tab underline → brand */
 html.theme-tech nav[aria-label] a[aria-current="page"] > span[aria-hidden="true"]:last-child {
-  background: var(--color-primary) !important;
-  box-shadow: 0 0 8px color-mix(in oklab, var(--color-primary) 60%, transparent) !important;
+  background: var(--gradient-brand) !important;
+  box-shadow: 0 0 8px color-mix(in oklab, var(--color-primary) 40%, transparent) !important;
 }
+
+/* -----------------------------------------------------------------
+   Premium utilities — usable across the dashboard components
+   ----------------------------------------------------------------- */
+
+@utility glass-card {
+  background: color-mix(in oklab, #FFFFFF 88%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(14px) saturate(140%);
+  transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s ease, border-color .2s ease;
+}
+@utility glass-card-solid {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s ease, border-color .2s ease;
+}
+@utility hover-lift {
+  transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s ease, border-color .2s ease;
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-elevated);
+    border-color: color-mix(in oklab, var(--color-primary) 35%, var(--color-border));
+  }
+}
+@utility kpi-tile {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.375rem;
+  box-shadow: var(--shadow-soft);
+  transition: transform .25s cubic-bezier(.2,.7,.2,1), box-shadow .25s ease, border-color .2s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
+    border-color: color-mix(in oklab, var(--color-primary) 30%, var(--color-border));
+  }
+}
+@utility brand-gradient-text {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility sparkline-fade {
+  mask-image: linear-gradient(to right, transparent 0, black 12%, black 88%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-tech :where(:not(.theme-luxe *)) [data-slot="card"],
+  html.theme-tech :where(:not(.theme-luxe *)) [data-slot="card"]:hover,
+  html.theme-tech .hover-lift:hover,
+  html.theme-tech .kpi-tile:hover {
+    transform: none;
+    transition: none;
+  }
+}
+
 
 /* ==================================================================
    theme-royal — "Emerald Prestige" luxury dashboard skin
