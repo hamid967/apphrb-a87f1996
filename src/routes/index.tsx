@@ -4,7 +4,6 @@ import {
   Stats,
   Features,
   DashboardPreview,
-  PropertySlider,
   AISection,
   Integrations,
   Testimonials,
@@ -86,7 +85,7 @@ function HBSproHome() {
         <Features />
         <AISection />
         <DashboardPreview />
-        <PropertySlider />
+        
         <Testimonials />
         <Pricing />
         <Integrations />

@@ -63,7 +63,7 @@ const STEPS: {
   { key: "profile", label_ar: "بياناتك", label_en: "You", icon: UserRound },
   { key: "company", label_ar: "الشركة", label_en: "Company", icon: Building2 },
   { key: "branch", label_ar: "الفرع والأقسام", label_en: "Branch & Depts", icon: Network },
-  { key: "property", label_ar: "أول عقار", label_en: "First property", icon: Home },
+  { key: "property", label_ar: "أول وحدة", label_en: "First unit", icon: Home },
 ];
 
 const REASONS = [
@@ -97,7 +97,7 @@ const STEP_HINTS: Record<StepKey, string> = {
   profile: "عرّفنا عليك حتى يضبط حامد التجربة واللغة والتنبيهات.",
   company: "أنشئ مساحة العمل التي ستضم العقارات والفريق والتقارير.",
   branch: "أضف الفرع والأقسام لتجهيز الصلاحيات وسير العمل.",
-  property: "ابدأ بأول عقار أو تخطّ الخطوة وأكمل من لوحة التحكم.",
+  property: "سجّل أول وحدة تديرها أو تخطّ الخطوة وأكمل من لوحة التحكم.",
 };
 
 function OnboardingWizardPage() {
@@ -448,7 +448,7 @@ function OnboardingWizardPage() {
               ابدأ تشغيل محفظتك العقارية خلال دقائق
             </h1>
             <p className="mt-4 text-sm leading-7 text-[#c9ddd4]">
-              هذه الخطوات تجهز حسابك، شركتك، فرعك الأول، وأول عقار حتى تدخل لوحة التحكم وفيها كل شيء جاهز للعمل.
+              هذه الخطوات تجهّز حسابك، شركتك، فرعك الأول، وأوّل وحدة تديرها حتى تدخل لوحة التحكم لإدارة الأملاك وتسجيل المصاريف مباشرة.
             </p>
             <div className="mt-8 space-y-3">
               {TRUST_ITEMS.map((item) => (
@@ -789,10 +789,10 @@ function OnboardingWizardPage() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-2xl font-black tracking-tight">
-                    أضف أول عقار
+                    أضف أول وحدة تحت الإدارة
                   </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    ابدأ فورًا بأحد عقاراتك، أو تخطَّ هذه الخطوة وأضفه لاحقًا.
+                    سجّل أول عقار أو وحدة تديرها، أو تخطَّ الخطوة وأكمل من لوحة التحكم لاحقًا.
                   </p>
                 </div>
                 <OnboardingAiHelper
@@ -849,7 +849,7 @@ function OnboardingWizardPage() {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="p-price">السعر الشهري / السنوي (ر.س)</Label>
+                  <Label htmlFor="p-price">قيمة الإيجار الشهري أو التقييم (ر.س)</Label>
                   <Input
                     id="p-price"
                     type="number"
