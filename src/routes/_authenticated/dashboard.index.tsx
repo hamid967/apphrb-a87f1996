@@ -238,6 +238,33 @@ function Dashboard() {
   const role = membership?.role as OrgRole | undefined;
   const canCreate = can.createProperty(role);
 
+  // Onboarding progress — used to render an inline Empty State when the user
+  // has not finished the required setup steps yet, instead of a blank page
+  // while the outer redirect effect races to fire.
+  const REQUIRED_STEPS = ["profile", "company", "first_receipt"] as const;
+  const onboardingQ = useQuery({
+    queryKey: ["dashboard-onboarding-state", user?.id],
+    enabled: !!user?.id,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("onboarding_progress, onboarding_completed_at")
+        .eq("id", user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      const progress = (data?.onboarding_progress ?? {}) as Record<
+        string,
+        { done?: boolean } | undefined
+      >;
+      const steps = REQUIRED_STEPS.map((k) => ({ key: k, done: progress[k]?.done === true }));
+      const allDone = steps.every((s) => s.done) && !!data?.onboarding_completed_at;
+      return { steps, allDone };
+    },
+  });
+  const onboardingIncomplete =
+    onboardingQ.isSuccess && !onboardingQ.data.allDone;
+
   const [views, setViews] = useState<SavedView[]>([]);
   useEffect(() => {
     if (!org?.id) return;
