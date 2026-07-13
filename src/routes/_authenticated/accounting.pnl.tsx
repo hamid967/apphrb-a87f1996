@@ -7,17 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
 import {
-  BarChart,
-  Bar,
-  CartesianGrid,
-  LineChart,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  Legend,
-} from "recharts";
+  Counter,
+  MotionBarChart,
+  MotionLineChart,
+  MotionPanel,
+  StaggerSection,
+} from "@/components/charts/motion-tremor";
 import { DateRangeFilter } from "@/components/reports/DateRangeFilter";
 import { DATE_RANGE_MESSAGES_EN } from "@/lib/reports/date-range";
 
@@ -192,46 +187,39 @@ function PnlPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Monthly P&L</CardTitle>
-          </CardHeader>
-          <CardContent className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={monthly}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="month" fontSize={12} />
-                <YAxis fontSize={12} />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="income" stroke="hsl(160 60% 45%)" strokeWidth={2} />
-                <Line type="monotone" dataKey="expenses" stroke="hsl(20 80% 55%)" strokeWidth={2} />
-                <Line type="monotone" dataKey="net" stroke="hsl(220 70% 55%)" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Expenses by category</CardTitle>
-          </CardHeader>
-          <CardContent className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={byCategory}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="category" fontSize={12} />
-                <YAxis fontSize={12} />
-                <Tooltip />
-                <Bar dataKey="amount" fill="hsl(280 60% 55%)" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+      <StaggerSection className="grid gap-4 lg:grid-cols-2">
+        <MotionPanel title="Monthly P&L" subtitle={`${from} → ${to}`}>
+          <div className="h-72">
+            <MotionLineChart
+              data={monthly}
+              index="month"
+              categories={["income", "expenses", "net"]}
+              colors={["emerald", "rose", "blue"]}
+              valueFormatter={(v) => v.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              className="h-72 mt-2"
+              emptyLabel="No monthly data"
+            />
+          </div>
+        </MotionPanel>
+        <MotionPanel title="Expenses by category">
+          <div className="h-72">
+            <MotionBarChart
+              data={byCategory}
+              index="category"
+              categories={["amount"]}
+              colors={["violet"]}
+              valueFormatter={(v) => v.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              showLegend={false}
+              className="h-72 mt-2"
+              emptyLabel="No expenses"
+            />
+          </div>
+        </MotionPanel>
+      </StaggerSection>
     </div>
   );
 }
+
 
 function Row({
   label,
@@ -256,7 +244,7 @@ function Row({
                 : "mt-1 text-2xl font-semibold"
         }
       >
-        ${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+        $<Counter value={value} format={(n) => n.toLocaleString(undefined, { maximumFractionDigits: 2 })} />
       </div>
     </div>
   );
