@@ -572,28 +572,13 @@ export function RightPanel({ orgId, isAr }: Props) {
 
       {/* Recent Activities */}
       <SectionCard title={isAr ? "أحدث النشاطات" : "Recent Activities"} icon={Activity}>
-        {activities.length === 0 ? (
-          <p className="py-4 text-center text-xs text-muted-foreground">
-            {isAr ? "لا يوجد نشاط بعد" : "No activity yet"}
-          </p>
-        ) : (
-          <ol className="relative space-y-3 ps-4">
-            <span className="absolute inset-y-1 start-1.5 w-px bg-gradient-to-b from-primary/40 via-border to-transparent" />
-            {activities.map((a) => {
-              const Icon = a.icon;
-              return (
-                <li key={a.id} className="relative">
-                  <span className="absolute -start-[13px] top-1 grid size-4 place-items-center rounded-full bg-primary/15 ring-2 ring-background">
-                    <Icon className="size-2.5 text-primary" />
-                  </span>
-                  <p className="truncate text-sm">{a.label}</p>
-                  <p className="text-[11px] text-muted-foreground">{fmtDate(a.when)}</p>
-                </li>
-              );
-            })}
-          </ol>
-        )}
+        <ActivityTimeline
+          items={activities}
+          emptyLabel={isAr ? "لا يوجد نشاط بعد" : "No activity yet"}
+          dense
+        />
       </SectionCard>
+
     </motion.div>
   );
 }
