@@ -8,7 +8,6 @@ import {
   Home,
   Store,
   Building,
-  Users,
   Briefcase,
   UserCircle2,
   Wrench,
@@ -67,14 +66,6 @@ const SOLUTIONS_GROUPS: NavGroup[] = [
         labelEn: "Property managers",
         descAr: "أدوات إدارة المحفظة اليومية.",
         descEn: "Day-to-day portfolio tools.",
-      },
-      {
-        to: "/solutions/brokers",
-        icon: Users,
-        labelAr: "الوسطاء",
-        labelEn: "Brokers",
-        descAr: "إدارة القوائم والصفقات.",
-        descEn: "Listings and deal management.",
       },
       {
         to: "/solutions/enterprises",
