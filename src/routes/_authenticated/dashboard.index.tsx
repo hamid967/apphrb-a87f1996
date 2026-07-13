@@ -415,6 +415,11 @@ function Dashboard() {
         <SubscriptionStatusCard isAr={isAr} />
       </div>
 
+      <div className="mt-4">
+        <SubscriptionAuditTrail isAr={isAr} />
+      </div>
+
+
       <div className="mt-6">
         <WelcomeChecklist isAr={isAr} />
       </div>
