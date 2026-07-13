@@ -182,6 +182,9 @@ function ServiceDetailPage() {
     (s) => s.category === service.category && s.id !== service.id,
   ).slice(0, 4);
   const Icon = service.icon;
+  const available = isHubServiceAvailable(service);
+  const unavailableReason = isAr ? service.unavailableReasonAr : service.unavailableReasonEn;
+
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6">
