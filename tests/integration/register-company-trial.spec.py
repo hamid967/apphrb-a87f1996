@@ -198,7 +198,12 @@ def main() -> int:
         return 0
 
     finally:
-        # Cleanup: delete the temp user (CASCADE removes their org, subs, audit rows).
+        # Cleanup: audit_log.actor FKs to auth.users, so wipe the actor's
+        # audit rows first, then delete the user (CASCADE removes org, subs).
+        http(
+            "DELETE", f"/rest/v1/audit_log?actor=eq.{uid}",
+            key=SERVICE_KEY,
+        )
         del_code, del_body = http(
             "DELETE", f"/auth/v1/admin/users/{uid}",
             key=SERVICE_KEY,
@@ -207,6 +212,7 @@ def main() -> int:
             print(f"WARN: cleanup delete returned {del_code}: {del_body!r}")
         else:
             print("✓ cleaned up temp user")
+
 
 
 if __name__ == "__main__":
