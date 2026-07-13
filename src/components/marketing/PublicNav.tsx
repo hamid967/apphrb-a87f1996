@@ -69,14 +69,6 @@ const SOLUTIONS_GROUPS: NavGroup[] = [
         descEn: "Day-to-day portfolio tools.",
       },
       {
-        to: "/solutions/brokers",
-        icon: Users,
-        labelAr: "الوسطاء",
-        labelEn: "Brokers",
-        descAr: "إدارة القوائم والصفقات.",
-        descEn: "Listings and deal management.",
-      },
-      {
         to: "/solutions/enterprises",
         icon: Building,
         labelAr: "الشركات",
