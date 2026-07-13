@@ -97,7 +97,6 @@ export async function routeAfterLogin(nav: ReturnType<typeof useNavigate>, redir
 }
 
 export const Route = createFileRoute("/auth")({
-  ssr: false,
   validateSearch: (raw): {
     redirect?: string;
     mode?: "signin" | "signup";
