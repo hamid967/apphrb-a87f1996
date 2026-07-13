@@ -210,6 +210,13 @@ export function ForbiddenScreen({ service, myRoles, isAr }: Props) {
           >
             {isAr ? "العودة إلى لوحة التحكم" : "Back to dashboard"}
           </Link>
+          <Link
+            to="/dashboard/services/forbidden-log"
+            className="inline-flex items-center gap-2 rounded-lg border border-dashed border-border bg-background px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            <History className="size-4" />
+            {isAr ? "سجل المحاولات المحجوبة" : "Forbidden attempts log"}
+          </Link>
         </div>
       </section>
     </div>
