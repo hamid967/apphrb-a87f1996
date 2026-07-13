@@ -49,6 +49,7 @@ function ServicesReportPage() {
   const [cat, setCat] = useState<CategoryKey>("all");
 
   const { services, isLoading, error, refetch } = useHubCatalog();
+  const { isKnownRoute, safeNavigate } = useSafeRouteNavigator();
 
   const recent = useServiceAccessLog();
   const recentServices = useMemo(() => {
