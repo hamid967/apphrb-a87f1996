@@ -165,12 +165,17 @@ export function EnterpriseDataTable<T>({
     return rowsSorted.slice(start, start + pageSize);
   }, [rowsSorted, page, pageSize, pagination]);
 
-  const allChecked = rowsSorted.length > 0 && rowsSorted.every((r) => selected.has(rowKey(r)));
-  const someChecked = !allChecked && rowsSorted.some((r) => selected.has(rowKey(r)));
+  const allChecked = rowsPaged.length > 0 && rowsPaged.every((r) => selected.has(rowKey(r)));
+  const someChecked = !allChecked && rowsPaged.some((r) => selected.has(rowKey(r)));
   const toggleAll = () => {
     const next = new Set(selected);
-    if (allChecked) rowsSorted.forEach((r) => next.delete(rowKey(r)));
-    else rowsSorted.forEach((r) => next.add(rowKey(r)));
+    if (allChecked) rowsPaged.forEach((r) => next.delete(rowKey(r)));
+    else rowsPaged.forEach((r) => next.add(rowKey(r)));
+    setSelected(next);
+  };
+  const selectAllFiltered = () => {
+    const next = new Set(selected);
+    rowsSorted.forEach((r) => next.add(rowKey(r)));
     setSelected(next);
   };
   const toggleOne = (id: string) => {
