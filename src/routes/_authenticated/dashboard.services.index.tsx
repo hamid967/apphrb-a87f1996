@@ -12,7 +12,12 @@ import {
   AlertTriangle,
   RefreshCcw,
   Ban,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  Lock,
 } from "lucide-react";
+
 import { formatDistanceToNow } from "date-fns";
 import { ar as arLocale, enUS } from "date-fns/locale";
 import { Input } from "@/components/ui/input";
