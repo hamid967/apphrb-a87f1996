@@ -1125,70 +1125,72 @@ html[data-holo="off"] .holo-text {
 }
 
 /* ===================================================================
-   Minimal Dark Tech theme — scoped to authenticated dashboard/admin.
+   Emerald Prestige theme — scoped to authenticated dashboard/admin.
    Applied by toggling `theme-tech dark` on <html> while any
    `_authenticated` route is mounted (see src/routes/_authenticated.tsx).
-   Palette: Slate & Steel (GitHub / Notion Dark reference)
-     #0d1117 background   #161b22 surface
-     #30363d border       #58a6ff signal
-   Type: Space Grotesk (display) + DM Sans (body)
-   Density: 3/5 — tight but readable.
+   Palette: Emerald Prestige (deep emerald + gold)
+     #05271d background   #0a3a2b surface
+     #1f5a45 border       #10b981 signal    #c9a84c gold
+   Type: Sora (display) + Manrope (body)
+   Contrast: 3/5 — balanced, WCAG AA on all text.
    =================================================================== */
 .theme-tech {
   color-scheme: dark;
-  --font-sans: 'DM Sans', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
-  --font-display: 'Space Grotesk', 'DM Sans', 'Almarai', system-ui, sans-serif;
+  --font-sans: 'Manrope', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-display: 'Sora', 'Manrope', 'Almarai', system-ui, sans-serif;
 
-  --background: oklch(0.155 0.012 260);      /* #0d1117 */
-  --foreground: oklch(0.96 0.005 250);       /* near-white */
-  --card: oklch(0.195 0.014 260);            /* #161b22 */
-  --card-foreground: oklch(0.96 0.005 250);
-  --popover: oklch(0.195 0.014 260);
-  --popover-foreground: oklch(0.96 0.005 250);
-  --primary: oklch(0.72 0.16 255);           /* #58a6ff signal blue */
-  --primary-foreground: oklch(0.15 0.02 260);
-  --secondary: oklch(0.28 0.015 260);
-  --secondary-foreground: oklch(0.96 0.005 250);
-  --muted: oklch(0.24 0.014 260);
-  --muted-foreground: oklch(0.72 0.01 255);  /* AA on card & bg */
-  --accent: oklch(0.28 0.03 255);
-  --accent-foreground: oklch(0.85 0.11 255);
-  --destructive: oklch(0.55 0.22 25);        /* WCAG AA: white text = 5.4:1 */
+  --background: oklch(0.20 0.028 165);       /* deep emerald near-black */
+  --foreground: oklch(0.97 0.008 150);       /* near-white, warm tint */
+  --card: oklch(0.245 0.035 165);            /* emerald surface */
+  --card-foreground: oklch(0.97 0.008 150);
+  --popover: oklch(0.245 0.035 165);
+  --popover-foreground: oklch(0.97 0.008 150);
+  --primary: oklch(0.72 0.16 160);           /* #10b981 emerald signal */
+  --primary-foreground: oklch(0.16 0.02 165);
+  --secondary: oklch(0.32 0.03 165);
+  --secondary-foreground: oklch(0.97 0.008 150);
+  --muted: oklch(0.28 0.028 165);
+  --muted-foreground: oklch(0.78 0.02 155);  /* bumped for AA at contrast 3 */
+  --accent: oklch(0.36 0.09 90);             /* gold accent surface */
+  --accent-foreground: oklch(0.90 0.13 90);  /* warm gold text */
+  --destructive: oklch(0.58 0.22 25);
   --destructive-foreground: oklch(0.99 0 0);
   --success: oklch(0.75 0.17 155);
-  --success-foreground: oklch(0.15 0.02 260);
+  --success-foreground: oklch(0.15 0.02 165);
   --warning: oklch(0.82 0.15 80);
-  --warning-foreground: oklch(0.15 0.02 260);
-  --border: oklch(0.50 0.014 260);           /* WCAG AA UI 3:1 vs bg & card */
-  --input: oklch(0.50 0.014 260);            /* form control border ≥ 3:1 */
+  --warning-foreground: oklch(0.15 0.02 165);
+  --border: oklch(0.52 0.03 160);            /* WCAG AA UI 3:1 vs bg & card */
+  --input: oklch(0.52 0.03 160);
 
-  --ring: oklch(0.72 0.16 255);
-  --paper: oklch(0.195 0.014 260);
-  --ink: oklch(0.96 0.005 250);
-  --radius: 0.625rem;                        /* tighter 10px */
+  --ring: oklch(0.75 0.17 160);
+  --paper: oklch(0.245 0.035 165);
+  --ink: oklch(0.97 0.008 150);
+  --radius: 0.625rem;
 
-  --shadow-soft: 0 1px 0 0 oklch(1 0 0 / 4%) inset,
-                 0 1px 2px 0 oklch(0 0 0 / 40%);
-  --shadow-elevated: 0 1px 0 0 oklch(1 0 0 / 6%) inset,
-                     0 8px 24px -12px oklch(0 0 0 / 65%);
-  --shadow-glow: 0 0 0 1px color-mix(in oklab, #58a6ff 40%, transparent),
-                 0 8px 32px -12px color-mix(in oklab, #58a6ff 45%, transparent);
+  --shadow-soft: 0 1px 0 0 oklch(1 0 0 / 5%) inset,
+                 0 1px 2px 0 oklch(0 0 0 / 45%);
+  --shadow-elevated: 0 1px 0 0 oklch(1 0 0 / 7%) inset,
+                     0 8px 24px -12px oklch(0 0 0 / 70%);
+  --shadow-glow: 0 0 0 1px color-mix(in oklab, #10b981 45%, transparent),
+                 0 8px 32px -12px color-mix(in oklab, #10b981 50%, transparent);
 
-  --gradient-brand: linear-gradient(135deg, #4c8fe0 0%, #58a6ff 100%);
+  --gradient-brand: linear-gradient(135deg, #059669 0%, #10b981 60%, #34d399 100%);
+  --gradient-gold: linear-gradient(135deg, #c9a84c 0%, #f0d78c 100%);
   --gradient-surface: linear-gradient(180deg,
                        color-mix(in oklab, var(--card) 100%, transparent),
                        color-mix(in oklab, var(--background) 60%, transparent));
 
   /* Sidebar — flush with background, near-flat */
-  --sidebar: oklch(0.17 0.013 260);
-  --sidebar-foreground: oklch(0.78 0.01 255);
-  --sidebar-primary: oklch(0.72 0.16 255);
-  --sidebar-primary-foreground: oklch(0.15 0.02 260);
-  --sidebar-accent: oklch(0.24 0.014 260);
-  --sidebar-accent-foreground: oklch(0.96 0.005 250);
-  --sidebar-border: oklch(0.50 0.014 260);   /* WCAG AA UI 3:1 vs sidebar */
-  --sidebar-ring: oklch(0.72 0.16 255);
+  --sidebar: oklch(0.22 0.03 165);
+  --sidebar-foreground: oklch(0.82 0.015 155);
+  --sidebar-primary: oklch(0.72 0.16 160);
+  --sidebar-primary-foreground: oklch(0.16 0.02 165);
+  --sidebar-accent: oklch(0.28 0.028 165);
+  --sidebar-accent-foreground: oklch(0.97 0.008 150);
+  --sidebar-border: oklch(0.52 0.03 160);
+  --sidebar-ring: oklch(0.75 0.17 160);
 }
+
 
 /* ===== theme-tech: minimal overrides that override the holo layer ===== */
 
