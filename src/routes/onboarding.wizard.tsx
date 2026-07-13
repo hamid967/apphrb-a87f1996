@@ -191,8 +191,10 @@ function OnboardingWizardPage() {
           const idx = STEP_KEYS.indexOf(requested);
           if (idx >= 0) setStep(idx as 0 | 1 | 2 | 3);
         }
-      } catch {
-        /* ignore, start from step 0 */
+      } catch (err) {
+        toast.error("تعذّر تحميل معالج التسجيل", {
+          description: err instanceof Error ? err.message : String(err),
+        });
       } finally {
         setChecking(false);
       }

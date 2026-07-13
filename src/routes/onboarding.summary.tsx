@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   ArrowRight,
   Building2,
@@ -60,7 +61,9 @@ function OnboardingSummaryPage() {
         const res = await load();
         setData(res);
       } catch (e) {
-        setErr(e instanceof Error ? e.message : "تعذّر تحميل الملخّص");
+        const msg = e instanceof Error ? e.message : "تعذّر تحميل الملخّص";
+        setErr(msg);
+        toast.error("تعذّر تحميل الملخّص", { description: msg });
       } finally {
         setLoading(false);
       }
