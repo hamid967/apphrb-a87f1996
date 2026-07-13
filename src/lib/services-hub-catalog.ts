@@ -45,7 +45,16 @@ export type HubService = {
   links: HubServiceLink[];
   category: HubServiceCategory;
   hue: string;
+  /** Optional. Default true. Set false to mark a service as temporarily unavailable. */
+  available?: boolean;
+  /** Optional short reason to show in UI when available === false. */
+  unavailableReasonAr?: string;
+  unavailableReasonEn?: string;
 };
+
+export function isHubServiceAvailable(service: Pick<HubService, "available">): boolean {
+  return service.available !== false;
+}
 
 export const HUB_SERVICES: HubService[] = [
   {
