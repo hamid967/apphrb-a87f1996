@@ -17,20 +17,10 @@ import {
 import { Loader2, Download, BarChart3, Wrench, BookOpen } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-  LineChart,
-  Line,
-  CartesianGrid,
-} from "recharts";
+  MotionBarChart,
+  MotionDonutChart,
+  MotionLineChart,
+} from "@/components/charts/motion-tremor";
 
 export const Route = createFileRoute("/_authenticated/reports/")({
   component: ReportsPage,
