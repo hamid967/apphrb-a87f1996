@@ -161,6 +161,7 @@ import { Route as AuthenticatedAdminTelemetryRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminSupportRouteImport } from './routes/_authenticated/admin.support'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin.subscriptions'
 import { Route as AuthenticatedAdminSubscriptionPaymentsRouteImport } from './routes/_authenticated/admin.subscription-payments'
+import { Route as AuthenticatedAdminSubscriptionDiagnosticsRouteImport } from './routes/_authenticated/admin.subscription-diagnostics'
 import { Route as AuthenticatedAdminSmsProvidersRouteImport } from './routes/_authenticated/admin.sms-providers'
 import { Route as AuthenticatedAdminSignupRequestsRouteImport } from './routes/_authenticated/admin.signup-requests'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
@@ -1113,6 +1114,12 @@ const AuthenticatedAdminSubscriptionPaymentsRoute =
     path: '/subscription-payments',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminSubscriptionDiagnosticsRoute =
+  AuthenticatedAdminSubscriptionDiagnosticsRouteImport.update({
+    id: '/subscription-diagnostics',
+    path: '/subscription-diagnostics',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSmsProvidersRoute =
   AuthenticatedAdminSmsProvidersRouteImport.update({
     id: '/sms-providers',
@@ -1834,6 +1841,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/signup-requests': typeof AuthenticatedAdminSignupRequestsRoute
   '/admin/sms-providers': typeof AuthenticatedAdminSmsProvidersRoute
+  '/admin/subscription-diagnostics': typeof AuthenticatedAdminSubscriptionDiagnosticsRoute
   '/admin/subscription-payments': typeof AuthenticatedAdminSubscriptionPaymentsRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -2091,6 +2099,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/signup-requests': typeof AuthenticatedAdminSignupRequestsRoute
   '/admin/sms-providers': typeof AuthenticatedAdminSmsProvidersRoute
+  '/admin/subscription-diagnostics': typeof AuthenticatedAdminSubscriptionDiagnosticsRoute
   '/admin/subscription-payments': typeof AuthenticatedAdminSubscriptionPaymentsRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -2352,6 +2361,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/signup-requests': typeof AuthenticatedAdminSignupRequestsRoute
   '/_authenticated/admin/sms-providers': typeof AuthenticatedAdminSmsProvidersRoute
+  '/_authenticated/admin/subscription-diagnostics': typeof AuthenticatedAdminSubscriptionDiagnosticsRoute
   '/_authenticated/admin/subscription-payments': typeof AuthenticatedAdminSubscriptionPaymentsRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/_authenticated/admin/support': typeof AuthenticatedAdminSupportRoute
@@ -2616,6 +2626,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/signup-requests'
     | '/admin/sms-providers'
+    | '/admin/subscription-diagnostics'
     | '/admin/subscription-payments'
     | '/admin/subscriptions'
     | '/admin/support'
@@ -2873,6 +2884,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/signup-requests'
     | '/admin/sms-providers'
+    | '/admin/subscription-diagnostics'
     | '/admin/subscription-payments'
     | '/admin/subscriptions'
     | '/admin/support'
@@ -3133,6 +3145,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/signup-requests'
     | '/_authenticated/admin/sms-providers'
+    | '/_authenticated/admin/subscription-diagnostics'
     | '/_authenticated/admin/subscription-payments'
     | '/_authenticated/admin/subscriptions'
     | '/_authenticated/admin/support'
@@ -4452,6 +4465,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSubscriptionPaymentsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/subscription-diagnostics': {
+      id: '/_authenticated/admin/subscription-diagnostics'
+      path: '/subscription-diagnostics'
+      fullPath: '/admin/subscription-diagnostics'
+      preLoaderRoute: typeof AuthenticatedAdminSubscriptionDiagnosticsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/sms-providers': {
       id: '/_authenticated/admin/sms-providers'
       path: '/sms-providers'
@@ -5263,6 +5283,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminSignupRequestsRoute: typeof AuthenticatedAdminSignupRequestsRoute
   AuthenticatedAdminSmsProvidersRoute: typeof AuthenticatedAdminSmsProvidersRoute
+  AuthenticatedAdminSubscriptionDiagnosticsRoute: typeof AuthenticatedAdminSubscriptionDiagnosticsRoute
   AuthenticatedAdminSubscriptionPaymentsRoute: typeof AuthenticatedAdminSubscriptionPaymentsRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
   AuthenticatedAdminSupportRoute: typeof AuthenticatedAdminSupportRoute
@@ -5302,6 +5323,8 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminSignupRequestsRoute: AuthenticatedAdminSignupRequestsRoute,
   AuthenticatedAdminSmsProvidersRoute: AuthenticatedAdminSmsProvidersRoute,
+  AuthenticatedAdminSubscriptionDiagnosticsRoute:
+    AuthenticatedAdminSubscriptionDiagnosticsRoute,
   AuthenticatedAdminSubscriptionPaymentsRoute:
     AuthenticatedAdminSubscriptionPaymentsRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
