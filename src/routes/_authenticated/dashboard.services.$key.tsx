@@ -189,7 +189,7 @@ function ServiceDetailPage() {
   ).slice(0, 4);
   const Icon = service.icon;
   const { isKnownRoute, safeNavigate } = useSafeRouteNavigator();
-  const { roles: myRoles } = useMyRoles();
+  const { roles: myRoles, isLoading: rolesLoading } = useMyRoles();
   const flagged = isHubServiceAvailable(service);
   const routeOk = isKnownRoute(service.to);
   const authorized = userCanUseService(myRoles, service.id);
@@ -197,6 +197,22 @@ function ServiceDetailPage() {
   const available = flagged && routeOk && authorized;
   const brokenLink = flagged && !routeOk && authorized;
   const serviceRoles = rolesForService(service.id);
+
+  // While roles resolve, show a small spinner instead of flashing the
+  // Forbidden screen for authorized users.
+  if (rolesLoading) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <Loader2 className="size-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Full Forbidden screen when the user lacks the required role.
+  if (restricted) {
+    return <ForbiddenScreen service={service} myRoles={myRoles} isAr={!!isAr} />;
+  }
+
   const unavailableReason = restricted
     ? isAr
       ? `تتطلب أحد الأدوار: ${serviceRoles.map((r) => roleLabel(r, true)).join("، ")}.`
