@@ -69,17 +69,24 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedShellWithBoundary() {
-  // Dashboard theme modes:
-  //   "royal"   — Emerald Prestige (default, luxury cream+emerald+gold)
-  //   "tech"    — Slate & Steel dark
-  //   "default" — legacy Visionary Glass (theme-lux)
-  // Persisted per user in localStorage; toggled via DashboardThemeToggle.
+  // Dashboard theme modes (persisted in localStorage; toggled via DashboardThemeToggle):
+  //   "emerald" — Emerald Prestige (theme-tech + dark) — default
+  //   "luxe"    — Luxe (theme-luxe navy/gold)
   useEffect(() => {
     const KEY = "aqari.dashboard.theme";
     const el = document.documentElement;
     let timer: number | null = null;
-    const ALL_MODE_CLASSES = ["theme-tech", "theme-lux", "theme-royal", "dark"];
+    const ALL_MODE_CLASSES = [
+      "theme-tech",
+      "theme-lux",
+      "theme-luxe",
+      "theme-royal",
+      "dark",
+    ];
+    const normalize = (v: string | null | undefined): "emerald" | "luxe" =>
+      v === "luxe" ? "luxe" : "emerald";
     const apply = (mode: string, animate: boolean) => {
+      const next = normalize(mode);
       const prefersReduced = window.matchMedia?.(
         "(prefers-reduced-motion: reduce)",
       ).matches;
@@ -92,33 +99,21 @@ function AuthenticatedShellWithBoundary() {
         }, 360);
       }
       el.classList.remove(...ALL_MODE_CLASSES);
-      if (mode === "royal") {
-        el.classList.add("theme-royal");
-      } else if (mode === "default") {
-        el.classList.add("theme-lux");
+      if (next === "luxe") {
+        el.classList.add("theme-luxe");
       } else {
-        // "tech" is the new default — Slate & Steel dark per brand system
         el.classList.add("theme-tech", "dark");
       }
     };
     const initial = (() => {
       try {
         const raw = window.localStorage.getItem(KEY);
-        const MIGRATED = "aqari.dashboard.theme.techMigrated";
-        // One-time migration: promote the historical auto-applied defaults
-        // ("default" Visionary Glass, "royal" Emerald Prestige) to the new
-        // Slate & Steel tech default. Users can switch back via the toggle.
-        if (!window.localStorage.getItem(MIGRATED)) {
-          if (raw === null || raw === "default" || raw === "royal") {
-            window.localStorage.setItem(KEY, "tech");
-            window.localStorage.setItem(MIGRATED, "1");
-            return "tech";
-          }
-          window.localStorage.setItem(MIGRATED, "1");
-        }
-        return raw ?? "tech";
+        const resolved = normalize(raw);
+        // Persist normalized value so legacy tokens (tech/royal/default/lux) upgrade in place.
+        if (raw !== resolved) window.localStorage.setItem(KEY, resolved);
+        return resolved;
       } catch {
-        return "tech";
+        return "emerald" as const;
       }
     })();
     apply(initial, false);
@@ -133,6 +128,7 @@ function AuthenticatedShellWithBoundary() {
       el.classList.remove(...ALL_MODE_CLASSES, "theme-transitioning");
     };
   }, []);
+
 
   return (
     <ErrorBoundary>
