@@ -849,7 +849,7 @@ function OnboardingWizardPage() {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="p-price">السعر الشهري / السنوي (ر.س)</Label>
+                  <Label htmlFor="p-price">قيمة الإيجار الشهري أو التقييم (ر.س)</Label>
                   <Input
                     id="p-price"
                     type="number"
