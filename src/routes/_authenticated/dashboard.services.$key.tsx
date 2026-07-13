@@ -33,6 +33,7 @@ import {
   recordServiceAccess,
   useServiceAccessLog,
 } from "@/lib/service-access-log";
+import { useSafeRouteNavigator } from "@/lib/use-safe-route-navigator";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard/services/$key")({
@@ -182,8 +183,17 @@ function ServiceDetailPage() {
     (s) => s.category === service.category && s.id !== service.id,
   ).slice(0, 4);
   const Icon = service.icon;
-  const available = isHubServiceAvailable(service);
-  const unavailableReason = isAr ? service.unavailableReasonAr : service.unavailableReasonEn;
+  const { isKnownRoute, safeNavigate } = useSafeRouteNavigator();
+  const flagged = isHubServiceAvailable(service);
+  const routeOk = isKnownRoute(service.to);
+  const available = flagged && routeOk;
+  const brokenLink = flagged && !routeOk;
+  const unavailableReason = isAr
+    ? (service.unavailableReasonAr ??
+        (brokenLink ? `المسار «${service.to}» غير مسجّل حاليًا.` : undefined))
+    : (service.unavailableReasonEn ??
+        (brokenLink ? `Route "${service.to}" isn't registered.` : undefined));
+
 
 
   return (
@@ -230,14 +240,18 @@ function ServiceDetailPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             {available ? (
-              <Link
-                to={service.to}
-                onClick={() => recordServiceAccess(service.id, service.to)}
+              <button
+                type="button"
+                onClick={async () => {
+                  const ok = await safeNavigate(service.to, { isAr });
+                  if (ok) recordServiceAccess(service.id, service.to);
+                }}
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
               >
                 {isAr ? "فتح الخدمة" : "Open service"}
                 <ExternalLink className="size-4" />
-              </Link>
+              </button>
+
             ) : (
               <button
                 type="button"
@@ -325,18 +339,33 @@ function ServiceDetailPage() {
                 {isAr ? "روابط مرتبطة" : "Related links"}
               </h2>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {service.links.map((link) => (
-                  <Link
-                    key={link.to}
-                    to={link.to}
-                    className="group inline-flex items-center justify-between gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm transition hover:border-primary/50 hover:bg-primary/5"
-                  >
-                    <span className="font-medium text-foreground">
-                      {isAr ? link.labelAr : link.labelEn}
-                    </span>
-                    <Arrow className="size-4 text-muted-foreground transition group-hover:text-primary" />
-                  </Link>
-                ))}
+                {service.links.map((link) => {
+                  const linkOk = isKnownRoute(link.to);
+                  return (
+                    <button
+                      key={link.to}
+                      type="button"
+                      onClick={() => safeNavigate(link.to, { isAr })}
+                      aria-disabled={!linkOk || undefined}
+                      title={linkOk ? undefined : link.to}
+                      className={`group inline-flex items-center justify-between gap-2 rounded-xl border px-4 py-3 text-sm transition ${
+                        linkOk
+                          ? "border-border bg-background hover:border-primary/50 hover:bg-primary/5"
+                          : "cursor-not-allowed border-dashed border-destructive/40 bg-destructive/5 text-destructive/80"
+                      }`}
+                    >
+                      <span className={`font-medium ${linkOk ? "text-foreground" : "text-destructive"}`}>
+                        {isAr ? link.labelAr : link.labelEn}
+                      </span>
+                      {linkOk ? (
+                        <Arrow className="size-4 text-muted-foreground transition group-hover:text-primary" />
+                      ) : (
+                        <AlertTriangle className="size-4 text-destructive" />
+                      )}
+                    </button>
+                  );
+                })}
+
               </div>
             </section>
           )}
