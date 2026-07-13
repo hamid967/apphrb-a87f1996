@@ -463,26 +463,18 @@ function FilterAnalyticsPage() {
           {hourly.length === 0 ? (
             <p className="text-sm text-muted-foreground">{isAr ? "لا بيانات" : "No data"}</p>
           ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={hourly}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                <XAxis
-                  dataKey="hour"
-                  tick={{ fontSize: 11 }}
-                  tickFormatter={hourFmt}
-                  reversed={isAr}
-                />
-                <YAxis tick={{ fontSize: 11 }} orientation={isAr ? "right" : "left"} />
-                <Tooltip labelFormatter={hourFmt} />
-                <Area
-                  type="monotone"
-                  dataKey="events"
-                  stroke="hsl(var(--primary))"
-                  fill="hsl(var(--primary) / 0.15)"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <MotionAreaChart
+              data={hourly.map((h: Record<string, unknown>) => ({
+                hour: hourFmt(h.hour as string),
+                events: h.events,
+              }))}
+              index="hour"
+              categories={["events"]}
+              colors={["emerald"]}
+              showLegend={false}
+              className="h-64 mt-2"
+            />
+
           )}
         </CardContent>
       </Card>
