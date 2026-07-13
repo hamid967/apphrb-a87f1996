@@ -237,11 +237,27 @@ function ServiceDetailPage() {
               <Icon className="size-7" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline" className="text-[10px] uppercase">
                   {isAr ? category?.ar : category?.en}
                 </Badge>
+                {restricted && (
+                  <Badge variant="destructive" className="gap-1 text-[10px]">
+                    <Lock className="size-3" />
+                    {isAr ? "بدون صلاحية" : "Restricted"}
+                  </Badge>
+                )}
+                <span className="inline-flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground">
+                  <ShieldRoleIcon />
+                  {isAr ? "متاحة لـ:" : "Available to:"}
+                  {serviceRoles.map((r) => (
+                    <Badge key={r} variant="secondary" className="h-5 px-1.5 text-[10px]">
+                      {roleLabel(r, !!isAr)}
+                    </Badge>
+                  ))}
+                </span>
               </div>
+
               <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
                 {isAr ? service.titleAr : service.titleEn}
               </h1>
