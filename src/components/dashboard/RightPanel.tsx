@@ -122,28 +122,50 @@ export function RightPanel({ orgId, isAr }: Props) {
         .slice(0, 4),
     [contracts],
   );
-  const activities = useMemo(() => {
-    const items: { id: string; label: string; when: string; icon: typeof Activity }[] = [];
+  const activities: TimelineItem[] = useMemo(() => {
+    const items: (TimelineItem & { when: string })[] = [];
     for (const t of tasks.slice(0, 5)) {
+      const done = t.status === "done";
+      const overdue =
+        !done && (t as any).due_date && new Date((t as any).due_date).getTime() < Date.now();
+      const status: TimelineStatus = done ? "success" : overdue ? "danger" : "info";
       items.push({
         id: `t-${t.id}`,
-        label: t.title,
+        title: t.title,
+        at: t.updated_at ?? t.created_at,
         when: t.updated_at ?? t.created_at,
-        icon: t.status === "done" ? CheckCircle2 : Clock3,
+        icon: done ? CheckCircle2 : overdue ? AlertTriangle : Clock3,
+        status,
+        badge: isAr
+          ? done
+            ? "مهمة"
+            : overdue
+              ? "متأخر"
+              : "قيد التنفيذ"
+          : done
+            ? "Task"
+            : overdue
+              ? "Overdue"
+              : "In progress",
       });
     }
     for (const c of contracts.slice(0, 3) as any[]) {
       items.push({
         id: `c-${c.id}`,
-        label: isAr ? `عقد ${c.contract_number ?? ""}` : `Contract ${c.contract_number ?? ""}`,
+        title: isAr ? `عقد ${c.contract_number ?? ""}` : `Contract ${c.contract_number ?? ""}`,
+        at: c.start_date,
         when: c.start_date,
         icon: FileText,
+        status: "highlight",
+        badge: isAr ? "عقد" : "Contract",
       });
     }
     return items
       .sort((a, b) => new Date(b.when).getTime() - new Date(a.when).getTime())
-      .slice(0, 6);
+      .slice(0, 6)
+      .map(({ when: _when, ...rest }) => rest);
   }, [tasks, contracts, isAr]);
+
 
   const fmtDate = (iso: string) =>
     new Date(iso).toLocaleDateString(isAr ? "ar-SA" : "en-US", {
