@@ -386,6 +386,36 @@ function invoiceColumns(
   ];
 }
 
+function SummaryCard({
+  label,
+  value,
+  hint,
+  tone,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  tone?: "success" | "warning";
+}) {
+  const toneCls =
+    tone === "success"
+      ? "text-success"
+      : tone === "warning"
+        ? "text-warning"
+        : "text-foreground";
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="text-xs text-muted-foreground">{label}</div>
+        <div className={`mt-1 text-lg font-bold tabular-nums sm:text-xl ${toneCls}`}>
+          {value}
+        </div>
+        {hint && <div className="mt-0.5 text-[11px] text-muted-foreground">{hint}</div>}
+      </CardContent>
+    </Card>
+  );
+}
+
 
 function MobileCard({
   row,
