@@ -165,18 +165,38 @@ function AuthPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    const tag = mode === "signup" ? "[signup]" : "[signin]";
+    console.info(tag, "step:submit", { email, hasPassword: Boolean(password), mode });
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        if (!email || !password) {
+          console.warn("[signup]", "step:validation-failed", { email: !!email, password: !!password });
+          throw new Error(t("auth.missingCredentials", { defaultValue: "الرجاء إدخال البريد وكلمة المرور" }));
+        }
+        console.info("[signup]", "step:api:signUp -> start", { emailRedirectTo: getAppUrl("/onboarding/wizard") });
+        const t0 = performance.now();
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: getAppUrl("/onboarding/wizard") },
+        });
+        console.info("[signup]", "step:api:signUp -> done", {
+          ms: Math.round(performance.now() - t0),
+          hasUser: Boolean(signUpData?.user),
+          hasSession: Boolean(signUpData?.session),
+          errorCode: error?.status,
+          errorName: error?.name,
+          errorMessage: error?.message,
         });
         if (error) throw error;
         toast.success(t("auth.checkEmail"));
         // If session is available immediately (email confirmations disabled), go collect profile.
         const { data: sess } = await supabase.auth.getSession();
-        if (sess.session) nav({ to: "/onboarding/wizard", replace: true });
+        console.info("[signup]", "step:session-check", { hasSession: Boolean(sess.session) });
+        if (sess.session) {
+          console.info("[signup]", "step:nav -> /onboarding/wizard");
+          nav({ to: "/onboarding/wizard", replace: true });
+        }
       } else {
         const fp = getDeviceFingerprint();
         const ua = navigator.userAgent;
@@ -244,11 +264,17 @@ function AuthPage() {
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err ?? "Error");
+      console.error(tag, "step:failed", {
+        message: msg,
+        name: err instanceof Error ? err.name : undefined,
+        stack: err instanceof Error ? err.stack : undefined,
+      });
       toast.error(
         mode === "signup" ? t("auth.signUpFailed", { defaultValue: "تعذّر إنشاء الحساب" }) : msg,
         mode === "signup" ? { description: msg } : undefined,
       );
     } finally {
+      console.info(tag, "step:done");
       setSubmitting(false);
     }
   };
