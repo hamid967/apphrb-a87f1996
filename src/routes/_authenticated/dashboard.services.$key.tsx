@@ -37,6 +37,8 @@ import {
 import { useSafeRouteNavigator } from "@/lib/use-safe-route-navigator";
 import { useMyRoles } from "@/hooks/use-my-roles";
 import { rolesForService, roleLabel, userCanUseService } from "@/lib/service-roles";
+import { ForbiddenScreen } from "@/components/services/ForbiddenScreen";
+import { Loader2 } from "lucide-react";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard/services/$key")({
