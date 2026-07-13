@@ -789,10 +789,10 @@ function OnboardingWizardPage() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-2xl font-black tracking-tight">
-                    أضف أول عقار
+                    أضف أول وحدة تحت الإدارة
                   </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    ابدأ فورًا بأحد عقاراتك، أو تخطَّ هذه الخطوة وأضفه لاحقًا.
+                    سجّل أول عقار أو وحدة تديرها، أو تخطَّ الخطوة وأكمل من لوحة التحكم لاحقًا.
                   </p>
                 </div>
                 <OnboardingAiHelper
