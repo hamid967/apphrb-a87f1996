@@ -33,6 +33,7 @@ import {
   recordServiceAccess,
   useServiceAccessLog,
 } from "@/lib/service-access-log";
+import { useSafeRouteNavigator } from "@/lib/use-safe-route-navigator";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard/services/$key")({
