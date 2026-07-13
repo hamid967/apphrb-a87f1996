@@ -558,6 +558,13 @@ function ServicesReportPage() {
                         type="button"
                         onClick={() => {
                           if (restricted) {
+                            recordForbiddenAttempt({
+                              id: s.id,
+                              reason: "missing_role",
+                              requiredRoles: serviceRoles,
+                              userRoles: myRoles,
+                              source: "hub",
+                            });
                             toast.error(
                               isAr ? "لا تملك صلاحية لهذه الخدمة" : "You don't have access",
                               {
@@ -569,6 +576,14 @@ function ServicesReportPage() {
                             return;
                           }
                           if (brokenLink) {
+                            recordForbiddenAttempt({
+                              id: s.id,
+                              reason: "broken_link",
+                              requiredRoles: serviceRoles,
+                              userRoles: myRoles,
+                              source: "hub",
+                              note: s.to,
+                            });
                             toast.error(
                               isAr ? "الرابط غير متاح" : "Link unavailable",
                               {
@@ -579,6 +594,14 @@ function ServicesReportPage() {
                             );
                             return;
                           }
+                          recordForbiddenAttempt({
+                            id: s.id,
+                            reason: "unavailable",
+                            requiredRoles: serviceRoles,
+                            userRoles: myRoles,
+                            source: "hub",
+                            note: (isAr ? s.unavailableReasonAr : s.unavailableReasonEn) ?? undefined,
+                          });
                           handleUnavailable(s);
                         }}
                         className="inline-flex cursor-not-allowed items-center gap-1 text-[11px] font-medium text-muted-foreground/70"
