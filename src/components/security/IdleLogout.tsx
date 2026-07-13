@@ -20,6 +20,20 @@ export function IdleLogout() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // Never auto-logout while the user is inside signup / onboarding flows —
+    // those pages have long idle stretches (reading, filling forms, waiting
+    // for OTP) and being kicked to /auth mid-way loses their progress.
+    const isProtectedFlow = () => {
+      const p = window.location.pathname || "";
+      return (
+        p.startsWith("/auth") ||
+        p.startsWith("/onboarding") ||
+        p.startsWith("/verify") ||
+        p.startsWith("/reset-password")
+      );
+    };
+
+
     const doLogout = async () => {
       try {
         await qc.cancelQueries();
@@ -36,6 +50,12 @@ export function IdleLogout() {
 
     const schedule = () => {
       if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+      if (isProtectedFlow()) {
+        // Re-check every minute — as soon as the user leaves the onboarding
+        // flow, normal idle tracking resumes from a fresh timestamp.
+        timeoutRef.current = window.setTimeout(() => schedule(), 60 * 1000);
+        return;
+      }
       let last = Date.now();
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -65,6 +85,7 @@ export function IdleLogout() {
       localStorage.setItem(STORAGE_KEY, String(Date.now()));
     } catch {}
     schedule();
+
 
     const events = [
       "mousemove",
