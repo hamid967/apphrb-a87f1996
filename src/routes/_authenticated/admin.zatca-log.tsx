@@ -4,9 +4,7 @@ import { useTranslation } from "react-i18next";
 import { AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { getZatcaChainAudit, type ZatcaChainRow } from "@/lib/invoices-zatca.functions";
 
 const auditQuery = queryOptions({
