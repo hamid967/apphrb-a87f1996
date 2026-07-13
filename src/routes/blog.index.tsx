@@ -10,6 +10,18 @@ const postsQuery = queryOptions({
   queryFn: () => listPublishedPosts(),
 });
 
+function formatStableDate(value: string | null | undefined) {
+  if (!value) return "";
+
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return `${match[1]}-${match[2]}-${match[3]}`;
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "";
+
+  return parsed.toISOString().slice(0, 10);
+}
+
 export const Route = createFileRoute("/blog/")({
   head: () => ({
     meta: [
@@ -92,18 +104,7 @@ function BlogIndex() {
                     </p>
                   )}
                   <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                    <span suppressHydrationWarning>
-                      {p.published_at
-                        ? new Intl.DateTimeFormat(isAr ? "ar" : "en", {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            calendar: "gregory",
-                            numberingSystem: "latn",
-                            timeZone: "UTC",
-                          }).format(new Date(p.published_at))
-                        : ""}
-                    </span>
+                    <span>{formatStableDate(p.published_at)}</span>
                     <ArrowRight className="h-4 w-4 rtl:rotate-180" />
                   </div>
                 </div>
