@@ -493,8 +493,15 @@ function ServicesReportPage() {
                           {isAr ? "رابط مفقود" : "Broken link"}
                         </Badge>
                       )}
+                      {restricted && (
+                        <Badge variant="destructive" className="gap-1 text-[10px]" title={serviceRoles.map((r) => roleLabel(r, !!isAr)).join(", ")}>
+                          <Lock className="size-3" />
+                          {isAr ? "بدون صلاحية" : "Restricted"}
+                        </Badge>
+                      )}
                     </div>
                   </div>
+
                   <h2 className="relative z-10 mt-4 text-base font-bold text-foreground">
                     {isAr ? s.titleAr : s.titleEn}
                   </h2>
