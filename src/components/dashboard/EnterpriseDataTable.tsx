@@ -95,6 +95,9 @@ export function EnterpriseDataTable<T>({
   onRowClick,
   maxHeight = "70vh",
   toolbarExtra,
+  pagination = true,
+  initialPageSize = 25,
+  pageSizeOptions = [10, 25, 50, 100],
 }: Props<T>) {
   const visibleCols = useMemo(() => columns.filter((c) => !c.exportOnly), [columns]);
   const [widths, setWidths] = useState<Record<string, number>>(() =>
