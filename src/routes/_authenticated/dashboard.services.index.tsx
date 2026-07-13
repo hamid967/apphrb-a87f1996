@@ -34,6 +34,15 @@ import {
 import { useHubCatalog } from "@/lib/use-hub-catalog";
 import { useSafeRouteNavigator } from "@/lib/use-safe-route-navigator";
 import { recordServiceAccess, useServiceAccessLog } from "@/lib/service-access-log";
+import { useMyRoles } from "@/hooks/use-my-roles";
+import {
+  ROLE_GROUPS,
+  rolesForService,
+  roleLabel,
+  userCanUseService,
+  type RoleGroupKey,
+} from "@/lib/service-roles";
+
 
 export const Route = createFileRoute(
   "/_authenticated/dashboard/services/",
