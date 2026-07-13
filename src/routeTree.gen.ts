@@ -127,6 +127,7 @@ import { Route as AuthenticatedDashboardTenantsRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardTasksRouteImport } from './routes/_authenticated/dashboard.tasks'
 import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
 import { Route as AuthenticatedDashboardServicesReportRouteImport } from './routes/_authenticated/dashboard.services-report'
+import { Route as AuthenticatedDashboardServicesRouteImport } from './routes/_authenticated/dashboard.services'
 import { Route as AuthenticatedDashboardReportsRouteImport } from './routes/_authenticated/dashboard.reports'
 import { Route as AuthenticatedDashboardRenewRouteImport } from './routes/_authenticated/dashboard.renew'
 import { Route as AuthenticatedDashboardPaymentsReviewRouteImport } from './routes/_authenticated/dashboard.payments-review'
@@ -910,6 +911,12 @@ const AuthenticatedDashboardServicesReportRoute =
   AuthenticatedDashboardServicesReportRouteImport.update({
     id: '/services-report',
     path: '/services-report',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardServicesRoute =
+  AuthenticatedDashboardServicesRouteImport.update({
+    id: '/services',
+    path: '/services',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardReportsRoute =
@@ -1876,6 +1883,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/payments-review': typeof AuthenticatedDashboardPaymentsReviewRoute
   '/dashboard/renew': typeof AuthenticatedDashboardRenewRoute
   '/dashboard/reports': typeof AuthenticatedDashboardReportsRoute
+  '/dashboard/services': typeof AuthenticatedDashboardServicesRoute
   '/dashboard/services-report': typeof AuthenticatedDashboardServicesReportRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRouteWithChildren
   '/dashboard/tasks': typeof AuthenticatedDashboardTasksRoute
@@ -2133,6 +2141,7 @@ export interface FileRoutesByTo {
   '/dashboard/payments-review': typeof AuthenticatedDashboardPaymentsReviewRoute
   '/dashboard/renew': typeof AuthenticatedDashboardRenewRoute
   '/dashboard/reports': typeof AuthenticatedDashboardReportsRoute
+  '/dashboard/services': typeof AuthenticatedDashboardServicesRoute
   '/dashboard/services-report': typeof AuthenticatedDashboardServicesReportRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRouteWithChildren
   '/dashboard/tasks': typeof AuthenticatedDashboardTasksRoute
@@ -2396,6 +2405,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/payments-review': typeof AuthenticatedDashboardPaymentsReviewRoute
   '/_authenticated/dashboard/renew': typeof AuthenticatedDashboardRenewRoute
   '/_authenticated/dashboard/reports': typeof AuthenticatedDashboardReportsRoute
+  '/_authenticated/dashboard/services': typeof AuthenticatedDashboardServicesRoute
   '/_authenticated/dashboard/services-report': typeof AuthenticatedDashboardServicesReportRoute
   '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRouteWithChildren
   '/_authenticated/dashboard/tasks': typeof AuthenticatedDashboardTasksRoute
@@ -2661,6 +2671,7 @@ export interface FileRouteTypes {
     | '/dashboard/payments-review'
     | '/dashboard/renew'
     | '/dashboard/reports'
+    | '/dashboard/services'
     | '/dashboard/services-report'
     | '/dashboard/settings'
     | '/dashboard/tasks'
@@ -2918,6 +2929,7 @@ export interface FileRouteTypes {
     | '/dashboard/payments-review'
     | '/dashboard/renew'
     | '/dashboard/reports'
+    | '/dashboard/services'
     | '/dashboard/services-report'
     | '/dashboard/settings'
     | '/dashboard/tasks'
@@ -3180,6 +3192,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/payments-review'
     | '/_authenticated/dashboard/renew'
     | '/_authenticated/dashboard/reports'
+    | '/_authenticated/dashboard/services'
     | '/_authenticated/dashboard/services-report'
     | '/_authenticated/dashboard/settings'
     | '/_authenticated/dashboard/tasks'
@@ -4225,6 +4238,13 @@ declare module '@tanstack/react-router' {
       path: '/services-report'
       fullPath: '/dashboard/services-report'
       preLoaderRoute: typeof AuthenticatedDashboardServicesReportRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/services': {
+      id: '/_authenticated/dashboard/services'
+      path: '/services'
+      fullPath: '/dashboard/services'
+      preLoaderRoute: typeof AuthenticatedDashboardServicesRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/reports': {
@@ -5606,6 +5626,7 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardPaymentsReviewRoute: typeof AuthenticatedDashboardPaymentsReviewRoute
   AuthenticatedDashboardRenewRoute: typeof AuthenticatedDashboardRenewRoute
   AuthenticatedDashboardReportsRoute: typeof AuthenticatedDashboardReportsRoute
+  AuthenticatedDashboardServicesRoute: typeof AuthenticatedDashboardServicesRoute
   AuthenticatedDashboardServicesReportRoute: typeof AuthenticatedDashboardServicesReportRoute
   AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRouteWithChildren
   AuthenticatedDashboardTasksRoute: typeof AuthenticatedDashboardTasksRoute
@@ -5664,6 +5685,7 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardPaymentsReviewRoute,
     AuthenticatedDashboardRenewRoute: AuthenticatedDashboardRenewRoute,
     AuthenticatedDashboardReportsRoute: AuthenticatedDashboardReportsRoute,
+    AuthenticatedDashboardServicesRoute: AuthenticatedDashboardServicesRoute,
     AuthenticatedDashboardServicesReportRoute:
       AuthenticatedDashboardServicesReportRoute,
     AuthenticatedDashboardSettingsRoute:
@@ -6120,13 +6142,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

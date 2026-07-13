@@ -9,7 +9,7 @@ import {
   useTransform,
 } from "motion/react";
 import type { MotionProps, Variants } from "motion/react";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 /**
  * MotionTremor — a small, opinionated wrapper around Tremor charts wired with
@@ -63,7 +63,11 @@ export function StaggerSection({
 }: { children: ReactNode; className?: string; parallax?: boolean } & MotionProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const { scrollYProgress } = useScroll(
+    mounted ? { target: ref, offset: ["start end", "end start"] } : undefined,
+  );
   const yShift = useTransform(scrollYProgress, [0, 1], [12, -12]);
 
   return (
@@ -73,7 +77,7 @@ export function StaggerSection({
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, margin: "-80px" }}
-      style={parallax && !reduce ? { y: yShift } : undefined}
+      style={parallax && !reduce && mounted ? { y: yShift } : undefined}
       className={className}
       {...rest}
     >
