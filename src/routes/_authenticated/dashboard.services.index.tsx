@@ -309,7 +309,10 @@ function ServicesReportPage() {
           <AnimatePresence mode="popLayout">
             {filtered.map((s) => {
               const Icon = s.icon;
-              const available = isHubServiceAvailable(s);
+              const routeOk = isKnownRoute(s.to);
+              const flagged = isHubServiceAvailable(s);
+              const available = flagged && routeOk;
+              const brokenLink = flagged && !routeOk;
               return (
                 <motion.article
                   id={`svc-${s.id}`}
@@ -347,10 +350,16 @@ function ServicesReportPage() {
                           ? CATEGORIES.find((c) => c.key === s.category)?.ar
                           : CATEGORIES.find((c) => c.key === s.category)?.en}
                       </Badge>
-                      {!available && (
+                      {!flagged && (
                         <Badge variant="destructive" className="gap-1 text-[10px]">
                           <Ban className="size-3" />
                           {isAr ? "غير متاحة" : "Unavailable"}
+                        </Badge>
+                      )}
+                      {brokenLink && (
+                        <Badge variant="destructive" className="gap-1 text-[10px]" title={s.to}>
+                          <AlertTriangle className="size-3" />
+                          {isAr ? "رابط مفقود" : "Broken link"}
                         </Badge>
                       )}
                     </div>
@@ -361,9 +370,16 @@ function ServicesReportPage() {
                   <p className="relative z-10 mt-1 text-xs text-muted-foreground">
                     {isAr ? s.descAr : s.descEn}
                   </p>
-                  {!available && (s.unavailableReasonAr || s.unavailableReasonEn) && (
+                  {!flagged && (s.unavailableReasonAr || s.unavailableReasonEn) && (
                     <p className="relative z-10 mt-2 rounded-md border border-dashed border-destructive/30 bg-destructive/5 px-2 py-1 text-[11px] text-destructive">
                       {isAr ? s.unavailableReasonAr : s.unavailableReasonEn}
+                    </p>
+                  )}
+                  {brokenLink && (
+                    <p className="relative z-10 mt-2 rounded-md border border-dashed border-destructive/30 bg-destructive/5 px-2 py-1 text-[11px] text-destructive">
+                      {isAr
+                        ? `المسار ${s.to} غير مسجّل حاليًا. افتح صفحة التفاصيل للمزيد.`
+                        : `The route ${s.to} isn't registered. Open the details page for more info.`}
                     </p>
                   )}
                   <ul className="relative z-10 mt-3 flex flex-wrap gap-1.5">
@@ -378,24 +394,41 @@ function ServicesReportPage() {
                   </ul>
                   <div className="relative z-10 mt-4 flex items-center justify-between gap-2 border-t border-border/60 pt-3">
                     {available ? (
-                      <Link
-                        to={s.to}
-                        onClick={() => recordServiceAccess(s.id, s.to)}
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const ok = await safeNavigate(s.to, { isAr: !!isAr });
+                          if (ok) recordServiceAccess(s.id, s.to);
+                        }}
                         className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground transition hover:text-primary"
                       >
                         <ExternalLink className="size-3" />
                         {isAr ? "فتح مباشر" : "Open direct"}
-                      </Link>
+                      </button>
                     ) : (
                       <button
                         type="button"
-                        onClick={() => handleUnavailable(s)}
+                        onClick={() =>
+                          brokenLink
+                            ? toast.error(
+                                isAr ? "الرابط غير متاح" : "Link unavailable",
+                                {
+                                  description: isAr
+                                    ? `المسار «${s.to}» غير مسجّل في التطبيق.`
+                                    : `Route "${s.to}" isn't registered in the app.`,
+                                },
+                              )
+                            : handleUnavailable(s)
+                        }
                         className="inline-flex cursor-not-allowed items-center gap-1 text-[11px] font-medium text-muted-foreground/70"
                       >
-                        <Ban className="size-3" />
-                        {isAr ? "غير متاحة" : "Unavailable"}
+                        {brokenLink ? <AlertTriangle className="size-3" /> : <Ban className="size-3" />}
+                        {brokenLink
+                          ? isAr ? "رابط مفقود" : "Broken link"
+                          : isAr ? "غير متاحة" : "Unavailable"}
                       </button>
                     )}
+
                     <Link
                       to="/dashboard/services/$key"
                       params={{ key: s.id }}
