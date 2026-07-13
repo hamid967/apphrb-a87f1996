@@ -111,6 +111,7 @@ function OnboardingWizardPage() {
   const createProp = useServerFn(createProperty);
   const createBranch = useServerFn(createOnboardingBranch);
   const markStep = useServerFn(setOnboardingStep);
+  const queryClient = useQueryClient();
 
   const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
   const [checking, setChecking] = useState(true);
