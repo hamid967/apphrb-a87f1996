@@ -1131,73 +1131,84 @@ html[data-holo="off"] .holo-text {
 }
 
 /* ===================================================================
-   Emerald Prestige theme — scoped to authenticated dashboard/admin.
-   Applied by toggling `theme-tech dark` on <html> while any
-   `_authenticated` route is mounted (see src/routes/_authenticated.tsx).
-   Palette: Emerald Prestige (deep emerald + gold)
-     #05271d background   #0a3a2b surface
-     #1f5a45 border       #10b981 signal    #c9a84c gold
-   Type: Sora (display) + Manrope (body)
-   Contrast: 3/5 — balanced, WCAG AA on all text.
+   HRHBS Premium SaaS theme — scoped to authenticated dashboard/admin.
+   Applied by toggling `theme-tech` on <html> while any `_authenticated`
+   route is mounted (see src/routes/_authenticated.tsx).
+   Palette (exact spec):
+     Primary   #0F5132     Secondary #10B981     Accent   #34D399
+     Success   #16A34A     Warning   #F59E0B     Danger   #EF4444
+     Bg        #F7F9FB     Card      #FFFFFF     Border   #E7ECF2
+     Text      #0F172A     Muted     #64748B
+   Type: IBM Plex Sans Arabic (400/500/600/700)
+   Radius 22px, hairline borders, soft shadows, elegant gradients.
    =================================================================== */
 .theme-tech {
-  color-scheme: dark;
-  --font-sans: 'Manrope', 'Almarai', 'IBM Plex Sans Arabic', system-ui, sans-serif;
-  --font-display: 'Sora', 'Manrope', 'Almarai', system-ui, sans-serif;
+  color-scheme: light;
+  --font-sans: 'IBM Plex Sans Arabic', 'Manrope', 'Almarai', system-ui, sans-serif;
+  --font-display: 'IBM Plex Sans Arabic', 'Sora', 'Manrope', system-ui, sans-serif;
 
-  --background: oklch(0.20 0.028 165);       /* deep emerald near-black */
-  --foreground: oklch(0.97 0.008 150);       /* near-white, warm tint */
-  --card: oklch(0.245 0.035 165);            /* emerald surface */
-  --card-foreground: oklch(0.97 0.008 150);
-  --popover: oklch(0.245 0.035 165);
-  --popover-foreground: oklch(0.97 0.008 150);
-  --primary: oklch(0.72 0.16 160);           /* #10b981 emerald signal */
-  --primary-foreground: oklch(0.16 0.02 165);
-  --secondary: oklch(0.32 0.03 165);
-  --secondary-foreground: oklch(0.97 0.008 150);
-  --muted: oklch(0.28 0.028 165);
-  --muted-foreground: oklch(0.78 0.02 155);  /* bumped for AA at contrast 3 */
-  --accent: oklch(0.36 0.09 90);             /* gold accent surface */
-  --accent-foreground: oklch(0.90 0.13 90);  /* warm gold text */
-  --destructive: oklch(0.58 0.22 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.75 0.17 155);
-  --success-foreground: oklch(0.15 0.02 165);
-  --warning: oklch(0.82 0.15 80);
-  --warning-foreground: oklch(0.15 0.02 165);
-  --info: oklch(0.75 0.13 225);
-  --info-foreground: oklch(0.16 0.02 230);
-  --border: oklch(0.58 0.03 160);            /* WCAG AA UI 3:1 vs bg AND card */
-  --input: oklch(0.58 0.03 160);
+  --background: #F7F9FB;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0F172A;
+  --primary: #0F5132;
+  --primary-foreground: #FFFFFF;
+  --secondary: #ECFDF5;
+  --secondary-foreground: #0F5132;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #ECFDF5;
+  --accent-foreground: #0F5132;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --success: #16A34A;
+  --success-foreground: #FFFFFF;
+  --warning: #F59E0B;
+  --warning-foreground: #1F1300;
+  --info: #3B82F6;
+  --info-foreground: #FFFFFF;
+  --border: #E7ECF2;
+  --input: #E7ECF2;
+  --ring: #10B981;
 
-  --ring: oklch(0.75 0.17 160);
-  --paper: oklch(0.245 0.035 165);
-  --ink: oklch(0.97 0.008 150);
-  --radius: 0.625rem;
+  --paper: #FFFFFF;
+  --ink: #0F172A;
+  --radius: 1.375rem; /* 22px */
 
-  --shadow-soft: 0 1px 0 0 oklch(1 0 0 / 5%) inset,
-                 0 1px 2px 0 oklch(0 0 0 / 45%);
-  --shadow-elevated: 0 1px 0 0 oklch(1 0 0 / 7%) inset,
-                     0 8px 24px -12px oklch(0 0 0 / 70%);
-  --shadow-glow: 0 0 0 1px color-mix(in oklab, #10b981 45%, transparent),
-                 0 8px 32px -12px color-mix(in oklab, #10b981 50%, transparent);
+  --shadow-soft:
+    0 1px 2px 0 rgba(15, 23, 42, 0.04),
+    0 1px 3px 0 rgba(15, 23, 42, 0.06);
+  --shadow-elevated:
+    0 10px 30px -12px rgba(15, 81, 50, 0.14),
+    0 4px 12px -4px rgba(15, 23, 42, 0.06);
+  --shadow-elegant:
+    0 20px 60px -24px rgba(15, 81, 50, 0.20),
+    0 8px 20px -8px rgba(15, 23, 42, 0.06);
+  --shadow-glow:
+    0 0 0 1px color-mix(in oklab, #10B981 35%, transparent),
+    0 12px 32px -12px color-mix(in oklab, #10B981 45%, transparent);
 
-  --gradient-brand: linear-gradient(135deg, #059669 0%, #10b981 60%, #34d399 100%);
-  --gradient-gold: linear-gradient(135deg, #c9a84c 0%, #f0d78c 100%);
-  --gradient-surface: linear-gradient(180deg,
-                       color-mix(in oklab, var(--card) 100%, transparent),
-                       color-mix(in oklab, var(--background) 60%, transparent));
+  --gradient-brand: linear-gradient(135deg, #0F5132 0%, #10B981 55%, #34D399 100%);
+  --gradient-primary: linear-gradient(135deg, #0F5132 0%, #10B981 55%, #34D399 100%);
+  --gradient-gold: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+  --gradient-canvas:
+    radial-gradient(1200px 600px at 100% -10%, rgba(16, 185, 129, 0.08), transparent 60%),
+    radial-gradient(900px 500px at -10% 100%, rgba(15, 81, 50, 0.06), transparent 60%);
+  --gradient-surface: linear-gradient(180deg, #FFFFFF 0%, #FBFDFE 100%);
 
-  /* Sidebar — flush with background, near-flat */
-  --sidebar: oklch(0.22 0.03 165);
-  --sidebar-foreground: oklch(0.82 0.015 155);
-  --sidebar-primary: oklch(0.72 0.16 160);
-  --sidebar-primary-foreground: oklch(0.16 0.02 165);
-  --sidebar-accent: oklch(0.28 0.028 165);
-  --sidebar-accent-foreground: oklch(0.97 0.008 150);
-  --sidebar-border: oklch(0.58 0.03 160);
-  --sidebar-ring: oklch(0.75 0.17 160);
+  /* Sidebar — matches canvas, hairline border, floating active pill */
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0F172A;
+  --sidebar-primary: #0F5132;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #ECFDF5;
+  --sidebar-accent-foreground: #0F5132;
+  --sidebar-border: #E7ECF2;
+  --sidebar-ring: #10B981;
 }
+
 
 
 /* ===== theme-tech: minimal overrides that override the holo layer ===== */
