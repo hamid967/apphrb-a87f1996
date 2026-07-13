@@ -20,6 +20,20 @@ export function IdleLogout() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
+    // Never auto-logout while the user is inside signup / onboarding flows —
+    // those pages have long idle stretches (reading, filling forms, waiting
+    // for OTP) and being kicked to /auth mid-way loses their progress.
+    const isProtectedFlow = () => {
+      const p = window.location.pathname || "";
+      return (
+        p.startsWith("/auth") ||
+        p.startsWith("/onboarding") ||
+        p.startsWith("/verify") ||
+        p.startsWith("/reset-password")
+      );
+    };
+
+
     const doLogout = async () => {
       try {
         await qc.cancelQueries();
