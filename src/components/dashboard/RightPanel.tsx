@@ -25,6 +25,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { ActivityTimeline, type TimelineItem, type TimelineStatus } from "@/components/ui/activity-timeline";
+
 
 type Props = { orgId: string | undefined; isAr: boolean };
 
@@ -120,28 +122,50 @@ export function RightPanel({ orgId, isAr }: Props) {
         .slice(0, 4),
     [contracts],
   );
-  const activities = useMemo(() => {
-    const items: { id: string; label: string; when: string; icon: typeof Activity }[] = [];
+  const activities: TimelineItem[] = useMemo(() => {
+    const items: (TimelineItem & { when: string })[] = [];
     for (const t of tasks.slice(0, 5)) {
+      const done = t.status === "done";
+      const overdue =
+        !done && (t as any).due_date && new Date((t as any).due_date).getTime() < Date.now();
+      const status: TimelineStatus = done ? "success" : overdue ? "danger" : "info";
       items.push({
         id: `t-${t.id}`,
-        label: t.title,
+        title: t.title,
+        at: t.updated_at ?? t.created_at,
         when: t.updated_at ?? t.created_at,
-        icon: t.status === "done" ? CheckCircle2 : Clock3,
+        icon: done ? CheckCircle2 : overdue ? AlertTriangle : Clock3,
+        status,
+        badge: isAr
+          ? done
+            ? "مهمة"
+            : overdue
+              ? "متأخر"
+              : "قيد التنفيذ"
+          : done
+            ? "Task"
+            : overdue
+              ? "Overdue"
+              : "In progress",
       });
     }
     for (const c of contracts.slice(0, 3) as any[]) {
       items.push({
         id: `c-${c.id}`,
-        label: isAr ? `عقد ${c.contract_number ?? ""}` : `Contract ${c.contract_number ?? ""}`,
+        title: isAr ? `عقد ${c.contract_number ?? ""}` : `Contract ${c.contract_number ?? ""}`,
+        at: c.start_date,
         when: c.start_date,
         icon: FileText,
+        status: "highlight",
+        badge: isAr ? "عقد" : "Contract",
       });
     }
     return items
       .sort((a, b) => new Date(b.when).getTime() - new Date(a.when).getTime())
-      .slice(0, 6);
+      .slice(0, 6)
+      .map(({ when: _when, ...rest }) => rest);
   }, [tasks, contracts, isAr]);
+
 
   const fmtDate = (iso: string) =>
     new Date(iso).toLocaleDateString(isAr ? "ar-SA" : "en-US", {
@@ -548,28 +572,13 @@ export function RightPanel({ orgId, isAr }: Props) {
 
       {/* Recent Activities */}
       <SectionCard title={isAr ? "أحدث النشاطات" : "Recent Activities"} icon={Activity}>
-        {activities.length === 0 ? (
-          <p className="py-4 text-center text-xs text-muted-foreground">
-            {isAr ? "لا يوجد نشاط بعد" : "No activity yet"}
-          </p>
-        ) : (
-          <ol className="relative space-y-3 ps-4">
-            <span className="absolute inset-y-1 start-1.5 w-px bg-gradient-to-b from-primary/40 via-border to-transparent" />
-            {activities.map((a) => {
-              const Icon = a.icon;
-              return (
-                <li key={a.id} className="relative">
-                  <span className="absolute -start-[13px] top-1 grid size-4 place-items-center rounded-full bg-primary/15 ring-2 ring-background">
-                    <Icon className="size-2.5 text-primary" />
-                  </span>
-                  <p className="truncate text-sm">{a.label}</p>
-                  <p className="text-[11px] text-muted-foreground">{fmtDate(a.when)}</p>
-                </li>
-              );
-            })}
-          </ol>
-        )}
+        <ActivityTimeline
+          items={activities}
+          emptyLabel={isAr ? "لا يوجد نشاط بعد" : "No activity yet"}
+          dense
+        />
       </SectionCard>
+
     </motion.div>
   );
 }
