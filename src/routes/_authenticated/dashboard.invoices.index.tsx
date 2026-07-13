@@ -22,14 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
 import { listInvoices, type InvoiceListRow } from "@/lib/invoices.functions";
 import { exportRows } from "@/lib/export-rows";
 
