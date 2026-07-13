@@ -8,7 +8,6 @@ import {
   Home,
   Store,
   Building,
-  Users,
   Briefcase,
   UserCircle2,
   Wrench,
