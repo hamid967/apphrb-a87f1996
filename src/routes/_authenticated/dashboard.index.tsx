@@ -431,6 +431,20 @@ function Dashboard() {
     };
   }, [navigate]);
 
+  // Onboarding incomplete or no org yet → show a clear Empty State instead of
+  // a blank dashboard shell. The outer _authenticated guard will still redirect
+  // to /onboarding[/wizard], but this renders instantly so the user is never
+  // faced with an empty page during the transition.
+  if (onboardingIncomplete || (orgsQ.isSuccess && !org)) {
+    return (
+      <DashboardEmptyState
+        isAr={isAr}
+        steps={onboardingQ.data?.steps ?? REQUIRED_STEPS.map((k) => ({ key: k, done: false }))}
+        orgName={org?.name}
+      />
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
