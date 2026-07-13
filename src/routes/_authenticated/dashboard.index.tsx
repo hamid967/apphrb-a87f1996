@@ -79,6 +79,8 @@ import { ServicesGrid } from "@/components/dashboard/ServicesGrid";
 import { WelcomeChecklist } from "@/components/dashboard/WelcomeChecklist";
 import { SubscriptionStatusCard } from "@/components/dashboard/SubscriptionStatusCard";
 import { SubscriptionAuditTrail } from "@/components/dashboard/SubscriptionAuditTrail";
+import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
+import { supabase } from "@/integrations/supabase/client";
 import { PendingApprovalsPanel } from "@/components/dashboard/PendingApprovalsPanel";
 import { SmartRemindersPanel } from "@/components/dashboard/SmartRemindersPanel";
 import {
@@ -235,6 +237,33 @@ function Dashboard() {
   const org = membership?.org;
   const role = membership?.role as OrgRole | undefined;
   const canCreate = can.createProperty(role);
+
+  // Onboarding progress — used to render an inline Empty State when the user
+  // has not finished the required setup steps yet, instead of a blank page
+  // while the outer redirect effect races to fire.
+  const REQUIRED_STEPS = ["profile", "company", "first_receipt"] as const;
+  const onboardingQ = useQuery({
+    queryKey: ["dashboard-onboarding-state", user?.id],
+    enabled: !!user?.id,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("onboarding_progress, onboarding_completed_at")
+        .eq("id", user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      const progress = (data?.onboarding_progress ?? {}) as Record<
+        string,
+        { done?: boolean } | undefined
+      >;
+      const steps = REQUIRED_STEPS.map((k) => ({ key: k, done: progress[k]?.done === true }));
+      const allDone = steps.every((s) => s.done) && !!data?.onboarding_completed_at;
+      return { steps, allDone };
+    },
+  });
+  const onboardingIncomplete =
+    onboardingQ.isSuccess && !onboardingQ.data.allDone;
 
   const [views, setViews] = useState<SavedView[]>([]);
   useEffect(() => {
@@ -401,6 +430,20 @@ function Dashboard() {
       if (timer) clearTimeout(timer);
     };
   }, [navigate]);
+
+  // Onboarding incomplete or no org yet → show a clear Empty State instead of
+  // a blank dashboard shell. The outer _authenticated guard will still redirect
+  // to /onboarding[/wizard], but this renders instantly so the user is never
+  // faced with an empty page during the transition.
+  if (onboardingIncomplete || (orgsQ.isSuccess && !org)) {
+    return (
+      <DashboardEmptyState
+        isAr={isAr}
+        steps={onboardingQ.data?.steps ?? REQUIRED_STEPS.map((k) => ({ key: k, done: false }))}
+        orgName={org?.name}
+      />
+    );
+  }
 
   return (
     <motion.div
