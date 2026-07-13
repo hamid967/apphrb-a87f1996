@@ -85,7 +85,7 @@ function HBSproHome() {
         <Features />
         <AISection />
         <DashboardPreview />
-        <PropertySlider />
+        
         <Testimonials />
         <Pricing />
         <Integrations />
