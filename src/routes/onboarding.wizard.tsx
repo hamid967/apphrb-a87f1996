@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
@@ -109,6 +111,7 @@ function OnboardingWizardPage() {
   const createProp = useServerFn(createProperty);
   const createBranch = useServerFn(createOnboardingBranch);
   const markStep = useServerFn(setOnboardingStep);
+  const queryClient = useQueryClient();
 
   const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
   const [checking, setChecking] = useState(true);
@@ -375,14 +378,13 @@ function OnboardingWizardPage() {
       });
       console.info("[wizard]", "step:4 api:createProp -> done", { ms: Math.round(performance.now() - t0) });
       console.info("[wizard]", "step:4 api:markStep(first_receipt) -> start");
-      await markStep({ data: { step: "first_receipt", done: true } }).catch((e) => {
-        console.warn("[wizard]", "step:4 api:markStep -> failed (non-fatal)", {
-          message: e instanceof Error ? e.message : String(e),
-        });
-      });
+      const markRes = await markStep({ data: { step: "first_receipt", done: true } });
+      console.info("[wizard]", "step:4 api:markStep -> done", { completed: markRes?.completed });
+      // Invalidate cached onboarding/access queries so /dashboard reads the
+      // fresh completed state instead of a stale "incomplete" snapshot.
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-onboarding-state"] });
+      await queryClient.invalidateQueries({ queryKey: ["my-access-context"] });
       toast.success("تم تفعيل حسابك بنجاح!");
-      // Defer navigation one tick so the success toast + busy state can render
-      // before the route unmounts — otherwise users see the spinner "stuck".
       setBusy(false);
       console.info("[wizard]", "step:4 nav -> /dashboard");
       setTimeout(() => goDashboard(), 50);
@@ -405,20 +407,23 @@ function OnboardingWizardPage() {
     console.info("[wizard]", "step:4 skipProperty -> start");
     setBusy(true);
     try {
-      await markStep({ data: { step: "first_receipt", done: true } }).catch((e) => {
-        console.warn("[wizard]", "step:4 skip markStep -> failed (non-fatal)", {
-          message: e instanceof Error ? e.message : String(e),
-        });
-      });
+      const markRes = await markStep({ data: { step: "first_receipt", done: true } });
+      console.info("[wizard]", "step:4 skip api:markStep -> done", { completed: markRes?.completed });
+      await queryClient.invalidateQueries({ queryKey: ["dashboard-onboarding-state"] });
+      await queryClient.invalidateQueries({ queryKey: ["my-access-context"] });
       setBusy(false);
       console.info("[wizard]", "step:4 skip nav -> /dashboard");
       setTimeout(() => goDashboard(), 50);
     } catch (err) {
       console.error("[wizard]", "step:4 skip failed", {
         message: err instanceof Error ? err.message : String(err),
+        name: err instanceof Error ? err.name : undefined,
+        stack: err instanceof Error ? err.stack : undefined,
+      });
+      toast.error(err instanceof Error ? err.message : "تعذّر إكمال التسجيل", {
+        description: "أعد المحاولة، أو حدّث الصفحة.",
       });
       setBusy(false);
-      goDashboard();
     }
   };
 
