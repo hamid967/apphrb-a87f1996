@@ -4,7 +4,6 @@ import {
   Stats,
   Features,
   DashboardPreview,
-  PropertySlider,
   AISection,
   Integrations,
   Testimonials,
