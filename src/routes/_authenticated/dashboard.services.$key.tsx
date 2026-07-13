@@ -229,17 +229,54 @@ function ServiceDetailPage() {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link
-              to={service.to}
-              onClick={() => recordServiceAccess(service.id, service.to)}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
-            >
-              {isAr ? "فتح الخدمة" : "Open service"}
-              <ExternalLink className="size-4" />
-            </Link>
+            {available ? (
+              <Link
+                to={service.to}
+                onClick={() => recordServiceAccess(service.id, service.to)}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+              >
+                {isAr ? "فتح الخدمة" : "Open service"}
+                <ExternalLink className="size-4" />
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() =>
+                  toast.warning(
+                    isAr ? "الخدمة غير متاحة حاليًا" : "Service currently unavailable",
+                    { description: unavailableReason },
+                  )
+                }
+                aria-disabled="true"
+                className="inline-flex cursor-not-allowed items-center gap-2 rounded-lg border border-dashed border-destructive/40 bg-destructive/5 px-4 py-2 text-sm font-semibold text-destructive"
+              >
+                <Ban className="size-4" />
+                {isAr ? "غير متاحة" : "Unavailable"}
+              </button>
+            )}
           </div>
         </div>
+        {!available && (
+          <div
+            role="status"
+            className="relative z-10 mt-5 flex items-start gap-3 rounded-xl border border-dashed border-destructive/40 bg-destructive/5 p-4 text-xs text-destructive"
+          >
+            <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+            <div>
+              <p className="font-semibold">
+                {isAr ? "هذه الخدمة غير متاحة حاليًا" : "This service is currently unavailable"}
+              </p>
+              <p className="mt-1 text-destructive/80">
+                {unavailableReason ??
+                  (isAr
+                    ? "قد تكون قيد الصيانة أو تحتاج ترقية باقة. حاول لاحقًا أو تواصل مع الدعم."
+                    : "It may be under maintenance or require a plan upgrade. Try again later or contact support.")}
+              </p>
+            </div>
+          </div>
+        )}
       </motion.section>
+
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Left: usage + features + links */}
