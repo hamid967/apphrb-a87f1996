@@ -15,9 +15,43 @@ const createSchema = z.object({
 export const listMyOrganizations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+    type OrganizationMembershipRow = {
+      role: string;
+      organizations: {
+        id: string;
+        name: string;
+        slug: string;
+        logo_url: string | null;
+        created_at: string;
+        account_type?: string | null;
+        tax_number?: string | null;
+        commercial_registration?: string | null;
+        national_address?: string | null;
+      };
+    };
+    const client = context.supabase as unknown as {
+      from: (table: string) => {
+        select: (columns: string) => {
+          eq: (
+            column: string,
+            value: string,
+          ) => {
+            order: (
+              column: string,
+              options: { ascending: boolean; referencedTable?: string },
+            ) => Promise<{ data: OrganizationMembershipRow[] | null; error: Error | null }>;
+          };
+        };
+      };
+    };
+    const { data, error } = await client
       .from("organization_members")
-      .select("role, organizations!inner(id, name, slug, logo_url, created_at)")
+      .select(
+        [
+          "role",
+          "organizations!inner(id, name, slug, logo_url, created_at, account_type, tax_number, commercial_registration, national_address)",
+        ].join(","),
+      )
       .eq("user_id", context.userId)
       .order("created_at", { ascending: true, referencedTable: "organizations" });
     if (error) throw error;

@@ -72,13 +72,16 @@ import { WelcomeChecklist } from "@/components/dashboard/WelcomeChecklist";
 import { SubscriptionStatusCard } from "@/components/dashboard/SubscriptionStatusCard";
 import { SubscriptionAuditTrail } from "@/components/dashboard/SubscriptionAuditTrail";
 import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
+import { IndividualDashboard } from "@/components/dashboard/phase6/IndividualDashboard";
+import {
+  getPeriodRange,
+  PeriodFilter,
+  type DashboardPeriod,
+} from "@/components/dashboard/phase6/PeriodFilter";
 import { supabase } from "@/integrations/supabase/client";
 import { PendingApprovalsPanel } from "@/components/dashboard/PendingApprovalsPanel";
 import { SmartRemindersPanel } from "@/components/dashboard/SmartRemindersPanel";
-import {
-  SortableDashboard,
-  type DashboardSection,
-} from "@/components/dashboard/SortableDashboard";
+import { SortableDashboard, type DashboardSection } from "@/components/dashboard/SortableDashboard";
 import { useAuth } from "@/hooks/use-auth";
 
 const FILTERS = ["all", "sale", "rent"] as const;
@@ -229,6 +232,9 @@ function Dashboard() {
   const org = membership?.org;
   const role = membership?.role as OrgRole | undefined;
   const canCreate = can.createProperty(role);
+  const orgProfile = org as (typeof org & { account_type?: string | null }) | undefined;
+  const [phase6Period, setPhase6Period] = useState<DashboardPeriod>("month");
+  const phase6Range = useMemo(() => getPeriodRange(phase6Period), [phase6Period]);
 
   // Onboarding progress — used to render an inline Empty State when the user
   // has not finished the required setup steps yet, instead of a blank page
@@ -254,8 +260,7 @@ function Dashboard() {
       return { steps, allDone };
     },
   });
-  const onboardingIncomplete =
-    onboardingQ.isSuccess && !onboardingQ.data.allDone;
+  const onboardingIncomplete = onboardingQ.isSuccess && !onboardingQ.data.allDone;
 
   const [views, setViews] = useState<SavedView[]>([]);
   useEffect(() => {
@@ -313,7 +318,7 @@ function Dashboard() {
     enabled: !!org,
   });
 
-  const properties = propsQ.data ?? [];
+  const properties = useMemo(() => propsQ.data ?? [], [propsQ.data]);
   const stats = {
     total: properties.length,
     available: properties.filter((p) => p.status === "available").length,
@@ -437,6 +442,37 @@ function Dashboard() {
     );
   }
 
+  if (org?.id && orgProfile?.account_type === "individual") {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="mx-auto max-w-7xl px-4 py-8 sm:px-6"
+      >
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              {isAr ? "لوحة الفرد" : "Individual dashboard"}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {isAr
+                ? "صافي الدخل، الإشغال، المتأخرات، المصاريف الشخصية، والصيانة من مكان واحد."
+                : "Net income, occupancy, overdue payments, personal expenses, and maintenance in one place."}
+            </p>
+          </div>
+          <PeriodFilter value={phase6Period} onChange={setPhase6Period} isAr={isAr} />
+        </div>
+        <IndividualDashboard
+          orgId={org.id}
+          from={phase6Range.from}
+          to={phase6Range.to}
+          isAr={isAr}
+        />
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -453,7 +489,6 @@ function Dashboard() {
       <div className="mt-4">
         <SubscriptionAuditTrail isAr={isAr} />
       </div>
-
 
       <div className="mt-6">
         <WelcomeChecklist isAr={isAr} />
@@ -513,7 +548,7 @@ function Dashboard() {
           <SortableDashboard
             userId={user?.id}
             isAr={isAr}
-            sections={(
+            sections={
               [
                 {
                   id: "kpi",
@@ -577,15 +612,13 @@ function Dashboard() {
                   ),
                 },
               ] as DashboardSection[]
-            )}
+            }
           />
         </div>
       )}
 
       {view === "smart" ? null : (
         <>
-
-
           <div className="mt-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-sm font-medium text-muted-foreground">{t("dashboard.recent")}</h2>
@@ -1080,7 +1113,6 @@ function RevenueChartCard({ isAr }: { isAr: boolean }) {
           className="h-56 mt-2"
         />
       </div>
-
     </div>
   );
 }
