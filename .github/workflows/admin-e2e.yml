@@ -30,7 +30,28 @@ jobs:
           python -m pip install --no-cache-dir playwright
           python -m playwright install --with-deps chromium
 
+      - name: Check admin E2E secrets
+        id: preflight
+        env:
+          E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
+          LOVABLE_BROWSER_SUPABASE_STORAGE_KEY: ${{ secrets.E2E_SUPABASE_STORAGE_KEY }}
+          LOVABLE_BROWSER_SUPABASE_SESSION_JSON: ${{ secrets.E2E_SUPABASE_SESSION_JSON }}
+          LOVABLE_BROWSER_SUPABASE_COOKIES_JSON: ${{ secrets.E2E_SUPABASE_COOKIES_JSON }}
+        run: |
+          if [ -z "$E2E_BYPASS_TOKEN" ]; then
+            echo "::notice::E2E_BYPASS_TOKEN is not configured; skipping admin panel E2E."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -z "$LOVABLE_BROWSER_SUPABASE_STORAGE_KEY" ] && [ -z "$LOVABLE_BROWSER_SUPABASE_SESSION_JSON" ] && [ -z "$LOVABLE_BROWSER_SUPABASE_COOKIES_JSON" ]; then
+            echo "::notice::No admin session secret is configured; skipping admin panel E2E."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
       - name: Start dev server
+        if: steps.preflight.outputs.ready == 'true'
         run: |
           # CI build opts into the AAL2 bypass; token is a repo secret and
           # is never present in production builds.
@@ -47,6 +68,7 @@ jobs:
           echo "dev server failed to start"; tail -n 200 /tmp/dev-server.log; exit 1
 
       - name: Run admin E2E
+        if: steps.preflight.outputs.ready == 'true'
         env:
           BASE_URL: http://localhost:8080
           OUT_DIR: admin-e2e-output
