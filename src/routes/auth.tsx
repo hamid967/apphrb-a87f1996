@@ -130,21 +130,17 @@ function AuthPage() {
   const nav = useNavigate();
   const { redirect: redirectTarget, reason } = useSearch({ from: "/auth" });
   const { user, ready } = useAuth();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [establishmentNo, setEstablishmentNo] = useState("");
+
+  // Email-only flow: step "email" -> ask for address; step "otp" -> verify 6-digit code.
+  const [step, setStep] = useState<"email" | "otp">("email");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [sending, setSending] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [magicLoading, setMagicLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
   const [devLoading, setDevLoading] = useState(false);
-  const [failedAttempts, setFailedAttempts] = useState(0);
-
-  useEffect(() => {
-    setFailedAttempts(getFailedAttempts(email));
-  }, [email]);
-
+  const [resendIn, setResendIn] = useState(0);
 
   // Persist any incoming ?redirect= so we can recover it if the WebView
   // strips query params during an OAuth / magic-link round-trip.
@@ -162,120 +158,138 @@ function AuthPage() {
     document.title = t("auth.metaTitle");
   }, [t, i18n.language]);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    const tag = mode === "signup" ? "[signup]" : "[signin]";
-    console.info(tag, "step:submit", { email, hasPassword: Boolean(password), mode });
-    try {
-      if (mode === "signup") {
-        if (!email || !password) {
-          console.warn("[signup]", "step:validation-failed", { email: !!email, password: !!password });
-          throw new Error(t("auth.missingCredentials", { defaultValue: "الرجاء إدخال البريد وكلمة المرور" }));
-        }
-        console.info("[signup]", "step:api:signUp -> start", { emailRedirectTo: getAppUrl("/onboarding/wizard") });
-        const t0 = performance.now();
-        const { data: signUpData, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: getAppUrl("/onboarding/wizard") },
-        });
-        console.info("[signup]", "step:api:signUp -> done", {
-          ms: Math.round(performance.now() - t0),
-          hasUser: Boolean(signUpData?.user),
-          hasSession: Boolean(signUpData?.session),
-          errorCode: error?.status,
-          errorName: error?.name,
-          errorMessage: error?.message,
-        });
-        if (error) throw error;
-        toast.success(t("auth.checkEmail"));
-        // If session is available immediately (email confirmations disabled), go collect profile.
-        const { data: sess } = await supabase.auth.getSession();
-        console.info("[signup]", "step:session-check", { hasSession: Boolean(sess.session) });
-        if (sess.session) {
-          console.info("[signup]", "step:nav -> /onboarding/wizard");
-          nav({ to: "/onboarding/wizard", replace: true });
-        }
-      } else {
-        const fp = getDeviceFingerprint();
-        const ua = navigator.userAgent;
-        const estNo = establishmentNo.trim();
-        const rl = await checkLoginRateLimit({ data: { identifier: email } });
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const id = setInterval(() => setResendIn((s) => (s > 0 ? s - 1 : 0)), 1000);
+    return () => clearInterval(id);
+  }, [resendIn]);
 
-        if (rl.blocked) {
-          await recordLoginEvent({
-            data: {
-              email,
-              fingerprint: fp,
-              userAgent: ua,
-              status: "rate_limited",
-              reason: `${rl.attempts}/${rl.max}`,
-            },
-          }).catch(() => {});
-          throw new Error(
-            t("auth.rateLimited", { minutes: Math.ceil(rl.retry_after_seconds / 60) }),
-          );
-        }
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) {
-          await recordLoginEvent({
-            data: {
-              email,
-              fingerprint: fp,
-              userAgent: ua,
-              status: "failed",
-              reason: error.message,
-            },
-          }).catch(() => {});
-          setFailedAttempts(incFailedAttempts(email));
-          throw error;
-        }
-        // Verify establishment membership only when the user typed a number.
-        // Portal tenants/owners and site admins sign in without one.
-        if (estNo) {
-          const { data: ok, error: vErr } = await supabase.rpc(
-            "verify_my_establishment" as never,
-            { _est_no: estNo } as never,
-          );
-          if (vErr || ok !== true) {
-            await supabase.auth.signOut();
-            await recordLoginEvent({
-              data: {
-                email,
-                fingerprint: fp,
-                userAgent: ua,
-                status: "failed",
-                reason: `establishment_mismatch:${estNo}`,
-              },
-            }).catch(() => {});
-            setFailedAttempts(incFailedAttempts(email));
-            throw new Error(t("auth.establishmentMismatch"));
-          }
-        }
+  const trimmedEmail = email.trim().toLowerCase();
+
+  const sendOtp = async (opts?: { silent?: boolean }) => {
+    if (!trimmedEmail) {
+      toast.error(
+        i18n.language?.startsWith("ar")
+          ? "أدخل بريدك الإلكتروني"
+          : "Enter your email",
+      );
+      return;
+    }
+    setSending(true);
+    try {
+      const fp = getDeviceFingerprint();
+      const rl = await checkLoginRateLimit({ data: { identifier: trimmedEmail } });
+      if (rl.blocked) {
         await recordLoginEvent({
-          data: { email, fingerprint: fp, userAgent: ua, status: "success" },
+          data: {
+            email: trimmedEmail,
+            fingerprint: fp,
+            userAgent: navigator.userAgent,
+            status: "rate_limited",
+            reason: `${rl.attempts}/${rl.max}`,
+          },
         }).catch(() => {});
-        resetFailedAttempts(email);
-        await routeAfterLogin(nav, redirectTarget);
+        throw new Error(
+          t("auth.rateLimited", { minutes: Math.ceil(rl.retry_after_seconds / 60) }),
+        );
+      }
+      const { error } = await supabase.auth.signInWithOtp({
+        email: trimmedEmail,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: getAppUrl("/onboarding/wizard"),
+        },
+      });
+      if (error) throw error;
+      setStep("otp");
+      setResendIn(30);
+      if (!opts?.silent) {
+        toast.success(
+          i18n.language?.startsWith("ar")
+            ? "أرسلنا رمز الدخول إلى بريدك"
+            : "We sent a code to your email",
+        );
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err ?? "Error");
-      console.error(tag, "step:failed", {
-        message: msg,
-        name: err instanceof Error ? err.name : undefined,
-        stack: err instanceof Error ? err.stack : undefined,
-      });
-      toast.error(
-        mode === "signup" ? t("auth.signUpFailed", { defaultValue: "تعذّر إنشاء الحساب" }) : msg,
-        mode === "signup" ? { description: msg } : undefined,
-      );
+      console.error("[auth]", "send-otp failed:", msg);
+      toast.error(msg);
     } finally {
-      console.info(tag, "step:done");
-      setSubmitting(false);
+      setSending(false);
+    }
+  };
+
+  const verifyOtp = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (otp.replace(/\D/g, "").length < 6) {
+      toast.error(
+        i18n.language?.startsWith("ar")
+          ? "أدخل الرمز المكون من 6 أرقام"
+          : "Enter the 6-digit code",
+      );
+      return;
+    }
+    setVerifying(true);
+    const fp = getDeviceFingerprint();
+    const ua = navigator.userAgent;
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: trimmedEmail,
+        token: otp.replace(/\D/g, ""),
+        type: "email",
+      });
+      if (error) {
+        await recordLoginEvent({
+          data: {
+            email: trimmedEmail,
+            fingerprint: fp,
+            userAgent: ua,
+            status: "failed",
+            reason: error.message,
+          },
+        }).catch(() => {});
+        setFailedAttemptsInc(trimmedEmail);
+        throw error;
+      }
+      await recordLoginEvent({
+        data: { email: trimmedEmail, fingerprint: fp, userAgent: ua, status: "success" },
+      }).catch(() => {});
+      resetFailedAttempts(trimmedEmail);
+      await routeAfterLogin(nav, redirectTarget);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err ?? "Error");
+      toast.error(msg);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const sendMagicLink = async () => {
+    if (!trimmedEmail) {
+      toast.error(
+        i18n.language?.startsWith("ar") ? "أدخل بريدك الإلكتروني" : "Enter your email",
+      );
+      return;
+    }
+    setMagicLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: trimmedEmail,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: getAppUrl("/onboarding/wizard"),
+        },
+      });
+      if (error) throw error;
+      toast.success(
+        i18n.language?.startsWith("ar")
+          ? "أرسلنا رابط الدخول — تحقق من بريدك"
+          : "Magic link sent — check your inbox",
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error");
+    } finally {
+      setMagicLoading(false);
     }
   };
 
@@ -294,43 +308,30 @@ function AuthPage() {
   const onDeveloperAccount = async () => {
     setDevLoading(true);
     const devEmail = `dev+${Math.random().toString(36).slice(2, 8)}@hbspro.dev`;
-    const devPassword = `Dev!${Math.random().toString(36).slice(2, 10)}Aa1`;
     try {
-      const { error: signUpErr } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signInWithOtp({
         email: devEmail,
-        password: devPassword,
         options: {
+          shouldCreateUser: true,
           emailRedirectTo: getAppUrl("/dashboard"),
           data: { full_name: "Developer", account_type: "developer" },
         },
       });
-      if (signUpErr) throw signUpErr;
-      const { error: signInErr } = await supabase.auth.signInWithPassword({
-        email: devEmail,
-        password: devPassword,
-      });
-      if (signInErr) throw signInErr;
-      // Provision sandbox org + RBAC role + approve profile + grant trial.
-      // Without this, the user lands on wizard with a pending profile and no roles.
-      try {
-        const { provisionDeveloperWorkspace } = await import(
-          "@/lib/organizations.functions"
-        );
-        await provisionDeveloperWorkspace();
-      } catch (provErr) {
-        console.warn("Developer provisioning deferred:", provErr);
-      }
-      try {
-        await navigator.clipboard.writeText(`${devEmail} / ${devPassword}`);
-      } catch {}
-      toast.success(t("auth.devAccountCreated", { email: devEmail }));
-      nav({ to: "/onboarding/wizard", replace: true });
+      if (error) throw error;
+      setEmail(devEmail);
+      setStep("otp");
+      toast.success(
+        i18n.language?.startsWith("ar")
+          ? `أُرسل رمز الدخول إلى ${devEmail}`
+          : `Code sent to ${devEmail}`,
+      );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Developer signup failed");
     } finally {
       setDevLoading(false);
     }
   };
+
 
   return (
     <div
