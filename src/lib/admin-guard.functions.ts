@@ -55,16 +55,8 @@ export const checkAdminAccess = createServerFn({ method: "GET" })
         hasSuperAdmin: false,
       };
     }
-    if (aal && aal !== "aal2") {
-      return {
-        isAdmin: false,
-        reason: "aal2_required",
-        userId: context.userId,
-        email,
-        aal,
-        hasSuperAdmin: true,
-      };
-    }
+    // Email-only auth: signing in already proves email ownership via OTP,
+    // so we no longer require AAL2/TOTP for the admin surface.
     return {
       isAdmin: true,
       reason: "ok",
@@ -74,3 +66,4 @@ export const checkAdminAccess = createServerFn({ method: "GET" })
       hasSuperAdmin: true,
     };
   });
+
