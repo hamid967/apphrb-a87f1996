@@ -426,30 +426,27 @@ function AuthPage() {
                 </p>
               </div>
 
-              {/* Tabs */}
+              {/* Step indicator */}
               <div
-                className="mt-6 grid grid-cols-2 gap-1 rounded-xl p-1"
-                style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${HBS.border}` }}
+                className="mt-6 flex items-center gap-2 rounded-xl border px-3 py-2 text-xs"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  borderColor: HBS.border,
+                  color: HBS.gray,
+                }}
               >
-                {(["signin", "signup"] as const).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setMode(m)}
-                    className="relative rounded-lg px-3 py-2 text-sm font-medium transition"
-                    style={{
-                      background:
-                        mode === m
-                          ? `linear-gradient(140deg, ${HBS.gold}22, ${HBS.blue}22)`
-                          : "transparent",
-                      color: mode === m ? HBS.white : HBS.gray,
-                      boxShadow: mode === m ? `inset 0 0 0 1px ${HBS.border}` : "none",
-                    }}
-                  >
-                    {m === "signin" ? t("auth.signIn") : t("auth.signUp")}
-                  </button>
-                ))}
+                <Mail className="size-3.5" style={{ color: HBS.gold }} />
+                <span>
+                  {step === "email"
+                    ? i18n.language?.startsWith("ar")
+                      ? "الدخول والتسجيل بالبريد فقط — سنرسل لك رمزاً"
+                      : "Email-only sign in / sign up — we'll send you a code"
+                    : i18n.language?.startsWith("ar")
+                      ? `أدخل الرمز المُرسل إلى ${trimmedEmail}`
+                      : `Enter the code we sent to ${trimmedEmail}`}
+                </span>
               </div>
+
 
               {reason && (
                 <div
