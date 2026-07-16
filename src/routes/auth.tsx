@@ -517,133 +517,158 @@ function AuthPage() {
                 </div>
               )}
 
-              <form onSubmit={onSubmit} className="mt-6 space-y-4">
-
-                {mode === "signin" && (
+              {step === "email" ? (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    void sendOtp();
+                  }}
+                  className="mt-6 space-y-4"
+                >
                   <div className="space-y-1.5">
                     <Label
-                      htmlFor="est_no"
+                      htmlFor="email"
                       className="text-xs uppercase tracking-[0.18em]"
                       style={{ color: HBS.gray }}
                     >
-                      {t("auth.establishmentNo")}{" "}
-                      <span className="opacity-60">{t("auth.establishmentOptional")}</span>
+                      {t("auth.email")}
                     </Label>
                     <div className="relative">
-                      <Building
+                      <Mail
+                        className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2"
+                        style={{ color: HBS.gray }}
+                      />
+                      <Input
+                        id="email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="h-12 rounded-xl border-white/10 bg-white/5 ps-9 text-white placeholder:text-white/60 focus-visible:ring-1"
+                        style={{ borderColor: HBS.border }}
+                        placeholder="you@company.com"
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="group relative h-12 w-full overflow-hidden rounded-xl border-0 text-base font-semibold text-white transition-transform hover:-translate-y-0.5"
+                    style={{
+                      background: `linear-gradient(120deg, ${HBS.blue}, ${HBS.gold})`,
+                      boxShadow: `0 20px 50px -15px ${HBS.gold}`,
+                    }}
+                    disabled={sending}
+                  >
+                    {sending && <Loader2 className="me-2 size-4 animate-spin" />}
+                    <KeyRound className="me-2 size-4" />
+                    {i18n.language?.startsWith("ar")
+                      ? "أرسل رمز الدخول"
+                      : "Send login code"}
+                  </Button>
+
+                  <button
+                    type="button"
+                    onClick={sendMagicLink}
+                    disabled={magicLoading}
+                    className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border text-sm transition hover:-translate-y-0.5 disabled:opacity-60"
+                    style={{
+                      borderColor: HBS.border,
+                      background: "rgba(255,255,255,0.03)",
+                      color: HBS.white,
+                    }}
+                  >
+                    {magicLoading ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <Mail className="size-4" style={{ color: HBS.gold }} />
+                    )}
+                    {i18n.language?.startsWith("ar")
+                      ? "أو أرسل رابط دخول سحري"
+                      : "Or send a magic link"}
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={verifyOtp} className="mt-6 space-y-4">
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="otp"
+                      className="text-xs uppercase tracking-[0.18em]"
+                      style={{ color: HBS.gray }}
+                    >
+                      {i18n.language?.startsWith("ar") ? "رمز الدخول" : "Login code"}
+                    </Label>
+                    <div className="relative">
+                      <KeyRound
                         className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2"
                         style={{ color: HBS.gold }}
                       />
                       <Input
-                        id="est_no"
+                        id="otp"
                         type="text"
-                        autoComplete="off"
-                        value={establishmentNo}
-                        onChange={(e) => setEstablishmentNo(e.target.value.toUpperCase())}
-                        className="h-12 rounded-xl border-white/10 bg-white/5 ps-9 font-mono tracking-widest text-white placeholder:text-white/60"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        required
+                        maxLength={6}
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                        className="h-12 rounded-xl border-white/10 bg-white/5 ps-9 text-center font-mono text-2xl tracking-[0.6em] text-white placeholder:text-white/40"
                         style={{ borderColor: HBS.border }}
-                        placeholder="HBS-000123"
+                        placeholder="••••••"
                       />
                     </div>
                     <p className="text-[10px]" style={{ color: HBS.gray }}>
-                      {t("auth.establishmentHint")}
+                      {i18n.language?.startsWith("ar")
+                        ? "أدخل الرمز المكون من 6 أرقام. صالح لـ 60 دقيقة."
+                        : "Enter the 6-digit code. Valid for 60 minutes."}
                     </p>
                   </div>
-                )}
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="email"
-                    className="text-xs uppercase tracking-[0.18em]"
-                    style={{ color: HBS.gray }}
+
+                  <Button
+                    type="submit"
+                    className="h-12 w-full overflow-hidden rounded-xl border-0 text-base font-semibold text-white"
+                    style={{
+                      background: `linear-gradient(120deg, ${HBS.blue}, ${HBS.gold})`,
+                      boxShadow: `0 20px 50px -15px ${HBS.gold}`,
+                    }}
+                    disabled={verifying}
                   >
-                    {t("auth.email")}
-                  </Label>
-                  <div className="relative">
-                    <Mail
-                      className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2"
-                      style={{ color: HBS.gray }}
-                    />
-                    <Input
-                      id="email"
-                      type="email"
-                      autoComplete="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="h-12 rounded-xl border-white/10 bg-white/5 ps-9 text-white placeholder:text-white/60 focus-visible:ring-1"
-                      style={{ borderColor: HBS.border }}
-                      placeholder="you@company.com"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <Label
-                    htmlFor="password"
-                    className="text-xs uppercase tracking-[0.18em]"
-                    style={{ color: HBS.gray }}
-                  >
-                    {t("auth.password")}
-                  </Label>
-                  <div className="relative">
-                    <Lock
-                      className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2"
-                      style={{ color: HBS.gray }}
-                    />
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                      required
-                      minLength={6}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="h-12 rounded-xl border-white/10 bg-white/5 ps-9 pe-10 text-white placeholder:text-white/60"
-                      style={{ borderColor: HBS.border }}
-                      placeholder="••••••••"
-                    />
+                    {verifying && <Loader2 className="me-2 size-4 animate-spin" />}
+                    {i18n.language?.startsWith("ar") ? "دخول" : "Sign in"}
+                  </Button>
+
+                  <div className="flex items-center justify-between text-xs">
                     <button
                       type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      className="absolute end-2 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-md hover:bg-white/10"
+                      onClick={() => {
+                        setStep("email");
+                        setOtp("");
+                      }}
+                      className="hover:underline"
                       style={{ color: HBS.gray }}
-                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                     >
-                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                      {i18n.language?.startsWith("ar") ? "← تغيير البريد" : "← Change email"}
                     </button>
-                  </div>
-                </div>
-                {mode === "signin" && (
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-2 text-xs" style={{ color: HBS.gray }}>
-                      <Checkbox
-                        checked={remember}
-                        onCheckedChange={(v) => setRemember(v === true)}
-                        className="border-white/30"
-                      />
-                      {t("auth.rememberMe")}
-                    </label>
-                    <Link
-                      to="/forgot-password"
-                      className="text-xs hover:underline"
+                    <button
+                      type="button"
+                      disabled={resendIn > 0 || sending}
+                      onClick={() => void sendOtp()}
+                      className="hover:underline disabled:opacity-50"
                       style={{ color: HBS.goldSoft }}
                     >
-                      {t("auth.forgotPassword")}
-                    </Link>
+                      {resendIn > 0
+                        ? i18n.language?.startsWith("ar")
+                          ? `إعادة الإرسال بعد ${resendIn}ث`
+                          : `Resend in ${resendIn}s`
+                        : i18n.language?.startsWith("ar")
+                          ? "إعادة إرسال الرمز"
+                          : "Resend code"}
+                    </button>
                   </div>
-                )}
-                <Button
-                  type="submit"
-                  className="group relative h-12 w-full overflow-hidden rounded-xl border-0 text-base font-semibold text-white transition-transform hover:-translate-y-0.5"
-                  style={{
-                    background: `linear-gradient(120deg, ${HBS.blue}, ${HBS.gold})`,
-                    boxShadow: `0 20px 50px -15px ${HBS.gold}`,
-                  }}
-                  disabled={submitting}
-                >
-                  {submitting && <Loader2 className="me-2 size-4 animate-spin" />}
-                  {mode === "signup" ? t("auth.signUp") : t("auth.signIn")}
-                </Button>
-              </form>
+                </form>
+              )}
+
 
 
               {/* Divider */}
