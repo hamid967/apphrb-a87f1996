@@ -51,11 +51,15 @@ jobs:
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
           E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           missing=()
           [ -n "$E2E_ADMIN_EMAIL" ]    || missing+=("E2E_ADMIN_EMAIL")
           [ -n "$E2E_ADMIN_PASSWORD" ] || missing+=("E2E_ADMIN_PASSWORD")
           [ -n "$E2E_BYPASS_TOKEN" ]   || missing+=("E2E_BYPASS_TOKEN")
+          [ -n "$VITE_SUPABASE_URL" ] || missing+=("VITE_SUPABASE_URL")
+          [ -n "$VITE_SUPABASE_PUBLISHABLE_KEY" ] || missing+=("VITE_SUPABASE_PUBLISHABLE_KEY")
           if [ ${#missing[@]} -gt 0 ]; then
             echo "::error::Missing required repository secrets: ${missing[*]}"
             echo "Add them in Settings → Secrets and variables → Actions."
@@ -70,6 +74,8 @@ jobs:
         env:
           VITE_E2E_BYPASS_AAL2: "true"
           VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           bun run dev > /tmp/dev-server.log 2>&1 &
           echo $! > /tmp/dev-server.pid
@@ -87,8 +93,8 @@ jobs:
         env:
           # scripts/e2e-mint-admin-session.py reads VITE_* from .env,
           # but the CI checkout may not have those; pass them explicitly.
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
           BASE_URL: http://localhost:8080
@@ -105,8 +111,8 @@ jobs:
           VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           ADMIN_E2E_ARTIFACT_ROOT: ${{ github.workspace }}/admin-e2e-artifacts
           ADMIN_E2E_RUN_ID: run-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
@@ -122,8 +128,8 @@ jobs:
         env:
           E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
           VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           if [ -z "$VITE_SUPABASE_URL" ] && [ -f .env ]; then
             set -a; . ./.env; set +a
@@ -135,8 +141,8 @@ jobs:
         env:
           E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
           VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           if [ -z "$VITE_SUPABASE_URL" ] && [ -f .env ]; then
             set -a; . ./.env; set +a

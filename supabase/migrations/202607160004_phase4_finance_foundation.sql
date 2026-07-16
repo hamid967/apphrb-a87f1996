@@ -11,7 +11,7 @@ create table if not exists public.lease_payments (
   due_date date not null,
   amount numeric(14,2) not null default 0,
   status text not null default 'due',
-  created_by uuid references auth.users(id) on delete set null,
+  created_by uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -65,7 +65,7 @@ create table if not exists public.payment_receipts (
   type text not null default 'payment',
   reverses_receipt_id uuid references public.payment_receipts(id) on delete restrict,
   notes text,
-  created_by uuid references auth.users(id) on delete set null,
+  created_by uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   unique (org_id, receipt_number)
 );
@@ -78,7 +78,7 @@ create table if not exists public.expense_categories (
   name_en text not null,
   is_default boolean not null default false,
   archived_at timestamptz,
-  created_by uuid references auth.users(id) on delete set null,
+  created_by uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -100,7 +100,7 @@ create table if not exists public.recurring_expenses (
   status text not null default 'active',
   last_generated_on date,
   archived_at timestamptz,
-  created_by uuid references auth.users(id) on delete set null,
+  created_by uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -115,7 +115,7 @@ create table if not exists public.budgets (
   alert_80_sent_at timestamptz,
   alert_exceeded_sent_at timestamptz,
   archived_at timestamptz,
-  created_by uuid references auth.users(id) on delete set null,
+  created_by uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -806,6 +806,25 @@ begin
   if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'payment_receipts' and policyname = 'payment_receipts_finance_insert') then
     create policy payment_receipts_finance_insert on public.payment_receipts
       for insert to authenticated
+      with check (public.hbspro_finance_can_write(org_id, auth.uid()));
+  end if;
+
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'finance_sequences' and policyname = 'finance_sequences_finance_read') then
+    create policy finance_sequences_finance_read on public.finance_sequences
+      for select to authenticated
+      using (public.hbspro_finance_can_read(org_id, auth.uid()));
+  end if;
+
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'finance_sequences' and policyname = 'finance_sequences_finance_insert') then
+    create policy finance_sequences_finance_insert on public.finance_sequences
+      for insert to authenticated
+      with check (public.hbspro_finance_can_write(org_id, auth.uid()));
+  end if;
+
+  if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'finance_sequences' and policyname = 'finance_sequences_finance_update') then
+    create policy finance_sequences_finance_update on public.finance_sequences
+      for update to authenticated
+      using (public.hbspro_finance_can_write(org_id, auth.uid()))
       with check (public.hbspro_finance_can_write(org_id, auth.uid()));
   end if;
 

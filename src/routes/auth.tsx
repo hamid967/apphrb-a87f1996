@@ -130,24 +130,29 @@ function AuthPage() {
   const nav = useNavigate();
   const { redirect: redirectTarget, reason } = useSearch({ from: "/auth" });
   const { user, ready } = useAuth();
-
-  // Email-only flow: step "email" -> ask for address; step "otp" -> verify 6-digit code.
-  const [step, setStep] = useState<"email" | "otp">("email");
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [establishmentNo, setEstablishmentNo] = useState("");
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState("");
-  const [sending, setSending] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [magicLoading, setMagicLoading] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
   const [devLoading, setDevLoading] = useState(false);
-  const [resendIn, setResendIn] = useState(0);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+
+  useEffect(() => {
+    setFailedAttempts(getFailedAttempts(email));
+  }, [email]);
+
 
   // Persist any incoming ?redirect= so we can recover it if the WebView
   // strips query params during an OAuth / magic-link round-trip.
   useEffect(() => {
+    if (!ready || user) return;
     const safe = safeRedirect(redirectTarget);
     if (safe) savePendingRedirect(safe);
-  }, [redirectTarget]);
+  }, [ready, user, redirectTarget]);
 
   useEffect(() => {
     if (ready && user) {
@@ -158,138 +163,120 @@ function AuthPage() {
     document.title = t("auth.metaTitle");
   }, [t, i18n.language]);
 
-  useEffect(() => {
-    if (resendIn <= 0) return;
-    const id = setInterval(() => setResendIn((s) => (s > 0 ? s - 1 : 0)), 1000);
-    return () => clearInterval(id);
-  }, [resendIn]);
-
-  const trimmedEmail = email.trim().toLowerCase();
-
-  const sendOtp = async (opts?: { silent?: boolean }) => {
-    if (!trimmedEmail) {
-      toast.error(
-        i18n.language?.startsWith("ar")
-          ? "أدخل بريدك الإلكتروني"
-          : "Enter your email",
-      );
-      return;
-    }
-    setSending(true);
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    const tag = mode === "signup" ? "[signup]" : "[signin]";
+    console.info(tag, "step:submit", { email, hasPassword: Boolean(password), mode });
     try {
-      const fp = getDeviceFingerprint();
-      const rl = await checkLoginRateLimit({ data: { identifier: trimmedEmail } });
-      if (rl.blocked) {
+      if (mode === "signup") {
+        if (!email || !password) {
+          console.warn("[signup]", "step:validation-failed", { email: !!email, password: !!password });
+          throw new Error(t("auth.missingCredentials", { defaultValue: "الرجاء إدخال البريد وكلمة المرور" }));
+        }
+        console.info("[signup]", "step:api:signUp -> start", { emailRedirectTo: getAppUrl("/onboarding/wizard") });
+        const t0 = performance.now();
+        const { data: signUpData, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: getAppUrl("/onboarding/wizard") },
+        });
+        console.info("[signup]", "step:api:signUp -> done", {
+          ms: Math.round(performance.now() - t0),
+          hasUser: Boolean(signUpData?.user),
+          hasSession: Boolean(signUpData?.session),
+          errorCode: error?.status,
+          errorName: error?.name,
+          errorMessage: error?.message,
+        });
+        if (error) throw error;
+        toast.success(t("auth.checkEmail"));
+        // If session is available immediately (email confirmations disabled), go collect profile.
+        const { data: sess } = await supabase.auth.getSession();
+        console.info("[signup]", "step:session-check", { hasSession: Boolean(sess.session) });
+        if (sess.session) {
+          console.info("[signup]", "step:nav -> /onboarding/wizard");
+          nav({ to: "/onboarding/wizard", replace: true });
+        }
+      } else {
+        const fp = getDeviceFingerprint();
+        const ua = navigator.userAgent;
+        const estNo = establishmentNo.trim();
+        const rl = await checkLoginRateLimit({ data: { identifier: email } });
+
+        if (rl.blocked) {
+          await recordLoginEvent({
+            data: {
+              email,
+              fingerprint: fp,
+              userAgent: ua,
+              status: "rate_limited",
+              reason: `${rl.attempts}/${rl.max}`,
+            },
+          }).catch(() => {});
+          throw new Error(
+            t("auth.rateLimited", { minutes: Math.ceil(rl.retry_after_seconds / 60) }),
+          );
+        }
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) {
+          await recordLoginEvent({
+            data: {
+              email,
+              fingerprint: fp,
+              userAgent: ua,
+              status: "failed",
+              reason: error.message,
+            },
+          }).catch(() => {});
+          setFailedAttempts(incFailedAttempts(email));
+          throw error;
+        }
+        // Verify establishment membership only when the user typed a number.
+        // Portal tenants/owners and site admins sign in without one.
+        if (estNo) {
+          const { data: ok, error: vErr } = await supabase.rpc(
+            "verify_my_establishment" as never,
+            { _est_no: estNo } as never,
+          );
+          if (vErr || ok !== true) {
+            await supabase.auth.signOut();
+            await recordLoginEvent({
+              data: {
+                email,
+                fingerprint: fp,
+                userAgent: ua,
+                status: "failed",
+                reason: `establishment_mismatch:${estNo}`,
+              },
+            }).catch(() => {});
+            setFailedAttempts(incFailedAttempts(email));
+            throw new Error(t("auth.establishmentMismatch"));
+          }
+        }
         await recordLoginEvent({
-          data: {
-            email: trimmedEmail,
-            fingerprint: fp,
-            userAgent: navigator.userAgent,
-            status: "rate_limited",
-            reason: `${rl.attempts}/${rl.max}`,
-          },
+          data: { email, fingerprint: fp, userAgent: ua, status: "success" },
         }).catch(() => {});
-        throw new Error(
-          t("auth.rateLimited", { minutes: Math.ceil(rl.retry_after_seconds / 60) }),
-        );
-      }
-      const { error } = await supabase.auth.signInWithOtp({
-        email: trimmedEmail,
-        options: {
-          shouldCreateUser: true,
-          emailRedirectTo: getAppUrl("/onboarding/wizard"),
-        },
-      });
-      if (error) throw error;
-      setStep("otp");
-      setResendIn(30);
-      if (!opts?.silent) {
-        toast.success(
-          i18n.language?.startsWith("ar")
-            ? "أرسلنا رمز الدخول إلى بريدك"
-            : "We sent a code to your email",
-        );
+        resetFailedAttempts(email);
+        await routeAfterLogin(nav, redirectTarget);
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err ?? "Error");
-      console.error("[auth]", "send-otp failed:", msg);
-      toast.error(msg);
-    } finally {
-      setSending(false);
-    }
-  };
-
-  const verifyOtp = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (otp.replace(/\D/g, "").length < 6) {
-      toast.error(
-        i18n.language?.startsWith("ar")
-          ? "أدخل الرمز المكون من 6 أرقام"
-          : "Enter the 6-digit code",
-      );
-      return;
-    }
-    setVerifying(true);
-    const fp = getDeviceFingerprint();
-    const ua = navigator.userAgent;
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email: trimmedEmail,
-        token: otp.replace(/\D/g, ""),
-        type: "email",
+      console.error(tag, "step:failed", {
+        message: msg,
+        name: err instanceof Error ? err.name : undefined,
+        stack: err instanceof Error ? err.stack : undefined,
       });
-      if (error) {
-        await recordLoginEvent({
-          data: {
-            email: trimmedEmail,
-            fingerprint: fp,
-            userAgent: ua,
-            status: "failed",
-            reason: error.message,
-          },
-        }).catch(() => {});
-        incFailedAttempts(trimmedEmail);
-        throw error;
-      }
-      await recordLoginEvent({
-        data: { email: trimmedEmail, fingerprint: fp, userAgent: ua, status: "success" },
-      }).catch(() => {});
-      resetFailedAttempts(trimmedEmail);
-      await routeAfterLogin(nav, redirectTarget);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err ?? "Error");
-      toast.error(msg);
-    } finally {
-      setVerifying(false);
-    }
-  };
-
-  const sendMagicLink = async () => {
-    if (!trimmedEmail) {
       toast.error(
-        i18n.language?.startsWith("ar") ? "أدخل بريدك الإلكتروني" : "Enter your email",
+        mode === "signup" ? t("auth.signUpFailed", { defaultValue: "تعذّر إنشاء الحساب" }) : msg,
+        mode === "signup" ? { description: msg } : undefined,
       );
-      return;
-    }
-    setMagicLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: trimmedEmail,
-        options: {
-          shouldCreateUser: true,
-          emailRedirectTo: getAppUrl("/onboarding/wizard"),
-        },
-      });
-      if (error) throw error;
-      toast.success(
-        i18n.language?.startsWith("ar")
-          ? "أرسلنا رابط الدخول — تحقق من بريدك"
-          : "Magic link sent — check your inbox",
-      );
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error");
     } finally {
-      setMagicLoading(false);
+      console.info(tag, "step:done");
+      setSubmitting(false);
     }
   };
 
@@ -308,30 +295,43 @@ function AuthPage() {
   const onDeveloperAccount = async () => {
     setDevLoading(true);
     const devEmail = `dev+${Math.random().toString(36).slice(2, 8)}@hbspro.dev`;
+    const devPassword = `Dev!${Math.random().toString(36).slice(2, 10)}Aa1`;
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      const { error: signUpErr } = await supabase.auth.signUp({
         email: devEmail,
+        password: devPassword,
         options: {
-          shouldCreateUser: true,
           emailRedirectTo: getAppUrl("/dashboard"),
           data: { full_name: "Developer", account_type: "developer" },
         },
       });
-      if (error) throw error;
-      setEmail(devEmail);
-      setStep("otp");
-      toast.success(
-        i18n.language?.startsWith("ar")
-          ? `أُرسل رمز الدخول إلى ${devEmail}`
-          : `Code sent to ${devEmail}`,
-      );
+      if (signUpErr) throw signUpErr;
+      const { error: signInErr } = await supabase.auth.signInWithPassword({
+        email: devEmail,
+        password: devPassword,
+      });
+      if (signInErr) throw signInErr;
+      // Provision sandbox org + RBAC role + approve profile + grant trial.
+      // Without this, the user lands on wizard with a pending profile and no roles.
+      try {
+        const { provisionDeveloperWorkspace } = await import(
+          "@/lib/organizations.functions"
+        );
+        await provisionDeveloperWorkspace();
+      } catch (provErr) {
+        console.warn("Developer provisioning deferred:", provErr);
+      }
+      try {
+        await navigator.clipboard.writeText(`${devEmail} / ${devPassword}`);
+      } catch {}
+      toast.success(t("auth.devAccountCreated", { email: devEmail }));
+      nav({ to: "/onboarding/wizard", replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Developer signup failed");
     } finally {
       setDevLoading(false);
     }
   };
-
 
   return (
     <div
@@ -426,27 +426,30 @@ function AuthPage() {
                 </p>
               </div>
 
-              {/* Step indicator */}
+              {/* Tabs */}
               <div
-                className="mt-6 flex items-center gap-2 rounded-xl border px-3 py-2 text-xs"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  borderColor: HBS.border,
-                  color: HBS.gray,
-                }}
+                className="mt-6 grid grid-cols-2 gap-1 rounded-xl p-1"
+                style={{ background: "rgba(255,255,255,0.04)", border: `1px solid ${HBS.border}` }}
               >
-                <Mail className="size-3.5" style={{ color: HBS.gold }} />
-                <span>
-                  {step === "email"
-                    ? i18n.language?.startsWith("ar")
-                      ? "الدخول والتسجيل بالبريد فقط — سنرسل لك رمزاً"
-                      : "Email-only sign in / sign up — we'll send you a code"
-                    : i18n.language?.startsWith("ar")
-                      ? `أدخل الرمز المُرسل إلى ${trimmedEmail}`
-                      : `Enter the code we sent to ${trimmedEmail}`}
-                </span>
+                {(["signin", "signup"] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMode(m)}
+                    className="relative rounded-lg px-3 py-2 text-sm font-medium transition"
+                    style={{
+                      background:
+                        mode === m
+                          ? `linear-gradient(140deg, ${HBS.gold}22, ${HBS.blue}22)`
+                          : "transparent",
+                      color: mode === m ? HBS.white : HBS.gray,
+                      boxShadow: mode === m ? `inset 0 0 0 1px ${HBS.border}` : "none",
+                    }}
+                  >
+                    {m === "signin" ? t("auth.signIn") : t("auth.signUp")}
+                  </button>
+                ))}
               </div>
-
 
               {reason && (
                 <div
@@ -517,158 +520,133 @@ function AuthPage() {
                 </div>
               )}
 
-              {step === "email" ? (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    void sendOtp();
-                  }}
-                  className="mt-6 space-y-4"
-                >
+              <form onSubmit={onSubmit} className="mt-6 space-y-4">
+
+                {mode === "signin" && (
                   <div className="space-y-1.5">
                     <Label
-                      htmlFor="email"
+                      htmlFor="est_no"
                       className="text-xs uppercase tracking-[0.18em]"
                       style={{ color: HBS.gray }}
                     >
-                      {t("auth.email")}
+                      {t("auth.establishmentNo")}{" "}
+                      <span className="opacity-60">{t("auth.establishmentOptional")}</span>
                     </Label>
                     <div className="relative">
-                      <Mail
-                        className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2"
-                        style={{ color: HBS.gray }}
-                      />
-                      <Input
-                        id="email"
-                        type="email"
-                        autoComplete="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="h-12 rounded-xl border-white/10 bg-white/5 ps-9 text-white placeholder:text-white/60 focus-visible:ring-1"
-                        style={{ borderColor: HBS.border }}
-                        placeholder="you@company.com"
-                      />
-                    </div>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="group relative h-12 w-full overflow-hidden rounded-xl border-0 text-base font-semibold text-white transition-transform hover:-translate-y-0.5"
-                    style={{
-                      background: `linear-gradient(120deg, ${HBS.blue}, ${HBS.gold})`,
-                      boxShadow: `0 20px 50px -15px ${HBS.gold}`,
-                    }}
-                    disabled={sending}
-                  >
-                    {sending && <Loader2 className="me-2 size-4 animate-spin" />}
-                    <KeyRound className="me-2 size-4" />
-                    {i18n.language?.startsWith("ar")
-                      ? "أرسل رمز الدخول"
-                      : "Send login code"}
-                  </Button>
-
-                  <button
-                    type="button"
-                    onClick={sendMagicLink}
-                    disabled={magicLoading}
-                    className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border text-sm transition hover:-translate-y-0.5 disabled:opacity-60"
-                    style={{
-                      borderColor: HBS.border,
-                      background: "rgba(255,255,255,0.03)",
-                      color: HBS.white,
-                    }}
-                  >
-                    {magicLoading ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <Mail className="size-4" style={{ color: HBS.gold }} />
-                    )}
-                    {i18n.language?.startsWith("ar")
-                      ? "أو أرسل رابط دخول سحري"
-                      : "Or send a magic link"}
-                  </button>
-                </form>
-              ) : (
-                <form onSubmit={verifyOtp} className="mt-6 space-y-4">
-                  <div className="space-y-1.5">
-                    <Label
-                      htmlFor="otp"
-                      className="text-xs uppercase tracking-[0.18em]"
-                      style={{ color: HBS.gray }}
-                    >
-                      {i18n.language?.startsWith("ar") ? "رمز الدخول" : "Login code"}
-                    </Label>
-                    <div className="relative">
-                      <KeyRound
+                      <Building
                         className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2"
                         style={{ color: HBS.gold }}
                       />
                       <Input
-                        id="otp"
+                        id="est_no"
                         type="text"
-                        inputMode="numeric"
-                        autoComplete="one-time-code"
-                        required
-                        maxLength={6}
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                        className="h-12 rounded-xl border-white/10 bg-white/5 ps-9 text-center font-mono text-2xl tracking-[0.6em] text-white placeholder:text-white/40"
+                        autoComplete="off"
+                        value={establishmentNo}
+                        onChange={(e) => setEstablishmentNo(e.target.value.toUpperCase())}
+                        className="h-12 rounded-xl border-white/10 bg-white/5 ps-9 font-mono tracking-widest text-white placeholder:text-white/60"
                         style={{ borderColor: HBS.border }}
-                        placeholder="••••••"
+                        placeholder="HBS-000123"
                       />
                     </div>
                     <p className="text-[10px]" style={{ color: HBS.gray }}>
-                      {i18n.language?.startsWith("ar")
-                        ? "أدخل الرمز المكون من 6 أرقام. صالح لـ 60 دقيقة."
-                        : "Enter the 6-digit code. Valid for 60 minutes."}
+                      {t("auth.establishmentHint")}
                     </p>
                   </div>
-
-                  <Button
-                    type="submit"
-                    className="h-12 w-full overflow-hidden rounded-xl border-0 text-base font-semibold text-white"
-                    style={{
-                      background: `linear-gradient(120deg, ${HBS.blue}, ${HBS.gold})`,
-                      boxShadow: `0 20px 50px -15px ${HBS.gold}`,
-                    }}
-                    disabled={verifying}
+                )}
+                <div className="space-y-1.5">
+                  <Label
+                    htmlFor="email"
+                    className="text-xs uppercase tracking-[0.18em]"
+                    style={{ color: HBS.gray }}
                   >
-                    {verifying && <Loader2 className="me-2 size-4 animate-spin" />}
-                    {i18n.language?.startsWith("ar") ? "دخول" : "Sign in"}
-                  </Button>
-
-                  <div className="flex items-center justify-between text-xs">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setStep("email");
-                        setOtp("");
-                      }}
-                      className="hover:underline"
+                    {t("auth.email")}
+                  </Label>
+                  <div className="relative">
+                    <Mail
+                      className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2"
                       style={{ color: HBS.gray }}
-                    >
-                      {i18n.language?.startsWith("ar") ? "← تغيير البريد" : "← Change email"}
-                    </button>
+                    />
+                    <Input
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="h-12 rounded-xl border-white/10 bg-white/5 ps-9 text-white placeholder:text-white/60 focus-visible:ring-1"
+                      style={{ borderColor: HBS.border }}
+                      placeholder="you@company.com"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label
+                    htmlFor="password"
+                    className="text-xs uppercase tracking-[0.18em]"
+                    style={{ color: HBS.gray }}
+                  >
+                    {t("auth.password")}
+                  </Label>
+                  <div className="relative">
+                    <Lock
+                      className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2"
+                      style={{ color: HBS.gray }}
+                    />
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                      required
+                      minLength={6}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="h-12 rounded-xl border-white/10 bg-white/5 ps-9 pe-10 text-white placeholder:text-white/60"
+                      style={{ borderColor: HBS.border }}
+                      placeholder="••••••••"
+                    />
                     <button
                       type="button"
-                      disabled={resendIn > 0 || sending}
-                      onClick={() => void sendOtp()}
-                      className="hover:underline disabled:opacity-50"
-                      style={{ color: HBS.goldSoft }}
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute end-2 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded-md hover:bg-white/10"
+                      style={{ color: HBS.gray }}
+                      aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
                     >
-                      {resendIn > 0
-                        ? i18n.language?.startsWith("ar")
-                          ? `إعادة الإرسال بعد ${resendIn}ث`
-                          : `Resend in ${resendIn}s`
-                        : i18n.language?.startsWith("ar")
-                          ? "إعادة إرسال الرمز"
-                          : "Resend code"}
+                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                     </button>
                   </div>
-                </form>
-              )}
-
+                </div>
+                {mode === "signin" && (
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2 text-xs" style={{ color: HBS.gray }}>
+                      <Checkbox
+                        checked={remember}
+                        onCheckedChange={(v) => setRemember(v === true)}
+                        className="border-white/30"
+                      />
+                      {t("auth.rememberMe")}
+                    </label>
+                    <Link
+                      to="/forgot-password"
+                      className="text-xs hover:underline"
+                      style={{ color: HBS.goldSoft }}
+                    >
+                      {t("auth.forgotPassword")}
+                    </Link>
+                  </div>
+                )}
+                <Button
+                  type="submit"
+                  className="group relative h-12 w-full overflow-hidden rounded-xl border-0 text-base font-semibold text-white transition-transform hover:-translate-y-0.5"
+                  style={{
+                    background: `linear-gradient(120deg, ${HBS.blue}, ${HBS.gold})`,
+                    boxShadow: `0 20px 50px -15px ${HBS.gold}`,
+                  }}
+                  disabled={submitting}
+                >
+                  {submitting && <Loader2 className="me-2 size-4 animate-spin" />}
+                  {mode === "signup" ? t("auth.signUp") : t("auth.signIn")}
+                </Button>
+              </form>
 
 
               {/* Divider */}

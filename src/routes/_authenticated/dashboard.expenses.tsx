@@ -9,6 +9,7 @@ import {
   Plus,
   Pencil,
   Trash2,
+  FileDown,
   Receipt as ReceiptIcon,
   Sparkles,
   Upload,
@@ -37,6 +38,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ReceiptCameraButton } from "@/components/receipt-camera-button";
 import { ListState } from "@/components/common/ListState";
+import type { AccountPdfProfile } from "@/lib/pdf/document-types";
+import { renderVoucherPdf } from "@/lib/pdf/financial-documents";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -148,7 +151,27 @@ function ExpensesPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const orgsQ = useQuery({ queryKey: ["my-organizations"], queryFn: () => listMyOrganizations() });
-  const orgId = orgsQ.data?.[0]?.org?.id;
+  const org = orgsQ.data?.[0]?.org;
+  const orgId = org?.id;
+  const orgProfile = org as
+    | (typeof org & {
+        account_type?: string | null;
+        tax_number?: string | null;
+        commercial_registration?: string | null;
+        national_address?: string | null;
+      })
+    | undefined;
+  const pdfAccount: AccountPdfProfile | null = org
+    ? {
+        orgId: String(org.id),
+        accountType: orgProfile?.account_type ?? null,
+        name: (org.name as string) ?? "—",
+        logoUrl: (org.logo_url as string | null) ?? null,
+        taxNumber: orgProfile?.tax_number ?? null,
+        commercialRegistration: orgProfile?.commercial_registration ?? null,
+        nationalAddress: orgProfile?.national_address ?? null,
+      }
+    : null;
 
   const q = useQuery({
     queryKey: ["finance-expenses", orgId],
@@ -289,6 +312,47 @@ function ExpensesPage() {
   const visibleCats = cats.filter((c: Row) => scopeFilter === "all" || c.scope === scopeFilter);
 
   const goToClaim = () => navigate({ to: "/dashboard/expenses/claim", search: {} as never });
+  const exportExpenseVoucher = async (row: Row) => {
+    if (!pdfAccount) {
+      toast.error(label("بيانات الحساب غير متاحة", "Account profile is unavailable"));
+      return;
+    }
+    try {
+      const party =
+        row.vendor_ref?.name ??
+        row.vendor ??
+        (row.scope === "personal"
+          ? label("مصروف شخصي", "Personal expense")
+          : row.property?.title_ar ||
+            row.property?.title_en ||
+            label("مصروف عقاري", "Property expense"));
+      const category = row.category_ref
+        ? isAr
+          ? row.category_ref.name_ar
+          : row.category_ref.name_en
+        : CAT_KEY[row.category as Cat]
+          ? t(CAT_KEY[row.category as Cat])
+          : row.category;
+      const result = await renderVoucherPdf({
+        account: pdfAccount,
+        templateKey: "official",
+        voucherType: "payment",
+        voucherNumber: `EXP-${String(row.id).slice(0, 8).toUpperCase()}`,
+        amount: Number(row.gross_amount ?? row.amount ?? 0),
+        partyName: party,
+        statement:
+          row.description || `${label("مصروف", "Expense")} - ${category} - ${row.spent_at}`,
+        paymentMethod: row.payment_method ?? label("غير محدد", "Unspecified"),
+      });
+      result.open();
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : label("تعذر توليد سند PDF", "Could not generate PDF"),
+      );
+    }
+  };
   const onQuickReceiptPicked = (file: File | null) => {
     if (!file) return;
     // Hand off to the full wizard where OCR + policy checks run.
@@ -469,6 +533,14 @@ function ExpensesPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-end">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label={label("سند PDF", "PDF voucher")}
+                          onClick={() => exportExpenseVoucher(r)}
+                        >
+                          <FileDown className="size-4" aria-hidden />
+                        </Button>
                         <Button
                           size="icon"
                           variant="ghost"
