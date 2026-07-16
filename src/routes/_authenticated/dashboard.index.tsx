@@ -72,6 +72,7 @@ import { WelcomeChecklist } from "@/components/dashboard/WelcomeChecklist";
 import { SubscriptionStatusCard } from "@/components/dashboard/SubscriptionStatusCard";
 import { SubscriptionAuditTrail } from "@/components/dashboard/SubscriptionAuditTrail";
 import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
+import { CompanyDashboard } from "@/components/dashboard/phase6/CompanyDashboard";
 import { IndividualDashboard } from "@/components/dashboard/phase6/IndividualDashboard";
 import {
   getPeriodRange,
@@ -469,6 +470,32 @@ function Dashboard() {
           to={phase6Range.to}
           isAr={isAr}
         />
+      </motion.div>
+    );
+  }
+
+  if (org?.id && ["company", "business", "enterprise"].includes(String(orgProfile?.account_type))) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="mx-auto max-w-7xl px-4 py-8 sm:px-6"
+      >
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              {isAr ? "لوحة المنشأة" : "Company dashboard"}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {isAr
+                ? "أداء المحفظة، المتأخرات، الصيانة، والتنبيه الضريبي التمهيدي من مكان واحد."
+                : "Portfolio performance, overdue payments, maintenance, and tax readiness in one place."}
+            </p>
+          </div>
+          <PeriodFilter value={phase6Period} onChange={setPhase6Period} isAr={isAr} />
+        </div>
+        <CompanyDashboard orgId={org.id} from={phase6Range.from} to={phase6Range.to} isAr={isAr} />
       </motion.div>
     );
   }
@@ -970,328 +997,3 @@ function Dashboard() {
                           key={p.id}
                           layout
                           initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -6 }}
-                          transition={{ duration: 0.2, delay: idx * 0.02 }}
-                        >
-                          <Link
-                            to="/dashboard/properties/$id"
-                            params={{ id: p.id }}
-                            className="flex items-center justify-between gap-3 px-4 py-3 transition hover:bg-muted/50"
-                          >
-                            <div className="min-w-0">
-                              <div className="truncate font-medium">
-                                {isAr ? p.title_ar : p.title_en}
-                              </div>
-                              <div className="truncate text-xs text-muted-foreground">
-                                {t(`properties.types.${p.property_type}`)} ·{" "}
-                                {t(`properties.listingTypes.${p.listing_type}`)} · {p.city ?? "—"}
-                              </div>
-                            </div>
-                            <div className="text-end text-sm font-medium tabular-nums">
-                              {Number(p.price).toLocaleString(isAr ? "ar" : "en")} {p.currency}
-                            </div>
-                          </Link>
-                        </motion.li>
-                      ))}
-                    </AnimatePresence>
-                    {hasMore && (
-                      <>
-                        {Array.from({ length: Math.min(PAGE_SIZE, filtered.length - visible) }).map(
-                          (_, i) => (
-                            <li
-                              key={`sk-${i}`}
-                              className="flex items-center justify-between gap-3 px-4 py-4"
-                            >
-                              <div className="min-w-0 flex-1 space-y-2">
-                                <div className="h-3.5 w-1/3 animate-pulse rounded bg-muted" />
-                                <div className="h-3 w-1/2 animate-pulse rounded bg-muted/70" />
-                              </div>
-                              <div className="h-4 w-20 animate-pulse rounded bg-muted" />
-                            </li>
-                          ),
-                        )}
-                      </>
-                    )}
-                  </ul>
-                  {hasMore && <div ref={sentinelRef} aria-hidden className="h-1" />}
-                </>
-              )}
-            </div>
-          </div>
-        </>
-      )}
-    </motion.div>
-  );
-}
-
-function StatCard({
-  icon,
-  label,
-  value,
-  tone,
-  delta,
-  loading,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number | string;
-  tone?: "emerald" | "amber" | "sky" | "primary";
-  delta?: string;
-  loading?: boolean;
-}) {
-  const toneCls =
-    tone === "emerald"
-      ? "bg-success/10 text-success"
-      : tone === "amber"
-        ? "bg-warning/10 text-warning"
-        : tone === "sky"
-          ? "bg-info/10 text-info"
-          : "bg-primary/10 text-primary";
-  return (
-    <motion.div
-      variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
-      whileHover={{ y: -2 }}
-      transition={{ duration: 0.2 }}
-      className="surface-card p-5 transition-shadow hover:shadow-[var(--shadow-elevated)]"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-xs text-muted-foreground truncate">{label}</div>
-          {loading ? (
-            <div className="mt-2 h-7 w-20 animate-pulse rounded bg-muted" />
-          ) : (
-            <motion.div
-              key={String(value)}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-1.5 text-display text-2xl tabular-nums"
-            >
-              {value}
-            </motion.div>
-          )}
-          {delta && (
-            <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-semibold text-success">
-              <TrendingUp className="size-3" /> {delta}
-            </div>
-          )}
-        </div>
-        <div className={"grid size-11 shrink-0 place-items-center rounded-xl " + toneCls}>
-          {icon}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-const REV_DATA = [
-  { m: "يناير", v: 700 },
-  { m: "فبراير", v: 900 },
-  { m: "مارس", v: 1100 },
-  { m: "أبريل", v: 1250 },
-  { m: "مايو", v: 1400 },
-  { m: "يونيو", v: 1700 },
-];
-
-function RevenueChartCard({ isAr }: { isAr: boolean }) {
-  return (
-    <div className="surface-card p-5">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">{isAr ? "الإيرادات الشهرية" : "Monthly revenue"}</h3>
-        <button className="text-xs text-primary hover:underline">
-          {isAr ? "عرض الكل" : "View all"}
-        </button>
-      </div>
-      <div className="mt-4 h-56">
-        <MotionLineChart
-          data={REV_DATA}
-          index="m"
-          categories={["v"]}
-          colors={["emerald"]}
-          valueFormatter={(v) => `${v}K`}
-          showLegend={false}
-          className="h-56 mt-2"
-        />
-      </div>
-    </div>
-  );
-}
-
-function ExpiringContractsCard({ isAr }: { isAr: boolean }) {
-  const rows = [
-    {
-      t: isAr ? "عقد مكتب العليا" : "Al-Olaya office",
-      d: isAr ? "ينتهي بعد 5 أيام" : "5 days",
-      sub: isAr ? "ينتهي بعد 8 يوم" : "8 days",
-    },
-    {
-      t: isAr ? "عقد شقة النخيل" : "Al-Nakheel apt.",
-      d: isAr ? "ينتهي بعد 12 يوم" : "12 days",
-      sub: isAr ? "ينتهي بعد 13 يوم" : "13 days",
-    },
-    {
-      t: isAr ? "عقد محل السلام مول" : "Salam Mall shop",
-      d: isAr ? "ينتهي بعد 18 يوم" : "18 days",
-      sub: isAr ? "ينتهي بعد 18 يوم" : "18 days",
-    },
-  ];
-  return (
-    <div className="surface-card p-5">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">
-          {isAr ? "العقود المنتهية قريباً" : "Contracts expiring soon"}
-        </h3>
-        <button className="text-xs text-primary hover:underline">
-          {isAr ? "عرض الكل" : "View all"}
-        </button>
-      </div>
-      <ul className="mt-4 divide-y">
-        {rows.map((r) => (
-          <li key={r.t} className="flex items-center justify-between gap-3 py-3">
-            <div className="min-w-0">
-              <div className="truncate text-sm font-medium">{r.t}</div>
-              <div className="text-[11px] text-muted-foreground">{r.sub}</div>
-            </div>
-            <span className="shrink-0 rounded-full bg-warning/10 px-2.5 py-0.5 text-[11px] font-medium text-warning">
-              {r.d}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function RecentPaymentsCard({ isAr }: { isAr: boolean }) {
-  const rows = [
-    { name: isAr ? "محمد السبيعي" : "Mohammed A.", amount: "10,000", status: "paid" },
-    { name: isAr ? "شركة الهادي" : "Al-Hadi Co.", amount: "25,500", status: "paid" },
-    { name: isAr ? "أحمد آل سعود" : "Ahmed S.", amount: "12,000", status: "pending" },
-  ] as const;
-  return (
-    <div className="surface-card p-5">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">{isAr ? "آخر المدفوعات" : "Recent payments"}</h3>
-        <button className="text-xs text-primary hover:underline">
-          {isAr ? "عرض الكل" : "View all"}
-        </button>
-      </div>
-      <ul className="mt-4 divide-y">
-        {rows.map((r) => (
-          <li key={r.name} className="flex items-center justify-between gap-3 py-3">
-            <div className="truncate text-sm font-medium">{r.name}</div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold tabular-nums">
-                {r.amount} {isAr ? "ر.س" : "SAR"}
-              </span>
-              <span
-                className={
-                  "shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium " +
-                  (r.status === "paid"
-                    ? "bg-success/10 text-success"
-                    : "bg-warning/10 text-warning")
-                }
-              >
-                {r.status === "paid"
-                  ? isAr
-                    ? "تم الدفع"
-                    : "Paid"
-                  : isAr
-                    ? "بانتظار الدفع"
-                    : "Pending"}
-              </span>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function NotificationsCard({ isAr }: { isAr: boolean }) {
-  const items = [
-    {
-      icon: <AlertCircle className="size-4 text-warning" />,
-      text: isAr
-        ? "عقد مكتب العليا سينتهي بعد 5 أيام"
-        : "Al-Olaya office contract expires in 5 days",
-    },
-    {
-      icon: <BellRing className="size-4 text-info" />,
-      text: isAr ? "دفعة شهر يونيو لم يتم استلامها" : "June payment not received",
-    },
-    {
-      icon: <Home className="size-4 text-primary" />,
-      text: isAr ? "طلب صيانة جديد في شقة 101" : "New maintenance request in apt 101",
-    },
-  ];
-  return (
-    <div className="surface-card p-5">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">{isAr ? "تنبيهات" : "Notifications"}</h3>
-        <button className="text-xs text-primary hover:underline">
-          {isAr ? "عرض الكل" : "View all"}
-        </button>
-      </div>
-      <ul className="mt-4 space-y-3">
-        {items.map((n, i) => (
-          <li
-            key={i}
-            className="flex items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3 hover:bg-muted/60 transition"
-          >
-            <div className="flex min-w-0 items-center gap-2.5">
-              <div className="shrink-0">{n.icon}</div>
-              <div className="truncate text-sm">{n.text}</div>
-            </div>
-            <ChevronLeft className="size-4 text-muted-foreground shrink-0 rtl:rotate-180" />
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function EmptyState({
-  icon,
-  title,
-  cta,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  cta?: { to: string; label: string };
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.25 }}
-      className="flex flex-col items-center justify-center gap-3 p-12 text-center"
-    >
-      <div className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
-        {icon}
-      </div>
-      <p className="text-sm text-muted-foreground">{title}</p>
-      {cta && (
-        <Button asChild className="mt-2">
-          <Link to={cta.to}>{cta.label}</Link>
-        </Button>
-      )}
-    </motion.div>
-  );
-}
-
-function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
-  return (
-    <motion.button
-      type="button"
-      onClick={onRemove}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      className="group inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-xs font-medium text-foreground hover:border-destructive/40 hover:text-destructive"
-    >
-      <span>{label}</span>
-      <X className="size-3 opacity-60 group-hover:opacity-100" />
-    </motion.button>
-  );
-}
