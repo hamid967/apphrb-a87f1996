@@ -248,7 +248,7 @@ function AuthPage() {
             reason: error.message,
           },
         }).catch(() => {});
-        setFailedAttemptsInc(trimmedEmail);
+        incFailedAttempts(trimmedEmail);
         throw error;
       }
       await recordLoginEvent({
