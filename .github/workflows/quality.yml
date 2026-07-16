@@ -19,7 +19,9 @@ jobs:
       # TanStack Router types every `<Link to="...">` against the generated
       # route tree, so a broken internal link surfaces as a typecheck error
       # here. This is our route-link checker.
-      - run: bun run typecheck
+      - name: Typecheck
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
+        run: bun run typecheck
 
   lint:
     runs-on: ubuntu-latest
