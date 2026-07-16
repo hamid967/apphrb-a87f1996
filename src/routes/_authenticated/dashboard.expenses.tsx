@@ -25,12 +25,14 @@ import { useNavigate } from "@tanstack/react-router";
 import { useRef } from "react";
 import { listMyOrganizations } from "@/lib/organizations.functions";
 import {
-  createExpense,
-  deleteExpense,
-  listExpenses,
-  updateExpense,
-} from "@/lib/accounting.functions";
+  archiveFinanceExpense,
+  createFinanceExpense,
+  listExpenseCategories,
+  listFinanceExpenses,
+  updateFinanceExpense,
+} from "@/lib/finance.functions";
 import { listMyRecentClaims } from "@/lib/expense-claims.functions";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ReceiptCameraButton } from "@/components/receipt-camera-button";
@@ -79,11 +81,17 @@ export const Route = createFileRoute("/_authenticated/dashboard/expenses")({
     if (search.correct && /^[0-9a-f-]{36}$/i.test(search.correct)) {
       throw redirect({
         to: "/dashboard/expenses/claim/correct",
-        search: { original: search.correct },
+        search: { original: search.correct } as never,
       });
     }
   },
-  head: () => sectionHead({ section: "dashboard", entityAr: "المصروفات", entityEn: "Expenses", path: "/dashboard/expenses" }),
+  head: () =>
+    sectionHead({
+      section: "dashboard",
+      entityAr: "المصروفات",
+      entityEn: "Expenses",
+      path: "/dashboard/expenses",
+    }),
   component: ExpensesPage,
 });
 
@@ -121,12 +129,15 @@ const monthKey = (d: string) => d.slice(0, 7);
 type Row = any;
 
 const emptyForm = () => ({
+  scope: "property" as "property" | "personal",
   spent_at: today(),
   category: "other" as Cat,
+  category_id: "",
+  vat_mode: "inclusive" as "inclusive" | "exclusive" | "exempt",
+  payment_method: "bank_transfer" as "cash" | "bank_transfer" | "cheque" | "mada" | "other",
   vendor: "",
   description: "",
   amount: "",
-  vat_amount: "0",
   currency: "SAR",
   receipt_url: "",
 });
@@ -140,8 +151,14 @@ function ExpensesPage() {
   const orgId = orgsQ.data?.[0]?.org?.id;
 
   const q = useQuery({
-    queryKey: ["expenses", orgId],
-    queryFn: () => listExpenses({ data: { orgId: orgId! } }),
+    queryKey: ["finance-expenses", orgId],
+    queryFn: () => listFinanceExpenses({ data: { org_id: orgId! } }),
+    enabled: !!orgId,
+  });
+
+  const catsQ = useQuery({
+    queryKey: ["expense-categories", orgId],
+    queryFn: () => listExpenseCategories({ data: { org_id: orgId! } }),
     enabled: !!orgId,
   });
 
@@ -158,8 +175,9 @@ function ExpensesPage() {
 
   const [catFilter, setCatFilter] = useState<string>("all");
   const [monthFilter, setMonthFilter] = useState<string>("all");
+  const [scopeFilter, setScopeFilter] = useState<string>("property");
 
-  const rows: Row[] = q.data ?? [];
+  const rows = useMemo<Row[]>(() => q.data ?? [], [q.data]);
 
   const months = useMemo(() => {
     const s = new Set<string>();
@@ -170,11 +188,14 @@ function ExpensesPage() {
   const filtered = useMemo(
     () =>
       rows.filter((r) => {
-        if (catFilter !== "all" && r.category !== catFilter) return false;
+        if (scopeFilter !== "all" && r.scope !== scopeFilter) return false;
+        const categoryName = r.category_ref?.name_en ?? r.category;
+        if (catFilter !== "all" && String(r.category_id ?? categoryName) !== catFilter)
+          return false;
         if (monthFilter !== "all" && monthKey(r.spent_at) !== monthFilter) return false;
         return true;
       }),
-    [rows, catFilter, monthFilter],
+    [rows, catFilter, monthFilter, scopeFilter],
   );
 
   const totals = useMemo(() => {
@@ -198,12 +219,15 @@ function ExpensesPage() {
   const openEdit = (r: Row) => {
     setEditing(r);
     setForm({
+      scope: r.scope ?? "property",
       spent_at: r.spent_at,
       category: r.category,
+      category_id: r.category_id ?? "",
+      vat_mode: r.vat_mode ?? "inclusive",
+      payment_method: r.payment_method ?? "bank_transfer",
       vendor: r.vendor ?? "",
       description: r.description ?? "",
-      amount: String(r.amount),
-      vat_amount: String(r.vat_amount ?? 0),
+      amount: String(r.gross_amount ?? r.amount),
       currency: r.currency ?? "SAR",
       receipt_url: r.receipt_url ?? "",
     });
@@ -211,28 +235,28 @@ function ExpensesPage() {
   };
 
   const create = useMutation({
-    mutationFn: createExpense,
+    mutationFn: createFinanceExpense,
     onSuccess: () => {
       toast.success(t("expenses.saved"));
-      qc.invalidateQueries({ queryKey: ["expenses", orgId] });
+      qc.invalidateQueries({ queryKey: ["finance-expenses", orgId] });
       setOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
   });
   const update = useMutation({
-    mutationFn: updateExpense,
+    mutationFn: updateFinanceExpense,
     onSuccess: () => {
       toast.success(t("expenses.updated"));
-      qc.invalidateQueries({ queryKey: ["expenses", orgId] });
+      qc.invalidateQueries({ queryKey: ["finance-expenses", orgId] });
       setOpen(false);
     },
     onError: (e: Error) => toast.error(e.message),
   });
   const del = useMutation({
-    mutationFn: (id: string) => deleteExpense({ data: { id } }),
+    mutationFn: (id: string) => archiveFinanceExpense({ data: { id } }),
     onSuccess: () => {
       toast.success(t("expenses.deleted"));
-      qc.invalidateQueries({ queryKey: ["expenses", orgId] });
+      qc.invalidateQueries({ queryKey: ["finance-expenses", orgId] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -242,10 +266,13 @@ function ExpensesPage() {
     const base = {
       spent_at: form.spent_at,
       category: form.category,
+      category_id: form.category_id || null,
+      scope: form.scope,
+      vat_mode: form.vat_mode,
+      payment_method: form.payment_method,
       vendor: form.vendor || null,
       description: form.description || null,
       amount: Number(form.amount),
-      vat_amount: Number(form.vat_amount || 0),
       currency: form.currency,
       receipt_url: form.receipt_url || null,
     };
@@ -257,8 +284,11 @@ function ExpensesPage() {
   };
 
   const fmt = (n: number) => `${n.toLocaleString(isAr ? "ar" : "en")}`;
+  const label = (ar: string, en: string) => (isAr ? ar : en);
+  const cats = catsQ.data ?? [];
+  const visibleCats = cats.filter((c: Row) => scopeFilter === "all" || c.scope === scopeFilter);
 
-  const goToClaim = () => navigate({ to: "/dashboard/expenses/claim", search: {} });
+  const goToClaim = () => navigate({ to: "/dashboard/expenses/claim", search: {} as never });
   const onQuickReceiptPicked = (file: File | null) => {
     if (!file) return;
     // Hand off to the full wizard where OCR + policy checks run.
@@ -272,7 +302,7 @@ function ExpensesPage() {
     } catch {
       /* storage may be unavailable in private mode */
     }
-    navigate({ to: "/dashboard/expenses/claim", search: {} });
+    navigate({ to: "/dashboard/expenses/claim", search: {} as never });
   };
 
   return (
@@ -302,16 +332,16 @@ function ExpensesPage() {
           {t("expenseBatches.goToBatches")}
         </Link>
         <span className="mx-2 text-muted-foreground">·</span>
-        <Link to="/dashboard/expenses/review" className="text-sm text-primary hover:underline">
+        <Link
+          to="/dashboard/expenses/review"
+          search={{} as never}
+          className="text-sm text-primary hover:underline"
+        >
           {t("claimsReview.linkFromExpenses")}
         </Link>
       </div>
 
-      <QuickStartPanel
-        isAr={isAr}
-        onPick={onQuickReceiptPicked}
-        onOpenWizard={goToClaim}
-      />
+      <QuickStartPanel isAr={isAr} onPick={onQuickReceiptPicked} onOpenWizard={goToClaim} />
 
       <MonthlySummaryPanel
         isAr={isAr}
@@ -320,7 +350,6 @@ function ExpensesPage() {
         loading={q.isLoading || claimsQ.isLoading}
       />
 
-
       <div className="mt-6 grid gap-3 md:grid-cols-3">
         <StatCard label={t("expenses.statCount")} value={String(filtered.length)} />
         <StatCard label={t("expenses.statTotal")} value={fmt(totals.total)} suffix="SAR" />
@@ -328,15 +357,25 @@ function ExpensesPage() {
       </div>
 
       <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <Select value={scopeFilter} onValueChange={setScopeFilter}>
+          <SelectTrigger>
+            <SelectValue placeholder={label("النطاق", "Scope")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{label("كل النطاقات", "All scopes")}</SelectItem>
+            <SelectItem value="property">{label("عقارية", "Property")}</SelectItem>
+            <SelectItem value="personal">{label("شخصية", "Personal")}</SelectItem>
+          </SelectContent>
+        </Select>
         <Select value={catFilter} onValueChange={setCatFilter}>
           <SelectTrigger>
             <SelectValue placeholder={t("expenses.catFilter")} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t("expenses.allCats")}</SelectItem>
-            {CATS.map((c) => (
-              <SelectItem key={c} value={c}>
-                {t(CAT_KEY[c])}
+            {visibleCats.map((c: Row) => (
+              <SelectItem key={c.id} value={c.id}>
+                {isAr ? c.name_ar : c.name_en}
               </SelectItem>
             ))}
           </SelectContent>
@@ -375,8 +414,11 @@ function ExpensesPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t("expenses.date")}</TableHead>
+                    <TableHead>{label("النطاق", "Scope")}</TableHead>
                     <TableHead>{t("expenses.cat")}</TableHead>
                     <TableHead>{t("expenses.vendor")}</TableHead>
+                    <TableHead className="text-end">{label("الصافي", "Net")}</TableHead>
+                    <TableHead className="text-end">{label("الضريبة", "VAT")}</TableHead>
                     <TableHead className="text-end">{t("expenses.amount")}</TableHead>
                     <TableHead>{t("expenses.receipt")}</TableHead>
                     <TableHead />
@@ -387,16 +429,35 @@ function ExpensesPage() {
                     <TableRow key={r.id}>
                       <TableCell className="text-sm text-muted-foreground">{r.spent_at}</TableCell>
                       <TableCell>
-                        {CAT_KEY[r.category as Cat] ? t(CAT_KEY[r.category as Cat]) : r.category}
-                      </TableCell>
-                      <TableCell>{r.vendor ?? "—"}</TableCell>
-                      <TableCell className="text-end tabular-nums">
-                        {fmt(Number(r.amount))} {r.currency}
+                        <Badge variant="outline">
+                          {r.scope === "personal"
+                            ? label("شخصي", "Personal")
+                            : label("عقاري", "Property")}
+                        </Badge>
                       </TableCell>
                       <TableCell>
-                        {r.receipt_url ? (
+                        {r.category_ref
+                          ? isAr
+                            ? r.category_ref.name_ar
+                            : r.category_ref.name_en
+                          : CAT_KEY[r.category as Cat]
+                            ? t(CAT_KEY[r.category as Cat])
+                            : r.category}
+                      </TableCell>
+                      <TableCell>{r.vendor_ref?.name ?? r.vendor ?? "—"}</TableCell>
+                      <TableCell className="text-end tabular-nums">
+                        {fmt(Number(r.net_amount ?? r.amount))} {r.currency}
+                      </TableCell>
+                      <TableCell className="text-end tabular-nums">
+                        {fmt(Number(r.vat_amount ?? 0))} {r.currency}
+                      </TableCell>
+                      <TableCell className="text-end tabular-nums">
+                        {fmt(Number(r.gross_amount ?? r.amount))} {r.currency}
+                      </TableCell>
+                      <TableCell>
+                        {r.receipt_url || r.receipt_path ? (
                           <a
-                            href={r.receipt_url}
+                            href={r.receipt_url || "#"}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex items-center gap-1 text-primary hover:underline"
@@ -408,7 +469,12 @@ function ExpensesPage() {
                         )}
                       </TableCell>
                       <TableCell className="text-end">
-                        <Button size="icon" variant="ghost" aria-label={t("common.edit") || "تعديل"} onClick={() => openEdit(r)}>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          aria-label={t("common.edit") || "تعديل"}
+                          onClick={() => openEdit(r)}
+                        >
                           <Pencil className="size-4" aria-hidden />
                         </Button>
                         <Button
@@ -427,7 +493,6 @@ function ExpensesPage() {
                 </TableBody>
               </Table>
             </ListState>
-
           </CardContent>
         </Card>
 
@@ -488,6 +553,22 @@ function ExpensesPage() {
           </DialogHeader>
           <div className="grid gap-3 py-2">
             <div className="grid grid-cols-2 gap-3">
+              <Field label={label("النطاق", "Scope")}>
+                <Select
+                  value={form.scope}
+                  onValueChange={(v) =>
+                    setForm({ ...form, scope: v as "property" | "personal", category_id: "" })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="property">{label("عقاري", "Property")}</SelectItem>
+                    <SelectItem value="personal">{label("شخصي", "Personal")}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
               <Field label={t("expenses.dateL")}>
                 <Input
                   type="date"
@@ -497,18 +578,28 @@ function ExpensesPage() {
               </Field>
               <Field label={t("expenses.catL")}>
                 <Select
-                  value={form.category}
-                  onValueChange={(v) => setForm({ ...form, category: v as Cat })}
+                  value={form.category_id || "none"}
+                  onValueChange={(v) => {
+                    const selected = cats.find((c: Row) => c.id === v);
+                    setForm({
+                      ...form,
+                      category_id: v === "none" ? "" : v,
+                      category: selected?.name_en === "Maintenance" ? "maintenance" : "other",
+                    });
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATS.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {t(CAT_KEY[c])}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="none">{label("بدون تصنيف", "No category")}</SelectItem>
+                    {cats
+                      .filter((c: Row) => c.scope === form.scope)
+                      .map((c: Row) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {isAr ? c.name_ar : c.name_en}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </Field>
@@ -535,13 +626,22 @@ function ExpensesPage() {
                   onChange={(e) => setForm({ ...form, amount: e.target.value })}
                 />
               </Field>
-              <Field label={t("expenses.vatL")}>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={form.vat_amount}
-                  onChange={(e) => setForm({ ...form, vat_amount: e.target.value })}
-                />
+              <Field label={label("الضريبة", "VAT")}>
+                <Select
+                  value={form.vat_mode}
+                  onValueChange={(v) => setForm({ ...form, vat_mode: v as typeof form.vat_mode })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="inclusive">{label("شامل 15%", "Inclusive 15%")}</SelectItem>
+                    <SelectItem value="exclusive">
+                      {label("غير شامل 15%", "Exclusive 15%")}
+                    </SelectItem>
+                    <SelectItem value="exempt">{label("معفى", "Exempt")}</SelectItem>
+                  </SelectContent>
+                </Select>
               </Field>
               <Field label={t("expenses.currencyL")}>
                 <Input
@@ -550,6 +650,25 @@ function ExpensesPage() {
                 />
               </Field>
             </div>
+            <Field label={label("طريقة الدفع", "Payment method")}>
+              <Select
+                value={form.payment_method}
+                onValueChange={(v) =>
+                  setForm({ ...form, payment_method: v as typeof form.payment_method })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cash">{label("نقد", "Cash")}</SelectItem>
+                  <SelectItem value="bank_transfer">{label("تحويل", "Bank transfer")}</SelectItem>
+                  <SelectItem value="cheque">{label("شيك", "Cheque")}</SelectItem>
+                  <SelectItem value="mada">{label("مدى", "Mada")}</SelectItem>
+                  <SelectItem value="other">{label("أخرى", "Other")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
             <Field label={t("expenses.receiptUrl")}>
               <Input
                 type="url"
@@ -702,7 +821,6 @@ function QuickStartPanel({
   );
 }
 
-
 function StatCard({ label, value, suffix }: { label: string; value: string; suffix?: string }) {
   return (
     <Card>
@@ -732,8 +850,7 @@ function MonthlySummaryPanel({
     month: "long",
     year: "numeric",
   });
-  const fmt = (n: number) =>
-    n.toLocaleString(isAr ? "ar" : "en", { maximumFractionDigits: 2 });
+  const fmt = (n: number) => n.toLocaleString(isAr ? "ar" : "en", { maximumFractionDigits: 2 });
 
   const monthRows = rows.filter((r) => monthKey(r.spent_at) === currentMonth);
   const total = monthRows.reduce((s, r) => s + Number(r.amount ?? 0), 0);
@@ -768,8 +885,7 @@ function MonthlySummaryPanel({
             {t("إجمالي الإنفاق", "Total spending")}
           </div>
           <div className="text-2xl font-semibold tabular-nums sm:text-3xl">
-            {loading ? "—" : fmt(total)}{" "}
-            <span className="text-sm text-muted-foreground">SAR</span>
+            {loading ? "—" : fmt(total)} <span className="text-sm text-muted-foreground">SAR</span>
           </div>
           <div className="mt-0.5 text-xs text-muted-foreground">
             {monthRows.length} {t("عملية", "entries")}
@@ -794,8 +910,7 @@ function MonthlySummaryPanel({
             <div className="space-y-2.5">
               {sortedCats.slice(0, 6).map(([cat, amt]) => {
                 const pct = maxCat > 0 ? Math.round((amt / maxCat) * 100) : 0;
-                const shareOfTotal =
-                  total > 0 ? Math.round((amt / total) * 100) : 0;
+                const shareOfTotal = total > 0 ? Math.round((amt / total) * 100) : 0;
                 return (
                   <div key={cat}>
                     <div className="flex items-center justify-between text-xs">
@@ -835,9 +950,7 @@ function MonthlySummaryPanel({
         </div>
 
         <div className="grid gap-3">
-          <div className="text-sm font-semibold">
-            {t("حالة طلباتي", "My claims status")}
-          </div>
+          <div className="text-sm font-semibold">{t("حالة طلباتي", "My claims status")}</div>
           <div className="grid grid-cols-3 gap-2">
             <StatusCard
               icon={CheckCircle2}
@@ -862,10 +975,7 @@ function MonthlySummaryPanel({
             />
           </div>
           <p className="text-[11px] leading-relaxed text-muted-foreground">
-            {t(
-              "يعرض حالة آخر 50 مطالبة قدمتها.",
-              "Showing your last 50 submitted claims.",
-            )}
+            {t("يعرض حالة آخر 50 مطالبة قدمتها.", "Showing your last 50 submitted claims.")}
           </p>
         </div>
       </CardContent>
@@ -893,18 +1003,12 @@ function StatusCard({
         ? "border-warning/30 bg-warning/10 text-warning dark:text-warning"
         : "border-destructive/30 bg-destructive/10 text-destructive dark:text-destructive";
   return (
-    <div
-      className={`rounded-2xl border p-3 backdrop-blur ${toneCls}`}
-      role="status"
-    >
+    <div className={`rounded-2xl border p-3 backdrop-blur ${toneCls}`} role="status">
       <div className="flex items-center gap-1.5 text-[11px] font-medium opacity-90">
         <Icon className="size-3.5" aria-hidden />
         {label}
       </div>
-      <div className="mt-1 text-2xl font-semibold tabular-nums">
-        {loading ? "—" : value}
-      </div>
+      <div className="mt-1 text-2xl font-semibold tabular-nums">{loading ? "—" : value}</div>
     </div>
   );
 }
-
