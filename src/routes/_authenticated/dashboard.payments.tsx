@@ -11,6 +11,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogFooter,
@@ -19,28 +26,36 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { listMyOrganizations } from "@/lib/organizations.functions";
-import { listRentCharges, recordRentPayment } from "@/lib/rent-payments.functions";
+import { listLeasePayments, recordLeasePayment } from "@/lib/finance.functions";
 import { EnterpriseDataTable, type DTColumn } from "@/components/dashboard/EnterpriseDataTable";
 
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute("/_authenticated/dashboard/payments")({
-  head: () => sectionHead({ section: "dashboard", entityAr: "المدفوعات", entityEn: "Payments", path: "/dashboard/payments" }),
+  head: () =>
+    sectionHead({
+      section: "dashboard",
+      entityAr: "المدفوعات",
+      entityEn: "Payments",
+      path: "/dashboard/payments",
+    }),
   component: PaymentsPage,
 });
 
-type Tab = "due" | "overdue" | "upcoming" | "paid";
+type Tab = "due" | "overdue" | "partial" | "paid";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ChargeRow = any;
+type PaymentReceiptResult = { receipt_number?: string | null } | null;
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
 const bucket = (c: ChargeRow): Tab => {
   if (c.status === "paid") return "paid";
+  if (c.status === "partial") return "partial";
+  if (c.status === "overdue") return "overdue";
   const today = todayISO();
   if (c.due_date < today) return "overdue";
-  if (c.due_date === today) return "due";
-  return "upcoming";
+  return "due";
 };
 
 function PaymentsPage() {
@@ -50,8 +65,8 @@ function PaymentsPage() {
   const orgsQ = useQuery({ queryKey: ["my-organizations"], queryFn: () => listMyOrganizations() });
   const org = orgsQ.data?.[0]?.org;
   const chargesQ = useQuery({
-    queryKey: ["rent-charges", org?.id],
-    queryFn: () => listRentCharges({ data: { org_id: org!.id } }),
+    queryKey: ["lease-payments", org?.id],
+    queryFn: () => listLeasePayments({ data: { org_id: org!.id } }),
     enabled: !!org,
   });
 
@@ -59,34 +74,78 @@ function PaymentsPage() {
   const [selected, setSelected] = useState<ChargeRow | null>(null);
 
   const grouped = useMemo(() => {
-    const g: Record<Tab, ChargeRow[]> = { due: [], overdue: [], upcoming: [], paid: [] };
+    const g: Record<Tab, ChargeRow[]> = { due: [], overdue: [], partial: [], paid: [] };
     for (const c of chargesQ.data ?? []) g[bucket(c)].push(c);
     return g;
   }, [chargesQ.data]);
 
+  const totals = useMemo(() => {
+    const rows = chargesQ.data ?? [];
+    const collected = rows.reduce((s: number, r: ChargeRow) => s + Number(r.paid_amount ?? 0), 0);
+    const overdue = rows
+      .filter((r: ChargeRow) => bucket(r) === "overdue")
+      .reduce(
+        (s: number, r: ChargeRow) =>
+          s + Math.max(Number(r.amount ?? 0) - Number(r.paid_amount ?? 0), 0),
+        0,
+      );
+    const expected = rows
+      .filter((r: ChargeRow) => bucket(r) !== "paid")
+      .reduce(
+        (s: number, r: ChargeRow) =>
+          s + Math.max(Number(r.amount ?? 0) - Number(r.paid_amount ?? 0), 0),
+        0,
+      );
+    return { collected, overdue, expected };
+  }, [chargesQ.data]);
+
+  const label = (ar: string, en: string) => (isAr ? ar : en);
+  const fmt = (n: number) => n.toLocaleString(isAr ? "ar" : "en", { maximumFractionDigits: 2 });
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("payments.title")}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t("payments.sub")}</p>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          {label("التحصيل", "Collections")}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {label(
+            "تسجيل السداد الكامل والجزئي مع سندات قبض متسلسلة.",
+            "Record full and partial rent payments with sequential receipts.",
+          )}
+        </p>
+      </div>
+
+      <div className="mt-6 grid gap-3 md:grid-cols-3">
+        <SummaryCard label={label("المحصّل", "Collected")} value={fmt(totals.collected)} />
+        <SummaryCard
+          label={label("المتأخرات", "Overdue")}
+          value={fmt(totals.overdue)}
+          tone="danger"
+        />
+        <SummaryCard
+          label={label("المتوقع", "Expected")}
+          value={fmt(totals.expected)}
+          tone="info"
+        />
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)} className="mt-6">
         <TabsList>
           <TabsTrigger value="due">
-            {t("payments.tabDue")} ({grouped.due.length})
+            {label("مستحقة", "Due")} ({grouped.due.length})
           </TabsTrigger>
           <TabsTrigger value="overdue">
-            {t("payments.tabOverdue")} ({grouped.overdue.length})
+            {label("متأخرة", "Overdue")} ({grouped.overdue.length})
           </TabsTrigger>
-          <TabsTrigger value="upcoming">
-            {t("payments.tabUpcoming")} ({grouped.upcoming.length})
+          <TabsTrigger value="partial">
+            {label("جزئية", "Partial")} ({grouped.partial.length})
           </TabsTrigger>
           <TabsTrigger value="paid">
-            {t("payments.tabPaid")} ({grouped.paid.length})
+            {label("مدفوعة", "Paid")} ({grouped.paid.length})
           </TabsTrigger>
         </TabsList>
-        {(["due", "overdue", "upcoming", "paid"] as Tab[]).map((t) => (
+        {(["due", "overdue", "partial", "paid"] as Tab[]).map((t) => (
           <TabsContent key={t} value={t} className="mt-4">
             <ChargesTable
               rows={grouped[t]}
@@ -103,12 +162,35 @@ function PaymentsPage() {
         charge={selected}
         onClose={() => setSelected(null)}
         onDone={() => {
-          qc.invalidateQueries({ queryKey: ["rent-charges", org?.id] });
+          qc.invalidateQueries({ queryKey: ["lease-payments", org?.id] });
         }}
         orgName={(org?.name as string) ?? "—"}
         orgLogo={(org?.logo_url as string | null) ?? null}
         isAr={isAr}
       />
+    </div>
+  );
+}
+
+function SummaryCard({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  value: string;
+  tone?: "default" | "danger" | "info";
+}) {
+  const toneClass =
+    tone === "danger"
+      ? "border-destructive/20 bg-destructive/5"
+      : tone === "info"
+        ? "border-info/20 bg-info/5"
+        : "border-success/20 bg-success/5";
+  return (
+    <div className={`rounded-lg border p-4 ${toneClass}`}>
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="mt-1 text-2xl font-semibold tabular-nums">{value} SAR</div>
     </div>
   );
 }
@@ -131,44 +213,55 @@ function ChargesTable({
     {
       id: "tenant",
       header: t("payments.colTenant"),
-      accessor: (c) => c.tenants?.full_name ?? "—",
+      accessor: (c) => c.tenant?.full_name ?? "—",
       width: 200,
     },
     {
       id: "unit",
       header: t("payments.colUnit"),
-      accessor: (c) =>
-        `${c.contracts?.units?.code ?? ""} ${c.contracts?.contract_number ?? ""}`.trim(),
+      accessor: (c) => `${c.unit?.code ?? ""} ${c.contract?.contract_number ?? ""}`.trim(),
       width: 200,
       cell: (c) => (
         <div>
-          <div>{c.contracts?.units?.code ?? "—"}</div>
-          <div className="text-xs text-muted-foreground">{c.contracts?.contract_number ?? ""}</div>
+          <div>{c.unit?.code ?? "—"}</div>
+          <div className="text-xs text-muted-foreground">{c.contract?.contract_number ?? ""}</div>
         </div>
       ),
     },
     {
-      id: "period",
-      header: t("payments.colPeriod"),
-      accessor: (c) => `${c.period_start} → ${c.period_end}`,
+      id: "property",
+      header: isAr ? "العقار" : "Property",
+      accessor: (c) => c.property?.title_ar ?? c.property?.title_en ?? "—",
       width: 200,
     },
-    { id: "due", header: t("payments.colDue"), accessor: (c) => c.due_date, width: 140 },
+    { id: "due", header: isAr ? "الاستحقاق" : "Due", accessor: (c) => c.due_date, width: 140 },
     {
       id: "amount",
-      header: t("payments.colAmount"),
+      header: isAr ? "المبلغ" : "Amount",
       accessor: (c) => Number(c.amount),
       align: "end",
       width: 140,
       cell: (c) => (
         <span className="tabular-nums">
-          {Number(c.amount).toLocaleString(isAr ? "ar" : "en")} {c.currency ?? "SAR"}
+          {Number(c.amount).toLocaleString(isAr ? "ar" : "en")} SAR
+        </span>
+      ),
+    },
+    {
+      id: "paid",
+      header: isAr ? "المسدّد" : "Paid",
+      accessor: (c) => Number(c.paid_amount ?? 0),
+      align: "end",
+      width: 140,
+      cell: (c) => (
+        <span className="tabular-nums">
+          {Number(c.paid_amount ?? 0).toLocaleString(isAr ? "ar" : "en")} SAR
         </span>
       ),
     },
     {
       id: "status",
-      header: t("payments.colStatus"),
+      header: isAr ? "الحالة" : "Status",
       accessor: () => tab,
       width: 120,
       cell: () => <StatusBadge tab={tab} />,
@@ -191,7 +284,7 @@ function ChargesTable({
               onRecord(c);
             }}
           >
-            <ReceiptText className="me-1.5 size-4" /> {t("payments.record")}
+            <ReceiptText className="me-1.5 size-4" /> {isAr ? "تسجيل سداد" : "Record"}
           </Button>
         ) : null,
     },
@@ -204,15 +297,15 @@ function ChargesTable({
       isAr={isAr}
       loading={loading}
       exportFileName={`payments-${tab}`}
-      emptyLabel={t("payments.empty")}
-      searchPlaceholder={t("payments.search")}
+      emptyLabel={isAr ? "لا توجد دفعات" : "No payments"}
+      searchPlaceholder={isAr ? "بحث في التحصيل" : "Search collections"}
       bulkActions={
         tab === "paid"
           ? []
           : [
               {
                 id: "mark",
-                label: t("payments.bulkMark"),
+                label: isAr ? "تسجيل أول دفعة" : "Record first payment",
                 icon: CheckCircle2,
                 onRun: (rs) => {
                   if (rs[0]) onRecord(rs[0]);
@@ -225,26 +318,27 @@ function ChargesTable({
 }
 
 function StatusBadge({ tab }: { tab: Tab }) {
-  const { t } = useTranslation();
+  const { i18n } = useTranslation();
+  const isAr = i18n.language?.startsWith("ar");
   const map: Record<Tab, { key: string; className: string }> = {
-    due: { key: "payments.stDue", className: "bg-warning/15 text-warning border-warning/30" },
+    due: { key: isAr ? "مستحقة" : "Due", className: "bg-muted text-foreground border-border" },
     overdue: {
-      key: "payments.stOverdue",
+      key: isAr ? "متأخرة" : "Overdue",
       className: "bg-destructive/15 text-destructive border-destructive/30",
     },
-    upcoming: {
-      key: "payments.stUpcoming",
-      className: "bg-info/15 text-info border-info/30",
+    partial: {
+      key: isAr ? "جزئية" : "Partial",
+      className: "bg-warning/15 text-warning border-warning/30",
     },
     paid: {
-      key: "payments.stPaid",
+      key: isAr ? "مدفوعة" : "Paid",
       className: "bg-success/15 text-success border-success/30",
     },
   };
   const v = map[tab];
   return (
     <Badge variant="outline" className={v.className}>
-      {t(v.key)}
+      {v.key}
     </Badge>
   );
 }
@@ -267,21 +361,30 @@ function RecordPaymentDialog({
   const { t } = useTranslation();
   const [amount, setAmount] = useState<string>("");
   const [paidAt, setPaidAt] = useState<string>(todayISO());
-  const [reference, setReference] = useState("");
+  const [method, setMethod] = useState<"cash" | "bank_transfer" | "cheque" | "mada" | "other">(
+    "bank_transfer",
+  );
   const [notes, setNotes] = useState("");
   const [showReceipt, setShowReceipt] = useState<null | {
     amount: number;
     paid_at: string;
-    reference: string;
+    receipt_number: string;
+    payment_method: string;
     notes: string;
   }>(null);
 
   const mut = useMutation({
-    mutationFn: recordRentPayment,
-    onSuccess: () => {
+    mutationFn: recordLeasePayment,
+    onSuccess: (receipt: PaymentReceiptResult) => {
       toast.success(t("payments.savedOk"));
       onDone();
-      setShowReceipt({ amount: Number(amount), paid_at: paidAt, reference, notes });
+      setShowReceipt({
+        amount: Number(amount),
+        paid_at: paidAt,
+        receipt_number: receipt?.receipt_number ?? "—",
+        payment_method: method,
+        notes,
+      });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -290,7 +393,7 @@ function RecordPaymentDialog({
   const close = () => {
     setAmount("");
     setPaidAt(todayISO());
-    setReference("");
+    setMethod("bank_transfer");
     setNotes("");
     setShowReceipt(null);
     onClose();
@@ -310,16 +413,23 @@ function RecordPaymentDialog({
               <div className="rounded-md border bg-muted/40 p-3 text-sm">
                 <div>
                   <span className="text-muted-foreground">{t("payments.dlgTenant")}:</span>{" "}
-                  {charge.tenants?.full_name ?? "—"}
+                  {charge.tenant?.full_name ?? "—"}
                 </div>
                 <div>
                   <span className="text-muted-foreground">{t("payments.dlgUnit")}:</span>{" "}
-                  {charge.contracts?.units?.code ?? "—"}
+                  {charge.unit?.code ?? "—"}
                 </div>
                 <div>
                   <span className="text-muted-foreground">{t("payments.dlgDue")}:</span>{" "}
-                  {Number(charge.amount).toLocaleString(isAr ? "ar" : "en")}{" "}
-                  {charge.currency ?? "SAR"}
+                  {Number(charge.amount).toLocaleString(isAr ? "ar" : "en")} SAR
+                </div>
+                <div>
+                  <span className="text-muted-foreground">{isAr ? "المتبقي" : "Remaining"}:</span>{" "}
+                  {Math.max(
+                    Number(charge.amount ?? 0) - Number(charge.paid_amount ?? 0),
+                    0,
+                  ).toLocaleString(isAr ? "ar" : "en")}{" "}
+                  SAR
                 </div>
               </div>
               <div className="grid gap-1.5">
@@ -343,13 +453,21 @@ function RecordPaymentDialog({
                 />
               </div>
               <div className="grid gap-1.5">
-                <Label htmlFor="ref">{t("payments.refMethod")}</Label>
-                <Input
-                  id="ref"
-                  value={reference}
-                  onChange={(e) => setReference(e.target.value)}
-                  placeholder={t("payments.refPh")}
-                />
+                <Label>{isAr ? "طريقة الدفع" : "Payment method"}</Label>
+                <Select value={method} onValueChange={(v) => setMethod(v as typeof method)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cash">{isAr ? "نقد" : "Cash"}</SelectItem>
+                    <SelectItem value="bank_transfer">
+                      {isAr ? "تحويل" : "Bank transfer"}
+                    </SelectItem>
+                    <SelectItem value="cheque">{isAr ? "شيك" : "Cheque"}</SelectItem>
+                    <SelectItem value="mada">{isAr ? "مدى" : "Mada"}</SelectItem>
+                    <SelectItem value="other">{isAr ? "أخرى" : "Other"}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid gap-1.5">
                 <Label htmlFor="notes">{t("payments.dlgNotes")}</Label>
@@ -370,10 +488,10 @@ function RecordPaymentDialog({
                 onClick={() =>
                   mut.mutate({
                     data: {
-                      charge_id: charge.id,
+                      lease_payment_id: charge.id,
                       amount: Number(amount),
                       paid_at: paidAt,
-                      reference: reference || null,
+                      payment_method: method,
                       notes: notes || null,
                     },
                   })
@@ -409,17 +527,23 @@ function Receipt({
   orgName: string;
   orgLogo: string | null;
   charge: ChargeRow;
-  payment: { amount: number; paid_at: string; reference: string; notes: string };
+  payment: {
+    amount: number;
+    paid_at: string;
+    receipt_number: string;
+    payment_method: string;
+    notes: string;
+  };
   isAr: boolean;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
   const amount = payment.amount.toLocaleString(isAr ? "ar" : "en");
   const amountEn = payment.amount.toLocaleString("en");
-  const currency = charge.currency ?? "SAR";
-  const tenant = charge.tenants?.full_name ?? "—";
-  const unit = charge.contracts?.units?.code ?? "—";
-  const receiptNo = `R-${(charge.id ?? "").toString().slice(0, 8).toUpperCase()}-${payment.paid_at.replace(/-/g, "")}`;
+  const currency = "SAR";
+  const tenant = charge.tenant?.full_name ?? "—";
+  const unit = charge.unit?.code ?? "—";
+  const receiptNo = payment.receipt_number;
 
   return (
     <>
@@ -465,9 +589,7 @@ function Receipt({
           </div>
           <div>
             <div className="text-xs text-muted-foreground">{t("payments.recPeriod")}</div>
-            <div className="font-medium">
-              {charge.period_start} → {charge.period_end}
-            </div>
+            <div className="font-medium">{charge.due_date}</div>
           </div>
           <div>
             <div className="text-xs text-muted-foreground">{t("payments.recPaidOn")}</div>
@@ -475,7 +597,7 @@ function Receipt({
           </div>
           <div className="col-span-2">
             <div className="text-xs text-muted-foreground">{t("payments.recRef")}</div>
-            <div className="font-medium">{payment.reference || "—"}</div>
+            <div className="font-medium">{payment.payment_method || "—"}</div>
           </div>
         </div>
 
