@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import {
   Building2,
   Check,
+  FileImage,
   Home,
   ListChecks,
   Loader2,
@@ -54,6 +55,30 @@ export const Route = createFileRoute("/onboarding/wizard")({
 });
 
 type StepKey = "profile" | "company" | "branch" | "property";
+type AccountType = "individual" | "business";
+type Phase1OrgRow = {
+  account_type?: AccountType | null;
+  tax_number?: string | null;
+  commercial_registration?: string | null;
+  national_address?: string | null;
+  authorized_person_name?: string | null;
+  authorized_person_phone?: string | null;
+};
+type Phase1OrganizationsClient = {
+  from(table: "organizations"): {
+    select(columns: string): {
+      eq(
+        column: "id",
+        value: string,
+      ): {
+        maybeSingle(): Promise<{ data: Phase1OrgRow | null; error: unknown }>;
+      };
+    };
+    update(values: { logo_path: string; logo_url: string }): {
+      eq(column: "id", value: string): Promise<{ error: { message: string } | null }>;
+    };
+  };
+};
 const STEPS: {
   key: StepKey;
   label_ar: string;
@@ -126,8 +151,15 @@ function OnboardingWizardPage() {
   const [reason, setReason] = useState("");
 
   // Step 1: company
+  const [accountType, setAccountType] = useState<AccountType>("business");
   const [wsName, setWsName] = useState("");
   const [wsPhone, setWsPhone] = useState("");
+  const [taxNumber, setTaxNumber] = useState("");
+  const [commercialRegistration, setCommercialRegistration] = useState("");
+  const [nationalAddress, setNationalAddress] = useState("");
+  const [authorizedPersonName, setAuthorizedPersonName] = useState("");
+  const [authorizedPersonPhone, setAuthorizedPersonPhone] = useState("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   // Step 2: branch + departments (optional)
   const [brName, setBrName] = useState("");
@@ -182,8 +214,22 @@ function OnboardingWizardPage() {
             .select("name, phone")
             .eq("id", ctx.company_id)
             .maybeSingle();
+          const phase1Client = supabase as unknown as Phase1OrganizationsClient;
+          const { data: org } = await phase1Client
+            .from("organizations")
+            .select(
+              "account_type, tax_number, commercial_registration, national_address, authorized_person_name, authorized_person_phone",
+            )
+            .eq("id", ctx.company_id)
+            .maybeSingle();
           if (comp?.name) setWsName(comp.name);
           if (comp?.phone) setWsPhone(comp.phone);
+          if (org?.account_type) setAccountType(org.account_type);
+          if (org?.tax_number) setTaxNumber(org.tax_number);
+          if (org?.commercial_registration) setCommercialRegistration(org.commercial_registration);
+          if (org?.national_address) setNationalAddress(org.national_address);
+          if (org?.authorized_person_name) setAuthorizedPersonName(org.authorized_person_name);
+          if (org?.authorized_person_phone) setAuthorizedPersonPhone(org.authorized_person_phone);
           setStep(2);
         } else if (prof?.full_name && prof?.signup_reason) {
           setStep(1);
@@ -236,15 +282,44 @@ function OnboardingWizardPage() {
 
   const submitCompany = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (wsName.trim().length < 2) return toast.error("يرجى إدخال اسم مساحة العمل");
+    const isBusiness = accountType === "business";
+    if (wsName.trim().length < 2) {
+      return toast.error(isBusiness ? "يرجى إدخال اسم المنشأة" : "يرجى إدخال الاسم");
+    }
+    if (isBusiness && taxNumber.trim() && !/^\d{15}$/.test(taxNumber.trim())) {
+      return toast.error("الرقم الضريبي للمنشأة يجب أن يتكون من 15 خانة");
+    }
     setBusy(true);
     try {
       const res = await register({
-        data: { name: wsName.trim(), phone: wsPhone.trim() || undefined },
+        data: {
+          accountType,
+          name: wsName.trim(),
+          phone: wsPhone.trim() || undefined,
+          taxNumber: taxNumber.trim() || undefined,
+          commercialRegistration: commercialRegistration.trim() || undefined,
+          nationalAddress: nationalAddress.trim() || undefined,
+          authorizedPersonName: authorizedPersonName.trim() || undefined,
+          authorizedPersonPhone: authorizedPersonPhone.trim() || undefined,
+        },
       });
       setOrgId(res.org_id);
+      if (logoFile) {
+        const extension = logoFile.name.split(".").pop() || "png";
+        const logoPath = `${res.org_id}/logo.${extension}`;
+        const { error: uploadError } = await supabase.storage
+          .from("account-logos")
+          .upload(logoPath, logoFile, { upsert: true });
+        if (uploadError) throw uploadError;
+        const phase1Client = supabase as unknown as Phase1OrganizationsClient;
+        const { error: logoUpdateError } = await phase1Client
+          .from("organizations")
+          .update({ logo_path: logoPath, logo_url: logoPath })
+          .eq("id", res.org_id);
+        if (logoUpdateError) throw logoUpdateError;
+      }
       await markStep({ data: { step: "company", done: true } }).catch(() => {});
-      toast.success(`تم إنشاء مساحة العمل — تجربة مجانية ${res.trial_days} يومًا`);
+      toast.success(`تم إنشاء الحساب — تجربة مجانية ${res.trial_days} يومًا`);
       setStep(2);
     } catch (err) {
       const hint = describeCompanyCreateError(err);
@@ -317,9 +392,7 @@ function OnboardingWizardPage() {
       });
       await markStep({ data: { step: "branch", done: true } }).catch(() => {});
       toast.success(
-        res.departments > 0
-          ? `تم حفظ الفرع و${res.departments} قسمًا`
-          : "تم حفظ الفرع",
+        res.departments > 0 ? `تم حفظ الفرع و${res.departments} قسمًا` : "تم حفظ الفرع",
       );
       setStep(3);
     } catch (err) {
@@ -356,7 +429,10 @@ function OnboardingWizardPage() {
     }
     const priceNum = Number(propPrice || "0");
     if (!Number.isFinite(priceNum) || priceNum < 0) {
-      console.warn("[wizard]", "step:4 validation-failed", { reason: "invalid_price", priceRaw: propPrice });
+      console.warn("[wizard]", "step:4 validation-failed", {
+        reason: "invalid_price",
+        priceRaw: propPrice,
+      });
       return toast.error("السعر غير صحيح");
     }
     setBusy(true);
@@ -376,7 +452,9 @@ function OnboardingWizardPage() {
           city: propCity.trim() || null,
         },
       });
-      console.info("[wizard]", "step:4 api:createProp -> done", { ms: Math.round(performance.now() - t0) });
+      console.info("[wizard]", "step:4 api:createProp -> done", {
+        ms: Math.round(performance.now() - t0),
+      });
       console.info("[wizard]", "step:4 api:markStep(first_receipt) -> start");
       const markRes = await markStep({ data: { step: "first_receipt", done: true } });
       console.info("[wizard]", "step:4 api:markStep -> done", { completed: markRes?.completed });
@@ -396,7 +474,7 @@ function OnboardingWizardPage() {
         stack: err instanceof Error ? err.stack : undefined,
       });
       toast.error(err instanceof Error ? err.message : "تعذّر إنشاء العقار", {
-        description: "تحقق من اتصالك ثم أعد المحاولة، أو اضغط \"تخطّي\" للمتابعة.",
+        description: 'تحقق من اتصالك ثم أعد المحاولة، أو اضغط "تخطّي" للمتابعة.',
       });
     } finally {
       setBusy(false);
@@ -408,7 +486,9 @@ function OnboardingWizardPage() {
     setBusy(true);
     try {
       const markRes = await markStep({ data: { step: "first_receipt", done: true } });
-      console.info("[wizard]", "step:4 skip api:markStep -> done", { completed: markRes?.completed });
+      console.info("[wizard]", "step:4 skip api:markStep -> done", {
+        completed: markRes?.completed,
+      });
       await queryClient.invalidateQueries({ queryKey: ["dashboard-onboarding-state"] });
       await queryClient.invalidateQueries({ queryKey: ["my-access-context"] });
       setBusy(false);
@@ -426,9 +506,6 @@ function OnboardingWizardPage() {
       setBusy(false);
     }
   };
-
-
-
 
   return (
     <div className="studio-shell studio-grid relative min-h-[var(--app-height,100vh)] overflow-hidden">
@@ -448,11 +525,15 @@ function OnboardingWizardPage() {
               ابدأ تشغيل محفظتك العقارية خلال دقائق
             </h1>
             <p className="mt-4 text-sm leading-7 text-[#c9ddd4]">
-              هذه الخطوات تجهّز حسابك، شركتك، فرعك الأول، وأوّل وحدة تديرها حتى تدخل لوحة التحكم لإدارة الأملاك وتسجيل المصاريف مباشرة.
+              هذه الخطوات تجهّز حسابك، بيانات الفرد أو المنشأة، الشعار، والفرع الأول حتى تدخل لوحة
+              التحكم لإدارة الأملاك وتسجيل المصاريف مباشرة.
             </p>
             <div className="mt-8 space-y-3">
               {TRUST_ITEMS.map((item) => (
-                <div key={item} className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4 text-sm text-[#E8D9A6]">
+                <div
+                  key={item}
+                  className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4 text-sm text-[#E8D9A6]"
+                >
                   <Check className="mt-0.5 size-4 shrink-0 text-[#C5A059]" />
                   <span>{item}</span>
                 </div>
@@ -464,7 +545,8 @@ function OnboardingWizardPage() {
                 حامد يساعدك أثناء التسجيل
               </div>
               <p className="text-xs leading-6 text-[#c9ddd4]">
-                استخدم زر المساعد في كل خطوة لتعبئة البيانات المقترحة أو معرفة الخطوة التالية بدون مغادرة التسجيل.
+                استخدم زر المساعد في كل خطوة لتعبئة البيانات المقترحة أو معرفة الخطوة التالية بدون
+                مغادرة التسجيل.
               </p>
             </div>
           </div>
@@ -475,13 +557,13 @@ function OnboardingWizardPage() {
             <div>
               <div className="template-pill mb-3">
                 <Sparkles className="size-3.5" />
-                إعداد ذكي للحساب
+                تسجيل مزدوج للحساب
               </div>
               <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">
                 تفعيل حساب HBSpro
               </h1>
               <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-                أكمل البيانات الأساسية مرة واحدة، وبعدها ينقلك النظام مباشرة إلى لوحة التحكم.
+                اختر حساب فرد أو منشأة، واحفظ البيانات التي ستظهر لاحقًا في التقارير وملفات PDF.
               </p>
             </div>
             <Button asChild variant="ghost" size="sm" className="h-8 gap-1 text-xs">
@@ -516,7 +598,11 @@ function OnboardingWizardPage() {
                 >
                   <div className="mb-2 flex items-center justify-between gap-2">
                     <span className="grid size-8 place-items-center rounded-xl bg-background/70">
-                      {done ? <Check className="size-4 text-primary" /> : <Icon className="size-4" />}
+                      {done ? (
+                        <Check className="size-4 text-primary" />
+                      ) : (
+                        <Icon className="size-4" />
+                      )}
                     </span>
                     <span className="text-[11px] font-bold tabular-nums">{i + 1}/4</span>
                   </div>
@@ -625,11 +711,7 @@ function OnboardingWizardPage() {
                     </SelectContent>
                   </Select>
                 </div>
-                <Button
-                  type="submit"
-                  className="h-11 w-full studio-button"
-                  disabled={busy}
-                >
+                <Button type="submit" className="h-11 w-full studio-button" disabled={busy}>
                   {busy && <Loader2 className="me-2 size-4 animate-spin" />} متابعة
                 </Button>
               </form>
@@ -638,9 +720,9 @@ function OnboardingWizardPage() {
             <>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-black tracking-tight">بيانات الشركة</h2>
+                  <h2 className="text-2xl font-black tracking-tight">بيانات الحساب</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    أنشئ مساحة العمل التي ستضم العقارات والفريق والتقارير.
+                    اختر نوع الحساب واحفظ البيانات التي ستُستخدم في ترويسة التقارير وملفات PDF.
                   </p>
                 </div>
                 <OnboardingAiHelper
@@ -652,8 +734,49 @@ function OnboardingWizardPage() {
                 />
               </div>
               <form onSubmit={submitCompany} className="mt-6 space-y-4">
+                <div
+                  className="grid gap-3 sm:grid-cols-2"
+                  role="radiogroup"
+                  aria-label="نوع الحساب"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setAccountType("individual")}
+                    className={[
+                      "rounded-2xl border p-4 text-start transition",
+                      accountType === "individual"
+                        ? "border-primary bg-primary/10 shadow-sm"
+                        : "border-border bg-muted/20",
+                    ].join(" ")}
+                  >
+                    <UserRound className="mb-3 size-5 text-primary" />
+                    <div className="font-black">حساب فرد</div>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      لمالك عقار أو إدارة مصاريف شخصية وعقارية.
+                    </p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAccountType("business")}
+                    className={[
+                      "rounded-2xl border p-4 text-start transition",
+                      accountType === "business"
+                        ? "border-primary bg-primary/10 shadow-sm"
+                        : "border-border bg-muted/20",
+                    ].join(" ")}
+                  >
+                    <Building2 className="mb-3 size-5 text-primary" />
+                    <div className="font-black">حساب منشأة</div>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      لشركة أو مؤسسة مع بيانات ضريبية ومفوض رسمي.
+                    </p>
+                  </button>
+                </div>
+
                 <div className="space-y-1.5">
-                  <Label htmlFor="ws-name">اسم الشركة *</Label>
+                  <Label htmlFor="ws-name">
+                    {accountType === "business" ? "اسم المنشأة *" : "الاسم *"}
+                  </Label>
                   <Input
                     id="ws-name"
                     value={wsName}
@@ -662,11 +785,15 @@ function OnboardingWizardPage() {
                     minLength={2}
                     maxLength={120}
                     autoFocus
-                    placeholder="مثال: شركة النور العقارية"
+                    placeholder={
+                      accountType === "business"
+                        ? "مثال: شركة النور العقارية"
+                        : "مثال: عبدالله الحربي"
+                    }
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="ws-phone">رقم الاتصال (اختياري)</Label>
+                  <Label htmlFor="ws-phone">رقم الجوال أو الاتصال</Label>
                   <Input
                     id="ws-phone"
                     type="tel"
@@ -676,21 +803,94 @@ function OnboardingWizardPage() {
                     placeholder="+9665XXXXXXXX"
                   />
                 </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="tax-number">
+                    الرقم الضريبي{" "}
+                    {accountType === "individual" ? "(اختياري)" : "(اختياري في Phase 1)"}
+                  </Label>
+                  <Input
+                    id="tax-number"
+                    inputMode="numeric"
+                    dir="ltr"
+                    value={taxNumber}
+                    onChange={(e) => setTaxNumber(e.target.value.replace(/\D/g, "").slice(0, 15))}
+                    placeholder="15 خانة"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    سيُستخدم لاحقًا تلقائيًا في ترويسة PDF والفواتير الضريبية.
+                  </p>
+                </div>
+
+                {accountType === "business" && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="commercial-registration">السجل التجاري</Label>
+                      <Input
+                        id="commercial-registration"
+                        value={commercialRegistration}
+                        onChange={(e) => setCommercialRegistration(e.target.value)}
+                        placeholder="مثال: 4030XXXXXX"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="authorized-person-phone">جوال المفوض</Label>
+                      <Input
+                        id="authorized-person-phone"
+                        type="tel"
+                        dir="ltr"
+                        value={authorizedPersonPhone}
+                        onChange={(e) => setAuthorizedPersonPhone(e.target.value)}
+                        placeholder="+9665XXXXXXXX"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="authorized-person-name">اسم المفوض</Label>
+                      <Input
+                        id="authorized-person-name"
+                        value={authorizedPersonName}
+                        onChange={(e) => setAuthorizedPersonName(e.target.value)}
+                        placeholder="اسم الشخص المفوض"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="national-address">العنوان الوطني</Label>
+                      <Input
+                        id="national-address"
+                        value={nationalAddress}
+                        onChange={(e) => setNationalAddress(e.target.value)}
+                        placeholder="المدينة، الحي، رقم المبنى"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4">
+                  <Label htmlFor="account-logo" className="flex items-center gap-2">
+                    <FileImage className="size-4 text-primary" />
+                    {accountType === "business" ? "شعار المنشأة" : "الشعار أو الصورة"}
+                  </Label>
+                  <Input
+                    id="account-logo"
+                    className="mt-3"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
+                  />
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                    الحد الأقصى 5MB. يُحفظ داخل مساحة الحساب لاستخدامه لاحقًا في التصدير.
+                  </p>
+                </div>
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
                   <div className="flex items-start gap-2">
                     <Sparkles className="mt-0.5 size-3.5 shrink-0 text-primary" />
-                    <span>سيتم ربطك بدور «المالك» وتفعيل الوحدات الأساسية.</span>
+                    <span>سيتم ربطك بدور «المالك» وتفعيل عزل البيانات الخاص بهذا الحساب.</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <Button type="button" variant="ghost" onClick={() => setStep(0)} disabled={busy}>
                     رجوع
                   </Button>
-                  <Button
-                    type="submit"
-                    className="h-11 flex-1 studio-button"
-                    disabled={busy}
-                  >
+                  <Button type="submit" className="h-11 flex-1 studio-button" disabled={busy}>
                     {busy && <Loader2 className="me-2 size-4 animate-spin" />} إنشاء ومتابعة
                   </Button>
                 </div>
@@ -700,9 +900,7 @@ function OnboardingWizardPage() {
             <>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-black tracking-tight">
-                    الفرع والأقسام
-                  </h2>
+                  <h2 className="text-2xl font-black tracking-tight">الفرع والأقسام</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     أضف فرعك الرئيسي وأقسامه الأساسية — يمكنك إضافة المزيد لاحقًا من الإعدادات.
                   </p>
@@ -773,11 +971,7 @@ function OnboardingWizardPage() {
                     <Button type="button" variant="outline" onClick={skipBranch} disabled={busy}>
                       تخطّي
                     </Button>
-                    <Button
-                      type="submit"
-                      className="h-11 flex-1 studio-button"
-                      disabled={busy}
-                    >
+                    <Button type="submit" className="h-11 flex-1 studio-button" disabled={busy}>
                       {busy && <Loader2 className="me-2 size-4 animate-spin" />} حفظ ومتابعة
                     </Button>
                   </div>
@@ -788,9 +982,7 @@ function OnboardingWizardPage() {
             <>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-black tracking-tight">
-                    أضف أول وحدة تحت الإدارة
-                  </h2>
+                  <h2 className="text-2xl font-black tracking-tight">أضف أول وحدة تحت الإدارة</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     سجّل أول عقار أو وحدة تديرها، أو تخطَّ الخطوة وأكمل من لوحة التحكم لاحقًا.
                   </p>
@@ -868,11 +1060,7 @@ function OnboardingWizardPage() {
                     <Button type="button" variant="outline" onClick={skipProperty} disabled={busy}>
                       تخطّي
                     </Button>
-                    <Button
-                      type="submit"
-                      className="h-11 flex-1 studio-button"
-                      disabled={busy}
-                    >
+                    <Button type="submit" className="h-11 flex-1 studio-button" disabled={busy}>
                       {busy && <Loader2 className="me-2 size-4 animate-spin" />} إنشاء وبدء العمل
                     </Button>
                   </div>
