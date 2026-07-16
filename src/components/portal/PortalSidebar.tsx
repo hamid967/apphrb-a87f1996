@@ -5,10 +5,7 @@ import {
   LayoutDashboard,
   FileClock,
   FolderOpen,
-  Users2,
   Receipt,
-  CalendarDays,
-  Bot,
   Bell,
   LifeBuoy,
   Settings,
@@ -27,17 +24,20 @@ const NAV: Item[] = [
   { to: "/portal", icon: LayoutDashboard, ar: "نظرة عامة", en: "Overview" },
   { to: "/portal/requests", icon: FileClock, ar: "طلباتي", en: "Requests" },
   { to: "/portal/documents", icon: FolderOpen, ar: "الوثائق", en: "Documents" },
-  { to: "/portal/employees", icon: Users2, ar: "الموظفون", en: "Employees" },
   { to: "/portal/invoices", icon: Receipt, ar: "الفواتير", en: "Invoices" },
   { to: "/portal/billing", icon: CreditCard, ar: "الاشتراك والدفع", en: "Billing" },
-  { to: "/portal/appointments", icon: CalendarDays, ar: "المواعيد", en: "Appointments" },
-  { to: "/portal/assistant", icon: Bot, ar: "المساعد", en: "AI Assistant" },
   { to: "/portal/notifications", icon: Bell, ar: "الإشعارات", en: "Notifications" },
   { to: "/portal/support", icon: LifeBuoy, ar: "الدعم", en: "Support" },
   { to: "/portal/settings", icon: Settings, ar: "الإعدادات", en: "Settings" },
 ];
 
-export function PortalSidebar({ collapsed = false }: { collapsed?: boolean }) {
+export function PortalSidebar({
+  collapsed = false,
+  mobile = false,
+}: {
+  collapsed?: boolean;
+  mobile?: boolean;
+}) {
   const { i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const path = useRouterState({ select: (r) => r.location.pathname });
@@ -46,7 +46,9 @@ export function PortalSidebar({ collapsed = false }: { collapsed?: boolean }) {
     <aside
       aria-label={isAr ? "شريط التنقل" : "Primary navigation"}
       className={
-        "sticky top-0 hidden h-dvh shrink-0 border-r border-border/60 bg-card/60 backdrop-blur-xl lg:block " +
+        (mobile
+          ? "h-full border-border/60 bg-card"
+          : "sticky top-0 hidden h-dvh shrink-0 border-r border-border/60 bg-card/60 backdrop-blur-xl lg:block ") +
         (collapsed ? "w-[76px]" : "w-[248px]")
       }
     >
@@ -96,25 +98,28 @@ export function PortalSidebar({ collapsed = false }: { collapsed?: boolean }) {
           })}
         </ul>
       </nav>
-
-      {!collapsed && (
-        <div className="mx-3 mt-4 rounded-2xl border border-border/60 bg-gradient-to-br from-primary/10 to-accent/10 p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-            {isAr ? "AI جديد" : "New in AI"}
-          </div>
-          <p className="mt-1 text-xs text-foreground/80">
-            {isAr
-              ? "استخدم المساعد الحكومي الذكي لتعبئة النماذج تلقائياً."
-              : "Use the AI government assistant to auto-fill forms."}
-          </p>
-          <Link
-            to="/portal/assistant"
-            className="mt-2 inline-flex text-[11px] font-semibold text-primary hover:underline"
-          >
-            {isAr ? "جرّب الآن ←" : "Try it →"}
-          </Link>
-        </div>
-      )}
+      {!collapsed && !mobile && <PortalHelpCard isAr={isAr} />}
     </aside>
+  );
+}
+
+function PortalHelpCard({ isAr }: { isAr: boolean }) {
+  return (
+    <div className="mx-3 mt-4 rounded-2xl border border-border/60 bg-gradient-to-br from-primary/10 to-accent/10 p-4">
+      <div className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+        {isAr ? "تحتاج مساعدة؟" : "Need help?"}
+      </div>
+      <p className="mt-1 text-xs text-foreground/80">
+        {isAr
+          ? "افتح تذكرة دعم من البوابة وسنراجع طلبك."
+          : "Open a support ticket and we will review your request."}
+      </p>
+      <Link
+        to="/portal/support"
+        className="mt-2 inline-flex text-[11px] font-semibold text-primary hover:underline"
+      >
+        {isAr ? "الدعم ←" : "Support →"}
+      </Link>
+    </div>
   );
 }
