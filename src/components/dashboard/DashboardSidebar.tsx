@@ -79,7 +79,13 @@ export function DashboardSidebar() {
       labelEn: "Overview",
       items: [
         { url: "/dashboard", icon: LayoutDashboard, ar: "الرئيسية", en: "Overview" },
-        { url: "/dashboard", search: { view: "smart" }, icon: Sparkles, ar: "لوحة ذكية", en: "Smart Dashboard" },
+        {
+          url: "/dashboard",
+          search: { view: "smart" },
+          icon: Sparkles,
+          ar: "لوحة ذكية",
+          en: "Smart Dashboard",
+        },
         { url: "/dashboard/reports", icon: BarChart3, ar: "التقارير", en: "Reports" },
       ],
     },
@@ -98,13 +104,23 @@ export function DashboardSidebar() {
       labelEn: "Contracts & Finance",
       items: [
         { url: "/dashboard/contracts", icon: FileText, ar: "عقود الإيجار", en: "Lease Contracts" },
-        { url: "/dashboard/payments", icon: Coins, ar: "المدفوعات", en: "Payments" },
+        { url: "/dashboard/payments", icon: Coins, ar: "التحصيل", en: "Collections" },
         { url: "/dashboard/invoices", icon: Receipt, ar: "الفواتير", en: "Invoices" },
-        { url: "/dashboard/zatca-customers", icon: Users2, ar: "عملاء ZATCA", en: "ZATCA Customers" },
+        {
+          url: "/dashboard/zatca-customers",
+          icon: Users2,
+          ar: "عملاء ZATCA",
+          en: "ZATCA Customers",
+        },
         { url: "/dashboard/vouchers", icon: Wallet, ar: "السندات", en: "Vouchers" },
         { url: "/dashboard/expenses", icon: Receipt, ar: "المصروفات", en: "Expenses" },
         { url: "/dashboard/commissions", icon: Target, ar: "العمولات", en: "Commissions" },
-        { url: "/dashboard/payment-schedules", icon: CalendarClock, ar: "جداول الأقساط", en: "Payment Schedules" },
+        {
+          url: "/dashboard/payment-schedules",
+          icon: CalendarClock,
+          ar: "جداول الأقساط",
+          en: "Payment Schedules",
+        },
       ],
     },
     {
@@ -112,7 +128,12 @@ export function DashboardSidebar() {
       labelEn: "Tenants",
       items: [
         { url: "/dashboard/tenants", icon: Users2, ar: "المستأجرون", en: "Tenants" },
-        { url: "/dashboard/applications", icon: ClipboardList, ar: "طلبات السكن", en: "Applications" },
+        {
+          url: "/dashboard/applications",
+          icon: ClipboardList,
+          ar: "طلبات السكن",
+          en: "Applications",
+        },
       ],
     },
     {
@@ -131,7 +152,6 @@ export function DashboardSidebar() {
     },
   ];
   const items = groups.flatMap((g) => g.items);
-
 
   const search = useRouterState({ select: (s) => s.location.search as Record<string, unknown> });
   const currentView = (search?.view as string | undefined) ?? "classic";
@@ -201,7 +221,7 @@ export function DashboardSidebar() {
                         >
                           <Link
                             to={item.url}
-                            search={item.search as any}
+                            search={item.search as never}
                             aria-label={label}
                             aria-current={active ? "page" : undefined}
                             className="relative flex items-center gap-3 focus-visible:outline-none min-w-0"
@@ -238,8 +258,6 @@ export function DashboardSidebar() {
             </SidebarGroup>
           ))}
         </LayoutGroup>
-
-
       </SidebarContent>
 
       <SidebarFooter className="relative z-10 gap-3 p-3">
