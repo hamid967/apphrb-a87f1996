@@ -1,0 +1,245 @@
+name: pr-risk-audit
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+permissions:
+  pull-requests: write
+  contents: read
+  checks: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Run PR risk audit
+        id: audit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO:     ${{ github.repository }}
+          PR:       ${{ github.event.pull_request.number }}
+          BASE:     ${{ github.event.pull_request.base.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          mkdir -p /tmp/audit
+          python3 <<'PY' > /tmp/audit/report.md
+          import os, subprocess, json, re, pathlib, sys
+
+          repo = os.environ["REPO"]
+          pr   = os.environ["PR"]
+          base = os.environ["BASE"]
+          head = os.environ["HEAD_REF"]
+          sha  = os.environ["HEAD_SHA"]
+
+          def gh(path):
+              r = subprocess.run(
+                  ["gh","api",path],
+                  capture_output=True, text=True
+              )
+              if r.returncode != 0:
+                  return None
+              try: return json.loads(r.stdout)
+              except: return None
+
+          pr_data  = gh(f"repos/{repo}/pulls/{pr}") or {}
+          files    = gh(f"repos/{repo}/pulls/{pr}/files?per_page=100") or []
+          checks   = (gh(f"repos/{repo}/commits/{sha}/check-runs") or {}).get("check_runs",[])
+          compare  = gh(f"repos/{repo}/compare/{base}...{head}") or {}
+
+          blockers, notes, oks = [], [], []
+
+          # 1) Mergeability
+          mstate = pr_data.get("mergeable_state","unknown")
+          if mstate in {"dirty","blocked"}:
+              blockers.append(f"حالة الدمج: `{mstate}` — تعارضات أو checks حمراء تمنع الدمج.")
+          elif mstate == "unstable":
+              notes.append(f"حالة الدمج: `unstable` — بعض الـ checks غير خضراء.")
+          else:
+              oks.append(f"حالة الدمج: `{mstate}`")
+
+          # 2) Description completeness
+          body = pr_data.get("body") or ""
+          required = [
+              ("النطاق",              r"##\s*🎯?\s*النطاق"),
+              ("التغييرات",           r"##\s*📦?\s*التغييرات"),
+              ("المخاطر",             r"##\s*⚠️?\s*المخاطر"),
+              ("الاختبار",            r"##\s*🧪?\s*الاختبار"),
+              ("Migrations",          r"##\s*🗄️?\s*Migrations"),
+              ("Security",            r"##\s*🔐?\s*Security"),
+              ("i18n & A11y",         r"##\s*🌐?\s*i18n"),
+              ("قبل طلب المراجعة",     r"##\s*✅?\s*قبل\s*طلب"),
+          ]
+          missing = [n for n,p in required if not re.search(p, body)]
+          if missing:
+              blockers.append("أقسام مفقودة من وصف الـ PR: " + " · ".join(missing))
+          else:
+              oks.append("وصف الـ PR يحتوي على كل الأقسام المطلوبة")
+
+          # 3) CI checks
+          failed = [c["name"] for c in checks if c.get("conclusion") in {"failure","cancelled","timed_out"}]
+          if failed:
+              blockers.append("Checks حمراء: " + ", ".join(f"`{n}`" for n in failed))
+          pending = [c["name"] for c in checks if c.get("status") in {"queued","in_progress"}]
+          if pending:
+              notes.append("Checks قيد التنفيذ: " + ", ".join(f"`{n}`" for n in pending))
+
+          # 4) Branch hygiene
+          behind = compare.get("behind_by",0)
+          ahead  = compare.get("ahead_by",0)
+          if behind > 20:
+              blockers.append(f"الفرع متأخّر بـ **{behind}** commits عن `{base}` — يجب rebase.")
+          elif behind > 0:
+              notes.append(f"الفرع متأخّر بـ {behind} commits عن `{base}`.")
+          else:
+              oks.append(f"الفرع متزامن مع `{base}` (ahead {ahead})")
+
+          # 5) Migration audit (SQL scan)
+          sql_files = [f for f in files if f["filename"].startswith("supabase/migrations/") and f["filename"].endswith(".sql") and f["status"] in {"added","modified"}]
+          for f in sql_files:
+              path = pathlib.Path(f["filename"])
+              if not path.exists(): continue
+              sql = path.read_text(errors="ignore")
+              tables = re.findall(r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?public\.(\w+)", sql, re.I)
+              for t in tables:
+                  block = sql
+                  if not re.search(rf"GRANT[^;]+ON\s+public\.{t}\s+TO\s+service_role", block, re.I):
+                      blockers.append(f"`{f['filename']}` — جدول `{t}` بدون `GRANT ... TO service_role`.")
+                  if not re.search(rf"ALTER\s+TABLE\s+public\.{t}\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY", block, re.I):
+                      blockers.append(f"`{f['filename']}` — جدول `{t}` بدون `ENABLE ROW LEVEL SECURITY`.")
+                  if not re.search(rf"CREATE\s+POLICY[^;]+ON\s+public\.{t}", block, re.I):
+                      blockers.append(f"`{f['filename']}` — جدول `{t}` بدون أي `CREATE POLICY`.")
+              # FKs to auth.users
+              if re.search(r"REFERENCES\s+auth\.users", sql, re.I):
+                  blockers.append(f"`{f['filename']}` — FK إلى `auth.users` ممنوع (استخدم `profiles`).")
+              # SECURITY DEFINER without search_path
+              for m in re.finditer(r"CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+public\.(\w+)[\s\S]+?SECURITY\s+DEFINER([\s\S]*?)\$\$", sql, re.I):
+                  if "search_path" not in m.group(2).lower():
+                      notes.append(f"`{f['filename']}` — دالة `{m.group(1)}` SECURITY DEFINER بدون `SET search_path`.")
+
+          if sql_files and not any("supabase/migrations" in b for b in blockers):
+              oks.append(f"فحص {len(sql_files)} ملف هجرة — بنية GRANT/RLS/POLICY صحيحة")
+
+          # 6) Server fn / admin import checks
+          for f in files:
+              fn = f["filename"]
+              if fn.endswith(".functions.ts") or fn.endswith(".functions.tsx"):
+                  p = pathlib.Path(fn)
+                  if p.exists():
+                      src = p.read_text(errors="ignore")
+                      if re.search(r"^import\s+\{[^}]*supabaseAdmin[^}]*\}\s+from", src, re.M):
+                          blockers.append(f"`{fn}` — استيراد `supabaseAdmin` على مستوى الوحدة (استخدم `await import(...)` داخل handler).")
+
+          # ---------- Render ----------
+          out = []
+          out.append(f"## 🛡️ PR Risk Audit — #{pr}")
+          out.append("")
+          out.append(f"**الفرع:** `{head}` → `{base}` · **SHA:** `{sha[:7]}` · **الملفات:** {pr_data.get('changed_files',0)} · **+{pr_data.get('additions',0)} / −{pr_data.get('deletions',0)}**")
+          out.append("")
+
+          if blockers:
+              out.append("### 🚨 Blockers (يمنع الدمج)")
+              for b in blockers: out.append(f"- {b}")
+              out.append("")
+          if notes:
+              out.append("### ⚠️ ملاحظات")
+              for n in notes: out.append(f"- {n}")
+              out.append("")
+          if oks:
+              out.append("### ✅ ما هو صحيح")
+              for o in oks: out.append(f"- {o}")
+              out.append("")
+
+          rec = "❌ **fix-then-merge**" if blockers else ("⚠️ **مراجعة يدوية**" if notes else "✅ **جاهز للدمج**")
+          out.append(f"### التوصية: {rec}")
+          out.append("")
+          out.append("---")
+          out.append(f"<sub>تم توليده تلقائياً بواسطة `pr-risk-audit` workflow · [قالب PR](.github/PULL_REQUEST_TEMPLATE.md) · [Checklist](.github/CHECKLIST.md)</sub>")
+
+          print("\n".join(out))
+
+          # Signal blocker count via file for the next step
+          with open("/tmp/audit/blockers.count","w") as fh:
+              fh.write(str(len(blockers)))
+          PY
+
+          echo "blockers=$(cat /tmp/audit/blockers.count)" >> "$GITHUB_OUTPUT"
+
+      - name: Post / update sticky comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO:     ${{ github.repository }}
+          PR:       ${{ github.event.pull_request.number }}
+        run: |
+          MARKER="<!-- pr-risk-audit:sticky -->"
+          BODY_FILE=/tmp/audit/report.md
+          { echo "$MARKER"; cat "$BODY_FILE"; } > /tmp/audit/comment.md
+
+          EXISTING=$(gh api "repos/$REPO/issues/$PR/comments?per_page=100" \
+            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -n1)
+
+          if [ -n "$EXISTING" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$EXISTING" \
+              -f body="$(cat /tmp/audit/comment.md)"
+            echo "Updated existing audit comment #$EXISTING"
+          else
+            gh api -X POST "repos/$REPO/issues/$PR/comments" \
+              -f body="$(cat /tmp/audit/comment.md)"
+            echo "Created new audit comment"
+          fi
+
+      - name: Inject audit block into PR body
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO:     ${{ github.repository }}
+          PR:       ${{ github.event.pull_request.number }}
+        run: |
+          python3 <<'PY'
+          import os, subprocess, json, pathlib, re
+
+          repo = os.environ["REPO"]; pr = os.environ["PR"]
+          START = "<!-- pr-risk-audit:body:start -->"
+          END   = "<!-- pr-risk-audit:body:end -->"
+
+          report = pathlib.Path("/tmp/audit/report.md").read_text()
+          block  = f"{START}\n{report}\n{END}"
+
+          cur = json.loads(subprocess.check_output(
+              ["gh","api",f"repos/{repo}/pulls/{pr}"]).decode())
+          body = cur.get("body") or ""
+
+          pat = re.compile(re.escape(START) + r"[\s\S]*?" + re.escape(END))
+          if pat.search(body):
+              new_body = pat.sub(block, body)
+              action = "replaced existing audit block"
+          else:
+              sep = "\n\n---\n\n" if body.strip() else ""
+              new_body = f"{body}{sep}{block}"
+              action = "appended audit block"
+
+          if new_body == body:
+              print("No change to PR body.")
+          else:
+              subprocess.run(
+                  ["gh","api","-X","PATCH",f"repos/{repo}/pulls/{pr}",
+                   "-f",f"body={new_body}"],
+                  check=True
+              )
+              print(action)
+          PY
+
+
+
+      - name: Fail job if blockers exist
+        if: steps.audit.outputs.blockers != '0'
+        run: |
+          echo "::error::PR risk audit found ${{ steps.audit.outputs.blockers }} blocker(s) — راجع التعليق أعلاه."
+          exit 1
