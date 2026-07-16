@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Printer, ReceiptText, CheckCircle2 } from "lucide-react";
+import { FileText, Printer, ReceiptText, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,8 @@ import {
 import { listMyOrganizations } from "@/lib/organizations.functions";
 import { listLeasePayments, recordLeasePayment } from "@/lib/finance.functions";
 import { EnterpriseDataTable, type DTColumn } from "@/components/dashboard/EnterpriseDataTable";
+import type { AccountPdfProfile } from "@/lib/pdf/document-types";
+import { renderSimplifiedTaxInvoicePdf, renderVoucherPdf } from "@/lib/pdf/financial-documents";
 
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute("/_authenticated/dashboard/payments")({
@@ -64,6 +66,25 @@ function PaymentsPage() {
   const qc = useQueryClient();
   const orgsQ = useQuery({ queryKey: ["my-organizations"], queryFn: () => listMyOrganizations() });
   const org = orgsQ.data?.[0]?.org;
+  const orgProfile = org as
+    | (typeof org & {
+        account_type?: string | null;
+        tax_number?: string | null;
+        commercial_registration?: string | null;
+        national_address?: string | null;
+      })
+    | undefined;
+  const pdfAccount: AccountPdfProfile | null = org
+    ? {
+        orgId: String(org.id),
+        accountType: orgProfile?.account_type ?? null,
+        name: (org.name as string) ?? "—",
+        logoUrl: (org.logo_url as string | null) ?? null,
+        taxNumber: orgProfile?.tax_number ?? null,
+        commercialRegistration: orgProfile?.commercial_registration ?? null,
+        nationalAddress: orgProfile?.national_address ?? null,
+      }
+    : null;
   const chargesQ = useQuery({
     queryKey: ["lease-payments", org?.id],
     queryFn: () => listLeasePayments({ data: { org_id: org!.id } }),
@@ -164,8 +185,7 @@ function PaymentsPage() {
         onDone={() => {
           qc.invalidateQueries({ queryKey: ["lease-payments", org?.id] });
         }}
-        orgName={(org?.name as string) ?? "—"}
-        orgLogo={(org?.logo_url as string | null) ?? null}
+        account={pdfAccount}
         isAr={isAr}
       />
     </div>
@@ -347,15 +367,13 @@ function RecordPaymentDialog({
   charge,
   onClose,
   onDone,
-  orgName,
-  orgLogo,
+  account,
   isAr,
 }: {
   charge: ChargeRow | null;
   onClose: () => void;
   onDone: () => void;
-  orgName: string;
-  orgLogo: string | null;
+  account: AccountPdfProfile | null;
   isAr: boolean;
 }) {
   const { t } = useTranslation();
@@ -503,8 +521,7 @@ function RecordPaymentDialog({
           </>
         ) : (
           <Receipt
-            orgName={orgName}
-            orgLogo={orgLogo}
+            account={account}
             charge={charge}
             payment={showReceipt}
             isAr={isAr}
@@ -517,15 +534,13 @@ function RecordPaymentDialog({
 }
 
 function Receipt({
-  orgName,
-  orgLogo,
+  account,
   charge,
   payment,
   isAr,
   onClose,
 }: {
-  orgName: string;
-  orgLogo: string | null;
+  account: AccountPdfProfile | null;
   charge: ChargeRow;
   payment: {
     amount: number;
@@ -544,6 +559,53 @@ function Receipt({
   const tenant = charge.tenant?.full_name ?? "—";
   const unit = charge.unit?.code ?? "—";
   const receiptNo = payment.receipt_number;
+  const orgName = account?.name ?? "—";
+  const orgLogo = account?.logoUrl ?? null;
+
+  const exportVoucher = async () => {
+    if (!account) {
+      toast.error(isAr ? "بيانات الحساب غير متاحة" : "Account profile is unavailable");
+      return;
+    }
+    try {
+      const result = await renderVoucherPdf({
+        account,
+        templateKey: "official",
+        voucherType: "receipt",
+        voucherNumber: receiptNo,
+        amount: payment.amount,
+        partyName: tenant,
+        statement: `${isAr ? "سداد دفعة إيجار" : "Rent payment"} - ${charge.due_date}`,
+        paymentMethod: payment.payment_method,
+      });
+      result.open();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "تعذر توليد سند PDF");
+    }
+  };
+
+  const exportInvoice = async () => {
+    if (!account) {
+      toast.error(isAr ? "بيانات الحساب غير متاحة" : "Account profile is unavailable");
+      return;
+    }
+    try {
+      const taxable = Boolean(account.taxNumber);
+      const result = await renderSimplifiedTaxInvoicePdf({
+        account,
+        templateKey: "official",
+        invoiceNumber: receiptNo,
+        buyerName: tenant,
+        description: `${isAr ? "دفعة إيجار" : "Rent payment"} - ${charge.property?.title_ar ?? charge.property?.title_en ?? unit}`,
+        subtotal: taxable ? payment.amount / 1.15 : payment.amount,
+        vatAmount: taxable ? payment.amount - payment.amount / 1.15 : 0,
+        totalWithVat: payment.amount,
+      });
+      result.open();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "تعذر توليد الفاتورة");
+    }
+  };
 
   return (
     <>
@@ -643,6 +705,12 @@ function Receipt({
       <DialogFooter>
         <Button variant="ghost" onClick={onClose}>
           {t("payments.close")}
+        </Button>
+        <Button variant="secondary" onClick={exportVoucher}>
+          <ReceiptText className="me-2 size-4" /> {isAr ? "سند PDF" : "Voucher PDF"}
+        </Button>
+        <Button variant="secondary" onClick={exportInvoice}>
+          <FileText className="me-2 size-4" /> {isAr ? "فاتورة PDF" : "Invoice PDF"}
         </Button>
         <Button onClick={() => window.print()}>
           <Printer className="me-2 size-4" /> {t("payments.print")}
