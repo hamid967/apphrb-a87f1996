@@ -181,7 +181,6 @@ jobs:
         run: |
           MARKER="<!-- pr-risk-audit:sticky -->"
           BODY_FILE=/tmp/audit/report.md
-          # Prepend marker so we can find & update the same comment
           { echo "$MARKER"; cat "$BODY_FILE"; } > /tmp/audit/comment.md
 
           EXISTING=$(gh api "repos/$REPO/issues/$PR/comments?per_page=100" \
@@ -196,6 +195,48 @@ jobs:
               -f body="$(cat /tmp/audit/comment.md)"
             echo "Created new audit comment"
           fi
+
+      - name: Inject audit block into PR body
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO:     ${{ github.repository }}
+          PR:       ${{ github.event.pull_request.number }}
+        run: |
+          python3 <<'PY'
+          import os, subprocess, json, pathlib, re
+
+          repo = os.environ["REPO"]; pr = os.environ["PR"]
+          START = "<!-- pr-risk-audit:body:start -->"
+          END   = "<!-- pr-risk-audit:body:end -->"
+
+          report = pathlib.Path("/tmp/audit/report.md").read_text()
+          block  = f"{START}\n{report}\n{END}"
+
+          cur = json.loads(subprocess.check_output(
+              ["gh","api",f"repos/{repo}/pulls/{pr}"]).decode())
+          body = cur.get("body") or ""
+
+          pat = re.compile(re.escape(START) + r"[\s\S]*?" + re.escape(END))
+          if pat.search(body):
+              new_body = pat.sub(block, body)
+              action = "replaced existing audit block"
+          else:
+              sep = "\n\n---\n\n" if body.strip() else ""
+              new_body = f"{body}{sep}{block}"
+              action = "appended audit block"
+
+          if new_body == body:
+              print("No change to PR body.")
+          else:
+              subprocess.run(
+                  ["gh","api","-X","PATCH",f"repos/{repo}/pulls/{pr}",
+                   "-f",f"body={new_body}"],
+                  check=True
+              )
+              print(action)
+          PY
+
+
 
       - name: Fail job if blockers exist
         if: steps.audit.outputs.blockers != '0'
