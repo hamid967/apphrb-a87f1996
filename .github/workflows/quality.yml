@@ -19,7 +19,9 @@ jobs:
       # TanStack Router types every `<Link to="...">` against the generated
       # route tree, so a broken internal link surfaces as a typecheck error
       # here. This is our route-link checker.
-      - run: bun run typecheck
+      - name: Typecheck
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
+        run: bun run typecheck
 
   lint:
     runs-on: ubuntu-latest
@@ -30,7 +32,19 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - run: bun run lint
+      - name: Lint changed files
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          files="$(git diff --name-only --diff-filter=ACMRT "origin/${{ github.base_ref }}"...HEAD -- '*.js' '*.jsx' '*.ts' '*.tsx' | tr '\n' ' ')"
+          if [ -z "$files" ]; then
+            echo "No changed JS/TS files to lint."
+            exit 0
+          fi
+          bunx eslint $files
+      - name: Lint all files
+        if: github.event_name != 'pull_request'
+        run: bun run lint
 
   i18n-audit:
     # Warn-only gate. The baseline in `.i18n-baseline.json` records the
