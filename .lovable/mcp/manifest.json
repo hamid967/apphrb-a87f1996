@@ -432,6 +432,78 @@
           "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
+      },
+      {
+        "name": "create_expense_claim_from_receipt",
+        "title": "Create expense claim from receipt (OCR)",
+        "description": "Upload a receipt image (as an https URL or a data:image/...;base64,... URL) and this tool will run OCR via the app's vision model, extract the amount, currency, date, merchant, category, and notes, then create a submitted expense claim for the signed-in user's company. Fields you pass explicitly override anything OCR extracts. If OCR cannot read a required field and no override is given, the tool returns the OCR draft without creating the claim so the caller can confirm the missing values.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "receipt_url": {
+              "type": "string",
+              "format": "uri",
+              "maxLength": 4000,
+              "description": "URL of the receipt image. Accepts an https URL or a data URL (data:image/png;base64,...)."
+            },
+            "amount": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 10000000,
+              "description": "Override the amount OCR extracted."
+            },
+            "currency": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3,
+              "description": "Override the currency (ISO 4217, e.g. SAR)."
+            },
+            "expense_date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "Override the expense date."
+            },
+            "merchant": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "Override the merchant name."
+            },
+            "category": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "Override the expense category."
+            },
+            "notes": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "Override the notes / description."
+            },
+            "as_draft": {
+              "type": "boolean",
+              "default": false,
+              "description": "Save as draft instead of submitting for approval."
+            },
+            "dry_run": {
+              "type": "boolean",
+              "default": false,
+              "description": "Run OCR only and return the extracted fields without creating a claim."
+            }
+          },
+          "required": [
+            "receipt_url"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
       }
     ]
   }

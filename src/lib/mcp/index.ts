@@ -24,5 +24,5 @@ export default defineMcp({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated",
   }),
-  tools: [getMyContext, listProperties, listBranches, createProperty, listPendingTickets, decideExpenseClaim, createExpenseClaim],
+  tools: [getMyContext, listProperties, listBranches, createProperty, listPendingTickets, decideExpenseClaim, createExpenseClaim, createExpenseClaimFromReceipt],
 });
