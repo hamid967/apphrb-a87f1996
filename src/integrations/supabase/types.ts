@@ -7389,6 +7389,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      hbspro_has_org_role_text: {
+        Args: { _org: string; _roles: string[]; _user: string }
+        Returns: boolean
+      }
       is_company_member: { Args: { _company_id: string }; Returns: boolean }
       is_linked_property_owner: {
         Args: { _owner_id: string; _user: string }
@@ -7619,7 +7623,14 @@ export type Database = {
         | "lost"
       listing_status: "available" | "reserved" | "sold" | "rented" | "inactive"
       listing_type: "sale" | "rent"
-      org_role: "owner" | "admin" | "agent" | "viewer" | "property_owner"
+      org_role:
+        | "owner"
+        | "admin"
+        | "agent"
+        | "viewer"
+        | "property_owner"
+        | "finance_manager"
+        | "accountant"
       owner_statement_status: "draft" | "issued"
       payment_schedule_source: "contract" | "deal" | "commission"
       payment_schedule_status:
@@ -7866,7 +7877,15 @@ export const Constants = {
       ],
       listing_status: ["available", "reserved", "sold", "rented", "inactive"],
       listing_type: ["sale", "rent"],
-      org_role: ["owner", "admin", "agent", "viewer", "property_owner"],
+      org_role: [
+        "owner",
+        "admin",
+        "agent",
+        "viewer",
+        "property_owner",
+        "finance_manager",
+        "accountant",
+      ],
       owner_statement_status: ["draft", "issued"],
       payment_schedule_source: ["contract", "deal", "commission"],
       payment_schedule_status: [
