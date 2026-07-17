@@ -239,6 +239,7 @@ export const bulkInsertUnits = createServerFn({ method: "POST" })
         buildingById.set(buildingId, String(prop.id));
       }
       toInsert.push({
+        _rowIndex: index,
         org_id: data.org_id,
         building_id: buildingId,
         code: parsed.data.code,
@@ -251,16 +252,74 @@ export const bulkInsertUnits = createServerFn({ method: "POST" })
         currency_code: parsed.data.currency_code ?? (prop.currency as string | null) ?? "SAR",
       });
     }
+
+    // Update-on-match: look up existing units by (building_id, code) within scope.
+    const buildingIds = Array.from(new Set(toInsert.map((r) => r.building_id as string)));
+    const codes = Array.from(new Set(toInsert.map((r) => r.code as string)));
+    const existingByKey = new Map<string, string>(); // `${building_id}|${code_lower}` -> id
+    if (buildingIds.length && codes.length) {
+      const { data: existing, error: exErr } = await context.supabase
+        .from("units")
+        .select("id, building_id, code")
+        .eq("org_id", data.org_id)
+        .in("building_id", buildingIds)
+        .in("code", codes)
+        .is("deleted_at", null);
+      if (exErr) throw exErr;
+      for (const u of existing ?? []) {
+        existingByKey.set(`${u.building_id}|${String(u.code).toLowerCase()}`, String(u.id));
+      }
+    }
+
+    const insertPayload: any[] = [];
+    const updatePayload: Array<{ id: string; row: any; rowIndex: number }> = [];
+    // De-dup within the same CSV: last row wins for the same (building_id, code).
+    const seenBatchKey = new Map<string, number>();
+    for (const r of toInsert) {
+      const key = `${r.building_id}|${String(r.code).toLowerCase()}`;
+      const existingId = existingByKey.get(key);
+      const { _rowIndex, ...clean } = r;
+      if (existingId) {
+        updatePayload.push({ id: existingId, row: clean, rowIndex: _rowIndex });
+      } else if (seenBatchKey.has(key)) {
+        // Duplicate inside the file — turn later occurrences into updates of the pending insert
+        // by dropping the older insert and keeping the latest values.
+        const prevIdx = seenBatchKey.get(key)!;
+        insertPayload[prevIdx] = clean;
+      } else {
+        seenBatchKey.set(key, insertPayload.length);
+        insertPayload.push(clean);
+      }
+    }
+
     let created = 0;
-    if (toInsert.length) {
+    if (insertPayload.length) {
       const { data: ins, error } = await context.supabase
         .from("units")
-        .insert(toInsert)
+        .insert(insertPayload)
         .select("id");
       if (error) errors.push({ row: 0, message: error.message });
       else created = ins?.length ?? 0;
     }
-    return { created, skipped: data.rows.length - created - errors.filter((e) => e.row > 0).length, errors };
+
+    let updated = 0;
+    for (const u of updatePayload) {
+      const { org_id: _o, building_id: _b, code: _c, ...changes } = u.row;
+      const { error } = await context.supabase
+        .from("units")
+        .update(changes)
+        .eq("id", u.id);
+      if (error) errors.push({ row: u.rowIndex, message: error.message });
+      else updated++;
+    }
+
+    return {
+      created,
+      updated,
+      skipped:
+        data.rows.length - created - updated - errors.filter((e) => e.row > 0).length,
+      errors,
+    };
   });
 
 /* ------------------------------------------------------------------ */
