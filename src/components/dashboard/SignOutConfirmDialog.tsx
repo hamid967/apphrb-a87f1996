@@ -59,7 +59,7 @@ export function SignOutConfirmDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={handleOpen}>
-      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+      {trigger ? <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger> : null}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
