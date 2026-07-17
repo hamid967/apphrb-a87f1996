@@ -42,6 +42,7 @@ import type { User } from "@supabase/supabase-js";
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { ThreadDrawer } from "./ThreadDrawer";
+import { SignOutConfirmDialog } from "./SignOutConfirmDialog";
 
 type Org = { id: string; name: string; slug: string; logo_url?: string | null };
 type Membership = { role: string; org: Org };
