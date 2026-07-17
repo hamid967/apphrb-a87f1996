@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -24,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/payments-review"
       </Button>
     </div>
   ),
-  notFoundComponent: () => <div className="p-6">غير موجود</div>,
+  notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
   head: () => sectionHead({ section: "dashboard", entityAr: "مراجعة المدفوعات", entityEn: "Payments Review", path: "/dashboard/payments-review" }),
   component: PaymentsReviewPage,
 });
@@ -71,7 +72,7 @@ function PaymentsReviewPage() {
           <CardTitle className="text-base">قيد المراجعة ({rows.length})</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {q.isLoading && <p className="text-sm text-muted-foreground">جارٍ التحميل…</p>}
+          {q.isLoading && <p className="text-sm text-muted-foreground">{t("common.loading")}</p>}
           {!q.isLoading && rows.length === 0 && (
             <p className="text-sm text-muted-foreground">لا توجد دفعات قيد المراجعة.</p>
           )}

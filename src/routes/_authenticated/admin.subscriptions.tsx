@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -34,7 +35,7 @@ export const Route = createFileRoute("/_authenticated/admin/subscriptions")({
   errorComponent: ({ error }) => (
     <div className="p-6 text-sm text-destructive">{error.message}</div>
   ),
-  notFoundComponent: () => <div className="p-6">Not found</div>,
+  notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
 
 const TABS = [

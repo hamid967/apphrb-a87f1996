@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -42,7 +43,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/settings/billing
       </div>
     );
   },
-  notFoundComponent: () => <div className="p-6">غير موجود</div>,
+  notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
 
 const nf = new Intl.NumberFormat("ar-SA", { minimumFractionDigits: 0, maximumFractionDigits: 2 });

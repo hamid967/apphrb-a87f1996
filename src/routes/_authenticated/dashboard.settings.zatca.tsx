@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/settings/zatca")
       </div>
     );
   },
-  notFoundComponent: () => <div className="p-6">Not found</div>,
+  notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
 
 function ZatcaPage() {

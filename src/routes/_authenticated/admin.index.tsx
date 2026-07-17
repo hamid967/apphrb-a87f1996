@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
@@ -106,7 +107,7 @@ export const Route = createFileRoute("/_authenticated/admin/")({
       </div>
     );
   },
-  notFoundComponent: () => <div className="p-6">Not found</div>,
+  notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
 
 function AdminOverview() {

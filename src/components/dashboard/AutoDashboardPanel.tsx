@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -236,7 +237,7 @@ function WidgetCard({
           <div className="text-xs text-muted-foreground">
             الأداة: <span className="font-mono">{widget.tool}</span>
           </div>
-          {q.isLoading && <div className="text-sm text-muted-foreground">جارٍ التحميل…</div>}
+          {q.isLoading && <div className="text-sm text-muted-foreground">{t("common.loading")}</div>}
           {q.error && <div className="text-sm text-destructive">{(q.error as Error).message}</div>}
           <AnimatePresence mode="wait">
             {metric && (
