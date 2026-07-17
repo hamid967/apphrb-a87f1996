@@ -581,7 +581,7 @@ const en = {
       completeFailedDesc: "Try again or refresh the page.",
     },
   },
-  tenantPortal: {
+  tenantHome: {
     meta: {
       title: "Tenant Home",
       description: "Overview of your contract and payments.",
