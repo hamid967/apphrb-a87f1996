@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 import {
@@ -96,6 +97,19 @@ export function DashboardTopbar({
   const { t, i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const nav = useNavigate();
+  const queryClient = useQueryClient();
+
+  const handleSignOut = async () => {
+    try {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      await supabase.auth.signOut();
+      toast.success(isAr ? "تم تسجيل الخروج" : "Signed out");
+      nav({ to: "/auth", replace: true });
+    } catch (e) {
+      toast.error(isAr ? "تعذّر تسجيل الخروج" : "Could not sign out");
+    }
+  };
   const [q, setQ] = useState("");
   const [activeBranchId, setActiveBranchId] = useState<string | null>(null);
 
@@ -515,7 +529,7 @@ export function DashboardTopbar({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onSelect={() => supabase.auth.signOut()}
+              onSelect={handleSignOut}
               className="text-destructive focus:text-destructive"
             >
               <LogOut className="me-2 size-4" />
