@@ -39,7 +39,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { useBackgroundExport } from "@/hooks/use-background-export";
 
-export const Route = createFileRoute("/_authenticated/reports/preview")({
+export const Route = createFileRoute("/_authenticated/dashboard/reports/preview")({
   head: () => ({ meta: [{ title: "Report Preview" }] }),
   component: PreviewPage,
 });

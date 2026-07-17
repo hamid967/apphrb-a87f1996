@@ -21,7 +21,7 @@ import {
   Receipt,
 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/owners/$id")({
+export const Route = createFileRoute("/_authenticated/dashboard/owners/$id")({
   head: ({ params }) => detailHead({ entityAr: 'مالك', entityEn: 'Owner', id: String(params.id), path: `/owners/${params.id}`, kind: 'dashboard' }),
   component: OwnerStatementPage,
 });

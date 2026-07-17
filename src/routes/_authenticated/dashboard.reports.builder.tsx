@@ -58,7 +58,7 @@ import {
 import { can } from "@/lib/permissions";
 import { ShieldAlert } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/reports/builder")({
+export const Route = createFileRoute("/_authenticated/dashboard/reports/builder")({
   head: () => ({
     meta: [
       { title: "Report Builder — Finance" },

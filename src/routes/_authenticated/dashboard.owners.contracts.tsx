@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { FileText, Loader2, ExternalLink } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/owners/contracts")({
+export const Route = createFileRoute("/_authenticated/dashboard/owners/contracts")({
   component: OwnerContractsPage,
 });
 

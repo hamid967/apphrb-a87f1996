@@ -84,7 +84,7 @@ const T = {
   },
 } as const;
 
-export const Route = createFileRoute("/_authenticated/reports/pdf")({
+export const Route = createFileRoute("/_authenticated/dashboard/reports/pdf")({
   component: ReportsPdfPage,
 });
 

@@ -22,7 +22,7 @@ import {
   MotionLineChart,
 } from "@/components/charts/motion-tremor";
 
-export const Route = createFileRoute("/_authenticated/reports/")({
+export const Route = createFileRoute("/_authenticated/dashboard/reports/")({
   component: ReportsPage,
 });
 

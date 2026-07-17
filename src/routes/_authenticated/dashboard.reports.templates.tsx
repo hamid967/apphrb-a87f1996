@@ -29,7 +29,7 @@ import {
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 
-export const Route = createFileRoute("/_authenticated/reports/templates")({
+export const Route = createFileRoute("/_authenticated/dashboard/reports/templates")({
   head: () => ({ meta: [{ title: "Report Templates" }] }),
   component: TemplatesPage,
 });

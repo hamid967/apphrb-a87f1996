@@ -21,7 +21,7 @@ import { RequireRole } from "@/components/auth/RequireRole";
 import { ADMIN_ROLES } from "@/lib/permissions";
 import { useTranslation } from "react-i18next";
 
-export const Route = createFileRoute("/_authenticated/owners/$id/ledger")({
+export const Route = createFileRoute("/_authenticated/dashboard/owners/$id/ledger")({
   head: ({ params }) => detailHead({ entityAr: 'دفتر أستاذ مالك', entityEn: 'Owner Ledger', id: String(params.id), path: `/owners/${params.id}/ledger`, kind: 'dashboard' }),
   component: OwnerLedgerGate,
 });

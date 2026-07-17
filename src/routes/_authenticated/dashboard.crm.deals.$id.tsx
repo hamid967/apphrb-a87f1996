@@ -48,7 +48,7 @@ import {
 import { listActivitiesForLead } from "@/lib/lead-activities.functions";
 import { can, type OrgRole } from "@/lib/permissions";
 
-export const Route = createFileRoute("/_authenticated/deals/$id")({
+export const Route = createFileRoute("/_authenticated/dashboard/crm/deals/$id")({
   head: ({ params }) => detailHead({ entityAr: 'صفقة', entityEn: 'Deal', id: String(params.id), path: `/deals/${params.id}`, kind: 'article' }),
   component: DealDetailPage,
 });

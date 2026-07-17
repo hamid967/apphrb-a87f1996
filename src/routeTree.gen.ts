@@ -58,7 +58,6 @@ import { Route as ApiHamidTtsRouteImport } from './routes/api/hamid-tts'
 import { Route as AuthenticatedRegisterCompanyRouteImport } from './routes/_authenticated/register-company'
 import { Route as AuthenticatedPortalRouteImport } from './routes/_authenticated/portal'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
-import { Route as AuthenticatedMeetingsRouteImport } from './routes/_authenticated/meetings'
 import { Route as AuthenticatedLeasingRouteImport } from './routes/_authenticated/leasing'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
@@ -68,16 +67,11 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedTeamIndexRouteImport } from './routes/_authenticated/team.index'
 import { Route as AuthenticatedTasksIndexRouteImport } from './routes/_authenticated/tasks.index'
-import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports.index'
 import { Route as AuthenticatedRentalsIndexRouteImport } from './routes/_authenticated/rentals.index'
 import { Route as AuthenticatedPropertiesIndexRouteImport } from './routes/_authenticated/properties.index'
 import { Route as AuthenticatedPortalIndexRouteImport } from './routes/_authenticated/portal.index'
-import { Route as AuthenticatedOwnersIndexRouteImport } from './routes/_authenticated/owners.index'
 import { Route as AuthenticatedMembersIndexRouteImport } from './routes/_authenticated/members.index'
 import { Route as AuthenticatedMaintenanceIndexRouteImport } from './routes/_authenticated/maintenance.index'
-import { Route as AuthenticatedLeadsIndexRouteImport } from './routes/_authenticated/leads.index'
-import { Route as AuthenticatedDocumentsIndexRouteImport } from './routes/_authenticated/documents.index'
-import { Route as AuthenticatedDealsIndexRouteImport } from './routes/_authenticated/deals.index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as AuthenticatedContactsIndexRouteImport } from './routes/_authenticated/contacts.index'
 import { Route as AuthenticatedAuctionsIndexRouteImport } from './routes/_authenticated/auctions.index'
@@ -92,11 +86,6 @@ import { Route as ApiPublicFilterAnalyticsBeaconRouteImport } from './routes/api
 import { Route as ApiAssistantChatRouteImport } from './routes/api/assistant.chat'
 import { Route as AuthenticatedSettingsImportRouteImport } from './routes/_authenticated/settings.import'
 import { Route as AuthenticatedSecuritySessionsRouteImport } from './routes/_authenticated/security.sessions'
-import { Route as AuthenticatedReportsTemplatesRouteImport } from './routes/_authenticated/reports.templates'
-import { Route as AuthenticatedReportsPreviewRouteImport } from './routes/_authenticated/reports.preview'
-import { Route as AuthenticatedReportsPdfRouteImport } from './routes/_authenticated/reports.pdf'
-import { Route as AuthenticatedReportsExecutiveRouteImport } from './routes/_authenticated/reports.executive'
-import { Route as AuthenticatedReportsBuilderRouteImport } from './routes/_authenticated/reports.builder'
 import { Route as AuthenticatedPropertiesNewRouteImport } from './routes/_authenticated/properties.new'
 import { Route as AuthenticatedPropertiesIdRouteImport } from './routes/_authenticated/properties.$id'
 import { Route as AuthenticatedPortalTenantRouteImport } from './routes/_authenticated/portal.tenant'
@@ -111,13 +100,7 @@ import { Route as AuthenticatedPortalDocumentsRouteImport } from './routes/_auth
 import { Route as AuthenticatedPortalBillingRouteImport } from './routes/_authenticated/portal.billing'
 import { Route as AuthenticatedPortalAssistantRouteImport } from './routes/_authenticated/portal.assistant'
 import { Route as AuthenticatedPortalAppointmentsRouteImport } from './routes/_authenticated/portal.appointments'
-import { Route as AuthenticatedOwnersContractsRouteImport } from './routes/_authenticated/owners.contracts'
-import { Route as AuthenticatedOwnersIdRouteImport } from './routes/_authenticated/owners.$id'
 import { Route as AuthenticatedMaintenanceTechniciansRouteImport } from './routes/_authenticated/maintenance.technicians'
-import { Route as AuthenticatedLeadsNewRouteImport } from './routes/_authenticated/leads.new'
-import { Route as AuthenticatedLeadsIdRouteImport } from './routes/_authenticated/leads.$id'
-import { Route as AuthenticatedDocumentsIdRouteImport } from './routes/_authenticated/documents.$id'
-import { Route as AuthenticatedDealsIdRouteImport } from './routes/_authenticated/deals.$id'
 import { Route as AuthenticatedDashboardZatcaCustomersRouteImport } from './routes/_authenticated/dashboard.zatca-customers'
 import { Route as AuthenticatedDashboardVouchersRouteImport } from './routes/_authenticated/dashboard.vouchers'
 import { Route as AuthenticatedDashboardViewingsRouteImport } from './routes/_authenticated/dashboard.viewings'
@@ -127,18 +110,15 @@ import { Route as AuthenticatedDashboardTenantsRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardTasksRouteImport } from './routes/_authenticated/dashboard.tasks'
 import { Route as AuthenticatedDashboardSettingsRouteImport } from './routes/_authenticated/dashboard.settings'
 import { Route as AuthenticatedDashboardServicesReportRouteImport } from './routes/_authenticated/dashboard.services-report'
-import { Route as AuthenticatedDashboardReportsRouteImport } from './routes/_authenticated/dashboard.reports'
 import { Route as AuthenticatedDashboardRenewRouteImport } from './routes/_authenticated/dashboard.renew'
 import { Route as AuthenticatedDashboardPaymentsReviewRouteImport } from './routes/_authenticated/dashboard.payments-review'
 import { Route as AuthenticatedDashboardPaymentsRouteImport } from './routes/_authenticated/dashboard.payments'
 import { Route as AuthenticatedDashboardPaymentSchedulesRouteImport } from './routes/_authenticated/dashboard.payment-schedules'
-import { Route as AuthenticatedDashboardOwnersRouteImport } from './routes/_authenticated/dashboard.owners'
 import { Route as AuthenticatedDashboardNotificationsRouteImport } from './routes/_authenticated/dashboard.notifications'
 import { Route as AuthenticatedDashboardMaintenanceLogRouteImport } from './routes/_authenticated/dashboard.maintenance-log'
 import { Route as AuthenticatedDashboardMaintenanceRouteImport } from './routes/_authenticated/dashboard.maintenance'
 import { Route as AuthenticatedDashboardInboxRouteImport } from './routes/_authenticated/dashboard.inbox'
 import { Route as AuthenticatedDashboardExpensesRouteImport } from './routes/_authenticated/dashboard.expenses'
-import { Route as AuthenticatedDashboardDocumentsRouteImport } from './routes/_authenticated/dashboard.documents'
 import { Route as AuthenticatedDashboardCrmRouteImport } from './routes/_authenticated/dashboard.crm'
 import { Route as AuthenticatedDashboardCommissionsRouteImport } from './routes/_authenticated/dashboard.commissions'
 import { Route as AuthenticatedDashboardAutoRouteImport } from './routes/_authenticated/dashboard.auto'
@@ -198,8 +178,11 @@ import { Route as AuthenticatedOwnerPortalIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedDashboardUnitsIndexRouteImport } from './routes/_authenticated/dashboard.units.index'
 import { Route as AuthenticatedDashboardTicketsIndexRouteImport } from './routes/_authenticated/dashboard.tickets.index'
 import { Route as AuthenticatedDashboardServicesIndexRouteImport } from './routes/_authenticated/dashboard.services.index'
+import { Route as AuthenticatedDashboardReportsIndexRouteImport } from './routes/_authenticated/dashboard.reports.index'
 import { Route as AuthenticatedDashboardPropertiesIndexRouteImport } from './routes/_authenticated/dashboard.properties.index'
+import { Route as AuthenticatedDashboardOwnersIndexRouteImport } from './routes/_authenticated/dashboard.owners.index'
 import { Route as AuthenticatedDashboardInvoicesIndexRouteImport } from './routes/_authenticated/dashboard.invoices.index'
+import { Route as AuthenticatedDashboardDocumentsIndexRouteImport } from './routes/_authenticated/dashboard.documents.index'
 import { Route as AuthenticatedDashboardCrmIndexRouteImport } from './routes/_authenticated/dashboard.crm.index'
 import { Route as AuthenticatedDashboardContractsIndexRouteImport } from './routes/_authenticated/dashboard.contracts.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
@@ -221,13 +204,10 @@ import { Route as ApiPublicHooksRentRemindersRouteImport } from './routes/api/pu
 import { Route as ApiPublicHooksDispatchNotificationsRouteImport } from './routes/api/public/hooks/dispatch-notifications'
 import { Route as ApiPublicHooksAuctionsTickRouteImport } from './routes/api/public/hooks/auctions-tick'
 import { Route as AuthenticatedTenantPortalMaintenanceRouteImport } from './routes/_authenticated/tenant.portal.maintenance'
-import { Route as AuthenticatedReportsTemplatesManageRouteImport } from './routes/_authenticated/reports.templates.manage'
 import { Route as AuthenticatedPortalTenantPaymentsRouteImport } from './routes/_authenticated/portal.tenant.payments'
 import { Route as AuthenticatedPortalTenantMaintenanceRouteImport } from './routes/_authenticated/portal.tenant.maintenance'
 import { Route as AuthenticatedPortalSettingsSecurityRouteImport } from './routes/_authenticated/portal.settings.security'
 import { Route as AuthenticatedPortalSettingsNotificationsRouteImport } from './routes/_authenticated/portal.settings.notifications'
-import { Route as AuthenticatedOwnersIdLedgerRouteImport } from './routes/_authenticated/owners.$id.ledger'
-import { Route as AuthenticatedLeadsIdEditRouteImport } from './routes/_authenticated/leads.$id.edit'
 import { Route as AuthenticatedDashboardUnitsIdRouteImport } from './routes/_authenticated/dashboard.units.$id'
 import { Route as AuthenticatedDashboardTicketsNewRouteImport } from './routes/_authenticated/dashboard.tickets.new'
 import { Route as AuthenticatedDashboardTicketsIdRouteImport } from './routes/_authenticated/dashboard.tickets.$id'
@@ -239,16 +219,22 @@ import { Route as AuthenticatedDashboardSettingsBillingRouteImport } from './rou
 import { Route as AuthenticatedDashboardSettingsApiKeysRouteImport } from './routes/_authenticated/dashboard.settings.api-keys'
 import { Route as AuthenticatedDashboardServicesForbiddenLogRouteImport } from './routes/_authenticated/dashboard.services.forbidden-log'
 import { Route as AuthenticatedDashboardServicesKeyRouteImport } from './routes/_authenticated/dashboard.services.$key'
+import { Route as AuthenticatedDashboardReportsTemplatesRouteImport } from './routes/_authenticated/dashboard.reports.templates'
+import { Route as AuthenticatedDashboardReportsPreviewRouteImport } from './routes/_authenticated/dashboard.reports.preview'
+import { Route as AuthenticatedDashboardReportsPdfRouteImport } from './routes/_authenticated/dashboard.reports.pdf'
+import { Route as AuthenticatedDashboardReportsExecutiveRouteImport } from './routes/_authenticated/dashboard.reports.executive'
+import { Route as AuthenticatedDashboardReportsBuilderRouteImport } from './routes/_authenticated/dashboard.reports.builder'
 import { Route as AuthenticatedDashboardPropertiesNewRouteImport } from './routes/_authenticated/dashboard.properties.new'
 import { Route as AuthenticatedDashboardPropertiesIdRouteImport } from './routes/_authenticated/dashboard.properties.$id'
+import { Route as AuthenticatedDashboardOwnersContractsRouteImport } from './routes/_authenticated/dashboard.owners.contracts'
+import { Route as AuthenticatedDashboardOwnersIdRouteImport } from './routes/_authenticated/dashboard.owners.$id'
 import { Route as AuthenticatedDashboardMaintenanceTechniciansRouteImport } from './routes/_authenticated/dashboard.maintenance.technicians'
 import { Route as AuthenticatedDashboardInvoicesIdRouteImport } from './routes/_authenticated/dashboard.invoices.$id'
 import { Route as AuthenticatedDashboardExpensesReviewRouteImport } from './routes/_authenticated/dashboard.expenses.review'
 import { Route as AuthenticatedDashboardExpensesClaimRouteImport } from './routes/_authenticated/dashboard.expenses.claim'
 import { Route as AuthenticatedDashboardExpensesBatchesRouteImport } from './routes/_authenticated/dashboard.expenses.batches'
+import { Route as AuthenticatedDashboardDocumentsIdRouteImport } from './routes/_authenticated/dashboard.documents.$id'
 import { Route as AuthenticatedDashboardCrmMeetingsRouteImport } from './routes/_authenticated/dashboard.crm.meetings'
-import { Route as AuthenticatedDashboardCrmLeadsRouteImport } from './routes/_authenticated/dashboard.crm.leads'
-import { Route as AuthenticatedDashboardCrmDealsRouteImport } from './routes/_authenticated/dashboard.crm.deals'
 import { Route as AuthenticatedDashboardContractsNewRouteImport } from './routes/_authenticated/dashboard.contracts.new'
 import { Route as AuthenticatedDashboardContractsIdRouteImport } from './routes/_authenticated/dashboard.contracts.$id'
 import { Route as AuthenticatedDashboardAuditIdRouteImport } from './routes/_authenticated/dashboard.audit.$id'
@@ -258,6 +244,8 @@ import { Route as AuthenticatedDashboardAuctionsAuditRouteImport } from './route
 import { Route as AuthenticatedAssistantScriptsSchedulesRouteImport } from './routes/_authenticated/assistant.scripts.schedules'
 import { Route as AuthenticatedAssistantScriptsHistoryRouteImport } from './routes/_authenticated/assistant.scripts.history'
 import { Route as AuthenticatedAssistantScriptsNameRouteImport } from './routes/_authenticated/assistant.scripts.$name'
+import { Route as AuthenticatedDashboardCrmLeadsIndexRouteImport } from './routes/_authenticated/dashboard.crm.leads.index'
+import { Route as AuthenticatedDashboardCrmDealsIndexRouteImport } from './routes/_authenticated/dashboard.crm.deals.index'
 import { Route as ApiPublicV1UnitsIdRouteImport } from './routes/api/public/v1/units.$id'
 import { Route as ApiPublicV1PropertiesIdRouteImport } from './routes/api/public/v1/properties.$id'
 import { Route as ApiPublicV1PaymentsIdRouteImport } from './routes/api/public/v1/payments.$id'
@@ -267,13 +255,19 @@ import { Route as ApiPublicV1AuctionsAnalyticsRouteImport } from './routes/api/p
 import { Route as ApiPublicV1AuctionsIdRouteImport } from './routes/api/public/v1/auctions.$id'
 import { Route as AuthenticatedPortalOwnerStatementsIdRouteImport } from './routes/_authenticated/portal.owner.statements.$id'
 import { Route as AuthenticatedOwnerPortalStatementsIdRouteImport } from './routes/_authenticated/owner.portal.statements.$id'
+import { Route as AuthenticatedDashboardReportsTemplatesManageRouteImport } from './routes/_authenticated/dashboard.reports.templates.manage'
+import { Route as AuthenticatedDashboardOwnersIdLedgerRouteImport } from './routes/_authenticated/dashboard.owners.$id.ledger'
 import { Route as AuthenticatedDashboardExpensesClaimCorrectRouteImport } from './routes/_authenticated/dashboard.expenses.claim.correct'
 import { Route as AuthenticatedDashboardExpensesBatchesBatchIdRouteImport } from './routes/_authenticated/dashboard.expenses.batches.$batchId'
+import { Route as AuthenticatedDashboardCrmLeadsNewRouteImport } from './routes/_authenticated/dashboard.crm.leads.new'
+import { Route as AuthenticatedDashboardCrmLeadsIdRouteImport } from './routes/_authenticated/dashboard.crm.leads.$id'
+import { Route as AuthenticatedDashboardCrmDealsIdRouteImport } from './routes/_authenticated/dashboard.crm.deals.$id'
 import { Route as AuthenticatedDashboardAuctionsReportsFiltersUsageRouteImport } from './routes/_authenticated/dashboard.auctions.reports.filters-usage'
 import { Route as AuthenticatedDashboardAuctionsAuditIdRouteImport } from './routes/_authenticated/dashboard.auctions.audit.$id'
 import { Route as AuthenticatedDashboardAuctionsIdEditRouteImport } from './routes/_authenticated/dashboard.auctions.$id.edit'
 import { Route as AuthenticatedAssistantScriptsSchedulesIdRouteImport } from './routes/_authenticated/assistant.scripts.schedules.$id'
 import { Route as ApiPublicV1AuctionsIdBidsRouteImport } from './routes/api/public/v1/auctions.$id.bids'
+import { Route as AuthenticatedDashboardCrmLeadsIdEditRouteImport } from './routes/_authenticated/dashboard.crm.leads.$id.edit'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -521,11 +515,6 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedMeetingsRoute = AuthenticatedMeetingsRouteImport.update({
-  id: '/meetings',
-  path: '/meetings',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedLeasingRoute = AuthenticatedLeasingRouteImport.update({
   id: '/leasing',
   path: '/leasing',
@@ -573,12 +562,6 @@ const AuthenticatedTasksIndexRoute = AuthenticatedTasksIndexRouteImport.update({
   path: '/tasks/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedReportsIndexRoute =
-  AuthenticatedReportsIndexRouteImport.update({
-    id: '/reports/',
-    path: '/reports/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedRentalsIndexRoute =
   AuthenticatedRentalsIndexRouteImport.update({
     id: '/rentals/',
@@ -597,12 +580,6 @@ const AuthenticatedPortalIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedPortalRoute,
   } as any)
-const AuthenticatedOwnersIndexRoute =
-  AuthenticatedOwnersIndexRouteImport.update({
-    id: '/owners/',
-    path: '/owners/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedMembersIndexRoute =
   AuthenticatedMembersIndexRouteImport.update({
     id: '/members/',
@@ -615,22 +592,6 @@ const AuthenticatedMaintenanceIndexRoute =
     path: '/maintenance/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedLeadsIndexRoute = AuthenticatedLeadsIndexRouteImport.update({
-  id: '/leads/',
-  path: '/leads/',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedDocumentsIndexRoute =
-  AuthenticatedDocumentsIndexRouteImport.update({
-    id: '/documents/',
-    path: '/documents/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDealsIndexRoute = AuthenticatedDealsIndexRouteImport.update({
-  id: '/deals/',
-  path: '/deals/',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedDashboardIndexRoute =
   AuthenticatedDashboardIndexRouteImport.update({
     id: '/',
@@ -708,35 +669,6 @@ const AuthenticatedSecuritySessionsRoute =
   AuthenticatedSecuritySessionsRouteImport.update({
     id: '/security/sessions',
     path: '/security/sessions',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedReportsTemplatesRoute =
-  AuthenticatedReportsTemplatesRouteImport.update({
-    id: '/reports/templates',
-    path: '/reports/templates',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedReportsPreviewRoute =
-  AuthenticatedReportsPreviewRouteImport.update({
-    id: '/reports/preview',
-    path: '/reports/preview',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedReportsPdfRoute = AuthenticatedReportsPdfRouteImport.update({
-  id: '/reports/pdf',
-  path: '/reports/pdf',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedReportsExecutiveRoute =
-  AuthenticatedReportsExecutiveRouteImport.update({
-    id: '/reports/executive',
-    path: '/reports/executive',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedReportsBuilderRoute =
-  AuthenticatedReportsBuilderRouteImport.update({
-    id: '/reports/builder',
-    path: '/reports/builder',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedPropertiesNewRoute =
@@ -823,44 +755,12 @@ const AuthenticatedPortalAppointmentsRoute =
     path: '/appointments',
     getParentRoute: () => AuthenticatedPortalRoute,
   } as any)
-const AuthenticatedOwnersContractsRoute =
-  AuthenticatedOwnersContractsRouteImport.update({
-    id: '/owners/contracts',
-    path: '/owners/contracts',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedOwnersIdRoute = AuthenticatedOwnersIdRouteImport.update({
-  id: '/owners/$id',
-  path: '/owners/$id',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedMaintenanceTechniciansRoute =
   AuthenticatedMaintenanceTechniciansRouteImport.update({
     id: '/maintenance/technicians',
     path: '/maintenance/technicians',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedLeadsNewRoute = AuthenticatedLeadsNewRouteImport.update({
-  id: '/leads/new',
-  path: '/leads/new',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedLeadsIdRoute = AuthenticatedLeadsIdRouteImport.update({
-  id: '/leads/$id',
-  path: '/leads/$id',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedDocumentsIdRoute =
-  AuthenticatedDocumentsIdRouteImport.update({
-    id: '/documents/$id',
-    path: '/documents/$id',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedDealsIdRoute = AuthenticatedDealsIdRouteImport.update({
-  id: '/deals/$id',
-  path: '/deals/$id',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedDashboardZatcaCustomersRoute =
   AuthenticatedDashboardZatcaCustomersRouteImport.update({
     id: '/zatca-customers',
@@ -915,12 +815,6 @@ const AuthenticatedDashboardServicesReportRoute =
     path: '/services-report',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
-const AuthenticatedDashboardReportsRoute =
-  AuthenticatedDashboardReportsRouteImport.update({
-    id: '/reports',
-    path: '/reports',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
 const AuthenticatedDashboardRenewRoute =
   AuthenticatedDashboardRenewRouteImport.update({
     id: '/renew',
@@ -943,12 +837,6 @@ const AuthenticatedDashboardPaymentSchedulesRoute =
   AuthenticatedDashboardPaymentSchedulesRouteImport.update({
     id: '/payment-schedules',
     path: '/payment-schedules',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardOwnersRoute =
-  AuthenticatedDashboardOwnersRouteImport.update({
-    id: '/owners',
-    path: '/owners',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardNotificationsRoute =
@@ -979,12 +867,6 @@ const AuthenticatedDashboardExpensesRoute =
   AuthenticatedDashboardExpensesRouteImport.update({
     id: '/expenses',
     path: '/expenses',
-    getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-const AuthenticatedDashboardDocumentsRoute =
-  AuthenticatedDashboardDocumentsRouteImport.update({
-    id: '/documents',
-    path: '/documents',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardCrmRoute =
@@ -1335,16 +1217,34 @@ const AuthenticatedDashboardServicesIndexRoute =
     path: '/services/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardReportsIndexRoute =
+  AuthenticatedDashboardReportsIndexRouteImport.update({
+    id: '/reports/',
+    path: '/reports/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardPropertiesIndexRoute =
   AuthenticatedDashboardPropertiesIndexRouteImport.update({
     id: '/properties/',
     path: '/properties/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardOwnersIndexRoute =
+  AuthenticatedDashboardOwnersIndexRouteImport.update({
+    id: '/owners/',
+    path: '/owners/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardInvoicesIndexRoute =
   AuthenticatedDashboardInvoicesIndexRouteImport.update({
     id: '/invoices/',
     path: '/invoices/',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardDocumentsIndexRoute =
+  AuthenticatedDashboardDocumentsIndexRouteImport.update({
+    id: '/documents/',
+    path: '/documents/',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardCrmIndexRoute =
@@ -1463,12 +1363,6 @@ const AuthenticatedTenantPortalMaintenanceRoute =
     path: '/tenant/portal/maintenance',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedReportsTemplatesManageRoute =
-  AuthenticatedReportsTemplatesManageRouteImport.update({
-    id: '/manage',
-    path: '/manage',
-    getParentRoute: () => AuthenticatedReportsTemplatesRoute,
-  } as any)
 const AuthenticatedPortalTenantPaymentsRoute =
   AuthenticatedPortalTenantPaymentsRouteImport.update({
     id: '/payments',
@@ -1492,18 +1386,6 @@ const AuthenticatedPortalSettingsNotificationsRoute =
     id: '/notifications',
     path: '/notifications',
     getParentRoute: () => AuthenticatedPortalSettingsRoute,
-  } as any)
-const AuthenticatedOwnersIdLedgerRoute =
-  AuthenticatedOwnersIdLedgerRouteImport.update({
-    id: '/ledger',
-    path: '/ledger',
-    getParentRoute: () => AuthenticatedOwnersIdRoute,
-  } as any)
-const AuthenticatedLeadsIdEditRoute =
-  AuthenticatedLeadsIdEditRouteImport.update({
-    id: '/edit',
-    path: '/edit',
-    getParentRoute: () => AuthenticatedLeadsIdRoute,
   } as any)
 const AuthenticatedDashboardUnitsIdRoute =
   AuthenticatedDashboardUnitsIdRouteImport.update({
@@ -1571,6 +1453,36 @@ const AuthenticatedDashboardServicesKeyRoute =
     path: '/services/$key',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
+const AuthenticatedDashboardReportsTemplatesRoute =
+  AuthenticatedDashboardReportsTemplatesRouteImport.update({
+    id: '/reports/templates',
+    path: '/reports/templates',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardReportsPreviewRoute =
+  AuthenticatedDashboardReportsPreviewRouteImport.update({
+    id: '/reports/preview',
+    path: '/reports/preview',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardReportsPdfRoute =
+  AuthenticatedDashboardReportsPdfRouteImport.update({
+    id: '/reports/pdf',
+    path: '/reports/pdf',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardReportsExecutiveRoute =
+  AuthenticatedDashboardReportsExecutiveRouteImport.update({
+    id: '/reports/executive',
+    path: '/reports/executive',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardReportsBuilderRoute =
+  AuthenticatedDashboardReportsBuilderRouteImport.update({
+    id: '/reports/builder',
+    path: '/reports/builder',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardPropertiesNewRoute =
   AuthenticatedDashboardPropertiesNewRouteImport.update({
     id: '/properties/new',
@@ -1581,6 +1493,18 @@ const AuthenticatedDashboardPropertiesIdRoute =
   AuthenticatedDashboardPropertiesIdRouteImport.update({
     id: '/properties/$id',
     path: '/properties/$id',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardOwnersContractsRoute =
+  AuthenticatedDashboardOwnersContractsRouteImport.update({
+    id: '/owners/contracts',
+    path: '/owners/contracts',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
+const AuthenticatedDashboardOwnersIdRoute =
+  AuthenticatedDashboardOwnersIdRouteImport.update({
+    id: '/owners/$id',
+    path: '/owners/$id',
     getParentRoute: () => AuthenticatedDashboardRoute,
   } as any)
 const AuthenticatedDashboardMaintenanceTechniciansRoute =
@@ -1613,22 +1537,16 @@ const AuthenticatedDashboardExpensesBatchesRoute =
     path: '/batches',
     getParentRoute: () => AuthenticatedDashboardExpensesRoute,
   } as any)
+const AuthenticatedDashboardDocumentsIdRoute =
+  AuthenticatedDashboardDocumentsIdRouteImport.update({
+    id: '/documents/$id',
+    path: '/documents/$id',
+    getParentRoute: () => AuthenticatedDashboardRoute,
+  } as any)
 const AuthenticatedDashboardCrmMeetingsRoute =
   AuthenticatedDashboardCrmMeetingsRouteImport.update({
     id: '/meetings',
     path: '/meetings',
-    getParentRoute: () => AuthenticatedDashboardCrmRoute,
-  } as any)
-const AuthenticatedDashboardCrmLeadsRoute =
-  AuthenticatedDashboardCrmLeadsRouteImport.update({
-    id: '/leads',
-    path: '/leads',
-    getParentRoute: () => AuthenticatedDashboardCrmRoute,
-  } as any)
-const AuthenticatedDashboardCrmDealsRoute =
-  AuthenticatedDashboardCrmDealsRouteImport.update({
-    id: '/deals',
-    path: '/deals',
     getParentRoute: () => AuthenticatedDashboardCrmRoute,
   } as any)
 const AuthenticatedDashboardContractsNewRoute =
@@ -1685,6 +1603,18 @@ const AuthenticatedAssistantScriptsNameRoute =
     path: '/$name',
     getParentRoute: () => AuthenticatedAssistantScriptsRoute,
   } as any)
+const AuthenticatedDashboardCrmLeadsIndexRoute =
+  AuthenticatedDashboardCrmLeadsIndexRouteImport.update({
+    id: '/leads/',
+    path: '/leads/',
+    getParentRoute: () => AuthenticatedDashboardCrmRoute,
+  } as any)
+const AuthenticatedDashboardCrmDealsIndexRoute =
+  AuthenticatedDashboardCrmDealsIndexRouteImport.update({
+    id: '/deals/',
+    path: '/deals/',
+    getParentRoute: () => AuthenticatedDashboardCrmRoute,
+  } as any)
 const ApiPublicV1UnitsIdRoute = ApiPublicV1UnitsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -1733,6 +1663,18 @@ const AuthenticatedOwnerPortalStatementsIdRoute =
     path: '/owner/portal/statements/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedDashboardReportsTemplatesManageRoute =
+  AuthenticatedDashboardReportsTemplatesManageRouteImport.update({
+    id: '/manage',
+    path: '/manage',
+    getParentRoute: () => AuthenticatedDashboardReportsTemplatesRoute,
+  } as any)
+const AuthenticatedDashboardOwnersIdLedgerRoute =
+  AuthenticatedDashboardOwnersIdLedgerRouteImport.update({
+    id: '/ledger',
+    path: '/ledger',
+    getParentRoute: () => AuthenticatedDashboardOwnersIdRoute,
+  } as any)
 const AuthenticatedDashboardExpensesClaimCorrectRoute =
   AuthenticatedDashboardExpensesClaimCorrectRouteImport.update({
     id: '/correct',
@@ -1744,6 +1686,24 @@ const AuthenticatedDashboardExpensesBatchesBatchIdRoute =
     id: '/$batchId',
     path: '/$batchId',
     getParentRoute: () => AuthenticatedDashboardExpensesBatchesRoute,
+  } as any)
+const AuthenticatedDashboardCrmLeadsNewRoute =
+  AuthenticatedDashboardCrmLeadsNewRouteImport.update({
+    id: '/leads/new',
+    path: '/leads/new',
+    getParentRoute: () => AuthenticatedDashboardCrmRoute,
+  } as any)
+const AuthenticatedDashboardCrmLeadsIdRoute =
+  AuthenticatedDashboardCrmLeadsIdRouteImport.update({
+    id: '/leads/$id',
+    path: '/leads/$id',
+    getParentRoute: () => AuthenticatedDashboardCrmRoute,
+  } as any)
+const AuthenticatedDashboardCrmDealsIdRoute =
+  AuthenticatedDashboardCrmDealsIdRouteImport.update({
+    id: '/deals/$id',
+    path: '/deals/$id',
+    getParentRoute: () => AuthenticatedDashboardCrmRoute,
   } as any)
 const AuthenticatedDashboardAuctionsReportsFiltersUsageRoute =
   AuthenticatedDashboardAuctionsReportsFiltersUsageRouteImport.update({
@@ -1774,6 +1734,12 @@ const ApiPublicV1AuctionsIdBidsRoute =
     id: '/bids',
     path: '/bids',
     getParentRoute: () => ApiPublicV1AuctionsIdRoute,
+  } as any)
+const AuthenticatedDashboardCrmLeadsIdEditRoute =
+  AuthenticatedDashboardCrmLeadsIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => AuthenticatedDashboardCrmLeadsIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -1806,7 +1772,6 @@ export interface FileRoutesByFullPath {
   '/assistant': typeof AuthenticatedAssistantRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/leasing': typeof AuthenticatedLeasingRoute
-  '/meetings': typeof AuthenticatedMeetingsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/portal': typeof AuthenticatedPortalRouteWithChildren
   '/register-company': typeof AuthenticatedRegisterCompanyRoute
@@ -1885,18 +1850,15 @@ export interface FileRoutesByFullPath {
   '/dashboard/auto': typeof AuthenticatedDashboardAutoRoute
   '/dashboard/commissions': typeof AuthenticatedDashboardCommissionsRoute
   '/dashboard/crm': typeof AuthenticatedDashboardCrmRouteWithChildren
-  '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
   '/dashboard/expenses': typeof AuthenticatedDashboardExpensesRouteWithChildren
   '/dashboard/inbox': typeof AuthenticatedDashboardInboxRoute
   '/dashboard/maintenance': typeof AuthenticatedDashboardMaintenanceRouteWithChildren
   '/dashboard/maintenance-log': typeof AuthenticatedDashboardMaintenanceLogRoute
   '/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
-  '/dashboard/owners': typeof AuthenticatedDashboardOwnersRoute
   '/dashboard/payment-schedules': typeof AuthenticatedDashboardPaymentSchedulesRoute
   '/dashboard/payments': typeof AuthenticatedDashboardPaymentsRoute
   '/dashboard/payments-review': typeof AuthenticatedDashboardPaymentsReviewRoute
   '/dashboard/renew': typeof AuthenticatedDashboardRenewRoute
-  '/dashboard/reports': typeof AuthenticatedDashboardReportsRoute
   '/dashboard/services-report': typeof AuthenticatedDashboardServicesReportRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRouteWithChildren
   '/dashboard/tasks': typeof AuthenticatedDashboardTasksRoute
@@ -1906,13 +1868,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/viewings': typeof AuthenticatedDashboardViewingsRoute
   '/dashboard/vouchers': typeof AuthenticatedDashboardVouchersRoute
   '/dashboard/zatca-customers': typeof AuthenticatedDashboardZatcaCustomersRoute
-  '/deals/$id': typeof AuthenticatedDealsIdRoute
-  '/documents/$id': typeof AuthenticatedDocumentsIdRoute
-  '/leads/$id': typeof AuthenticatedLeadsIdRouteWithChildren
-  '/leads/new': typeof AuthenticatedLeadsNewRoute
   '/maintenance/technicians': typeof AuthenticatedMaintenanceTechniciansRoute
-  '/owners/$id': typeof AuthenticatedOwnersIdRouteWithChildren
-  '/owners/contracts': typeof AuthenticatedOwnersContractsRoute
   '/portal/appointments': typeof AuthenticatedPortalAppointmentsRoute
   '/portal/assistant': typeof AuthenticatedPortalAssistantRoute
   '/portal/billing': typeof AuthenticatedPortalBillingRoute
@@ -1927,11 +1883,6 @@ export interface FileRoutesByFullPath {
   '/portal/tenant': typeof AuthenticatedPortalTenantRouteWithChildren
   '/properties/$id': typeof AuthenticatedPropertiesIdRoute
   '/properties/new': typeof AuthenticatedPropertiesNewRoute
-  '/reports/builder': typeof AuthenticatedReportsBuilderRoute
-  '/reports/executive': typeof AuthenticatedReportsExecutiveRoute
-  '/reports/pdf': typeof AuthenticatedReportsPdfRoute
-  '/reports/preview': typeof AuthenticatedReportsPreviewRoute
-  '/reports/templates': typeof AuthenticatedReportsTemplatesRouteWithChildren
   '/security/sessions': typeof AuthenticatedSecuritySessionsRoute
   '/settings/import': typeof AuthenticatedSettingsImportRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
@@ -1946,16 +1897,11 @@ export interface FileRoutesByFullPath {
   '/auctions/': typeof AuthenticatedAuctionsIndexRoute
   '/contacts/': typeof AuthenticatedContactsIndexRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/deals/': typeof AuthenticatedDealsIndexRoute
-  '/documents/': typeof AuthenticatedDocumentsIndexRoute
-  '/leads/': typeof AuthenticatedLeadsIndexRoute
   '/maintenance/': typeof AuthenticatedMaintenanceIndexRoute
   '/members/': typeof AuthenticatedMembersIndexRoute
-  '/owners/': typeof AuthenticatedOwnersIndexRoute
   '/portal/': typeof AuthenticatedPortalIndexRoute
   '/properties/': typeof AuthenticatedPropertiesIndexRoute
   '/rentals/': typeof AuthenticatedRentalsIndexRoute
-  '/reports/': typeof AuthenticatedReportsIndexRoute
   '/tasks/': typeof AuthenticatedTasksIndexRoute
   '/team/': typeof AuthenticatedTeamIndexRoute
   '/assistant/scripts/$name': typeof AuthenticatedAssistantScriptsNameRoute
@@ -1967,16 +1913,22 @@ export interface FileRoutesByFullPath {
   '/dashboard/audit/$id': typeof AuthenticatedDashboardAuditIdRoute
   '/dashboard/contracts/$id': typeof AuthenticatedDashboardContractsIdRoute
   '/dashboard/contracts/new': typeof AuthenticatedDashboardContractsNewRoute
-  '/dashboard/crm/deals': typeof AuthenticatedDashboardCrmDealsRoute
-  '/dashboard/crm/leads': typeof AuthenticatedDashboardCrmLeadsRoute
   '/dashboard/crm/meetings': typeof AuthenticatedDashboardCrmMeetingsRoute
+  '/dashboard/documents/$id': typeof AuthenticatedDashboardDocumentsIdRoute
   '/dashboard/expenses/batches': typeof AuthenticatedDashboardExpensesBatchesRouteWithChildren
   '/dashboard/expenses/claim': typeof AuthenticatedDashboardExpensesClaimRouteWithChildren
   '/dashboard/expenses/review': typeof AuthenticatedDashboardExpensesReviewRoute
   '/dashboard/invoices/$id': typeof AuthenticatedDashboardInvoicesIdRoute
   '/dashboard/maintenance/technicians': typeof AuthenticatedDashboardMaintenanceTechniciansRoute
+  '/dashboard/owners/$id': typeof AuthenticatedDashboardOwnersIdRouteWithChildren
+  '/dashboard/owners/contracts': typeof AuthenticatedDashboardOwnersContractsRoute
   '/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
+  '/dashboard/reports/builder': typeof AuthenticatedDashboardReportsBuilderRoute
+  '/dashboard/reports/executive': typeof AuthenticatedDashboardReportsExecutiveRoute
+  '/dashboard/reports/pdf': typeof AuthenticatedDashboardReportsPdfRoute
+  '/dashboard/reports/preview': typeof AuthenticatedDashboardReportsPreviewRoute
+  '/dashboard/reports/templates': typeof AuthenticatedDashboardReportsTemplatesRouteWithChildren
   '/dashboard/services/$key': typeof AuthenticatedDashboardServicesKeyRoute
   '/dashboard/services/forbidden-log': typeof AuthenticatedDashboardServicesForbiddenLogRoute
   '/dashboard/settings/api-keys': typeof AuthenticatedDashboardSettingsApiKeysRoute
@@ -1988,13 +1940,10 @@ export interface FileRoutesByFullPath {
   '/dashboard/tickets/$id': typeof AuthenticatedDashboardTicketsIdRoute
   '/dashboard/tickets/new': typeof AuthenticatedDashboardTicketsNewRoute
   '/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
-  '/leads/$id/edit': typeof AuthenticatedLeadsIdEditRoute
-  '/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
   '/portal/settings/notifications': typeof AuthenticatedPortalSettingsNotificationsRoute
   '/portal/settings/security': typeof AuthenticatedPortalSettingsSecurityRoute
   '/portal/tenant/maintenance': typeof AuthenticatedPortalTenantMaintenanceRoute
   '/portal/tenant/payments': typeof AuthenticatedPortalTenantPaymentsRoute
-  '/reports/templates/manage': typeof AuthenticatedReportsTemplatesManageRoute
   '/tenant/portal/maintenance': typeof AuthenticatedTenantPortalMaintenanceRoute
   '/api/public/hooks/auctions-tick': typeof ApiPublicHooksAuctionsTickRoute
   '/api/public/hooks/dispatch-notifications': typeof ApiPublicHooksDispatchNotificationsRoute
@@ -2016,8 +1965,11 @@ export interface FileRoutesByFullPath {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dashboard/contracts/': typeof AuthenticatedDashboardContractsIndexRoute
   '/dashboard/crm/': typeof AuthenticatedDashboardCrmIndexRoute
+  '/dashboard/documents/': typeof AuthenticatedDashboardDocumentsIndexRoute
   '/dashboard/invoices/': typeof AuthenticatedDashboardInvoicesIndexRoute
+  '/dashboard/owners/': typeof AuthenticatedDashboardOwnersIndexRoute
   '/dashboard/properties/': typeof AuthenticatedDashboardPropertiesIndexRoute
+  '/dashboard/reports/': typeof AuthenticatedDashboardReportsIndexRoute
   '/dashboard/services/': typeof AuthenticatedDashboardServicesIndexRoute
   '/dashboard/tickets/': typeof AuthenticatedDashboardTicketsIndexRoute
   '/dashboard/units/': typeof AuthenticatedDashboardUnitsIndexRoute
@@ -2029,8 +1981,13 @@ export interface FileRoutesByFullPath {
   '/dashboard/auctions/$id/edit': typeof AuthenticatedDashboardAuctionsIdEditRoute
   '/dashboard/auctions/audit/$id': typeof AuthenticatedDashboardAuctionsAuditIdRoute
   '/dashboard/auctions/reports/filters-usage': typeof AuthenticatedDashboardAuctionsReportsFiltersUsageRoute
+  '/dashboard/crm/deals/$id': typeof AuthenticatedDashboardCrmDealsIdRoute
+  '/dashboard/crm/leads/$id': typeof AuthenticatedDashboardCrmLeadsIdRouteWithChildren
+  '/dashboard/crm/leads/new': typeof AuthenticatedDashboardCrmLeadsNewRoute
   '/dashboard/expenses/batches/$batchId': typeof AuthenticatedDashboardExpensesBatchesBatchIdRoute
   '/dashboard/expenses/claim/correct': typeof AuthenticatedDashboardExpensesClaimCorrectRoute
+  '/dashboard/owners/$id/ledger': typeof AuthenticatedDashboardOwnersIdLedgerRoute
+  '/dashboard/reports/templates/manage': typeof AuthenticatedDashboardReportsTemplatesManageRoute
   '/owner/portal/statements/$id': typeof AuthenticatedOwnerPortalStatementsIdRoute
   '/portal/owner/statements/$id': typeof AuthenticatedPortalOwnerStatementsIdRoute
   '/api/public/v1/auctions/$id': typeof ApiPublicV1AuctionsIdRouteWithChildren
@@ -2040,6 +1997,9 @@ export interface FileRoutesByFullPath {
   '/api/public/v1/payments/$id': typeof ApiPublicV1PaymentsIdRoute
   '/api/public/v1/properties/$id': typeof ApiPublicV1PropertiesIdRoute
   '/api/public/v1/units/$id': typeof ApiPublicV1UnitsIdRoute
+  '/dashboard/crm/deals/': typeof AuthenticatedDashboardCrmDealsIndexRoute
+  '/dashboard/crm/leads/': typeof AuthenticatedDashboardCrmLeadsIndexRoute
+  '/dashboard/crm/leads/$id/edit': typeof AuthenticatedDashboardCrmLeadsIdEditRoute
   '/api/public/v1/auctions/$id/bids': typeof ApiPublicV1AuctionsIdBidsRoute
 }
 export interface FileRoutesByTo {
@@ -2068,7 +2028,6 @@ export interface FileRoutesByTo {
   '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/leasing': typeof AuthenticatedLeasingRoute
-  '/meetings': typeof AuthenticatedMeetingsRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/register-company': typeof AuthenticatedRegisterCompanyRoute
   '/api/hamid-tts': typeof ApiHamidTtsRoute
@@ -2145,18 +2104,15 @@ export interface FileRoutesByTo {
   '/dashboard/audit': typeof AuthenticatedDashboardAuditRouteWithChildren
   '/dashboard/auto': typeof AuthenticatedDashboardAutoRoute
   '/dashboard/commissions': typeof AuthenticatedDashboardCommissionsRoute
-  '/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
   '/dashboard/expenses': typeof AuthenticatedDashboardExpensesRouteWithChildren
   '/dashboard/inbox': typeof AuthenticatedDashboardInboxRoute
   '/dashboard/maintenance': typeof AuthenticatedDashboardMaintenanceRouteWithChildren
   '/dashboard/maintenance-log': typeof AuthenticatedDashboardMaintenanceLogRoute
   '/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
-  '/dashboard/owners': typeof AuthenticatedDashboardOwnersRoute
   '/dashboard/payment-schedules': typeof AuthenticatedDashboardPaymentSchedulesRoute
   '/dashboard/payments': typeof AuthenticatedDashboardPaymentsRoute
   '/dashboard/payments-review': typeof AuthenticatedDashboardPaymentsReviewRoute
   '/dashboard/renew': typeof AuthenticatedDashboardRenewRoute
-  '/dashboard/reports': typeof AuthenticatedDashboardReportsRoute
   '/dashboard/services-report': typeof AuthenticatedDashboardServicesReportRoute
   '/dashboard/settings': typeof AuthenticatedDashboardSettingsRouteWithChildren
   '/dashboard/tasks': typeof AuthenticatedDashboardTasksRoute
@@ -2166,13 +2122,7 @@ export interface FileRoutesByTo {
   '/dashboard/viewings': typeof AuthenticatedDashboardViewingsRoute
   '/dashboard/vouchers': typeof AuthenticatedDashboardVouchersRoute
   '/dashboard/zatca-customers': typeof AuthenticatedDashboardZatcaCustomersRoute
-  '/deals/$id': typeof AuthenticatedDealsIdRoute
-  '/documents/$id': typeof AuthenticatedDocumentsIdRoute
-  '/leads/$id': typeof AuthenticatedLeadsIdRouteWithChildren
-  '/leads/new': typeof AuthenticatedLeadsNewRoute
   '/maintenance/technicians': typeof AuthenticatedMaintenanceTechniciansRoute
-  '/owners/$id': typeof AuthenticatedOwnersIdRouteWithChildren
-  '/owners/contracts': typeof AuthenticatedOwnersContractsRoute
   '/portal/appointments': typeof AuthenticatedPortalAppointmentsRoute
   '/portal/assistant': typeof AuthenticatedPortalAssistantRoute
   '/portal/billing': typeof AuthenticatedPortalBillingRoute
@@ -2185,11 +2135,6 @@ export interface FileRoutesByTo {
   '/portal/support': typeof AuthenticatedPortalSupportRoute
   '/properties/$id': typeof AuthenticatedPropertiesIdRoute
   '/properties/new': typeof AuthenticatedPropertiesNewRoute
-  '/reports/builder': typeof AuthenticatedReportsBuilderRoute
-  '/reports/executive': typeof AuthenticatedReportsExecutiveRoute
-  '/reports/pdf': typeof AuthenticatedReportsPdfRoute
-  '/reports/preview': typeof AuthenticatedReportsPreviewRoute
-  '/reports/templates': typeof AuthenticatedReportsTemplatesRouteWithChildren
   '/security/sessions': typeof AuthenticatedSecuritySessionsRoute
   '/settings/import': typeof AuthenticatedSettingsImportRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
@@ -2204,16 +2149,11 @@ export interface FileRoutesByTo {
   '/auctions': typeof AuthenticatedAuctionsIndexRoute
   '/contacts': typeof AuthenticatedContactsIndexRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
-  '/deals': typeof AuthenticatedDealsIndexRoute
-  '/documents': typeof AuthenticatedDocumentsIndexRoute
-  '/leads': typeof AuthenticatedLeadsIndexRoute
   '/maintenance': typeof AuthenticatedMaintenanceIndexRoute
   '/members': typeof AuthenticatedMembersIndexRoute
-  '/owners': typeof AuthenticatedOwnersIndexRoute
   '/portal': typeof AuthenticatedPortalIndexRoute
   '/properties': typeof AuthenticatedPropertiesIndexRoute
   '/rentals': typeof AuthenticatedRentalsIndexRoute
-  '/reports': typeof AuthenticatedReportsIndexRoute
   '/tasks': typeof AuthenticatedTasksIndexRoute
   '/team': typeof AuthenticatedTeamIndexRoute
   '/assistant/scripts/$name': typeof AuthenticatedAssistantScriptsNameRoute
@@ -2225,16 +2165,22 @@ export interface FileRoutesByTo {
   '/dashboard/audit/$id': typeof AuthenticatedDashboardAuditIdRoute
   '/dashboard/contracts/$id': typeof AuthenticatedDashboardContractsIdRoute
   '/dashboard/contracts/new': typeof AuthenticatedDashboardContractsNewRoute
-  '/dashboard/crm/deals': typeof AuthenticatedDashboardCrmDealsRoute
-  '/dashboard/crm/leads': typeof AuthenticatedDashboardCrmLeadsRoute
   '/dashboard/crm/meetings': typeof AuthenticatedDashboardCrmMeetingsRoute
+  '/dashboard/documents/$id': typeof AuthenticatedDashboardDocumentsIdRoute
   '/dashboard/expenses/batches': typeof AuthenticatedDashboardExpensesBatchesRouteWithChildren
   '/dashboard/expenses/claim': typeof AuthenticatedDashboardExpensesClaimRouteWithChildren
   '/dashboard/expenses/review': typeof AuthenticatedDashboardExpensesReviewRoute
   '/dashboard/invoices/$id': typeof AuthenticatedDashboardInvoicesIdRoute
   '/dashboard/maintenance/technicians': typeof AuthenticatedDashboardMaintenanceTechniciansRoute
+  '/dashboard/owners/$id': typeof AuthenticatedDashboardOwnersIdRouteWithChildren
+  '/dashboard/owners/contracts': typeof AuthenticatedDashboardOwnersContractsRoute
   '/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
+  '/dashboard/reports/builder': typeof AuthenticatedDashboardReportsBuilderRoute
+  '/dashboard/reports/executive': typeof AuthenticatedDashboardReportsExecutiveRoute
+  '/dashboard/reports/pdf': typeof AuthenticatedDashboardReportsPdfRoute
+  '/dashboard/reports/preview': typeof AuthenticatedDashboardReportsPreviewRoute
+  '/dashboard/reports/templates': typeof AuthenticatedDashboardReportsTemplatesRouteWithChildren
   '/dashboard/services/$key': typeof AuthenticatedDashboardServicesKeyRoute
   '/dashboard/services/forbidden-log': typeof AuthenticatedDashboardServicesForbiddenLogRoute
   '/dashboard/settings/api-keys': typeof AuthenticatedDashboardSettingsApiKeysRoute
@@ -2246,13 +2192,10 @@ export interface FileRoutesByTo {
   '/dashboard/tickets/$id': typeof AuthenticatedDashboardTicketsIdRoute
   '/dashboard/tickets/new': typeof AuthenticatedDashboardTicketsNewRoute
   '/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
-  '/leads/$id/edit': typeof AuthenticatedLeadsIdEditRoute
-  '/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
   '/portal/settings/notifications': typeof AuthenticatedPortalSettingsNotificationsRoute
   '/portal/settings/security': typeof AuthenticatedPortalSettingsSecurityRoute
   '/portal/tenant/maintenance': typeof AuthenticatedPortalTenantMaintenanceRoute
   '/portal/tenant/payments': typeof AuthenticatedPortalTenantPaymentsRoute
-  '/reports/templates/manage': typeof AuthenticatedReportsTemplatesManageRoute
   '/tenant/portal/maintenance': typeof AuthenticatedTenantPortalMaintenanceRoute
   '/api/public/hooks/auctions-tick': typeof ApiPublicHooksAuctionsTickRoute
   '/api/public/hooks/dispatch-notifications': typeof ApiPublicHooksDispatchNotificationsRoute
@@ -2274,8 +2217,11 @@ export interface FileRoutesByTo {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/dashboard/contracts': typeof AuthenticatedDashboardContractsIndexRoute
   '/dashboard/crm': typeof AuthenticatedDashboardCrmIndexRoute
+  '/dashboard/documents': typeof AuthenticatedDashboardDocumentsIndexRoute
   '/dashboard/invoices': typeof AuthenticatedDashboardInvoicesIndexRoute
+  '/dashboard/owners': typeof AuthenticatedDashboardOwnersIndexRoute
   '/dashboard/properties': typeof AuthenticatedDashboardPropertiesIndexRoute
+  '/dashboard/reports': typeof AuthenticatedDashboardReportsIndexRoute
   '/dashboard/services': typeof AuthenticatedDashboardServicesIndexRoute
   '/dashboard/tickets': typeof AuthenticatedDashboardTicketsIndexRoute
   '/dashboard/units': typeof AuthenticatedDashboardUnitsIndexRoute
@@ -2287,8 +2233,13 @@ export interface FileRoutesByTo {
   '/dashboard/auctions/$id/edit': typeof AuthenticatedDashboardAuctionsIdEditRoute
   '/dashboard/auctions/audit/$id': typeof AuthenticatedDashboardAuctionsAuditIdRoute
   '/dashboard/auctions/reports/filters-usage': typeof AuthenticatedDashboardAuctionsReportsFiltersUsageRoute
+  '/dashboard/crm/deals/$id': typeof AuthenticatedDashboardCrmDealsIdRoute
+  '/dashboard/crm/leads/$id': typeof AuthenticatedDashboardCrmLeadsIdRouteWithChildren
+  '/dashboard/crm/leads/new': typeof AuthenticatedDashboardCrmLeadsNewRoute
   '/dashboard/expenses/batches/$batchId': typeof AuthenticatedDashboardExpensesBatchesBatchIdRoute
   '/dashboard/expenses/claim/correct': typeof AuthenticatedDashboardExpensesClaimCorrectRoute
+  '/dashboard/owners/$id/ledger': typeof AuthenticatedDashboardOwnersIdLedgerRoute
+  '/dashboard/reports/templates/manage': typeof AuthenticatedDashboardReportsTemplatesManageRoute
   '/owner/portal/statements/$id': typeof AuthenticatedOwnerPortalStatementsIdRoute
   '/portal/owner/statements/$id': typeof AuthenticatedPortalOwnerStatementsIdRoute
   '/api/public/v1/auctions/$id': typeof ApiPublicV1AuctionsIdRouteWithChildren
@@ -2298,6 +2249,9 @@ export interface FileRoutesByTo {
   '/api/public/v1/payments/$id': typeof ApiPublicV1PaymentsIdRoute
   '/api/public/v1/properties/$id': typeof ApiPublicV1PropertiesIdRoute
   '/api/public/v1/units/$id': typeof ApiPublicV1UnitsIdRoute
+  '/dashboard/crm/deals': typeof AuthenticatedDashboardCrmDealsIndexRoute
+  '/dashboard/crm/leads': typeof AuthenticatedDashboardCrmLeadsIndexRoute
+  '/dashboard/crm/leads/$id/edit': typeof AuthenticatedDashboardCrmLeadsIdEditRoute
   '/api/public/v1/auctions/$id/bids': typeof ApiPublicV1AuctionsIdBidsRoute
 }
 export interface FileRoutesById {
@@ -2332,7 +2286,6 @@ export interface FileRoutesById {
   '/_authenticated/assistant': typeof AuthenticatedAssistantRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_authenticated/leasing': typeof AuthenticatedLeasingRoute
-  '/_authenticated/meetings': typeof AuthenticatedMeetingsRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/portal': typeof AuthenticatedPortalRouteWithChildren
   '/_authenticated/register-company': typeof AuthenticatedRegisterCompanyRoute
@@ -2411,18 +2364,15 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/auto': typeof AuthenticatedDashboardAutoRoute
   '/_authenticated/dashboard/commissions': typeof AuthenticatedDashboardCommissionsRoute
   '/_authenticated/dashboard/crm': typeof AuthenticatedDashboardCrmRouteWithChildren
-  '/_authenticated/dashboard/documents': typeof AuthenticatedDashboardDocumentsRoute
   '/_authenticated/dashboard/expenses': typeof AuthenticatedDashboardExpensesRouteWithChildren
   '/_authenticated/dashboard/inbox': typeof AuthenticatedDashboardInboxRoute
   '/_authenticated/dashboard/maintenance': typeof AuthenticatedDashboardMaintenanceRouteWithChildren
   '/_authenticated/dashboard/maintenance-log': typeof AuthenticatedDashboardMaintenanceLogRoute
   '/_authenticated/dashboard/notifications': typeof AuthenticatedDashboardNotificationsRoute
-  '/_authenticated/dashboard/owners': typeof AuthenticatedDashboardOwnersRoute
   '/_authenticated/dashboard/payment-schedules': typeof AuthenticatedDashboardPaymentSchedulesRoute
   '/_authenticated/dashboard/payments': typeof AuthenticatedDashboardPaymentsRoute
   '/_authenticated/dashboard/payments-review': typeof AuthenticatedDashboardPaymentsReviewRoute
   '/_authenticated/dashboard/renew': typeof AuthenticatedDashboardRenewRoute
-  '/_authenticated/dashboard/reports': typeof AuthenticatedDashboardReportsRoute
   '/_authenticated/dashboard/services-report': typeof AuthenticatedDashboardServicesReportRoute
   '/_authenticated/dashboard/settings': typeof AuthenticatedDashboardSettingsRouteWithChildren
   '/_authenticated/dashboard/tasks': typeof AuthenticatedDashboardTasksRoute
@@ -2432,13 +2382,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/viewings': typeof AuthenticatedDashboardViewingsRoute
   '/_authenticated/dashboard/vouchers': typeof AuthenticatedDashboardVouchersRoute
   '/_authenticated/dashboard/zatca-customers': typeof AuthenticatedDashboardZatcaCustomersRoute
-  '/_authenticated/deals/$id': typeof AuthenticatedDealsIdRoute
-  '/_authenticated/documents/$id': typeof AuthenticatedDocumentsIdRoute
-  '/_authenticated/leads/$id': typeof AuthenticatedLeadsIdRouteWithChildren
-  '/_authenticated/leads/new': typeof AuthenticatedLeadsNewRoute
   '/_authenticated/maintenance/technicians': typeof AuthenticatedMaintenanceTechniciansRoute
-  '/_authenticated/owners/$id': typeof AuthenticatedOwnersIdRouteWithChildren
-  '/_authenticated/owners/contracts': typeof AuthenticatedOwnersContractsRoute
   '/_authenticated/portal/appointments': typeof AuthenticatedPortalAppointmentsRoute
   '/_authenticated/portal/assistant': typeof AuthenticatedPortalAssistantRoute
   '/_authenticated/portal/billing': typeof AuthenticatedPortalBillingRoute
@@ -2453,11 +2397,6 @@ export interface FileRoutesById {
   '/_authenticated/portal/tenant': typeof AuthenticatedPortalTenantRouteWithChildren
   '/_authenticated/properties/$id': typeof AuthenticatedPropertiesIdRoute
   '/_authenticated/properties/new': typeof AuthenticatedPropertiesNewRoute
-  '/_authenticated/reports/builder': typeof AuthenticatedReportsBuilderRoute
-  '/_authenticated/reports/executive': typeof AuthenticatedReportsExecutiveRoute
-  '/_authenticated/reports/pdf': typeof AuthenticatedReportsPdfRoute
-  '/_authenticated/reports/preview': typeof AuthenticatedReportsPreviewRoute
-  '/_authenticated/reports/templates': typeof AuthenticatedReportsTemplatesRouteWithChildren
   '/_authenticated/security/sessions': typeof AuthenticatedSecuritySessionsRoute
   '/_authenticated/settings/import': typeof AuthenticatedSettingsImportRoute
   '/api/assistant/chat': typeof ApiAssistantChatRoute
@@ -2472,16 +2411,11 @@ export interface FileRoutesById {
   '/_authenticated/auctions/': typeof AuthenticatedAuctionsIndexRoute
   '/_authenticated/contacts/': typeof AuthenticatedContactsIndexRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/_authenticated/deals/': typeof AuthenticatedDealsIndexRoute
-  '/_authenticated/documents/': typeof AuthenticatedDocumentsIndexRoute
-  '/_authenticated/leads/': typeof AuthenticatedLeadsIndexRoute
   '/_authenticated/maintenance/': typeof AuthenticatedMaintenanceIndexRoute
   '/_authenticated/members/': typeof AuthenticatedMembersIndexRoute
-  '/_authenticated/owners/': typeof AuthenticatedOwnersIndexRoute
   '/_authenticated/portal/': typeof AuthenticatedPortalIndexRoute
   '/_authenticated/properties/': typeof AuthenticatedPropertiesIndexRoute
   '/_authenticated/rentals/': typeof AuthenticatedRentalsIndexRoute
-  '/_authenticated/reports/': typeof AuthenticatedReportsIndexRoute
   '/_authenticated/tasks/': typeof AuthenticatedTasksIndexRoute
   '/_authenticated/team/': typeof AuthenticatedTeamIndexRoute
   '/_authenticated/assistant/scripts/$name': typeof AuthenticatedAssistantScriptsNameRoute
@@ -2493,16 +2427,22 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/audit/$id': typeof AuthenticatedDashboardAuditIdRoute
   '/_authenticated/dashboard/contracts/$id': typeof AuthenticatedDashboardContractsIdRoute
   '/_authenticated/dashboard/contracts/new': typeof AuthenticatedDashboardContractsNewRoute
-  '/_authenticated/dashboard/crm/deals': typeof AuthenticatedDashboardCrmDealsRoute
-  '/_authenticated/dashboard/crm/leads': typeof AuthenticatedDashboardCrmLeadsRoute
   '/_authenticated/dashboard/crm/meetings': typeof AuthenticatedDashboardCrmMeetingsRoute
+  '/_authenticated/dashboard/documents/$id': typeof AuthenticatedDashboardDocumentsIdRoute
   '/_authenticated/dashboard/expenses/batches': typeof AuthenticatedDashboardExpensesBatchesRouteWithChildren
   '/_authenticated/dashboard/expenses/claim': typeof AuthenticatedDashboardExpensesClaimRouteWithChildren
   '/_authenticated/dashboard/expenses/review': typeof AuthenticatedDashboardExpensesReviewRoute
   '/_authenticated/dashboard/invoices/$id': typeof AuthenticatedDashboardInvoicesIdRoute
   '/_authenticated/dashboard/maintenance/technicians': typeof AuthenticatedDashboardMaintenanceTechniciansRoute
+  '/_authenticated/dashboard/owners/$id': typeof AuthenticatedDashboardOwnersIdRouteWithChildren
+  '/_authenticated/dashboard/owners/contracts': typeof AuthenticatedDashboardOwnersContractsRoute
   '/_authenticated/dashboard/properties/$id': typeof AuthenticatedDashboardPropertiesIdRoute
   '/_authenticated/dashboard/properties/new': typeof AuthenticatedDashboardPropertiesNewRoute
+  '/_authenticated/dashboard/reports/builder': typeof AuthenticatedDashboardReportsBuilderRoute
+  '/_authenticated/dashboard/reports/executive': typeof AuthenticatedDashboardReportsExecutiveRoute
+  '/_authenticated/dashboard/reports/pdf': typeof AuthenticatedDashboardReportsPdfRoute
+  '/_authenticated/dashboard/reports/preview': typeof AuthenticatedDashboardReportsPreviewRoute
+  '/_authenticated/dashboard/reports/templates': typeof AuthenticatedDashboardReportsTemplatesRouteWithChildren
   '/_authenticated/dashboard/services/$key': typeof AuthenticatedDashboardServicesKeyRoute
   '/_authenticated/dashboard/services/forbidden-log': typeof AuthenticatedDashboardServicesForbiddenLogRoute
   '/_authenticated/dashboard/settings/api-keys': typeof AuthenticatedDashboardSettingsApiKeysRoute
@@ -2514,13 +2454,10 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/tickets/$id': typeof AuthenticatedDashboardTicketsIdRoute
   '/_authenticated/dashboard/tickets/new': typeof AuthenticatedDashboardTicketsNewRoute
   '/_authenticated/dashboard/units/$id': typeof AuthenticatedDashboardUnitsIdRoute
-  '/_authenticated/leads/$id/edit': typeof AuthenticatedLeadsIdEditRoute
-  '/_authenticated/owners/$id/ledger': typeof AuthenticatedOwnersIdLedgerRoute
   '/_authenticated/portal/settings/notifications': typeof AuthenticatedPortalSettingsNotificationsRoute
   '/_authenticated/portal/settings/security': typeof AuthenticatedPortalSettingsSecurityRoute
   '/_authenticated/portal/tenant/maintenance': typeof AuthenticatedPortalTenantMaintenanceRoute
   '/_authenticated/portal/tenant/payments': typeof AuthenticatedPortalTenantPaymentsRoute
-  '/_authenticated/reports/templates/manage': typeof AuthenticatedReportsTemplatesManageRoute
   '/_authenticated/tenant/portal/maintenance': typeof AuthenticatedTenantPortalMaintenanceRoute
   '/api/public/hooks/auctions-tick': typeof ApiPublicHooksAuctionsTickRoute
   '/api/public/hooks/dispatch-notifications': typeof ApiPublicHooksDispatchNotificationsRoute
@@ -2542,8 +2479,11 @@ export interface FileRoutesById {
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/_authenticated/dashboard/contracts/': typeof AuthenticatedDashboardContractsIndexRoute
   '/_authenticated/dashboard/crm/': typeof AuthenticatedDashboardCrmIndexRoute
+  '/_authenticated/dashboard/documents/': typeof AuthenticatedDashboardDocumentsIndexRoute
   '/_authenticated/dashboard/invoices/': typeof AuthenticatedDashboardInvoicesIndexRoute
+  '/_authenticated/dashboard/owners/': typeof AuthenticatedDashboardOwnersIndexRoute
   '/_authenticated/dashboard/properties/': typeof AuthenticatedDashboardPropertiesIndexRoute
+  '/_authenticated/dashboard/reports/': typeof AuthenticatedDashboardReportsIndexRoute
   '/_authenticated/dashboard/services/': typeof AuthenticatedDashboardServicesIndexRoute
   '/_authenticated/dashboard/tickets/': typeof AuthenticatedDashboardTicketsIndexRoute
   '/_authenticated/dashboard/units/': typeof AuthenticatedDashboardUnitsIndexRoute
@@ -2555,8 +2495,13 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/auctions/$id/edit': typeof AuthenticatedDashboardAuctionsIdEditRoute
   '/_authenticated/dashboard/auctions/audit/$id': typeof AuthenticatedDashboardAuctionsAuditIdRoute
   '/_authenticated/dashboard/auctions/reports/filters-usage': typeof AuthenticatedDashboardAuctionsReportsFiltersUsageRoute
+  '/_authenticated/dashboard/crm/deals/$id': typeof AuthenticatedDashboardCrmDealsIdRoute
+  '/_authenticated/dashboard/crm/leads/$id': typeof AuthenticatedDashboardCrmLeadsIdRouteWithChildren
+  '/_authenticated/dashboard/crm/leads/new': typeof AuthenticatedDashboardCrmLeadsNewRoute
   '/_authenticated/dashboard/expenses/batches/$batchId': typeof AuthenticatedDashboardExpensesBatchesBatchIdRoute
   '/_authenticated/dashboard/expenses/claim/correct': typeof AuthenticatedDashboardExpensesClaimCorrectRoute
+  '/_authenticated/dashboard/owners/$id/ledger': typeof AuthenticatedDashboardOwnersIdLedgerRoute
+  '/_authenticated/dashboard/reports/templates/manage': typeof AuthenticatedDashboardReportsTemplatesManageRoute
   '/_authenticated/owner/portal/statements/$id': typeof AuthenticatedOwnerPortalStatementsIdRoute
   '/_authenticated/portal/owner/statements/$id': typeof AuthenticatedPortalOwnerStatementsIdRoute
   '/api/public/v1/auctions/$id': typeof ApiPublicV1AuctionsIdRouteWithChildren
@@ -2566,6 +2511,9 @@ export interface FileRoutesById {
   '/api/public/v1/payments/$id': typeof ApiPublicV1PaymentsIdRoute
   '/api/public/v1/properties/$id': typeof ApiPublicV1PropertiesIdRoute
   '/api/public/v1/units/$id': typeof ApiPublicV1UnitsIdRoute
+  '/_authenticated/dashboard/crm/deals/': typeof AuthenticatedDashboardCrmDealsIndexRoute
+  '/_authenticated/dashboard/crm/leads/': typeof AuthenticatedDashboardCrmLeadsIndexRoute
+  '/_authenticated/dashboard/crm/leads/$id/edit': typeof AuthenticatedDashboardCrmLeadsIdEditRoute
   '/api/public/v1/auctions/$id/bids': typeof ApiPublicV1AuctionsIdBidsRoute
 }
 export interface FileRouteTypes {
@@ -2600,7 +2548,6 @@ export interface FileRouteTypes {
     | '/assistant'
     | '/dashboard'
     | '/leasing'
-    | '/meetings'
     | '/onboarding'
     | '/portal'
     | '/register-company'
@@ -2679,18 +2626,15 @@ export interface FileRouteTypes {
     | '/dashboard/auto'
     | '/dashboard/commissions'
     | '/dashboard/crm'
-    | '/dashboard/documents'
     | '/dashboard/expenses'
     | '/dashboard/inbox'
     | '/dashboard/maintenance'
     | '/dashboard/maintenance-log'
     | '/dashboard/notifications'
-    | '/dashboard/owners'
     | '/dashboard/payment-schedules'
     | '/dashboard/payments'
     | '/dashboard/payments-review'
     | '/dashboard/renew'
-    | '/dashboard/reports'
     | '/dashboard/services-report'
     | '/dashboard/settings'
     | '/dashboard/tasks'
@@ -2700,13 +2644,7 @@ export interface FileRouteTypes {
     | '/dashboard/viewings'
     | '/dashboard/vouchers'
     | '/dashboard/zatca-customers'
-    | '/deals/$id'
-    | '/documents/$id'
-    | '/leads/$id'
-    | '/leads/new'
     | '/maintenance/technicians'
-    | '/owners/$id'
-    | '/owners/contracts'
     | '/portal/appointments'
     | '/portal/assistant'
     | '/portal/billing'
@@ -2721,11 +2659,6 @@ export interface FileRouteTypes {
     | '/portal/tenant'
     | '/properties/$id'
     | '/properties/new'
-    | '/reports/builder'
-    | '/reports/executive'
-    | '/reports/pdf'
-    | '/reports/preview'
-    | '/reports/templates'
     | '/security/sessions'
     | '/settings/import'
     | '/api/assistant/chat'
@@ -2740,16 +2673,11 @@ export interface FileRouteTypes {
     | '/auctions/'
     | '/contacts/'
     | '/dashboard/'
-    | '/deals/'
-    | '/documents/'
-    | '/leads/'
     | '/maintenance/'
     | '/members/'
-    | '/owners/'
     | '/portal/'
     | '/properties/'
     | '/rentals/'
-    | '/reports/'
     | '/tasks/'
     | '/team/'
     | '/assistant/scripts/$name'
@@ -2761,16 +2689,22 @@ export interface FileRouteTypes {
     | '/dashboard/audit/$id'
     | '/dashboard/contracts/$id'
     | '/dashboard/contracts/new'
-    | '/dashboard/crm/deals'
-    | '/dashboard/crm/leads'
     | '/dashboard/crm/meetings'
+    | '/dashboard/documents/$id'
     | '/dashboard/expenses/batches'
     | '/dashboard/expenses/claim'
     | '/dashboard/expenses/review'
     | '/dashboard/invoices/$id'
     | '/dashboard/maintenance/technicians'
+    | '/dashboard/owners/$id'
+    | '/dashboard/owners/contracts'
     | '/dashboard/properties/$id'
     | '/dashboard/properties/new'
+    | '/dashboard/reports/builder'
+    | '/dashboard/reports/executive'
+    | '/dashboard/reports/pdf'
+    | '/dashboard/reports/preview'
+    | '/dashboard/reports/templates'
     | '/dashboard/services/$key'
     | '/dashboard/services/forbidden-log'
     | '/dashboard/settings/api-keys'
@@ -2782,13 +2716,10 @@ export interface FileRouteTypes {
     | '/dashboard/tickets/$id'
     | '/dashboard/tickets/new'
     | '/dashboard/units/$id'
-    | '/leads/$id/edit'
-    | '/owners/$id/ledger'
     | '/portal/settings/notifications'
     | '/portal/settings/security'
     | '/portal/tenant/maintenance'
     | '/portal/tenant/payments'
-    | '/reports/templates/manage'
     | '/tenant/portal/maintenance'
     | '/api/public/hooks/auctions-tick'
     | '/api/public/hooks/dispatch-notifications'
@@ -2810,8 +2741,11 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/dashboard/contracts/'
     | '/dashboard/crm/'
+    | '/dashboard/documents/'
     | '/dashboard/invoices/'
+    | '/dashboard/owners/'
     | '/dashboard/properties/'
+    | '/dashboard/reports/'
     | '/dashboard/services/'
     | '/dashboard/tickets/'
     | '/dashboard/units/'
@@ -2823,8 +2757,13 @@ export interface FileRouteTypes {
     | '/dashboard/auctions/$id/edit'
     | '/dashboard/auctions/audit/$id'
     | '/dashboard/auctions/reports/filters-usage'
+    | '/dashboard/crm/deals/$id'
+    | '/dashboard/crm/leads/$id'
+    | '/dashboard/crm/leads/new'
     | '/dashboard/expenses/batches/$batchId'
     | '/dashboard/expenses/claim/correct'
+    | '/dashboard/owners/$id/ledger'
+    | '/dashboard/reports/templates/manage'
     | '/owner/portal/statements/$id'
     | '/portal/owner/statements/$id'
     | '/api/public/v1/auctions/$id'
@@ -2834,6 +2773,9 @@ export interface FileRouteTypes {
     | '/api/public/v1/payments/$id'
     | '/api/public/v1/properties/$id'
     | '/api/public/v1/units/$id'
+    | '/dashboard/crm/deals/'
+    | '/dashboard/crm/leads/'
+    | '/dashboard/crm/leads/$id/edit'
     | '/api/public/v1/auctions/$id/bids'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -2862,7 +2804,6 @@ export interface FileRouteTypes {
     | '/.mcp/list-tools'
     | '/.well-known/oauth-protected-resource'
     | '/leasing'
-    | '/meetings'
     | '/onboarding'
     | '/register-company'
     | '/api/hamid-tts'
@@ -2939,18 +2880,15 @@ export interface FileRouteTypes {
     | '/dashboard/audit'
     | '/dashboard/auto'
     | '/dashboard/commissions'
-    | '/dashboard/documents'
     | '/dashboard/expenses'
     | '/dashboard/inbox'
     | '/dashboard/maintenance'
     | '/dashboard/maintenance-log'
     | '/dashboard/notifications'
-    | '/dashboard/owners'
     | '/dashboard/payment-schedules'
     | '/dashboard/payments'
     | '/dashboard/payments-review'
     | '/dashboard/renew'
-    | '/dashboard/reports'
     | '/dashboard/services-report'
     | '/dashboard/settings'
     | '/dashboard/tasks'
@@ -2960,13 +2898,7 @@ export interface FileRouteTypes {
     | '/dashboard/viewings'
     | '/dashboard/vouchers'
     | '/dashboard/zatca-customers'
-    | '/deals/$id'
-    | '/documents/$id'
-    | '/leads/$id'
-    | '/leads/new'
     | '/maintenance/technicians'
-    | '/owners/$id'
-    | '/owners/contracts'
     | '/portal/appointments'
     | '/portal/assistant'
     | '/portal/billing'
@@ -2979,11 +2911,6 @@ export interface FileRouteTypes {
     | '/portal/support'
     | '/properties/$id'
     | '/properties/new'
-    | '/reports/builder'
-    | '/reports/executive'
-    | '/reports/pdf'
-    | '/reports/preview'
-    | '/reports/templates'
     | '/security/sessions'
     | '/settings/import'
     | '/api/assistant/chat'
@@ -2998,16 +2925,11 @@ export interface FileRouteTypes {
     | '/auctions'
     | '/contacts'
     | '/dashboard'
-    | '/deals'
-    | '/documents'
-    | '/leads'
     | '/maintenance'
     | '/members'
-    | '/owners'
     | '/portal'
     | '/properties'
     | '/rentals'
-    | '/reports'
     | '/tasks'
     | '/team'
     | '/assistant/scripts/$name'
@@ -3019,16 +2941,22 @@ export interface FileRouteTypes {
     | '/dashboard/audit/$id'
     | '/dashboard/contracts/$id'
     | '/dashboard/contracts/new'
-    | '/dashboard/crm/deals'
-    | '/dashboard/crm/leads'
     | '/dashboard/crm/meetings'
+    | '/dashboard/documents/$id'
     | '/dashboard/expenses/batches'
     | '/dashboard/expenses/claim'
     | '/dashboard/expenses/review'
     | '/dashboard/invoices/$id'
     | '/dashboard/maintenance/technicians'
+    | '/dashboard/owners/$id'
+    | '/dashboard/owners/contracts'
     | '/dashboard/properties/$id'
     | '/dashboard/properties/new'
+    | '/dashboard/reports/builder'
+    | '/dashboard/reports/executive'
+    | '/dashboard/reports/pdf'
+    | '/dashboard/reports/preview'
+    | '/dashboard/reports/templates'
     | '/dashboard/services/$key'
     | '/dashboard/services/forbidden-log'
     | '/dashboard/settings/api-keys'
@@ -3040,13 +2968,10 @@ export interface FileRouteTypes {
     | '/dashboard/tickets/$id'
     | '/dashboard/tickets/new'
     | '/dashboard/units/$id'
-    | '/leads/$id/edit'
-    | '/owners/$id/ledger'
     | '/portal/settings/notifications'
     | '/portal/settings/security'
     | '/portal/tenant/maintenance'
     | '/portal/tenant/payments'
-    | '/reports/templates/manage'
     | '/tenant/portal/maintenance'
     | '/api/public/hooks/auctions-tick'
     | '/api/public/hooks/dispatch-notifications'
@@ -3068,8 +2993,11 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/dashboard/contracts'
     | '/dashboard/crm'
+    | '/dashboard/documents'
     | '/dashboard/invoices'
+    | '/dashboard/owners'
     | '/dashboard/properties'
+    | '/dashboard/reports'
     | '/dashboard/services'
     | '/dashboard/tickets'
     | '/dashboard/units'
@@ -3081,8 +3009,13 @@ export interface FileRouteTypes {
     | '/dashboard/auctions/$id/edit'
     | '/dashboard/auctions/audit/$id'
     | '/dashboard/auctions/reports/filters-usage'
+    | '/dashboard/crm/deals/$id'
+    | '/dashboard/crm/leads/$id'
+    | '/dashboard/crm/leads/new'
     | '/dashboard/expenses/batches/$batchId'
     | '/dashboard/expenses/claim/correct'
+    | '/dashboard/owners/$id/ledger'
+    | '/dashboard/reports/templates/manage'
     | '/owner/portal/statements/$id'
     | '/portal/owner/statements/$id'
     | '/api/public/v1/auctions/$id'
@@ -3092,6 +3025,9 @@ export interface FileRouteTypes {
     | '/api/public/v1/payments/$id'
     | '/api/public/v1/properties/$id'
     | '/api/public/v1/units/$id'
+    | '/dashboard/crm/deals'
+    | '/dashboard/crm/leads'
+    | '/dashboard/crm/leads/$id/edit'
     | '/api/public/v1/auctions/$id/bids'
   id:
     | '__root__'
@@ -3125,7 +3061,6 @@ export interface FileRouteTypes {
     | '/_authenticated/assistant'
     | '/_authenticated/dashboard'
     | '/_authenticated/leasing'
-    | '/_authenticated/meetings'
     | '/_authenticated/onboarding'
     | '/_authenticated/portal'
     | '/_authenticated/register-company'
@@ -3204,18 +3139,15 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/auto'
     | '/_authenticated/dashboard/commissions'
     | '/_authenticated/dashboard/crm'
-    | '/_authenticated/dashboard/documents'
     | '/_authenticated/dashboard/expenses'
     | '/_authenticated/dashboard/inbox'
     | '/_authenticated/dashboard/maintenance'
     | '/_authenticated/dashboard/maintenance-log'
     | '/_authenticated/dashboard/notifications'
-    | '/_authenticated/dashboard/owners'
     | '/_authenticated/dashboard/payment-schedules'
     | '/_authenticated/dashboard/payments'
     | '/_authenticated/dashboard/payments-review'
     | '/_authenticated/dashboard/renew'
-    | '/_authenticated/dashboard/reports'
     | '/_authenticated/dashboard/services-report'
     | '/_authenticated/dashboard/settings'
     | '/_authenticated/dashboard/tasks'
@@ -3225,13 +3157,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/viewings'
     | '/_authenticated/dashboard/vouchers'
     | '/_authenticated/dashboard/zatca-customers'
-    | '/_authenticated/deals/$id'
-    | '/_authenticated/documents/$id'
-    | '/_authenticated/leads/$id'
-    | '/_authenticated/leads/new'
     | '/_authenticated/maintenance/technicians'
-    | '/_authenticated/owners/$id'
-    | '/_authenticated/owners/contracts'
     | '/_authenticated/portal/appointments'
     | '/_authenticated/portal/assistant'
     | '/_authenticated/portal/billing'
@@ -3246,11 +3172,6 @@ export interface FileRouteTypes {
     | '/_authenticated/portal/tenant'
     | '/_authenticated/properties/$id'
     | '/_authenticated/properties/new'
-    | '/_authenticated/reports/builder'
-    | '/_authenticated/reports/executive'
-    | '/_authenticated/reports/pdf'
-    | '/_authenticated/reports/preview'
-    | '/_authenticated/reports/templates'
     | '/_authenticated/security/sessions'
     | '/_authenticated/settings/import'
     | '/api/assistant/chat'
@@ -3265,16 +3186,11 @@ export interface FileRouteTypes {
     | '/_authenticated/auctions/'
     | '/_authenticated/contacts/'
     | '/_authenticated/dashboard/'
-    | '/_authenticated/deals/'
-    | '/_authenticated/documents/'
-    | '/_authenticated/leads/'
     | '/_authenticated/maintenance/'
     | '/_authenticated/members/'
-    | '/_authenticated/owners/'
     | '/_authenticated/portal/'
     | '/_authenticated/properties/'
     | '/_authenticated/rentals/'
-    | '/_authenticated/reports/'
     | '/_authenticated/tasks/'
     | '/_authenticated/team/'
     | '/_authenticated/assistant/scripts/$name'
@@ -3286,16 +3202,22 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/audit/$id'
     | '/_authenticated/dashboard/contracts/$id'
     | '/_authenticated/dashboard/contracts/new'
-    | '/_authenticated/dashboard/crm/deals'
-    | '/_authenticated/dashboard/crm/leads'
     | '/_authenticated/dashboard/crm/meetings'
+    | '/_authenticated/dashboard/documents/$id'
     | '/_authenticated/dashboard/expenses/batches'
     | '/_authenticated/dashboard/expenses/claim'
     | '/_authenticated/dashboard/expenses/review'
     | '/_authenticated/dashboard/invoices/$id'
     | '/_authenticated/dashboard/maintenance/technicians'
+    | '/_authenticated/dashboard/owners/$id'
+    | '/_authenticated/dashboard/owners/contracts'
     | '/_authenticated/dashboard/properties/$id'
     | '/_authenticated/dashboard/properties/new'
+    | '/_authenticated/dashboard/reports/builder'
+    | '/_authenticated/dashboard/reports/executive'
+    | '/_authenticated/dashboard/reports/pdf'
+    | '/_authenticated/dashboard/reports/preview'
+    | '/_authenticated/dashboard/reports/templates'
     | '/_authenticated/dashboard/services/$key'
     | '/_authenticated/dashboard/services/forbidden-log'
     | '/_authenticated/dashboard/settings/api-keys'
@@ -3307,13 +3229,10 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/tickets/$id'
     | '/_authenticated/dashboard/tickets/new'
     | '/_authenticated/dashboard/units/$id'
-    | '/_authenticated/leads/$id/edit'
-    | '/_authenticated/owners/$id/ledger'
     | '/_authenticated/portal/settings/notifications'
     | '/_authenticated/portal/settings/security'
     | '/_authenticated/portal/tenant/maintenance'
     | '/_authenticated/portal/tenant/payments'
-    | '/_authenticated/reports/templates/manage'
     | '/_authenticated/tenant/portal/maintenance'
     | '/api/public/hooks/auctions-tick'
     | '/api/public/hooks/dispatch-notifications'
@@ -3335,8 +3254,11 @@ export interface FileRouteTypes {
     | '/lovable/email/transactional/send'
     | '/_authenticated/dashboard/contracts/'
     | '/_authenticated/dashboard/crm/'
+    | '/_authenticated/dashboard/documents/'
     | '/_authenticated/dashboard/invoices/'
+    | '/_authenticated/dashboard/owners/'
     | '/_authenticated/dashboard/properties/'
+    | '/_authenticated/dashboard/reports/'
     | '/_authenticated/dashboard/services/'
     | '/_authenticated/dashboard/tickets/'
     | '/_authenticated/dashboard/units/'
@@ -3348,8 +3270,13 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/auctions/$id/edit'
     | '/_authenticated/dashboard/auctions/audit/$id'
     | '/_authenticated/dashboard/auctions/reports/filters-usage'
+    | '/_authenticated/dashboard/crm/deals/$id'
+    | '/_authenticated/dashboard/crm/leads/$id'
+    | '/_authenticated/dashboard/crm/leads/new'
     | '/_authenticated/dashboard/expenses/batches/$batchId'
     | '/_authenticated/dashboard/expenses/claim/correct'
+    | '/_authenticated/dashboard/owners/$id/ledger'
+    | '/_authenticated/dashboard/reports/templates/manage'
     | '/_authenticated/owner/portal/statements/$id'
     | '/_authenticated/portal/owner/statements/$id'
     | '/api/public/v1/auctions/$id'
@@ -3359,6 +3286,9 @@ export interface FileRouteTypes {
     | '/api/public/v1/payments/$id'
     | '/api/public/v1/properties/$id'
     | '/api/public/v1/units/$id'
+    | '/_authenticated/dashboard/crm/deals/'
+    | '/_authenticated/dashboard/crm/leads/'
+    | '/_authenticated/dashboard/crm/leads/$id/edit'
     | '/api/public/v1/auctions/$id/bids'
   fileRoutesById: FileRoutesById
 }
@@ -3783,13 +3713,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/meetings': {
-      id: '/_authenticated/meetings'
-      path: '/meetings'
-      fullPath: '/meetings'
-      preLoaderRoute: typeof AuthenticatedMeetingsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/leasing': {
       id: '/_authenticated/leasing'
       path: '/leasing'
@@ -3853,13 +3776,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTasksIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/reports/': {
-      id: '/_authenticated/reports/'
-      path: '/reports'
-      fullPath: '/reports/'
-      preLoaderRoute: typeof AuthenticatedReportsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/rentals/': {
       id: '/_authenticated/rentals/'
       path: '/rentals'
@@ -3881,13 +3797,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalIndexRouteImport
       parentRoute: typeof AuthenticatedPortalRoute
     }
-    '/_authenticated/owners/': {
-      id: '/_authenticated/owners/'
-      path: '/owners'
-      fullPath: '/owners/'
-      preLoaderRoute: typeof AuthenticatedOwnersIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/members/': {
       id: '/_authenticated/members/'
       path: '/members'
@@ -3900,27 +3809,6 @@ declare module '@tanstack/react-router' {
       path: '/maintenance'
       fullPath: '/maintenance/'
       preLoaderRoute: typeof AuthenticatedMaintenanceIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/leads/': {
-      id: '/_authenticated/leads/'
-      path: '/leads'
-      fullPath: '/leads/'
-      preLoaderRoute: typeof AuthenticatedLeadsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/documents/': {
-      id: '/_authenticated/documents/'
-      path: '/documents'
-      fullPath: '/documents/'
-      preLoaderRoute: typeof AuthenticatedDocumentsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/deals/': {
-      id: '/_authenticated/deals/'
-      path: '/deals'
-      fullPath: '/deals/'
-      preLoaderRoute: typeof AuthenticatedDealsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard/': {
@@ -4021,41 +3909,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSecuritySessionsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/reports/templates': {
-      id: '/_authenticated/reports/templates'
-      path: '/reports/templates'
-      fullPath: '/reports/templates'
-      preLoaderRoute: typeof AuthenticatedReportsTemplatesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/reports/preview': {
-      id: '/_authenticated/reports/preview'
-      path: '/reports/preview'
-      fullPath: '/reports/preview'
-      preLoaderRoute: typeof AuthenticatedReportsPreviewRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/reports/pdf': {
-      id: '/_authenticated/reports/pdf'
-      path: '/reports/pdf'
-      fullPath: '/reports/pdf'
-      preLoaderRoute: typeof AuthenticatedReportsPdfRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/reports/executive': {
-      id: '/_authenticated/reports/executive'
-      path: '/reports/executive'
-      fullPath: '/reports/executive'
-      preLoaderRoute: typeof AuthenticatedReportsExecutiveRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/reports/builder': {
-      id: '/_authenticated/reports/builder'
-      path: '/reports/builder'
-      fullPath: '/reports/builder'
-      preLoaderRoute: typeof AuthenticatedReportsBuilderRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/properties/new': {
       id: '/_authenticated/properties/new'
       path: '/properties/new'
@@ -4154,53 +4007,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPortalAppointmentsRouteImport
       parentRoute: typeof AuthenticatedPortalRoute
     }
-    '/_authenticated/owners/contracts': {
-      id: '/_authenticated/owners/contracts'
-      path: '/owners/contracts'
-      fullPath: '/owners/contracts'
-      preLoaderRoute: typeof AuthenticatedOwnersContractsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/owners/$id': {
-      id: '/_authenticated/owners/$id'
-      path: '/owners/$id'
-      fullPath: '/owners/$id'
-      preLoaderRoute: typeof AuthenticatedOwnersIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/maintenance/technicians': {
       id: '/_authenticated/maintenance/technicians'
       path: '/maintenance/technicians'
       fullPath: '/maintenance/technicians'
       preLoaderRoute: typeof AuthenticatedMaintenanceTechniciansRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/leads/new': {
-      id: '/_authenticated/leads/new'
-      path: '/leads/new'
-      fullPath: '/leads/new'
-      preLoaderRoute: typeof AuthenticatedLeadsNewRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/leads/$id': {
-      id: '/_authenticated/leads/$id'
-      path: '/leads/$id'
-      fullPath: '/leads/$id'
-      preLoaderRoute: typeof AuthenticatedLeadsIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/documents/$id': {
-      id: '/_authenticated/documents/$id'
-      path: '/documents/$id'
-      fullPath: '/documents/$id'
-      preLoaderRoute: typeof AuthenticatedDocumentsIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/deals/$id': {
-      id: '/_authenticated/deals/$id'
-      path: '/deals/$id'
-      fullPath: '/deals/$id'
-      preLoaderRoute: typeof AuthenticatedDealsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard/zatca-customers': {
@@ -4266,13 +4077,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardServicesReportRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
-    '/_authenticated/dashboard/reports': {
-      id: '/_authenticated/dashboard/reports'
-      path: '/reports'
-      fullPath: '/dashboard/reports'
-      preLoaderRoute: typeof AuthenticatedDashboardReportsRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
     '/_authenticated/dashboard/renew': {
       id: '/_authenticated/dashboard/renew'
       path: '/renew'
@@ -4299,13 +4103,6 @@ declare module '@tanstack/react-router' {
       path: '/payment-schedules'
       fullPath: '/dashboard/payment-schedules'
       preLoaderRoute: typeof AuthenticatedDashboardPaymentSchedulesRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
-    '/_authenticated/dashboard/owners': {
-      id: '/_authenticated/dashboard/owners'
-      path: '/owners'
-      fullPath: '/dashboard/owners'
-      preLoaderRoute: typeof AuthenticatedDashboardOwnersRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/notifications': {
@@ -4341,13 +4138,6 @@ declare module '@tanstack/react-router' {
       path: '/expenses'
       fullPath: '/dashboard/expenses'
       preLoaderRoute: typeof AuthenticatedDashboardExpensesRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
-    }
-    '/_authenticated/dashboard/documents': {
-      id: '/_authenticated/dashboard/documents'
-      path: '/documents'
-      fullPath: '/dashboard/documents'
-      preLoaderRoute: typeof AuthenticatedDashboardDocumentsRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/crm': {
@@ -4763,6 +4553,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardServicesIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/reports/': {
+      id: '/_authenticated/dashboard/reports/'
+      path: '/reports'
+      fullPath: '/dashboard/reports/'
+      preLoaderRoute: typeof AuthenticatedDashboardReportsIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/properties/': {
       id: '/_authenticated/dashboard/properties/'
       path: '/properties'
@@ -4770,11 +4567,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardPropertiesIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/owners/': {
+      id: '/_authenticated/dashboard/owners/'
+      path: '/owners'
+      fullPath: '/dashboard/owners/'
+      preLoaderRoute: typeof AuthenticatedDashboardOwnersIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/invoices/': {
       id: '/_authenticated/dashboard/invoices/'
       path: '/invoices'
       fullPath: '/dashboard/invoices/'
       preLoaderRoute: typeof AuthenticatedDashboardInvoicesIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/documents/': {
+      id: '/_authenticated/dashboard/documents/'
+      path: '/documents'
+      fullPath: '/dashboard/documents/'
+      preLoaderRoute: typeof AuthenticatedDashboardDocumentsIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/crm/': {
@@ -4924,13 +4735,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTenantPortalMaintenanceRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/reports/templates/manage': {
-      id: '/_authenticated/reports/templates/manage'
-      path: '/manage'
-      fullPath: '/reports/templates/manage'
-      preLoaderRoute: typeof AuthenticatedReportsTemplatesManageRouteImport
-      parentRoute: typeof AuthenticatedReportsTemplatesRoute
-    }
     '/_authenticated/portal/tenant/payments': {
       id: '/_authenticated/portal/tenant/payments'
       path: '/payments'
@@ -4958,20 +4762,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/portal/settings/notifications'
       preLoaderRoute: typeof AuthenticatedPortalSettingsNotificationsRouteImport
       parentRoute: typeof AuthenticatedPortalSettingsRoute
-    }
-    '/_authenticated/owners/$id/ledger': {
-      id: '/_authenticated/owners/$id/ledger'
-      path: '/ledger'
-      fullPath: '/owners/$id/ledger'
-      preLoaderRoute: typeof AuthenticatedOwnersIdLedgerRouteImport
-      parentRoute: typeof AuthenticatedOwnersIdRoute
-    }
-    '/_authenticated/leads/$id/edit': {
-      id: '/_authenticated/leads/$id/edit'
-      path: '/edit'
-      fullPath: '/leads/$id/edit'
-      preLoaderRoute: typeof AuthenticatedLeadsIdEditRouteImport
-      parentRoute: typeof AuthenticatedLeadsIdRoute
     }
     '/_authenticated/dashboard/units/$id': {
       id: '/_authenticated/dashboard/units/$id'
@@ -5050,6 +4840,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardServicesKeyRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
+    '/_authenticated/dashboard/reports/templates': {
+      id: '/_authenticated/dashboard/reports/templates'
+      path: '/reports/templates'
+      fullPath: '/dashboard/reports/templates'
+      preLoaderRoute: typeof AuthenticatedDashboardReportsTemplatesRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/reports/preview': {
+      id: '/_authenticated/dashboard/reports/preview'
+      path: '/reports/preview'
+      fullPath: '/dashboard/reports/preview'
+      preLoaderRoute: typeof AuthenticatedDashboardReportsPreviewRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/reports/pdf': {
+      id: '/_authenticated/dashboard/reports/pdf'
+      path: '/reports/pdf'
+      fullPath: '/dashboard/reports/pdf'
+      preLoaderRoute: typeof AuthenticatedDashboardReportsPdfRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/reports/executive': {
+      id: '/_authenticated/dashboard/reports/executive'
+      path: '/reports/executive'
+      fullPath: '/dashboard/reports/executive'
+      preLoaderRoute: typeof AuthenticatedDashboardReportsExecutiveRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/reports/builder': {
+      id: '/_authenticated/dashboard/reports/builder'
+      path: '/reports/builder'
+      fullPath: '/dashboard/reports/builder'
+      preLoaderRoute: typeof AuthenticatedDashboardReportsBuilderRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/properties/new': {
       id: '/_authenticated/dashboard/properties/new'
       path: '/properties/new'
@@ -5062,6 +4887,20 @@ declare module '@tanstack/react-router' {
       path: '/properties/$id'
       fullPath: '/dashboard/properties/$id'
       preLoaderRoute: typeof AuthenticatedDashboardPropertiesIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/owners/contracts': {
+      id: '/_authenticated/dashboard/owners/contracts'
+      path: '/owners/contracts'
+      fullPath: '/dashboard/owners/contracts'
+      preLoaderRoute: typeof AuthenticatedDashboardOwnersContractsRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
+    '/_authenticated/dashboard/owners/$id': {
+      id: '/_authenticated/dashboard/owners/$id'
+      path: '/owners/$id'
+      fullPath: '/dashboard/owners/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardOwnersIdRouteImport
       parentRoute: typeof AuthenticatedDashboardRoute
     }
     '/_authenticated/dashboard/maintenance/technicians': {
@@ -5099,25 +4938,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardExpensesBatchesRouteImport
       parentRoute: typeof AuthenticatedDashboardExpensesRoute
     }
+    '/_authenticated/dashboard/documents/$id': {
+      id: '/_authenticated/dashboard/documents/$id'
+      path: '/documents/$id'
+      fullPath: '/dashboard/documents/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardDocumentsIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardRoute
+    }
     '/_authenticated/dashboard/crm/meetings': {
       id: '/_authenticated/dashboard/crm/meetings'
       path: '/meetings'
       fullPath: '/dashboard/crm/meetings'
       preLoaderRoute: typeof AuthenticatedDashboardCrmMeetingsRouteImport
-      parentRoute: typeof AuthenticatedDashboardCrmRoute
-    }
-    '/_authenticated/dashboard/crm/leads': {
-      id: '/_authenticated/dashboard/crm/leads'
-      path: '/leads'
-      fullPath: '/dashboard/crm/leads'
-      preLoaderRoute: typeof AuthenticatedDashboardCrmLeadsRouteImport
-      parentRoute: typeof AuthenticatedDashboardCrmRoute
-    }
-    '/_authenticated/dashboard/crm/deals': {
-      id: '/_authenticated/dashboard/crm/deals'
-      path: '/deals'
-      fullPath: '/dashboard/crm/deals'
-      preLoaderRoute: typeof AuthenticatedDashboardCrmDealsRouteImport
       parentRoute: typeof AuthenticatedDashboardCrmRoute
     }
     '/_authenticated/dashboard/contracts/new': {
@@ -5183,6 +5015,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAssistantScriptsNameRouteImport
       parentRoute: typeof AuthenticatedAssistantScriptsRoute
     }
+    '/_authenticated/dashboard/crm/leads/': {
+      id: '/_authenticated/dashboard/crm/leads/'
+      path: '/leads'
+      fullPath: '/dashboard/crm/leads/'
+      preLoaderRoute: typeof AuthenticatedDashboardCrmLeadsIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardCrmRoute
+    }
+    '/_authenticated/dashboard/crm/deals/': {
+      id: '/_authenticated/dashboard/crm/deals/'
+      path: '/deals'
+      fullPath: '/dashboard/crm/deals/'
+      preLoaderRoute: typeof AuthenticatedDashboardCrmDealsIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardCrmRoute
+    }
     '/api/public/v1/units/$id': {
       id: '/api/public/v1/units/$id'
       path: '/$id'
@@ -5246,6 +5092,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerPortalStatementsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/dashboard/reports/templates/manage': {
+      id: '/_authenticated/dashboard/reports/templates/manage'
+      path: '/manage'
+      fullPath: '/dashboard/reports/templates/manage'
+      preLoaderRoute: typeof AuthenticatedDashboardReportsTemplatesManageRouteImport
+      parentRoute: typeof AuthenticatedDashboardReportsTemplatesRoute
+    }
+    '/_authenticated/dashboard/owners/$id/ledger': {
+      id: '/_authenticated/dashboard/owners/$id/ledger'
+      path: '/ledger'
+      fullPath: '/dashboard/owners/$id/ledger'
+      preLoaderRoute: typeof AuthenticatedDashboardOwnersIdLedgerRouteImport
+      parentRoute: typeof AuthenticatedDashboardOwnersIdRoute
+    }
     '/_authenticated/dashboard/expenses/claim/correct': {
       id: '/_authenticated/dashboard/expenses/claim/correct'
       path: '/correct'
@@ -5259,6 +5119,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/expenses/batches/$batchId'
       preLoaderRoute: typeof AuthenticatedDashboardExpensesBatchesBatchIdRouteImport
       parentRoute: typeof AuthenticatedDashboardExpensesBatchesRoute
+    }
+    '/_authenticated/dashboard/crm/leads/new': {
+      id: '/_authenticated/dashboard/crm/leads/new'
+      path: '/leads/new'
+      fullPath: '/dashboard/crm/leads/new'
+      preLoaderRoute: typeof AuthenticatedDashboardCrmLeadsNewRouteImport
+      parentRoute: typeof AuthenticatedDashboardCrmRoute
+    }
+    '/_authenticated/dashboard/crm/leads/$id': {
+      id: '/_authenticated/dashboard/crm/leads/$id'
+      path: '/leads/$id'
+      fullPath: '/dashboard/crm/leads/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardCrmLeadsIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardCrmRoute
+    }
+    '/_authenticated/dashboard/crm/deals/$id': {
+      id: '/_authenticated/dashboard/crm/deals/$id'
+      path: '/deals/$id'
+      fullPath: '/dashboard/crm/deals/$id'
+      preLoaderRoute: typeof AuthenticatedDashboardCrmDealsIdRouteImport
+      parentRoute: typeof AuthenticatedDashboardCrmRoute
     }
     '/_authenticated/dashboard/auctions/reports/filters-usage': {
       id: '/_authenticated/dashboard/auctions/reports/filters-usage'
@@ -5294,6 +5175,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/v1/auctions/$id/bids'
       preLoaderRoute: typeof ApiPublicV1AuctionsIdBidsRouteImport
       parentRoute: typeof ApiPublicV1AuctionsIdRoute
+    }
+    '/_authenticated/dashboard/crm/leads/$id/edit': {
+      id: '/_authenticated/dashboard/crm/leads/$id/edit'
+      path: '/edit'
+      fullPath: '/dashboard/crm/leads/$id/edit'
+      preLoaderRoute: typeof AuthenticatedDashboardCrmLeadsIdEditRouteImport
+      parentRoute: typeof AuthenticatedDashboardCrmLeadsIdRoute
     }
   }
 }
@@ -5528,20 +5416,46 @@ const AuthenticatedDashboardAuditRouteWithChildren =
     AuthenticatedDashboardAuditRouteChildren,
   )
 
+interface AuthenticatedDashboardCrmLeadsIdRouteChildren {
+  AuthenticatedDashboardCrmLeadsIdEditRoute: typeof AuthenticatedDashboardCrmLeadsIdEditRoute
+}
+
+const AuthenticatedDashboardCrmLeadsIdRouteChildren: AuthenticatedDashboardCrmLeadsIdRouteChildren =
+  {
+    AuthenticatedDashboardCrmLeadsIdEditRoute:
+      AuthenticatedDashboardCrmLeadsIdEditRoute,
+  }
+
+const AuthenticatedDashboardCrmLeadsIdRouteWithChildren =
+  AuthenticatedDashboardCrmLeadsIdRoute._addFileChildren(
+    AuthenticatedDashboardCrmLeadsIdRouteChildren,
+  )
+
 interface AuthenticatedDashboardCrmRouteChildren {
-  AuthenticatedDashboardCrmDealsRoute: typeof AuthenticatedDashboardCrmDealsRoute
-  AuthenticatedDashboardCrmLeadsRoute: typeof AuthenticatedDashboardCrmLeadsRoute
   AuthenticatedDashboardCrmMeetingsRoute: typeof AuthenticatedDashboardCrmMeetingsRoute
   AuthenticatedDashboardCrmIndexRoute: typeof AuthenticatedDashboardCrmIndexRoute
+  AuthenticatedDashboardCrmDealsIdRoute: typeof AuthenticatedDashboardCrmDealsIdRoute
+  AuthenticatedDashboardCrmLeadsIdRoute: typeof AuthenticatedDashboardCrmLeadsIdRouteWithChildren
+  AuthenticatedDashboardCrmLeadsNewRoute: typeof AuthenticatedDashboardCrmLeadsNewRoute
+  AuthenticatedDashboardCrmDealsIndexRoute: typeof AuthenticatedDashboardCrmDealsIndexRoute
+  AuthenticatedDashboardCrmLeadsIndexRoute: typeof AuthenticatedDashboardCrmLeadsIndexRoute
 }
 
 const AuthenticatedDashboardCrmRouteChildren: AuthenticatedDashboardCrmRouteChildren =
   {
-    AuthenticatedDashboardCrmDealsRoute: AuthenticatedDashboardCrmDealsRoute,
-    AuthenticatedDashboardCrmLeadsRoute: AuthenticatedDashboardCrmLeadsRoute,
     AuthenticatedDashboardCrmMeetingsRoute:
       AuthenticatedDashboardCrmMeetingsRoute,
     AuthenticatedDashboardCrmIndexRoute: AuthenticatedDashboardCrmIndexRoute,
+    AuthenticatedDashboardCrmDealsIdRoute:
+      AuthenticatedDashboardCrmDealsIdRoute,
+    AuthenticatedDashboardCrmLeadsIdRoute:
+      AuthenticatedDashboardCrmLeadsIdRouteWithChildren,
+    AuthenticatedDashboardCrmLeadsNewRoute:
+      AuthenticatedDashboardCrmLeadsNewRoute,
+    AuthenticatedDashboardCrmDealsIndexRoute:
+      AuthenticatedDashboardCrmDealsIndexRoute,
+    AuthenticatedDashboardCrmLeadsIndexRoute:
+      AuthenticatedDashboardCrmLeadsIndexRoute,
   }
 
 const AuthenticatedDashboardCrmRouteWithChildren =
@@ -5645,6 +5559,36 @@ const AuthenticatedDashboardSettingsRouteWithChildren =
     AuthenticatedDashboardSettingsRouteChildren,
   )
 
+interface AuthenticatedDashboardOwnersIdRouteChildren {
+  AuthenticatedDashboardOwnersIdLedgerRoute: typeof AuthenticatedDashboardOwnersIdLedgerRoute
+}
+
+const AuthenticatedDashboardOwnersIdRouteChildren: AuthenticatedDashboardOwnersIdRouteChildren =
+  {
+    AuthenticatedDashboardOwnersIdLedgerRoute:
+      AuthenticatedDashboardOwnersIdLedgerRoute,
+  }
+
+const AuthenticatedDashboardOwnersIdRouteWithChildren =
+  AuthenticatedDashboardOwnersIdRoute._addFileChildren(
+    AuthenticatedDashboardOwnersIdRouteChildren,
+  )
+
+interface AuthenticatedDashboardReportsTemplatesRouteChildren {
+  AuthenticatedDashboardReportsTemplatesManageRoute: typeof AuthenticatedDashboardReportsTemplatesManageRoute
+}
+
+const AuthenticatedDashboardReportsTemplatesRouteChildren: AuthenticatedDashboardReportsTemplatesRouteChildren =
+  {
+    AuthenticatedDashboardReportsTemplatesManageRoute:
+      AuthenticatedDashboardReportsTemplatesManageRoute,
+  }
+
+const AuthenticatedDashboardReportsTemplatesRouteWithChildren =
+  AuthenticatedDashboardReportsTemplatesRoute._addFileChildren(
+    AuthenticatedDashboardReportsTemplatesRouteChildren,
+  )
+
 interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardApplicationsRoute: typeof AuthenticatedDashboardApplicationsRoute
   AuthenticatedDashboardArchiveRoute: typeof AuthenticatedDashboardArchiveRoute
@@ -5654,18 +5598,15 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardAutoRoute: typeof AuthenticatedDashboardAutoRoute
   AuthenticatedDashboardCommissionsRoute: typeof AuthenticatedDashboardCommissionsRoute
   AuthenticatedDashboardCrmRoute: typeof AuthenticatedDashboardCrmRouteWithChildren
-  AuthenticatedDashboardDocumentsRoute: typeof AuthenticatedDashboardDocumentsRoute
   AuthenticatedDashboardExpensesRoute: typeof AuthenticatedDashboardExpensesRouteWithChildren
   AuthenticatedDashboardInboxRoute: typeof AuthenticatedDashboardInboxRoute
   AuthenticatedDashboardMaintenanceRoute: typeof AuthenticatedDashboardMaintenanceRouteWithChildren
   AuthenticatedDashboardMaintenanceLogRoute: typeof AuthenticatedDashboardMaintenanceLogRoute
   AuthenticatedDashboardNotificationsRoute: typeof AuthenticatedDashboardNotificationsRoute
-  AuthenticatedDashboardOwnersRoute: typeof AuthenticatedDashboardOwnersRoute
   AuthenticatedDashboardPaymentSchedulesRoute: typeof AuthenticatedDashboardPaymentSchedulesRoute
   AuthenticatedDashboardPaymentsRoute: typeof AuthenticatedDashboardPaymentsRoute
   AuthenticatedDashboardPaymentsReviewRoute: typeof AuthenticatedDashboardPaymentsReviewRoute
   AuthenticatedDashboardRenewRoute: typeof AuthenticatedDashboardRenewRoute
-  AuthenticatedDashboardReportsRoute: typeof AuthenticatedDashboardReportsRoute
   AuthenticatedDashboardServicesReportRoute: typeof AuthenticatedDashboardServicesReportRoute
   AuthenticatedDashboardSettingsRoute: typeof AuthenticatedDashboardSettingsRouteWithChildren
   AuthenticatedDashboardTasksRoute: typeof AuthenticatedDashboardTasksRoute
@@ -5678,17 +5619,28 @@ interface AuthenticatedDashboardRouteChildren {
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedDashboardContractsIdRoute: typeof AuthenticatedDashboardContractsIdRoute
   AuthenticatedDashboardContractsNewRoute: typeof AuthenticatedDashboardContractsNewRoute
+  AuthenticatedDashboardDocumentsIdRoute: typeof AuthenticatedDashboardDocumentsIdRoute
   AuthenticatedDashboardInvoicesIdRoute: typeof AuthenticatedDashboardInvoicesIdRoute
+  AuthenticatedDashboardOwnersIdRoute: typeof AuthenticatedDashboardOwnersIdRouteWithChildren
+  AuthenticatedDashboardOwnersContractsRoute: typeof AuthenticatedDashboardOwnersContractsRoute
   AuthenticatedDashboardPropertiesIdRoute: typeof AuthenticatedDashboardPropertiesIdRoute
   AuthenticatedDashboardPropertiesNewRoute: typeof AuthenticatedDashboardPropertiesNewRoute
+  AuthenticatedDashboardReportsBuilderRoute: typeof AuthenticatedDashboardReportsBuilderRoute
+  AuthenticatedDashboardReportsExecutiveRoute: typeof AuthenticatedDashboardReportsExecutiveRoute
+  AuthenticatedDashboardReportsPdfRoute: typeof AuthenticatedDashboardReportsPdfRoute
+  AuthenticatedDashboardReportsPreviewRoute: typeof AuthenticatedDashboardReportsPreviewRoute
+  AuthenticatedDashboardReportsTemplatesRoute: typeof AuthenticatedDashboardReportsTemplatesRouteWithChildren
   AuthenticatedDashboardServicesKeyRoute: typeof AuthenticatedDashboardServicesKeyRoute
   AuthenticatedDashboardServicesForbiddenLogRoute: typeof AuthenticatedDashboardServicesForbiddenLogRoute
   AuthenticatedDashboardTicketsIdRoute: typeof AuthenticatedDashboardTicketsIdRoute
   AuthenticatedDashboardTicketsNewRoute: typeof AuthenticatedDashboardTicketsNewRoute
   AuthenticatedDashboardUnitsIdRoute: typeof AuthenticatedDashboardUnitsIdRoute
   AuthenticatedDashboardContractsIndexRoute: typeof AuthenticatedDashboardContractsIndexRoute
+  AuthenticatedDashboardDocumentsIndexRoute: typeof AuthenticatedDashboardDocumentsIndexRoute
   AuthenticatedDashboardInvoicesIndexRoute: typeof AuthenticatedDashboardInvoicesIndexRoute
+  AuthenticatedDashboardOwnersIndexRoute: typeof AuthenticatedDashboardOwnersIndexRoute
   AuthenticatedDashboardPropertiesIndexRoute: typeof AuthenticatedDashboardPropertiesIndexRoute
+  AuthenticatedDashboardReportsIndexRoute: typeof AuthenticatedDashboardReportsIndexRoute
   AuthenticatedDashboardServicesIndexRoute: typeof AuthenticatedDashboardServicesIndexRoute
   AuthenticatedDashboardTicketsIndexRoute: typeof AuthenticatedDashboardTicketsIndexRoute
   AuthenticatedDashboardUnitsIndexRoute: typeof AuthenticatedDashboardUnitsIndexRoute
@@ -5709,7 +5661,6 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardCommissionsRoute:
       AuthenticatedDashboardCommissionsRoute,
     AuthenticatedDashboardCrmRoute: AuthenticatedDashboardCrmRouteWithChildren,
-    AuthenticatedDashboardDocumentsRoute: AuthenticatedDashboardDocumentsRoute,
     AuthenticatedDashboardExpensesRoute:
       AuthenticatedDashboardExpensesRouteWithChildren,
     AuthenticatedDashboardInboxRoute: AuthenticatedDashboardInboxRoute,
@@ -5719,14 +5670,12 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardMaintenanceLogRoute,
     AuthenticatedDashboardNotificationsRoute:
       AuthenticatedDashboardNotificationsRoute,
-    AuthenticatedDashboardOwnersRoute: AuthenticatedDashboardOwnersRoute,
     AuthenticatedDashboardPaymentSchedulesRoute:
       AuthenticatedDashboardPaymentSchedulesRoute,
     AuthenticatedDashboardPaymentsRoute: AuthenticatedDashboardPaymentsRoute,
     AuthenticatedDashboardPaymentsReviewRoute:
       AuthenticatedDashboardPaymentsReviewRoute,
     AuthenticatedDashboardRenewRoute: AuthenticatedDashboardRenewRoute,
-    AuthenticatedDashboardReportsRoute: AuthenticatedDashboardReportsRoute,
     AuthenticatedDashboardServicesReportRoute:
       AuthenticatedDashboardServicesReportRoute,
     AuthenticatedDashboardSettingsRoute:
@@ -5745,12 +5694,28 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
       AuthenticatedDashboardContractsIdRoute,
     AuthenticatedDashboardContractsNewRoute:
       AuthenticatedDashboardContractsNewRoute,
+    AuthenticatedDashboardDocumentsIdRoute:
+      AuthenticatedDashboardDocumentsIdRoute,
     AuthenticatedDashboardInvoicesIdRoute:
       AuthenticatedDashboardInvoicesIdRoute,
+    AuthenticatedDashboardOwnersIdRoute:
+      AuthenticatedDashboardOwnersIdRouteWithChildren,
+    AuthenticatedDashboardOwnersContractsRoute:
+      AuthenticatedDashboardOwnersContractsRoute,
     AuthenticatedDashboardPropertiesIdRoute:
       AuthenticatedDashboardPropertiesIdRoute,
     AuthenticatedDashboardPropertiesNewRoute:
       AuthenticatedDashboardPropertiesNewRoute,
+    AuthenticatedDashboardReportsBuilderRoute:
+      AuthenticatedDashboardReportsBuilderRoute,
+    AuthenticatedDashboardReportsExecutiveRoute:
+      AuthenticatedDashboardReportsExecutiveRoute,
+    AuthenticatedDashboardReportsPdfRoute:
+      AuthenticatedDashboardReportsPdfRoute,
+    AuthenticatedDashboardReportsPreviewRoute:
+      AuthenticatedDashboardReportsPreviewRoute,
+    AuthenticatedDashboardReportsTemplatesRoute:
+      AuthenticatedDashboardReportsTemplatesRouteWithChildren,
     AuthenticatedDashboardServicesKeyRoute:
       AuthenticatedDashboardServicesKeyRoute,
     AuthenticatedDashboardServicesForbiddenLogRoute:
@@ -5761,10 +5726,16 @@ const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
     AuthenticatedDashboardUnitsIdRoute: AuthenticatedDashboardUnitsIdRoute,
     AuthenticatedDashboardContractsIndexRoute:
       AuthenticatedDashboardContractsIndexRoute,
+    AuthenticatedDashboardDocumentsIndexRoute:
+      AuthenticatedDashboardDocumentsIndexRoute,
     AuthenticatedDashboardInvoicesIndexRoute:
       AuthenticatedDashboardInvoicesIndexRoute,
+    AuthenticatedDashboardOwnersIndexRoute:
+      AuthenticatedDashboardOwnersIndexRoute,
     AuthenticatedDashboardPropertiesIndexRoute:
       AuthenticatedDashboardPropertiesIndexRoute,
+    AuthenticatedDashboardReportsIndexRoute:
+      AuthenticatedDashboardReportsIndexRoute,
     AuthenticatedDashboardServicesIndexRoute:
       AuthenticatedDashboardServicesIndexRoute,
     AuthenticatedDashboardTicketsIndexRoute:
@@ -5870,85 +5841,29 @@ const AuthenticatedPortalRouteChildren: AuthenticatedPortalRouteChildren = {
 const AuthenticatedPortalRouteWithChildren =
   AuthenticatedPortalRoute._addFileChildren(AuthenticatedPortalRouteChildren)
 
-interface AuthenticatedLeadsIdRouteChildren {
-  AuthenticatedLeadsIdEditRoute: typeof AuthenticatedLeadsIdEditRoute
-}
-
-const AuthenticatedLeadsIdRouteChildren: AuthenticatedLeadsIdRouteChildren = {
-  AuthenticatedLeadsIdEditRoute: AuthenticatedLeadsIdEditRoute,
-}
-
-const AuthenticatedLeadsIdRouteWithChildren =
-  AuthenticatedLeadsIdRoute._addFileChildren(AuthenticatedLeadsIdRouteChildren)
-
-interface AuthenticatedOwnersIdRouteChildren {
-  AuthenticatedOwnersIdLedgerRoute: typeof AuthenticatedOwnersIdLedgerRoute
-}
-
-const AuthenticatedOwnersIdRouteChildren: AuthenticatedOwnersIdRouteChildren = {
-  AuthenticatedOwnersIdLedgerRoute: AuthenticatedOwnersIdLedgerRoute,
-}
-
-const AuthenticatedOwnersIdRouteWithChildren =
-  AuthenticatedOwnersIdRoute._addFileChildren(
-    AuthenticatedOwnersIdRouteChildren,
-  )
-
-interface AuthenticatedReportsTemplatesRouteChildren {
-  AuthenticatedReportsTemplatesManageRoute: typeof AuthenticatedReportsTemplatesManageRoute
-}
-
-const AuthenticatedReportsTemplatesRouteChildren: AuthenticatedReportsTemplatesRouteChildren =
-  {
-    AuthenticatedReportsTemplatesManageRoute:
-      AuthenticatedReportsTemplatesManageRoute,
-  }
-
-const AuthenticatedReportsTemplatesRouteWithChildren =
-  AuthenticatedReportsTemplatesRoute._addFileChildren(
-    AuthenticatedReportsTemplatesRouteChildren,
-  )
-
 interface AuthenticatedRouteChildren {
   AuthenticatedAccountingRoute: typeof AuthenticatedAccountingRouteWithChildren
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedLeasingRoute: typeof AuthenticatedLeasingRoute
-  AuthenticatedMeetingsRoute: typeof AuthenticatedMeetingsRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPortalRoute: typeof AuthenticatedPortalRouteWithChildren
   AuthenticatedRegisterCompanyRoute: typeof AuthenticatedRegisterCompanyRoute
   AuthenticatedAuctionsIdRoute: typeof AuthenticatedAuctionsIdRoute
   AuthenticatedContractsIdRoute: typeof AuthenticatedContractsIdRoute
   AuthenticatedCrmAnalyticsRoute: typeof AuthenticatedCrmAnalyticsRoute
-  AuthenticatedDealsIdRoute: typeof AuthenticatedDealsIdRoute
-  AuthenticatedDocumentsIdRoute: typeof AuthenticatedDocumentsIdRoute
-  AuthenticatedLeadsIdRoute: typeof AuthenticatedLeadsIdRouteWithChildren
-  AuthenticatedLeadsNewRoute: typeof AuthenticatedLeadsNewRoute
   AuthenticatedMaintenanceTechniciansRoute: typeof AuthenticatedMaintenanceTechniciansRoute
-  AuthenticatedOwnersIdRoute: typeof AuthenticatedOwnersIdRouteWithChildren
-  AuthenticatedOwnersContractsRoute: typeof AuthenticatedOwnersContractsRoute
   AuthenticatedPropertiesIdRoute: typeof AuthenticatedPropertiesIdRoute
   AuthenticatedPropertiesNewRoute: typeof AuthenticatedPropertiesNewRoute
-  AuthenticatedReportsBuilderRoute: typeof AuthenticatedReportsBuilderRoute
-  AuthenticatedReportsExecutiveRoute: typeof AuthenticatedReportsExecutiveRoute
-  AuthenticatedReportsPdfRoute: typeof AuthenticatedReportsPdfRoute
-  AuthenticatedReportsPreviewRoute: typeof AuthenticatedReportsPreviewRoute
-  AuthenticatedReportsTemplatesRoute: typeof AuthenticatedReportsTemplatesRouteWithChildren
   AuthenticatedSecuritySessionsRoute: typeof AuthenticatedSecuritySessionsRoute
   AuthenticatedSettingsImportRoute: typeof AuthenticatedSettingsImportRoute
   AuthenticatedAuctionsIndexRoute: typeof AuthenticatedAuctionsIndexRoute
   AuthenticatedContactsIndexRoute: typeof AuthenticatedContactsIndexRoute
-  AuthenticatedDealsIndexRoute: typeof AuthenticatedDealsIndexRoute
-  AuthenticatedDocumentsIndexRoute: typeof AuthenticatedDocumentsIndexRoute
-  AuthenticatedLeadsIndexRoute: typeof AuthenticatedLeadsIndexRoute
   AuthenticatedMaintenanceIndexRoute: typeof AuthenticatedMaintenanceIndexRoute
   AuthenticatedMembersIndexRoute: typeof AuthenticatedMembersIndexRoute
-  AuthenticatedOwnersIndexRoute: typeof AuthenticatedOwnersIndexRoute
   AuthenticatedPropertiesIndexRoute: typeof AuthenticatedPropertiesIndexRoute
   AuthenticatedRentalsIndexRoute: typeof AuthenticatedRentalsIndexRoute
-  AuthenticatedReportsIndexRoute: typeof AuthenticatedReportsIndexRoute
   AuthenticatedTasksIndexRoute: typeof AuthenticatedTasksIndexRoute
   AuthenticatedTeamIndexRoute: typeof AuthenticatedTeamIndexRoute
   AuthenticatedTenantPortalMaintenanceRoute: typeof AuthenticatedTenantPortalMaintenanceRoute
@@ -5963,42 +5878,24 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAssistantRoute: AuthenticatedAssistantRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedLeasingRoute: AuthenticatedLeasingRoute,
-  AuthenticatedMeetingsRoute: AuthenticatedMeetingsRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPortalRoute: AuthenticatedPortalRouteWithChildren,
   AuthenticatedRegisterCompanyRoute: AuthenticatedRegisterCompanyRoute,
   AuthenticatedAuctionsIdRoute: AuthenticatedAuctionsIdRoute,
   AuthenticatedContractsIdRoute: AuthenticatedContractsIdRoute,
   AuthenticatedCrmAnalyticsRoute: AuthenticatedCrmAnalyticsRoute,
-  AuthenticatedDealsIdRoute: AuthenticatedDealsIdRoute,
-  AuthenticatedDocumentsIdRoute: AuthenticatedDocumentsIdRoute,
-  AuthenticatedLeadsIdRoute: AuthenticatedLeadsIdRouteWithChildren,
-  AuthenticatedLeadsNewRoute: AuthenticatedLeadsNewRoute,
   AuthenticatedMaintenanceTechniciansRoute:
     AuthenticatedMaintenanceTechniciansRoute,
-  AuthenticatedOwnersIdRoute: AuthenticatedOwnersIdRouteWithChildren,
-  AuthenticatedOwnersContractsRoute: AuthenticatedOwnersContractsRoute,
   AuthenticatedPropertiesIdRoute: AuthenticatedPropertiesIdRoute,
   AuthenticatedPropertiesNewRoute: AuthenticatedPropertiesNewRoute,
-  AuthenticatedReportsBuilderRoute: AuthenticatedReportsBuilderRoute,
-  AuthenticatedReportsExecutiveRoute: AuthenticatedReportsExecutiveRoute,
-  AuthenticatedReportsPdfRoute: AuthenticatedReportsPdfRoute,
-  AuthenticatedReportsPreviewRoute: AuthenticatedReportsPreviewRoute,
-  AuthenticatedReportsTemplatesRoute:
-    AuthenticatedReportsTemplatesRouteWithChildren,
   AuthenticatedSecuritySessionsRoute: AuthenticatedSecuritySessionsRoute,
   AuthenticatedSettingsImportRoute: AuthenticatedSettingsImportRoute,
   AuthenticatedAuctionsIndexRoute: AuthenticatedAuctionsIndexRoute,
   AuthenticatedContactsIndexRoute: AuthenticatedContactsIndexRoute,
-  AuthenticatedDealsIndexRoute: AuthenticatedDealsIndexRoute,
-  AuthenticatedDocumentsIndexRoute: AuthenticatedDocumentsIndexRoute,
-  AuthenticatedLeadsIndexRoute: AuthenticatedLeadsIndexRoute,
   AuthenticatedMaintenanceIndexRoute: AuthenticatedMaintenanceIndexRoute,
   AuthenticatedMembersIndexRoute: AuthenticatedMembersIndexRoute,
-  AuthenticatedOwnersIndexRoute: AuthenticatedOwnersIndexRoute,
   AuthenticatedPropertiesIndexRoute: AuthenticatedPropertiesIndexRoute,
   AuthenticatedRentalsIndexRoute: AuthenticatedRentalsIndexRoute,
-  AuthenticatedReportsIndexRoute: AuthenticatedReportsIndexRoute,
   AuthenticatedTasksIndexRoute: AuthenticatedTasksIndexRoute,
   AuthenticatedTeamIndexRoute: AuthenticatedTeamIndexRoute,
   AuthenticatedTenantPortalMaintenanceRoute:

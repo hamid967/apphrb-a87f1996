@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { Loader2, Plus, Trash2, Pencil, Save, X, LayoutTemplate, ShieldAlert } from "lucide-react";
 import { can, type OrgRole } from "@/lib/permissions";
 
-export const Route = createFileRoute("/_authenticated/reports/templates/manage")({
+export const Route = createFileRoute("/_authenticated/dashboard/reports/templates/manage")({
   head: () => ({ meta: [{ title: "Manage Report Templates" }] }),
   component: ManageTemplatesPage,
 });

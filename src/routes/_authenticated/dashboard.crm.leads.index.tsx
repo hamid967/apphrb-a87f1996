@@ -57,7 +57,7 @@ import { convertLeadToDeal } from "@/lib/deals.functions";
 import { can, type OrgRole } from "@/lib/permissions";
 import { CsvImportDialog } from "@/components/csv-import-dialog";
 
-export const Route = createFileRoute("/_authenticated/leads/")({
+export const Route = createFileRoute("/_authenticated/dashboard/crm/leads/")({
   component: LeadsPage,
 });
 

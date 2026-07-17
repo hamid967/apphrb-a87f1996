@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { Archive, ArchiveRestore, FileText, Loader2, Plus } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/documents/")({
+export const Route = createFileRoute("/_authenticated/dashboard/documents/")({
   component: DocumentsPage,
 });
 

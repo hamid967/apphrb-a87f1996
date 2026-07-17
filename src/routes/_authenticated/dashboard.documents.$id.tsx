@@ -37,7 +37,7 @@ import {
   Upload,
 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/documents/$id")({
+export const Route = createFileRoute("/_authenticated/dashboard/documents/$id")({
   head: ({ params }) => detailHead({ entityAr: 'مستند', entityEn: 'Document', id: String(params.id), path: `/documents/${params.id}`, kind: 'docs' }),
   component: DocumentDetail,
 });

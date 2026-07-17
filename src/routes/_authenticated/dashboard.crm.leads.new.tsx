@@ -18,7 +18,7 @@ import {
 import { listMyOrganizations } from "@/lib/organizations.functions";
 import { createLead, listContacts } from "@/lib/crm.functions";
 
-export const Route = createFileRoute("/_authenticated/leads/new")({
+export const Route = createFileRoute("/_authenticated/dashboard/crm/leads/new")({
   component: NewLeadPage,
 });
 

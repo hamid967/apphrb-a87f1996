@@ -19,7 +19,7 @@ import { updateLead } from "@/lib/crm.functions";
 import { getLeadDetail } from "@/lib/lead-activities.functions";
 import { ConvertLeadDialog } from "@/components/crm/ConvertLeadDialog";
 
-export const Route = createFileRoute("/_authenticated/leads/$id/edit")({
+export const Route = createFileRoute("/_authenticated/dashboard/crm/leads/$id/edit")({
   component: EditLeadPage,
 });
 

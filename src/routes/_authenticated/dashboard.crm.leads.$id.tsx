@@ -41,7 +41,7 @@ import {
 } from "@/lib/lead-activities.functions";
 import { updateLead } from "@/lib/crm.functions";
 
-export const Route = createFileRoute("/_authenticated/leads/$id")({
+export const Route = createFileRoute("/_authenticated/dashboard/crm/leads/$id")({
   component: LeadDetailPage,
 });
 

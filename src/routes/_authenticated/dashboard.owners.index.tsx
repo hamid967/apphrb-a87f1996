@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Users, ExternalLink, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-export const Route = createFileRoute("/_authenticated/owners/")({
+export const Route = createFileRoute("/_authenticated/dashboard/owners/")({
   component: OwnersList,
 });
 

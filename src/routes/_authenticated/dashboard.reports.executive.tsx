@@ -104,7 +104,7 @@ const searchSchema = z.object({
   sortDir: fallback(z.enum(["asc", "desc"]), "desc").default("desc"),
 });
 
-export const Route = createFileRoute("/_authenticated/reports/executive")({
+export const Route = createFileRoute("/_authenticated/dashboard/reports/executive")({
   validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [

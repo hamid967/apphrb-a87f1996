@@ -29,7 +29,7 @@ import { listContacts, listLeads } from "@/lib/crm.functions";
 import { createDeal, listDeals } from "@/lib/deals.functions";
 import { can, type OrgRole } from "@/lib/permissions";
 
-export const Route = createFileRoute("/_authenticated/deals/")({
+export const Route = createFileRoute("/_authenticated/dashboard/crm/deals/")({
   component: DealsPage,
 });
 
