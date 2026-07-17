@@ -1,18 +1,20 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
-import { Plus, Search, LayoutGrid, Rows3, Trash2 } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus, Search, LayoutGrid, Rows3, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { listMyOrganizations } from "@/lib/organizations.functions";
 import { listProperties } from "@/lib/properties.functions";
+import { bulkInsertProperties } from "@/lib/bulk-import.functions";
 import { can, type OrgRole } from "@/lib/permissions";
 import { useCanCreate } from "@/hooks/use-can-create";
 import { UpgradeDialog } from "@/components/billing/upgrade-dialog";
 import { EnterpriseDataTable, type DTColumn } from "@/components/dashboard/EnterpriseDataTable";
+import { CsvImportDialog } from "@/components/csv-import-dialog";
 
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute("/_authenticated/dashboard/properties/")({
