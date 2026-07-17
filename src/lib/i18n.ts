@@ -3181,6 +3181,7 @@ const ar: typeof en = {
       importCsv: "استيراد CSV",
       importCsvTitle: "استيراد الوحدات من CSV",
       importCsvNote: "سيتم ربط الصفوف بهذا العقار تلقائياً. اختر المبنى الهدف.",
+      codeRequired: "رمز الوحدة مطلوب",
     },
   },
   contracts: {
