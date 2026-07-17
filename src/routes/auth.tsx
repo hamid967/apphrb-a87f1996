@@ -259,8 +259,8 @@ function AuthPage() {
       resetFailedAttempts(trimmedEmail);
       await routeAfterLogin(nav, redirectTarget);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err ?? "Error");
-      toast.error(msg);
+      const hint = describeAuthError(err, i18n.language);
+      toast.error(hint.title, { description: hint.description });
     } finally {
       setVerifying(false);
     }
