@@ -2,7 +2,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { Volume2, VolumeX, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-const INTRO_KEY = "hbspro.luxuryIntro.seen.v1";
 const INTRO_DURATION_MS = 20_000;
 const SCENE_DURATION_MS = 4_000;
 
@@ -61,7 +60,6 @@ export function LuxuryIntroOverlay() {
   }, []);
 
   const closeIntro = useCallback(() => {
-    if (typeof window !== "undefined") window.localStorage.setItem(INTRO_KEY, "1");
     stopIntroSound();
     setVisible(false);
   }, [stopIntroSound]);
@@ -109,12 +107,12 @@ export function LuxuryIntroOverlay() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const alreadySeen = window.localStorage.getItem(INTRO_KEY) === "1";
-    if (!alreadySeen && !reducedMotion) setVisible(true);
+    if (!reducedMotion) setVisible(true);
   }, []);
 
   useEffect(() => {
     if (!visible || typeof window === "undefined") return;
+    setElapsed(0);
     const startedAt = Date.now();
     const interval = window.setInterval(() => {
       const nextElapsed = Date.now() - startedAt;
