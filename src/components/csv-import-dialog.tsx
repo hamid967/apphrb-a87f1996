@@ -89,11 +89,18 @@ export function CsvImportDialog({
     URL.revokeObjectURL(url);
   };
 
+  const validations = validateRow
+    ? rows.map((r, i) => validateRow(r, i))
+    : rows.map(() => [] as string[]);
+  const validCount = validations.filter((e) => e.length === 0).length;
+  const invalidCount = validations.length - validCount;
+  const validRows = rows.filter((_, i) => validations[i].length === 0);
+
   const submit = async () => {
-    if (!rows.length) return;
+    if (!validRows.length) return;
     setBusy(true);
     try {
-      const r = await onImport(rows);
+      const r = await onImport(validRows);
       setResult(r);
       toast.success(t("csv.done", { created: r.created, skipped: r.skipped }));
       onDone?.();
