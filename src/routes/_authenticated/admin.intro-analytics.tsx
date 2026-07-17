@@ -122,20 +122,22 @@ function IntroAnalyticsPage() {
                 <th className="p-3">shown</th>
                 <th className="p-3">completed</th>
                 <th className="p-3">skipped</th>
+                <th className="p-3">cta_click</th>
                 <th className="p-3">completion %</th>
+                <th className="p-3">CTR %</th>
               </tr>
             </thead>
             <tbody>
               {q.isLoading && (
                 <tr>
-                  <td colSpan={6} className="p-6 text-center text-muted-foreground">
+                  <td colSpan={8} className="p-6 text-center text-muted-foreground">
                     <Loader2 className="inline size-4 animate-spin" /> جارٍ التحميل...
                   </td>
                 </tr>
               )}
               {!q.isLoading && filtered.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-6 text-center text-muted-foreground">
+                  <td colSpan={8} className="p-6 text-center text-muted-foreground">
                     لا توجد بيانات في هذه الفترة.
                   </td>
                 </tr>
@@ -147,6 +149,7 @@ function IntroAnalyticsPage() {
                   <td className="p-3">{nf.format(r.shown)}</td>
                   <td className="p-3">{nf.format(r.completed)}</td>
                   <td className="p-3">{nf.format(r.skipped)}</td>
+                  <td className="p-3">{nf.format(r.cta_click)}</td>
                   <td className="p-3">
                     <span
                       className="inline-block rounded-full px-2 py-0.5 text-xs font-semibold"
@@ -156,6 +159,17 @@ function IntroAnalyticsPage() {
                       }}
                     >
                       {r.completion_pct}%
+                    </span>
+                  </td>
+                  <td className="p-3">
+                    <span
+                      className="inline-block rounded-full px-2 py-0.5 text-xs font-semibold"
+                      style={{
+                        background: `hsl(${Math.min(210, 180 + r.ctr_pct * 0.6)} 80% 92%)`,
+                        color: `hsl(${Math.min(210, 180 + r.ctr_pct * 0.6)} 70% 25%)`,
+                      }}
+                    >
+                      {r.ctr_pct}%
                     </span>
                   </td>
                 </tr>
