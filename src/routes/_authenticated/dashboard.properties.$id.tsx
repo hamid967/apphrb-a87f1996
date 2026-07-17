@@ -854,7 +854,7 @@ function UnitsSection({
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
                 {t("common.cancel")}
               </Button>
-              <Button type="submit" disabled={mut.isPending || !f.code.trim()}>
+              <Button type="submit" disabled={mut.isPending || !f.code.trim() || (!editingId && !f.building_id)}>
                 {mut.isPending && <Loader2 className="me-2 size-4 animate-spin" />}
                 {t("units.quickAdd.save")}
               </Button>
