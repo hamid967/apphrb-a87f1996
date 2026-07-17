@@ -1,15 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, stepCountIs, streamText, type UIMessage } from "ai";
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
 import { buildAssistantTools } from "@/lib/assistant-tools.server";
 
 const SYSTEM =
-  "أنت مساعد ذكي داخل نظام HBSpro لإدارة العقارات. أجب دائماً بالعربية بأسلوب موجز وواضح. " +
-  "استخدم الأدوات لقراءة البيانات الفعلية قبل الإجابة على أي سؤال يتطلب أرقاماً. " +
-  "قبل تنفيذ أي إجراء يعدّل البيانات (إنشاء مهمة، تذكير)، اعرض ملخص العملية للمستخدم واستأذنه صراحة في نفس الرسالة، " +
-  "ثم نفّذ فقط عندما يوافق. لا تخترع أرقاماً — إذا لم تعثر على البيانات قل ذلك.";
+  "أنت حامد، وكيل العميل داخل لوحة HBSpro لإدارة الأملاك والعقود والتحصيل والصيانة والتقارير. " +
+  "مهمتك مساعدة كل عميل في إدخال البيانات، إنشاء العقود، تسجيل الدفعات، فتح طلبات الصيانة، واستخراج التقارير حسب الخدمات المتاحة في باقته. " +
+  "أجب دائماً بالعربية بأسلوب موجز وعملي، وقدّم خطوات قابلة للتنفيذ وروابط صفحات النظام عندما تكون أنسب من الشرح الطويل. " +
+  "استخدم الأدوات لقراءة البيانات الفعلية قبل الإجابة على أي سؤال يتطلب أرقاماً أو حالة محفظة. " +
+  "التزم بحدود الباقة المذكورة في سياق المستخدم: لا تقترح تصديراً أو إضافة عقارات/وحدات/مستخدمين تتجاوز الحد، ووجّه إلى صفحة الفوترة أو الترقية اليدوية عند الحاجة. " +
+  "قبل تنفيذ أي إجراء يعدّل البيانات (إنشاء مهمة، تذكير، أو أي عملية كتابة متاحة)، اعرض ملخص العملية للمستخدم واستأذنه صراحة في نفس الرسالة، ثم نفّذ فقط عندما يوافق. " +
+  "لا تخترع أرقاماً — إذا لم تعثر على البيانات قل ذلك، واقترح الخطوة التالية داخل المنصة.";
 
 function isNewApiKey(v: string) {
   return v.startsWith("sb_publishable_") || v.startsWith("sb_secret_");
@@ -32,6 +35,22 @@ function scopedClient(token: string) {
     },
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
   });
+}
+
+type MessagePart = NonNullable<UIMessage["parts"]>[number];
+type StreamChunk = { type?: string; text?: string; delta?: string };
+
+function partToText(part: MessagePart): string {
+  if (part.type === "text") return part.text;
+  if (part.type === "file") {
+    const filePart = part as MessagePart & { filename?: string; mediaType?: string };
+    return `[ملف: ${filePart.filename ?? filePart.mediaType ?? "attachment"}]`;
+  }
+  return "";
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 export const Route = createFileRoute("/api/assistant/chat")({
@@ -133,13 +152,7 @@ export const Route = createFileRoute("/api/assistant/chat")({
           const lastUser = [...messages].reverse().find((m) => m.role === "user");
           if (threadId && lastUser) {
             const text = (lastUser.parts ?? [])
-              .map((p: any) =>
-                p.type === "text"
-                  ? p.text
-                  : p.type === "file"
-                    ? `[ملف: ${p.filename ?? p.mediaType ?? "attachment"}]`
-                    : "",
-              )
+              .map((p) => partToText(p))
               .join("\n")
               .trim();
             if (text) {
@@ -166,7 +179,7 @@ export const Route = createFileRoute("/api/assistant/chat")({
             .rpc("log_assistant_access", {
               _org: orgId,
               _action: "ASSISTANT_REQUEST",
-              _diff: { thread_id: threadId ?? null, role: orgRole } as any,
+              _diff: { thread_id: threadId ?? null, role: orgRole } satisfies Json,
             })
             .then(
               () => null,
@@ -205,7 +218,7 @@ export const Route = createFileRoute("/api/assistant/chat")({
                     _org: orgId,
                     _action:
                       reason === "abort" ? "ASSISTANT_STREAM_ABORTED" : "ASSISTANT_STREAM_ERROR",
-                    _diff: { thread_id: threadId, chars: text.length } as any,
+                    _diff: { thread_id: threadId, chars: text.length } satisfies Json,
                   })
                   .then(
                     () => null,
@@ -225,8 +238,9 @@ export const Route = createFileRoute("/api/assistant/chat")({
             stopWhen: stepCountIs(50),
             abortSignal: request.signal,
             onChunk: ({ chunk }) => {
-              if ((chunk as any).type === "text-delta") {
-                accumulated += (chunk as any).text ?? (chunk as any).delta ?? "";
+              const c = chunk as StreamChunk;
+              if (c.type === "text-delta") {
+                accumulated += c.text ?? c.delta ?? "";
               }
             },
             onError: (e) => {
@@ -253,7 +267,7 @@ export const Route = createFileRoute("/api/assistant/chat")({
               const assistant = [...finalMessages].reverse().find((m) => m.role === "assistant");
               const finalText = assistant
                 ? (assistant.parts ?? [])
-                    .map((p: any) => (p.type === "text" ? p.text : ""))
+                    .map((p) => partToText(p))
                     .join("")
                     .trim()
                 : "";
@@ -261,8 +275,8 @@ export const Route = createFileRoute("/api/assistant/chat")({
               await persist("finish");
             },
           });
-        } catch (e: any) {
-          console.error("[assistant.chat] fatal:", e);
+        } catch (e: unknown) {
+          console.error("[assistant.chat] fatal:", errorMessage(e));
           return new Response("Internal server error", { status: 500 });
         }
       },
