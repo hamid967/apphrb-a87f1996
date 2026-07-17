@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import { Button } from "@/components/ui/button";
+import { SignOutConfirmDialog } from "./SignOutConfirmDialog";
 
 const DASHBOARD_ROOT = "/dashboard";
 
