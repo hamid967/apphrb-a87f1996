@@ -89,12 +89,14 @@ function IntroAnalyticsPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-3 sm:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {[
           { l: "معروض (shown)", v: totals?.shown ?? 0 },
           { l: "مكتمل (completed)", v: totals?.completed ?? 0 },
           { l: "متخطى (skipped)", v: totals?.skipped ?? 0 },
+          { l: "نقرات CTA", v: totals?.cta_click ?? 0 },
           { l: "نسبة الاكتمال", v: `${totals?.completion_pct ?? 0}%` },
+          { l: "نسبة النقر CTR", v: `${totals?.ctr_pct ?? 0}%` },
         ].map((s) => (
           <Card key={s.l}>
             <CardHeader className="pb-1">
