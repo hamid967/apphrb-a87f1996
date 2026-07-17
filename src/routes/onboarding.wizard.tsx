@@ -324,7 +324,9 @@ function OnboardingWizardPage() {
       }
       await markStep({ data: { step: "company", done: true } }).catch(() => {});
       toast.success(t("onboardingWizard.toasts.accountCreated", { days: res.trial_days }));
-      setStep(2);
+      // Signup wizard steps disabled — jump to dashboard once the org exists.
+      goDashboard();
+      return;
     } catch (err) {
       const hint = describeCompanyCreateError(err);
       toast.error(hint.title, { description: hint.description });
