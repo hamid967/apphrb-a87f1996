@@ -175,6 +175,25 @@ function TenantsPage() {
         </div>
       </div>
 
+      {orgId && (
+        <CsvImportDialog
+          open={importOpen}
+          onOpenChange={setImportOpen}
+          title={t("csv.importTenants")}
+          templateHeaders={["full_name", "email", "phone", "nationality", "notes"]}
+          sampleRow={{
+            full_name: "سالم القحطاني",
+            email: "tenant@example.com",
+            phone: "+966500000001",
+            nationality: "سعودي",
+            notes: "",
+          }}
+          onImport={(rows) => bulkInsertTenants({ data: { org_id: orgId, rows } })}
+          onDone={() => qc.invalidateQueries({ queryKey: ["tenants", orgId] })}
+        />
+      )}
+
+
       <Card>
         <CardHeader className="flex-row items-center justify-between gap-2">
           <CardTitle className="text-base">{t("tenants.list", { n: rows.length })}</CardTitle>
