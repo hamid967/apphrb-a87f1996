@@ -433,7 +433,7 @@ function ExecutivePage() {
         {/* Monthly revenue vs expense */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Cash flow (collected vs expenses)</CardTitle>
+            <CardTitle className="text-base">{t("execReports.charts.cashFlow")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -450,8 +450,8 @@ function ExecutivePage() {
                   }}
                 />
                 <Legend />
-                <Bar dataKey="collected" fill="#6366f1" name="Collected" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="expenses" fill="#f43f5e" name="Expenses" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="collected" fill="#6366f1" name={t("execReports.charts.collected")} radius={[6, 6, 0, 0]} />
+                <Bar dataKey="expenses" fill="#f43f5e" name={t("execReports.charts.expenses")} radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -460,12 +460,12 @@ function ExecutivePage() {
         {/* Expenses by category */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Expenses by category</CardTitle>
+            <CardTitle className="text-base">{t("execReports.charts.expensesByCategory")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             {expensesCatData.length === 0 ? (
               <div className="grid h-full place-items-center text-sm text-muted-foreground">
-                No expenses yet
+                {t("execReports.charts.noExpenses")}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -502,12 +502,12 @@ function ExecutivePage() {
         {/* Deals by status */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Deals pipeline</CardTitle>
+            <CardTitle className="text-base">{t("execReports.charts.dealsPipeline")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             {dealsStatusData.length === 0 ? (
               <div className="grid h-full place-items-center text-sm text-muted-foreground">
-                No deals yet
+                {t("execReports.charts.noDeals")}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -532,7 +532,7 @@ function ExecutivePage() {
         {/* Net trend line */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Net profit trend</CardTitle>
+            <CardTitle className="text-base">{t("execReports.charts.netTrend")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             <ResponsiveContainer width="100%" height="100%">
