@@ -60,10 +60,14 @@ export function LuxuryIntroOverlay() {
     audioRef.current = null;
   }, []);
 
-  const closeIntro = useCallback(() => {
-    stopIntroSound();
-    setVisible(false);
-  }, [stopIntroSound]);
+  const closeIntro = useCallback(
+    (reason: "skipped" | "completed" = "skipped") => {
+      stopIntroSound();
+      trackIntroEvent(reason);
+      setVisible(false);
+    },
+    [stopIntroSound],
+  );
 
   const startIntroSound = useCallback(() => {
     if (typeof window === "undefined") return;
