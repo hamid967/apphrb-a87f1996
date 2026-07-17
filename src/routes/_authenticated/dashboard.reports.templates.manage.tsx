@@ -178,7 +178,7 @@ function ManageTemplatesPage() {
               Your role can{canView ? " view templates but not modify them" : "not access report templates"}.
             </p>
             <Button asChild variant="outline">
-              <Link to="/reports/templates">Back to templates</Link>
+              <Link to="/dashboard/reports/templates">Back to templates</Link>
             </Button>
           </CardContent>
         </Card>
@@ -201,7 +201,7 @@ function ManageTemplatesPage() {
           </div>
         </div>
         <Button asChild variant="outline" size="sm">
-          <Link to="/reports/templates">Preview list</Link>
+          <Link to="/dashboard/reports/templates">Preview list</Link>
         </Button>
       </div>
 

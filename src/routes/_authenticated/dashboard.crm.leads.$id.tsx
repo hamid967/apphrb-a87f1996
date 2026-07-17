@@ -119,7 +119,7 @@ function LeadDetailPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
       <div className="mb-4 flex items-center gap-2 text-sm">
-        <Link to="/leads" className="text-muted-foreground hover:underline">
+        <Link to="/dashboard/crm/leads" className="text-muted-foreground hover:underline">
           {isAr ? <ArrowRight className="inline size-4" /> : <ArrowLeft className="inline size-4" />}{" "}
           {t("crm.leads.title", "Leads")}
         </Link>

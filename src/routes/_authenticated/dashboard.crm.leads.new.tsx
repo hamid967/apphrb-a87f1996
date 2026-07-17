@@ -65,7 +65,7 @@ function NewLeadPage() {
     },
     onSuccess: (row) => {
       toast.success(String(t("common.saved", "Saved")));
-      navigate({ to: "/leads/$id/edit", params: { id: row.id } });
+      navigate({ to: "/dashboard/crm/leads/$id/edit", params: { id: row.id } });
     },
     onError: (e: any) => toast.error(e.message ?? "Failed"),
   });
@@ -75,7 +75,7 @@ function NewLeadPage() {
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">{String(t("crm.leads.create", "New lead"))}</h1>
         <Button variant="ghost" asChild>
-          <Link to="/leads">
+          <Link to="/dashboard/crm/leads">
             <ArrowLeft className="me-2 size-4" />
             {String(t("common.back", "Back"))}
           </Link>
@@ -175,7 +175,7 @@ function NewLeadPage() {
         </div>
 
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="ghost" onClick={() => navigate({ to: "/leads" })}>
+          <Button type="button" variant="ghost" onClick={() => navigate({ to: "/dashboard/crm/leads" })}>
             {String(t("common.cancel", "Cancel"))}
           </Button>
           <Button type="submit" disabled={create.isPending}>

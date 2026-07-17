@@ -40,7 +40,7 @@ const QUICK_FAQS: Record<string, { q: string; a: string }[]> = {
       a: "نعم، ارفع حتى 10 صور عالية الدقة وستظهر تلقائيًا في تقارير PDF.",
     },
   ],
-  "/leads": [
+  "/dashboard/crm/leads": [
     {
       q: "كيف أستورد عملاء بالجملة؟",
       a: "استخدم زر «Import CSV» أعلى الصفحة — يدعم الأعمدة: name, email, phone, source.",
@@ -50,7 +50,7 @@ const QUICK_FAQS: Record<string, { q: string; a: string }[]> = {
       a: "اسحب البطاقة في لوحة Kanban أو غيّر الحالة من قائمة الحالة داخل البطاقة.",
     },
   ],
-  "/deals": [
+  "/dashboard/crm/deals": [
     {
       q: "متى تُحسب العمولة تلقائيًا؟",
       a: "عند تعليم الصفقة كـ won ووجود agent_id + agreed_amount + عمولة% في الإعدادات.",
@@ -62,7 +62,7 @@ const QUICK_FAQS: Record<string, { q: string; a: string }[]> = {
       a: "اسمح بإشعارات المتصفح؛ سيرسل النظام إشعارات push قبل موعد كل مهمة.",
     },
   ],
-  "/reports": [
+  "/dashboard/reports": [
     {
       q: "ما القوالب المتاحة؟",
       a: "Classic، Modern، Minimal — كلها تدعم RTL وتُصدَّر PDF/CSV مع توقيع الجهة.",
@@ -147,14 +147,14 @@ const TOUR: Step[] = [
     roles: ["admin", "employee"],
   },
   {
-    path: "/leads",
+    path: "/dashboard/crm/leads",
     title: "العملاء المحتملون",
     tip: "استخدم Kanban لسحب الفرص بين المراحل.",
     cta: "افتح Leads",
     roles: ["admin", "employee"],
   },
   {
-    path: "/deals",
+    path: "/dashboard/crm/deals",
     title: "الصفقات",
     tip: "أنشئ عرضًا وتتبّع العمولات تلقائيًا.",
     cta: "افتح الصفقات",
@@ -167,7 +167,7 @@ const TOUR: Step[] = [
     cta: "افتح المهام",
   },
   {
-    path: "/reports",
+    path: "/dashboard/reports",
     title: "التقارير",
     tip: "صدّر تقارير CSV/PDF بثلاثة قوالب.",
     cta: "افتح التقارير",

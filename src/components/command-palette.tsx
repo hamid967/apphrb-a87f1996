@@ -78,7 +78,7 @@ const AUTH_ITEMS: Item[] = [
   { id: "dashboard", label: "لوحة التحكم", labelEn: "Dashboard", to: "/dashboard", icon: LayoutDashboard, group: "dashboard", keywords: "home main رئيسية" },
   { id: "inbox", label: "الوارد", labelEn: "Inbox", to: "/dashboard/inbox", icon: ListChecks, group: "dashboard" },
   { id: "tasks", label: "المهام", labelEn: "Tasks", to: "/tasks", icon: ClipboardList, group: "dashboard" },
-  { id: "meetings", label: "الاجتماعات", labelEn: "Meetings", to: "/meetings", icon: Calendar, group: "dashboard" },
+  { id: "meetings", label: "الاجتماعات", labelEn: "Meetings", to: "/dashboard/crm/meetings", icon: Calendar, group: "dashboard" },
   { id: "assistant", label: "المساعد الذكي", labelEn: "AI Assistant", to: "/assistant", icon: Bot, group: "dashboard", keywords: "ai ذكاء" },
 
   // Services (matches the sidebar service groups)
@@ -95,14 +95,14 @@ const AUTH_ITEMS: Item[] = [
   { id: "vat", label: "ضريبة القيمة المضافة", labelEn: "VAT", to: "/accounting/vat", icon: FileBadge, group: "services", keywords: "zatca vat" },
   { id: "maintenance", label: "الصيانة", labelEn: "Maintenance", to: "/maintenance", icon: Wrench, group: "services" },
   { id: "tickets", label: "بلاغات الدعم", labelEn: "Tickets", to: "/dashboard/tickets", icon: Ticket, group: "services", keywords: "support بلاغ" },
-  { id: "documents", label: "المستندات", labelEn: "Documents", to: "/documents", icon: FileText, group: "services", keywords: "archive أرشيف" },
+  { id: "documents", label: "المستندات", labelEn: "Documents", to: "/dashboard/documents", icon: FileText, group: "services", keywords: "archive أرشيف" },
   { id: "archive", label: "الأرشيف", labelEn: "Archive", to: "/dashboard/archive", icon: ScrollText, group: "services" },
 
   // People / partners
-  { id: "owners", label: "الملاك", labelEn: "Owners", to: "/owners", icon: UsersRound, group: "services" },
+  { id: "owners", label: "الملاك", labelEn: "Owners", to: "/dashboard/owners", icon: UsersRound, group: "services" },
   { id: "tenants", label: "المستأجرون", labelEn: "Tenants", to: "/dashboard/tenants", icon: Users, group: "services" },
-  { id: "leads", label: "العملاء المحتملون", labelEn: "Leads", to: "/leads", icon: Users, group: "services" },
-  { id: "deals", label: "الصفقات", labelEn: "Deals", to: "/deals", icon: Handshake, group: "services" },
+  { id: "leads", label: "العملاء المحتملون", labelEn: "Leads", to: "/dashboard/crm/leads", icon: Users, group: "services" },
+  { id: "deals", label: "الصفقات", labelEn: "Deals", to: "/dashboard/crm/deals", icon: Handshake, group: "services" },
   { id: "crm", label: "إدارة العلاقات", labelEn: "CRM", to: "/dashboard/crm", icon: Briefcase, group: "services" },
   { id: "team", label: "فريق العمل", labelEn: "Team", to: "/team", icon: UsersRound, group: "services", keywords: "employees موظفون" },
   { id: "members", label: "الأعضاء", labelEn: "Members", to: "/members", icon: Users, group: "services" },
@@ -110,11 +110,11 @@ const AUTH_ITEMS: Item[] = [
   { id: "listings-ads", label: "الإعلانات", labelEn: "Listings", to: "/dashboard/listings", icon: Megaphone, group: "services" },
 
   // Reports & analytics
-  { id: "reports", label: "التقارير", labelEn: "Reports", to: "/reports", icon: BarChart3, group: "reports" },
+  { id: "reports", label: "التقارير", labelEn: "Reports", to: "/dashboard/reports", icon: BarChart3, group: "reports" },
   { id: "services-hub", label: "الخدمات", labelEn: "Services", to: "/dashboard/services", icon: FolderKanban, group: "services" },
-  { id: "reports-builder", label: "منشئ التقارير", labelEn: "Report builder", to: "/reports/builder", icon: Sigma, group: "reports" },
-  { id: "reports-templates", label: "قوالب التقارير", labelEn: "Report templates", to: "/reports/templates", icon: FileText, group: "reports" },
-  { id: "reports-executive", label: "التقرير التنفيذي", labelEn: "Executive report", to: "/reports/executive", icon: BarChart3, group: "reports" },
+  { id: "reports-builder", label: "منشئ التقارير", labelEn: "Report builder", to: "/dashboard/reports/builder", icon: Sigma, group: "reports" },
+  { id: "reports-templates", label: "قوالب التقارير", labelEn: "Report templates", to: "/dashboard/reports/templates", icon: FileText, group: "reports" },
+  { id: "reports-executive", label: "التقرير التنفيذي", labelEn: "Executive report", to: "/dashboard/reports/executive", icon: BarChart3, group: "reports" },
   { id: "crm-analytics", label: "تحليلات CRM", labelEn: "CRM analytics", to: "/crm/analytics", icon: BarChart3, group: "reports" },
 
   // Settings & support

@@ -161,12 +161,12 @@ function ReportsPage() {
         </div>
         <div className="flex items-center gap-2">
           <Button asChild variant="default">
-            <Link to="/reports/builder">
+            <Link to="/dashboard/reports/builder">
               <Wrench className="size-4 me-2" /> {t("reportsPage.openBuilder")}
             </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/reports/templates">
+            <Link to="/dashboard/reports/templates">
               <BookOpen className="size-4 me-2" /> {t("reportsPage.templates")}
             </Link>
           </Button>

@@ -49,7 +49,7 @@ import { listActivitiesForLead } from "@/lib/lead-activities.functions";
 import { can, type OrgRole } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/crm/deals/$id")({
-  head: ({ params }) => detailHead({ entityAr: 'صفقة', entityEn: 'Deal', id: String(params.id), path: `/deals/${params.id}`, kind: 'article' }),
+  head: ({ params }) => detailHead({ entityAr: 'صفقة', entityEn: 'Deal', id: String(params.id), path: `/dashboard/crm/deals/${params.id}`, kind: 'article' }),
   component: DealDetailPage,
 });
 
@@ -98,7 +98,7 @@ function DealDetailPage() {
     mutationFn: () => deleteDeal({ data: { id } }),
     onSuccess: () => {
       toast.success("Deleted");
-      nav({ to: "/deals" });
+      nav({ to: "/dashboard/crm/deals" });
     },
     onError: (e: any) => toast.error(e.message ?? "Failed"),
   });
@@ -116,7 +116,7 @@ function DealDetailPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
       <Link
-        to="/deals"
+        to="/dashboard/crm/deals"
         className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         {isAr ? <ArrowRight className="size-4" /> : <ArrowLeft className="size-4" />}
@@ -252,7 +252,7 @@ function DealDetailPage() {
                 {String(t("crm.deals.leadHistory", "Linked lead history"))}
               </h2>
               <div className="text-sm text-muted-foreground">
-                <Link to="/leads/$id" params={{ id: leadId }} className="hover:underline">
+                <Link to="/dashboard/crm/leads/$id" params={{ id: leadId }} className="hover:underline">
                   {String(t("crm.leads.viewDetail", "View lead"))} →
                 </Link>
               </div>

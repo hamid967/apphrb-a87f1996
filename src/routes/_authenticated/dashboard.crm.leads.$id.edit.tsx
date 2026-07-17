@@ -126,7 +126,7 @@ function EditLeadPage() {
             </Button>
           )}
           <Button variant="ghost" asChild>
-            <Link to="/leads">
+            <Link to="/dashboard/crm/leads">
               <ArrowLeft className="me-2 size-4" />
               {String(t("common.back", "Back"))}
             </Link>
@@ -195,7 +195,7 @@ function EditLeadPage() {
         </div>
 
         <div className="flex justify-end">
-          <Button variant="ghost" onClick={() => navigate({ to: "/leads/$id", params: { id } })}>
+          <Button variant="ghost" onClick={() => navigate({ to: "/dashboard/crm/leads/$id", params: { id } })}>
             {String(t("crm.leads.viewDetail", "View detail"))} →
           </Button>
         </div>

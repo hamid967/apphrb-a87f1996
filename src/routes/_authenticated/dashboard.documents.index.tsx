@@ -170,7 +170,7 @@ function DocumentsPage() {
             <Card key={d.id} className="group overflow-hidden">
               <CardContent className="flex flex-col gap-3 p-4">
                 <div className="flex items-start justify-between gap-2">
-                  <Link to="/documents/$id" params={{ id: d.id }} className="min-w-0 flex-1">
+                  <Link to="/dashboard/documents/$id" params={{ id: d.id }} className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium group-hover:text-primary">
                       {d.title}
                     </div>

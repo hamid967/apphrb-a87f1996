@@ -22,7 +22,7 @@ import { ADMIN_ROLES } from "@/lib/permissions";
 import { useTranslation } from "react-i18next";
 
 export const Route = createFileRoute("/_authenticated/dashboard/owners/$id/ledger")({
-  head: ({ params }) => detailHead({ entityAr: 'دفتر أستاذ مالك', entityEn: 'Owner Ledger', id: String(params.id), path: `/owners/${params.id}/ledger`, kind: 'dashboard' }),
+  head: ({ params }) => detailHead({ entityAr: 'دفتر أستاذ مالك', entityEn: 'Owner Ledger', id: String(params.id), path: `/dashboard/owners/${params.id}/ledger`, kind: 'dashboard' }),
   component: OwnerLedgerGate,
 });
 
@@ -274,7 +274,7 @@ function OwnerLedgerPage() {
     <div className="mx-auto max-w-6xl space-y-6 p-6 print:p-0">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <Link
-          to="/owners/$id"
+          to="/dashboard/owners/$id"
           params={{ id }}
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >

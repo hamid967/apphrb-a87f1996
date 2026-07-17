@@ -21,7 +21,7 @@ const ROUTES: Array<{ path: string; label: string; keywords: string }> = [
   { path: "/leasing", label: "افتح التأجير والعقود", keywords: "عقود تأجير leasing" },
   { path: "/accounting", label: "افتح المحاسبة", keywords: "تحصيل محاسبة دفعات" },
   { path: "/maintenance", label: "افتح الصيانة", keywords: "صيانة بلاغ" },
-  { path: "/reports", label: "افتح التقارير", keywords: "تقارير مؤشرات" },
+  { path: "/dashboard/reports", label: "افتح التقارير", keywords: "تقارير مؤشرات" },
   { path: "/contacts", label: "افتح العملاء", keywords: "عملاء مالك مستأجر crm" },
   { path: "/tasks", label: "افتح المهام", keywords: "مهام tasks" },
   { path: "/assistant", label: "افتح المساعد الكامل", keywords: "مساعد ai" },

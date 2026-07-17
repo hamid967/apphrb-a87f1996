@@ -868,14 +868,14 @@ function ModuleLauncher({ isAr }: { isAr: boolean }) {
       tone: "violet",
     },
     {
-      to: "/reports/templates",
+      to: "/dashboard/reports/templates",
       icon: <FileBarChart className="size-5" />,
       title: isAr ? "قوالب التقارير" : "Report Templates",
       desc: isAr ? "منشئ التقارير" : "Report builder",
       tone: "sky",
     },
     {
-      to: "/reports/executive",
+      to: "/dashboard/reports/executive",
       icon: <TrendingUp className="size-5" />,
       title: isAr ? "التقارير التنفيذية" : "Executive Reports",
       desc: isAr ? "KPIs مالية وتشغيلية" : "Financial & ops KPIs",
@@ -931,7 +931,7 @@ function ModuleLauncher({ isAr }: { isAr: boolean }) {
       tone: "primary",
     },
     {
-      to: "/documents",
+      to: "/dashboard/documents",
       icon: <FileText className="size-5" />,
       title: isAr ? "الوثائق" : "Documents",
       desc: isAr ? "مكتبة موحّدة" : "Central library",

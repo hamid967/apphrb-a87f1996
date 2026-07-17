@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/owners/$id")({
-  head: ({ params }) => detailHead({ entityAr: 'مالك', entityEn: 'Owner', id: String(params.id), path: `/owners/${params.id}`, kind: 'dashboard' }),
+  head: ({ params }) => detailHead({ entityAr: 'مالك', entityEn: 'Owner', id: String(params.id), path: `/dashboard/owners/${params.id}`, kind: 'dashboard' }),
   component: OwnerStatementPage,
 });
 
@@ -109,7 +109,7 @@ function OwnerStatementPage() {
     <div className="mx-auto max-w-6xl space-y-6 p-6 print:p-0">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <Link
-          to="/owners"
+          to="/dashboard/owners"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-4" /> Back to owners
@@ -119,7 +119,7 @@ function OwnerStatementPage() {
             <Printer className="me-1 size-4" /> Print
           </Button>
           <Button variant="outline" size="sm" asChild>
-            <Link to="/owners/$id/ledger" params={{ id }}>
+            <Link to="/dashboard/owners/$id/ledger" params={{ id }}>
               <Receipt className="me-1 size-4" /> Ledger
             </Link>
           </Button>

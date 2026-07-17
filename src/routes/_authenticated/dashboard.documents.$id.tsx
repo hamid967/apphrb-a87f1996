@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/documents/$id")({
-  head: ({ params }) => detailHead({ entityAr: 'مستند', entityEn: 'Document', id: String(params.id), path: `/documents/${params.id}`, kind: 'docs' }),
+  head: ({ params }) => detailHead({ entityAr: 'مستند', entityEn: 'Document', id: String(params.id), path: `/dashboard/documents/${params.id}`, kind: 'docs' }),
   component: DocumentDetail,
 });
 
@@ -125,7 +125,7 @@ function DocumentDetail() {
     mutationFn: () => deleteDocument({ data: { id } }),
     onSuccess: () => {
       toast.success("Deleted");
-      nav({ to: "/documents" });
+      nav({ to: "/dashboard/documents" });
     },
     onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
@@ -159,7 +159,7 @@ function DocumentDetail() {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <Button asChild size="sm" variant="ghost" className="mb-2 -ms-2">
-            <Link to="/documents">
+            <Link to="/dashboard/documents">
               <ArrowLeft className="me-1 size-4" /> Back
             </Link>
           </Button>

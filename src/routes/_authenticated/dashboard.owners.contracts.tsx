@@ -150,7 +150,7 @@ function OwnerContractsPage() {
                       <td className="p-3">
                         {c.owner ? (
                           <Link
-                            to="/owners/$id"
+                            to="/dashboard/owners/$id"
                             params={{ id: c.owner.id }}
                             className="text-primary hover:underline"
                           >
@@ -190,7 +190,7 @@ function OwnerContractsPage() {
                       <td className="p-3 text-end">
                         {c.owner && (
                           <Link
-                            to="/owners/$id"
+                            to="/dashboard/owners/$id"
                             params={{ id: c.owner.id }}
                             className="inline-flex items-center gap-1 text-primary hover:underline"
                           >

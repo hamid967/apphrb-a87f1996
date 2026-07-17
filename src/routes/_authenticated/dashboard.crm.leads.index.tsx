@@ -235,7 +235,7 @@ function LeadsPage() {
       invalidate();
       qc.invalidateQueries({ queryKey: ["deals", org?.id] });
       toast.success(t("crm.leads.convert"));
-      navigate({ to: "/deals/$id", params: { id: res.id } });
+      navigate({ to: "/dashboard/crm/deals/$id", params: { id: res.id } });
     },
     onError: (e: any) => toast.error(e.message ?? "Failed"),
   });
@@ -268,7 +268,7 @@ function LeadsPage() {
                 <Upload className="me-2 size-4" /> {t("csv.importLeads")}
               </Button>
               <Button asChild>
-                <Link to="/leads/new">
+                <Link to="/dashboard/crm/leads/new">
                   <Plus className="me-2 size-4" /> {t("crm.leads.add")}
                 </Link>
               </Button>
@@ -335,7 +335,7 @@ function LeadsPage() {
                             )}
                             <div className="min-w-0 flex-1">
                               <Link
-                                to="/leads/$id"
+                                to="/dashboard/crm/leads/$id"
                                 params={{ id: lead.id }}
                                 className="block truncate font-medium hover:underline"
                               >
@@ -398,7 +398,7 @@ function LeadsPage() {
                                   variant="ghost"
                                   className="h-7 px-2"
                                 >
-                                  <Link to="/leads/$id/edit" params={{ id: lead.id }}>
+                                  <Link to="/dashboard/crm/leads/$id/edit" params={{ id: lead.id }}>
                                     <Pencil className="size-3.5" />
                                   </Link>
                                 </Button>

@@ -89,7 +89,7 @@ function OwnersList() {
                       <td className="p-3">{fmt(o.monthly)} SAR</td>
                       <td className="p-3 text-end">
                         <Link
-                          to="/owners/$id"
+                          to="/dashboard/owners/$id"
                           params={{ id: o.id }}
                           className="inline-flex items-center gap-1 text-primary hover:underline"
                         >

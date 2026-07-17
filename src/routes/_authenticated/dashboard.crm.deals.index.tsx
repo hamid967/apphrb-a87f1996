@@ -187,7 +187,7 @@ function DealsPage() {
           filtered.map((d) => (
             <Link
               key={d.id}
-              to="/deals/$id"
+              to="/dashboard/crm/deals/$id"
               params={{ id: d.id }}
               className="group flex items-center gap-4 surface-card p-4 transition hover:border-primary/40 hover:shadow-sm"
             >
