@@ -332,10 +332,10 @@ function LeadDetailPage() {
                     >
                       rejected
                     </Button>
-                    {m.listing?.id && (
+                    {m.listing?.slug && (
                       <Link
-                        to="/listings/$id"
-                        params={{ id: m.listing.id }}
+                        to="/listings/$slug"
+                        params={{ slug: m.listing.slug }}
                         className="ms-auto inline-flex items-center gap-1 text-xs text-primary hover:underline"
                       >
                         <ExternalLink className="size-3" />

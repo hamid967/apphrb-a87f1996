@@ -3569,30 +3569,48 @@ export type Database = {
       }
       organizations: {
         Row: {
+          account_type: Database["public"]["Enums"]["org_account_type"] | null
+          authorized_person_name: string | null
+          authorized_person_phone: string | null
+          commercial_registration: string | null
           created_at: string
           created_by: string
           id: string
           logo_url: string | null
           name: string
+          national_address: string | null
           slug: string
+          tax_number: string | null
           updated_at: string
         }
         Insert: {
+          account_type?: Database["public"]["Enums"]["org_account_type"] | null
+          authorized_person_name?: string | null
+          authorized_person_phone?: string | null
+          commercial_registration?: string | null
           created_at?: string
           created_by: string
           id?: string
           logo_url?: string | null
           name: string
+          national_address?: string | null
           slug: string
+          tax_number?: string | null
           updated_at?: string
         }
         Update: {
+          account_type?: Database["public"]["Enums"]["org_account_type"] | null
+          authorized_person_name?: string | null
+          authorized_person_phone?: string | null
+          commercial_registration?: string | null
           created_at?: string
           created_by?: string
           id?: string
           logo_url?: string | null
           name?: string
+          national_address?: string | null
           slug?: string
+          tax_number?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -6870,6 +6888,29 @@ export type Database = {
       }
     }
     Views: {
+      admin_overview_mv: {
+        Row: {
+          active_contracts: number | null
+          active_subs: number | null
+          events_24h: number | null
+          generated_at: string | null
+          login_failed_24h: number | null
+          login_success_24h: number | null
+          mrr: number | null
+          orgs_total: number | null
+          pending_invites: number | null
+          pending_receipts: number | null
+          pending_subs: number | null
+          rejected_subs_24h: number | null
+          revenue_month: number | null
+          revenue_year: number | null
+          singleton: number | null
+          trial_subs: number | null
+          users_pending: number | null
+          users_total: number | null
+        }
+        Relationships: []
+      }
       mv_billing_pay_om: {
         Row: {
           month_start: string | null
@@ -7321,6 +7362,35 @@ export type Database = {
         Args: { _contract_id: string; _months?: number }
         Returns: number
       }
+      get_admin_overview: {
+        Args: never
+        Returns: {
+          active_contracts: number | null
+          active_subs: number | null
+          events_24h: number | null
+          generated_at: string | null
+          login_failed_24h: number | null
+          login_success_24h: number | null
+          mrr: number | null
+          orgs_total: number | null
+          pending_invites: number | null
+          pending_receipts: number | null
+          pending_subs: number | null
+          rejected_subs_24h: number | null
+          revenue_month: number | null
+          revenue_year: number | null
+          singleton: number | null
+          trial_subs: number | null
+          users_pending: number | null
+          users_total: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "admin_overview_mv"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_app_setting: { Args: { _key: string }; Returns: string }
       get_invitation_by_token: {
         Args: { _token: string }
@@ -7387,6 +7457,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      hbspro_has_org_role_text: {
+        Args: { _org: string; _roles: string[]; _user: string }
         Returns: boolean
       }
       is_company_member: { Args: { _company_id: string }; Returns: boolean }
@@ -7481,6 +7555,7 @@ export type Database = {
         }
         Returns: string
       }
+      refresh_admin_overview: { Args: never; Returns: undefined }
       refresh_billing_mvs: { Args: never; Returns: Json }
       register_company: {
         Args: { _name: string; _phone?: string }
@@ -7619,7 +7694,15 @@ export type Database = {
         | "lost"
       listing_status: "available" | "reserved" | "sold" | "rented" | "inactive"
       listing_type: "sale" | "rent"
-      org_role: "owner" | "admin" | "agent" | "viewer" | "property_owner"
+      org_account_type: "individual" | "business" | "company" | "enterprise"
+      org_role:
+        | "owner"
+        | "admin"
+        | "agent"
+        | "viewer"
+        | "property_owner"
+        | "finance_manager"
+        | "accountant"
       owner_statement_status: "draft" | "issued"
       payment_schedule_source: "contract" | "deal" | "commission"
       payment_schedule_status:
@@ -7866,7 +7949,16 @@ export const Constants = {
       ],
       listing_status: ["available", "reserved", "sold", "rented", "inactive"],
       listing_type: ["sale", "rent"],
-      org_role: ["owner", "admin", "agent", "viewer", "property_owner"],
+      org_account_type: ["individual", "business", "company", "enterprise"],
+      org_role: [
+        "owner",
+        "admin",
+        "agent",
+        "viewer",
+        "property_owner",
+        "finance_manager",
+        "accountant",
+      ],
       owner_statement_status: ["draft", "issued"],
       payment_schedule_source: ["contract", "deal", "commission"],
       payment_schedule_status: [
