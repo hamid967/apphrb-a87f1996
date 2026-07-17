@@ -732,10 +732,50 @@ function UnitsSection({
             onSubmit={(e) => {
               e.preventDefault();
               if (!f.code.trim()) return;
+              if (!editingId && !f.building_id) return;
               mut.mutate();
             }}
             className="grid gap-3 sm:grid-cols-2"
           >
+            {!editingId && (
+              <div className="space-y-1.5 sm:col-span-2">
+                <div className="flex items-center justify-between gap-2">
+                  <Label>{t("units.quickAdd.building")}</Label>
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="h-auto p-0"
+                    onClick={() => setBuildingDialogOpen(true)}
+                  >
+                    <Plus className="me-1 size-3.5" />
+                    {t("units.quickAdd.addBuilding")}
+                  </Button>
+                </div>
+                {buildings.length === 0 ? (
+                  <div className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">
+                    {t("units.quickAdd.noBuildings")}
+                  </div>
+                ) : (
+                  <Select
+                    value={f.building_id}
+                    onValueChange={(v) => setF((p) => ({ ...p, building_id: v }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t("units.quickAdd.buildingPh")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {buildings.map((b) => (
+                        <SelectItem key={b.id} value={b.id}>
+                          {b.name}
+                          {b.code ? ` — ${b.code}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            )}
             <div className="space-y-1.5 sm:col-span-2">
               <Label>{t("units.quickAdd.code")}</Label>
               <Input
