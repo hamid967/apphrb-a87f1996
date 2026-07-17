@@ -792,6 +792,30 @@ function UnitsSection({
           </form>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deleteUnitId} onOpenChange={(v) => !v && setDeleteUnitId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("units.quickAdd.deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("units.quickAdd.deleteSub")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={delMut.isPending}>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={delMut.isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                if (deleteUnitId) delMut.mutate(deleteUnitId);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {delMut.isPending && <Loader2 className="me-2 size-4 animate-spin" />}
+              {t("units.quickAdd.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
+
   );
 }
