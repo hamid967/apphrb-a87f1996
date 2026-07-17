@@ -614,7 +614,7 @@ function UnitsSection({
             <Link to="/dashboard/units">{t("units.quickAdd.openList")}</Link>
           </Button>
           {canEdit && (
-            <Button size="sm" onClick={() => setOpen(true)}>
+            <Button size="sm" onClick={openCreate}>
               <Plus className="me-2 size-4" />
               {t("units.quickAdd.add")}
             </Button>
