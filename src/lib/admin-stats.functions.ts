@@ -88,18 +88,8 @@ export const getAdminOverview = createServerFn({ method: "GET" })
     }
     const series = Array.from(buckets.entries()).map(([d, v]) => ({ d, v }));
 
-    // MRR from active subscriptions (yearly billed → /12)
-    const mrr = (activeSubsForMrr.data ?? []).reduce(
-      (sum, s: { amount: number | null; billing_cycle: string | null }) => {
-        const amt = Number(s.amount ?? 0);
-        const monthly = s.billing_cycle === "yearly" ? amt / 12 : amt;
-        return sum + monthly;
-      },
-      0,
-    );
+    // MRR / revenue now come pre-computed from the MV row (see `ov` above).
 
-    const sumAmount = (rows: Array<{ amount: number | null }> | null) =>
-      (rows ?? []).reduce((s, r) => s + Number(r.amount ?? 0), 0);
 
     // Plan distribution
     const planMap = new Map<string, number>();
