@@ -529,7 +529,7 @@ export function DashboardTopbar({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onSelect={() => supabase.auth.signOut()}
+              onSelect={handleSignOut}
               className="text-destructive focus:text-destructive"
             >
               <LogOut className="me-2 size-4" />
