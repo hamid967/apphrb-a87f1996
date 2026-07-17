@@ -58,7 +58,7 @@ function IntroAnalyticsPage() {
           نِسَب مشاهدة واكتمال انترو HBSpro
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          تتبّع أحداث shown / skipped / completed مقسّمة حسب اليوم والمسار.
+          تتبّع أحداث shown / skipped / completed ونقرات زر «بدء الاستخدام» (CTR) مقسّمة حسب اليوم والمسار.
         </p>
       </div>
 
