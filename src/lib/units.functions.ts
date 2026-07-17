@@ -116,3 +116,95 @@ export const restoreUnits = createServerFn({ method: "POST" })
     });
     return { ok: true, count: data.ids.length };
   });
+
+export const listUnitsByProperty = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ property_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: bldgs, error: bErr } = await context.supabase
+      .from("buildings")
+      .select("id")
+      .eq("property_id", data.property_id)
+      .is("deleted_at", null);
+    if (bErr) throw bErr;
+    const ids = (bldgs ?? []).map((b) => b.id as string);
+    if (ids.length === 0) return [];
+    const { data: rows, error } = await context.supabase
+      .from("units")
+      .select("id, code, type, status, area, bedrooms, bathrooms, rent_amount, currency_code, building_id")
+      .in("building_id", ids)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return rows ?? [];
+  });
+
+export const quickCreateUnitForProperty = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        property_id: z.string().uuid(),
+        code: z.string().trim().min(1).max(64),
+        type: z.string().trim().max(64).optional().nullable(),
+        status: z.enum(["vacant", "occupied", "reserved", "maintenance"]).optional().default("vacant"),
+        area: z.number().nonnegative().optional().nullable(),
+        bedrooms: z.number().int().nonnegative().optional().nullable(),
+        bathrooms: z.number().int().nonnegative().optional().nullable(),
+        rent_amount: z.number().nonnegative().optional().nullable(),
+        currency_code: z.string().trim().max(6).optional().nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: prop, error: pErr } = await context.supabase
+      .from("properties")
+      .select("id, org_id, title_ar, title_en, currency")
+      .eq("id", data.property_id)
+      .maybeSingle();
+    if (pErr) throw pErr;
+    if (!prop) throw new Error("Property not found");
+    const orgId = prop.org_id as string;
+
+    // Find or auto-create a default building for this property
+    const { data: existing, error: bErr } = await context.supabase
+      .from("buildings")
+      .select("id")
+      .eq("property_id", data.property_id)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (bErr) throw bErr;
+
+    let buildingId = existing?.id as string | undefined;
+    if (!buildingId) {
+      const name = (prop.title_ar as string) || (prop.title_en as string) || "Main";
+      const { data: nb, error: nbErr } = await context.supabase
+        .from("buildings")
+        .insert({ org_id: orgId, property_id: data.property_id, name })
+        .select("id")
+        .single();
+      if (nbErr) throw nbErr;
+      buildingId = nb.id as string;
+    }
+
+    const { data: unit, error: uErr } = await context.supabase
+      .from("units")
+      .insert({
+        org_id: orgId,
+        building_id: buildingId,
+        code: data.code,
+        type: data.type ?? null,
+        status: data.status ?? "vacant",
+        area: data.area ?? null,
+        bedrooms: data.bedrooms ?? null,
+        bathrooms: data.bathrooms ?? null,
+        rent_amount: data.rent_amount ?? null,
+        currency_code: data.currency_code ?? (prop.currency as string | null) ?? "SAR",
+      })
+      .select("id, code, type, status, area, bedrooms, bathrooms, rent_amount, currency_code, building_id")
+      .single();
+    if (uErr) throw uErr;
+    return unit;
+  });
