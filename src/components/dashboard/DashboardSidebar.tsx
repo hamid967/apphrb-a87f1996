@@ -1,7 +1,4 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { motion, LayoutGroup } from "motion/react";
 import {
