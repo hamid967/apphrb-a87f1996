@@ -329,7 +329,8 @@ function AuthPage() {
           : `Code sent to ${devEmail}`,
       );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Developer signup failed");
+      const hint = describeAuthError(err, i18n.language);
+      toast.error(hint.title, { description: hint.description });
     } finally {
       setDevLoading(false);
     }
