@@ -104,18 +104,24 @@ function PropertiesList() {
           {t("properties.title")}
         </h1>
         {canCreate && (
-          <Button
-            onClick={() => {
-              if (!gate.allowed) {
-                setUpgradeOpen(true);
-                return;
-              }
-              navigate({ to: "/dashboard/properties/new" });
-            }}
-          >
-            <Plus className="me-2 size-4" />
-            {t("properties.add")}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+              <Upload className="me-2 size-4" />
+              {t("csv.importProperties")}
+            </Button>
+            <Button
+              onClick={() => {
+                if (!gate.allowed) {
+                  setUpgradeOpen(true);
+                  return;
+                }
+                navigate({ to: "/dashboard/properties/new" });
+              }}
+            >
+              <Plus className="me-2 size-4" />
+              {t("properties.add")}
+            </Button>
+          </div>
         )}
         <UpgradeDialog
           open={upgradeOpen}
@@ -125,6 +131,43 @@ function PropertiesList() {
           max={gate.max}
           planName={gate.planName}
         />
+        {org && (
+          <CsvImportDialog
+            open={importOpen}
+            onOpenChange={setImportOpen}
+            title={t("csv.importProperties")}
+            templateHeaders={[
+              "title_ar",
+              "title_en",
+              "property_type",
+              "listing_type",
+              "status",
+              "price",
+              "currency",
+              "area_sqm",
+              "bedrooms",
+              "bathrooms",
+              "city",
+              "address",
+            ]}
+            sampleRow={{
+              title_ar: "شقة الرياض",
+              title_en: "Riyadh Apartment",
+              property_type: "apartment",
+              listing_type: "rent",
+              status: "available",
+              price: "60000",
+              currency: "SAR",
+              area_sqm: "120",
+              bedrooms: "3",
+              bathrooms: "2",
+              city: "الرياض",
+              address: "حي النرجس",
+            }}
+            onImport={(rows) => bulkInsertProperties({ data: { org_id: org.id, rows } })}
+            onDone={() => qc.invalidateQueries({ queryKey: ["properties", org.id] })}
+          />
+        )}
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
