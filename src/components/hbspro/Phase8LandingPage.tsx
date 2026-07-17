@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import introVideo from "@/assets/hbspro-intro.mp4.asset.json";
+import { trackIntroEvent } from "@/lib/intro-tracker";
 import {
   ArrowLeft,
   BarChart3,
