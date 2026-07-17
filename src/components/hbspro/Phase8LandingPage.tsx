@@ -147,6 +147,7 @@ function Hero() {
           to="/auth"
           search={{ mode: "signup" } as never}
           aria-label="بدء الاستخدام - التسجيل في HBSpro"
+          onClick={() => trackIntroEvent("cta_click", "/#hero-primary")}
           className="group inline-flex items-center gap-3 rounded-full border border-[#00D9C0]/40 bg-[#00D9C0] px-8 py-4 text-base font-black text-[#071729] shadow-[0_20px_60px_-18px_rgba(0,217,192,0.75)] ring-1 ring-white/10 backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-[#00E8CE] hover:shadow-[0_28px_80px_-18px_rgba(0,217,192,0.95)]"
         >
           <Sparkles className="size-5" aria-hidden />
