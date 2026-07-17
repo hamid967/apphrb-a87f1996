@@ -440,33 +440,53 @@ function NewProperty() {
 
           {step === 3 && (
             <>
-              <Field label={t("properties.form.coverImage")} className="sm:col-span-2">
-                <Input
-                  type="url"
-                  placeholder="https://…"
-                  value={form.cover_image_url}
-                  onChange={(e) => setF("cover_image_url", e.target.value)}
-                />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {isAr
-                    ? "يمكنك إضافة المزيد من الصور بعد إنشاء العقار."
-                    : "You can add more images after creating the property."}
-                </p>
-              </Field>
-
-              {form.cover_image_url && (
-                <div className="sm:col-span-2 overflow-hidden rounded-lg border bg-muted">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={form.cover_image_url}
-                    alt=""
-                    className="h-48 w-full object-cover"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).style.display = "none";
-                    }}
-                  />
+              <div className="sm:col-span-2 space-y-2">
+                <Label>{t("properties.form.coverImage")}</Label>
+                <div className="rounded-lg border border-dashed bg-muted/30 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="grid size-9 place-items-center rounded-md bg-primary/10 text-primary">
+                      <Check className="size-4" />
+                    </div>
+                    <div className="flex-1 space-y-1 text-sm">
+                      <p className="font-medium">
+                        {isAr ? "رفع الصور بعد الإنشاء" : "Upload photos after creation"}
+                      </p>
+                      <p className="text-muted-foreground">
+                        {isAr
+                          ? "بعد إنشاء العقار سنفتح صفحة تفاصيله مباشرة حيث يمكنك رفع صورة الغلاف والمزيد من الصور بجودة عالية."
+                          : "After you create the property we'll open its detail page where you can upload a cover photo and additional images."}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                <details className="text-xs text-muted-foreground">
+                  <summary className="cursor-pointer">
+                    {isAr ? "أو ألصق رابط صورة الآن" : "Or paste an image URL now"}
+                  </summary>
+                  <Input
+                    type="url"
+                    placeholder="https://…"
+                    value={form.cover_image_url}
+                    onChange={(e) => setF("cover_image_url", e.target.value)}
+                    className="mt-2"
+                  />
+                  {form.cover_image_url && (
+                    <div className="mt-2 overflow-hidden rounded-lg border bg-muted">
+                      <img
+                        src={form.cover_image_url}
+                        alt=""
+                        className="h-40 w-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    </div>
+                  )}
+                </details>
+              </div>
+
+
 
               {/* Summary */}
               <div className="sm:col-span-2 grid gap-2 rounded-lg border bg-muted/30 p-4 text-sm">
