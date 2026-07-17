@@ -183,7 +183,7 @@ export function CsvImportDialog({
             <input
               ref={inputRef}
               type="file"
-              accept=".csv,text/csv"
+              accept=".csv,text/csv,.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
               className="sr-only"
               onChange={(e) => onFile(e.target.files?.[0] ?? null)}
             />
