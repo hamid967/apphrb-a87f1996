@@ -152,16 +152,43 @@ export function CsvImportDialog({
   const submit = async () => {
     if (!validRows.length) return;
     setBusy(true);
+    setProgress(5);
     sentIndexMapRef.current = validIndexMap;
     sentRowsRef.current = validRows;
+    const toastId = toast.loading(
+      t("csv.importingRows", { count: validRows.length }),
+    );
+    // Simulated progress ticker — the RPC is a single call, so we ease toward 90%
+    // and jump to 100% on completion. Gives real feedback on slow mobile networks.
+    let pct = 5;
+    const timer = window.setInterval(() => {
+      pct = Math.min(90, pct + Math.max(1, Math.round((90 - pct) * 0.12)));
+      setProgress(pct);
+    }, 300);
     try {
       const r = await onImport(validRows);
       setResult(r);
-      toast.success(t("csv.done", { created: r.created, skipped: r.skipped }));
+      setProgress(100);
+      const okCount = r.created + (r.updated ?? 0);
+      const errCount = r.errors.length + invalidCount;
+      const summary = t("csv.doneDetail", {
+        created: r.created,
+        updated: r.updated ?? 0,
+        skipped: r.skipped,
+        errors: errCount,
+      });
+      if (errCount > 0 && okCount > 0) {
+        toast.warning(summary, { id: toastId, duration: 6000 });
+      } else if (errCount > 0 && okCount === 0) {
+        toast.error(summary, { id: toastId, duration: 6000 });
+      } else {
+        toast.success(summary, { id: toastId, duration: 4000 });
+      }
       onDone?.();
     } catch (e: any) {
-      toast.error(e.message ?? "Failed");
+      toast.error(e.message ?? "Failed", { id: toastId });
     } finally {
+      window.clearInterval(timer);
       setBusy(false);
     }
   };
