@@ -47,16 +47,26 @@ jobs:
           python -m playwright install --with-deps chromium
 
       - name: Preflight — required secrets present
+        id: preflight
         env:
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
           E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           missing=()
           [ -n "$E2E_ADMIN_EMAIL" ]    || missing+=("E2E_ADMIN_EMAIL")
           [ -n "$E2E_ADMIN_PASSWORD" ] || missing+=("E2E_ADMIN_PASSWORD")
           [ -n "$E2E_BYPASS_TOKEN" ]   || missing+=("E2E_BYPASS_TOKEN")
+          [ -n "$VITE_SUPABASE_URL" ] || missing+=("VITE_SUPABASE_URL")
+          [ -n "$VITE_SUPABASE_PUBLISHABLE_KEY" ] || missing+=("VITE_SUPABASE_PUBLISHABLE_KEY")
           if [ ${#missing[@]} -gt 0 ]; then
+            if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+              echo "::notice::Skipping admin signed-in scan for this PR because CI secrets are unavailable: ${missing[*]}"
+              echo "ready=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
             echo "::error::Missing required repository secrets: ${missing[*]}"
             echo "Add them in Settings → Secrets and variables → Actions."
             exit 1
@@ -65,11 +75,15 @@ jobs:
             echo "::error::E2E_BYPASS_TOKEN must be at least 16 characters."
             exit 1
           fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
 
       - name: Start dev server (with AAL2 bypass token baked in)
+        if: steps.preflight.outputs.ready == 'true'
         env:
           VITE_E2E_BYPASS_AAL2: "true"
           VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           bun run dev > /tmp/dev-server.log 2>&1 &
           echo $! > /tmp/dev-server.pid
@@ -84,11 +98,12 @@ jobs:
           exit 1
 
       - name: Mint super-admin session
+        if: steps.preflight.outputs.ready == 'true'
         env:
           # scripts/e2e-mint-admin-session.py reads VITE_* from .env,
           # but the CI checkout may not have those; pass them explicitly.
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
           BASE_URL: http://localhost:8080
@@ -100,13 +115,14 @@ jobs:
           python scripts/e2e-mint-admin-session.py
 
       - name: Run admin routes signed-in scan
+        if: steps.preflight.outputs.ready == 'true'
         env:
           E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
           VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           ADMIN_E2E_ARTIFACT_ROOT: ${{ github.workspace }}/admin-e2e-artifacts
           ADMIN_E2E_RUN_ID: run-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
@@ -119,11 +135,12 @@ jobs:
           python tests/e2e/admin-routes-signed-in.spec.py
 
       - name: Run route-map UI smoke
+        if: steps.preflight.outputs.ready == 'true'
         env:
           E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
           VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           if [ -z "$VITE_SUPABASE_URL" ] && [ -f .env ]; then
             set -a; . ./.env; set +a
@@ -132,11 +149,12 @@ jobs:
           python tests/e2e/admin-route-map.spec.py
 
       - name: Run admin perf budgets (multi-viewport)
+        if: steps.preflight.outputs.ready == 'true'
         env:
           E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
           VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           if [ -z "$VITE_SUPABASE_URL" ] && [ -f .env ]; then
             set -a; . ./.env; set +a
@@ -154,7 +172,10 @@ jobs:
 
       - name: Stop dev server
         if: always()
-        run: kill "$(cat /tmp/dev-server.pid)" 2>/dev/null || true
+        run: |
+          if [ -f /tmp/dev-server.pid ]; then
+            kill "$(cat /tmp/dev-server.pid)" 2>/dev/null || true
+          fi
 
       - name: Upload run artifacts (screenshots + video + report)
         if: always()
