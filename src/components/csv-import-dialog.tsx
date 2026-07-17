@@ -28,6 +28,8 @@ type Props = {
   sampleRow: Record<string, string>;
   onImport: (rows: Record<string, string>[]) => Promise<ImportResult>;
   onDone?: () => void;
+  header?: React.ReactNode;
+  canImport?: boolean;
 };
 
 export function CsvImportDialog({
