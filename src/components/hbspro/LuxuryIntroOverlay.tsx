@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { Volume2, VolumeX, X } from "lucide-react";
+import { ChevronDown, Volume2, VolumeX, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const INTRO_DURATION_MS = 20_000;
@@ -237,6 +237,23 @@ export function LuxuryIntroOverlay() {
               </motion.div>
             </div>
           </div>
+
+          <motion.div
+            className="pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center px-4 sm:bottom-8"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <button
+              type="button"
+              onClick={closeIntro}
+              aria-label="تخطي الإنترو والانتقال إلى المحتوى"
+              className="pointer-events-auto group inline-flex items-center gap-3 rounded-full border border-[#00D9C0]/40 bg-[#00D9C0]/15 px-7 py-3.5 text-sm font-black text-white shadow-[0_18px_60px_-24px_rgba(0,217,192,0.9)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-[#00D9C0]/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00D9C0]"
+            >
+              تخطي الإنترو
+              <ChevronDown className="size-4 animate-bounce text-[#00D9C0] transition-transform group-hover:translate-y-0.5" aria-hidden />
+            </button>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
