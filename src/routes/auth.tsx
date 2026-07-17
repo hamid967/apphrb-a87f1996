@@ -197,7 +197,7 @@ function AuthPage() {
         email: trimmedEmail,
         options: {
           shouldCreateUser: true,
-          emailRedirectTo: getAppUrl("/onboarding/wizard"),
+          emailRedirectTo: getAppUrl("/dashboard"),
         },
       });
       if (error) throw error;
@@ -277,7 +277,7 @@ function AuthPage() {
         email: trimmedEmail,
         options: {
           shouldCreateUser: true,
-          emailRedirectTo: getAppUrl("/onboarding/wizard"),
+          emailRedirectTo: getAppUrl("/dashboard"),
         },
       });
       if (error) throw error;
@@ -671,53 +671,7 @@ function AuthPage() {
 
 
 
-              {/* Divider */}
-              <div
-                className="my-6 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em]"
-                style={{ color: HBS.gray }}
-              >
-                <div className="h-px flex-1" style={{ background: HBS.border }} />
-                <span>{t("auth.orDivider")}</span>
-                <div className="h-px flex-1" style={{ background: HBS.border }} />
-              </div>
-
-              {/* Social */}
-              <div className="grid grid-cols-3 gap-2">
-                <SocialBtn
-                  onClick={onGoogle}
-                  loading={oauthLoading}
-                  label="Google"
-                  svg={
-                    <svg viewBox="0 0 24 24" className="size-4">
-                      <path
-                        fill="#EA4335"
-                        d="M12 10.2v3.9h5.5c-.2 1.4-1.6 4-5.5 4-3.3 0-6-2.7-6-6s2.7-6 6-6c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.6 14.6 2.7 12 2.7 6.9 2.7 2.7 6.9 2.7 12S6.9 21.3 12 21.3c6.9 0 9.2-4.8 9.2-7.3 0-.5 0-.9-.1-1.3H12z"
-                      />
-                    </svg>
-                  }
-                />
-                <SocialBtn
-                  onClick={notImplemented("Microsoft")}
-                  label="Microsoft"
-                  svg={
-                    <svg viewBox="0 0 24 24" className="size-4">
-                      <rect x="2" y="2" width="9" height="9" fill="#F35325" />
-                      <rect x="13" y="2" width="9" height="9" fill="#81BC06" />
-                      <rect x="2" y="13" width="9" height="9" fill="#05A6F0" />
-                      <rect x="13" y="13" width="9" height="9" fill="#FFBA08" />
-                    </svg>
-                  }
-                />
-                <SocialBtn
-                  onClick={notImplemented("Apple")}
-                  label="Apple"
-                  svg={
-                    <svg viewBox="0 0 24 24" className="size-4 fill-white">
-                      <path d="M16.365 1.43c0 1.14-.42 2.21-1.11 3-.74.85-1.96 1.51-3.02 1.43-.13-1.11.42-2.28 1.11-3.02.78-.86 2.1-1.5 3.02-1.41zM20.5 17.44c-.55 1.27-.82 1.84-1.53 2.97-.99 1.57-2.39 3.52-4.13 3.54-1.55.01-1.95-1-4.05-.99-2.1.01-2.54 1.01-4.09.99-1.74-.02-3.07-1.78-4.06-3.35C.31 16.86-.08 12.24 1.66 9.75c1.24-1.77 3.2-2.81 5.03-2.81 1.87 0 3.05.99 4.6.99 1.5 0 2.42-.99 4.58-.99 1.64 0 3.37.9 4.61 2.44-4.05 2.22-3.39 8-.01 9.06z" />
-                    </svg>
-                  }
-                />
-              </div>
+              {/* Social providers removed per product decision */}
 
               {/* OTP + Biometric */}
               <div className="mt-3 grid grid-cols-2 gap-2">
