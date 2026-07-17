@@ -1,9 +1,10 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Papa from "papaparse";
 import { useTranslation } from "react-i18next";
-import { Upload, FileText, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Upload, FileText, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
   Dialog,
   DialogContent,
@@ -52,6 +53,7 @@ export function CsvImportDialog({
   const [fileName, setFileName] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
+  const [progress, setProgress] = useState(0);
   // Map: index in submitted (valid) rows -> original file row index (0-based)
   const sentIndexMapRef = useRef<number[]>([]);
   const sentRowsRef = useRef<Record<string, string>[]>([]);
@@ -60,9 +62,17 @@ export function CsvImportDialog({
     setRows([]);
     setFileName("");
     setResult(null);
+    setProgress(0);
     sentIndexMapRef.current = [];
     sentRowsRef.current = [];
   };
+
+  // Keep the small progress bar visible for a beat after completion, then clear.
+  useEffect(() => {
+    if (progress !== 100) return;
+    const t = window.setTimeout(() => setProgress(0), 1500);
+    return () => window.clearTimeout(t);
+  }, [progress]);
 
   const normalizeHeader = (h: string) =>
     String(h ?? "").trim().toLowerCase().replace(/\s+/g, "_");
@@ -98,13 +108,15 @@ export function CsvImportDialog({
       name.endsWith(".xls") ||
       f.type.includes("spreadsheetml") ||
       f.type.includes("ms-excel");
+    const parseId = toast.loading(t("csv.parsing", { name: f.name }));
     if (isXlsx) {
       try {
         const clean = await parseXlsx(f);
         setRows(clean);
-        if (!clean.length) toast.error(t("csv.emptyFile"));
+        if (!clean.length) toast.error(t("csv.emptyFile"), { id: parseId });
+        else toast.success(t("csv.parsed", { count: clean.length }), { id: parseId });
       } catch (e: any) {
-        toast.error(e?.message ?? "Failed to parse Excel file");
+        toast.error(e?.message ?? "Failed to parse Excel file", { id: parseId });
       }
       return;
     }
@@ -117,9 +129,10 @@ export function CsvImportDialog({
           Object.values(r).some((v) => v && String(v).trim() !== ""),
         );
         setRows(clean);
-        if (!clean.length) toast.error(t("csv.emptyFile"));
+        if (!clean.length) toast.error(t("csv.emptyFile"), { id: parseId });
+        else toast.success(t("csv.parsed", { count: clean.length }), { id: parseId });
       },
-      error: (err) => toast.error(err.message),
+      error: (err) => toast.error(err.message, { id: parseId }),
     });
   };
 
@@ -147,16 +160,43 @@ export function CsvImportDialog({
   const submit = async () => {
     if (!validRows.length) return;
     setBusy(true);
+    setProgress(5);
     sentIndexMapRef.current = validIndexMap;
     sentRowsRef.current = validRows;
+    const toastId = toast.loading(
+      t("csv.importingRows", { count: validRows.length }),
+    );
+    // Simulated progress ticker — the RPC is a single call, so we ease toward 90%
+    // and jump to 100% on completion. Gives real feedback on slow mobile networks.
+    let pct = 5;
+    const timer = window.setInterval(() => {
+      pct = Math.min(90, pct + Math.max(1, Math.round((90 - pct) * 0.12)));
+      setProgress(pct);
+    }, 300);
     try {
       const r = await onImport(validRows);
       setResult(r);
-      toast.success(t("csv.done", { created: r.created, skipped: r.skipped }));
+      setProgress(100);
+      const okCount = r.created + (r.updated ?? 0);
+      const errCount = r.errors.length + invalidCount;
+      const summary = t("csv.doneDetail", {
+        created: r.created,
+        updated: r.updated ?? 0,
+        skipped: r.skipped,
+        errors: errCount,
+      });
+      if (errCount > 0 && okCount > 0) {
+        toast.warning(summary, { id: toastId, duration: 6000 });
+      } else if (errCount > 0 && okCount === 0) {
+        toast.error(summary, { id: toastId, duration: 6000 });
+      } else {
+        toast.success(summary, { id: toastId, duration: 4000 });
+      }
       onDone?.();
     } catch (e: any) {
-      toast.error(e.message ?? "Failed");
+      toast.error(e.message ?? "Failed", { id: toastId });
     } finally {
+      window.clearInterval(timer);
       setBusy(false);
     }
   };
@@ -307,6 +347,20 @@ export function CsvImportDialog({
             </div>
           )}
 
+          {(busy || (progress > 0 && progress < 100)) && (
+            <div className="grid gap-1.5">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <Loader2 className="size-3.5 animate-spin" />
+                  {t("csv.importingRows", { count: validRows.length })}
+                </span>
+                <span>{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-1.5" />
+            </div>
+          )}
+
+
           {result && (
             <div className="grid gap-2 rounded-lg border p-3 text-sm">
               <div className="flex items-center gap-2 text-emerald-600">
@@ -360,11 +414,16 @@ export function CsvImportDialog({
             onClick={submit}
             disabled={!validRows.length || busy || !!result || !canImport}
           >
-            {busy
-              ? t("csv.importing")
-              : validRows.length && rows.length
-                ? t("csv.confirmImport", { count: validRows.length })
-                : t("csv.import")}
+            {busy ? (
+              <>
+                <Loader2 className="me-2 size-4 animate-spin" />
+                {t("csv.importing")}
+              </>
+            ) : validRows.length && rows.length ? (
+              t("csv.confirmImport", { count: validRows.length })
+            ) : (
+              t("csv.import")
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

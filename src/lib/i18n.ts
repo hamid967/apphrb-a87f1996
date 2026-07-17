@@ -395,6 +395,10 @@ const en = {
     previewNoValid: "No valid rows to import",
     confirmImport: "Confirm and import {{count}}",
     downloadErrors: "Download error report",
+    parsing: "Reading {{name}}…",
+    parsed: "Loaded {{count}} rows",
+    importingRows: "Importing {{count}} rows…",
+    doneDetail: "Created {{created}} · Updated {{updated}} · Skipped {{skipped}} · Errors {{errors}}",
   },
   importSettings: {
     title: "Import & duplicate rules",
@@ -2772,6 +2776,10 @@ const ar: typeof en = {
     previewNoValid: "لا توجد صفوف صالحة للاستيراد",
     confirmImport: "تأكيد واستيراد {{count}}",
     downloadErrors: "تنزيل تقرير الأخطاء",
+    parsing: "جارٍ قراءة {{name}}…",
+    parsed: "تم تحميل {{count}} صف",
+    importingRows: "جارٍ استيراد {{count}} صف…",
+    doneDetail: "تم إنشاء {{created}} · تحديث {{updated}} · تجاوز {{skipped}} · أخطاء {{errors}}",
   },
   importSettings: {
     title: "قواعد الاستيراد والتكرارات",
