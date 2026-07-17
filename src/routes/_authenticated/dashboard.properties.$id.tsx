@@ -529,6 +529,7 @@ function UnitsSection({
   });
 
   const emptyForm = {
+    building_id: "",
     code: "",
     type: "",
     status: "vacant" as "vacant" | "occupied" | "reserved" | "maintenance",
@@ -543,8 +544,16 @@ function UnitsSection({
     setEditingId(null);
   };
 
+  const buildingsQ = useQuery({
+    queryKey: ["property-buildings", propertyId],
+    queryFn: () => listBuildingsByProperty({ data: { property_id: propertyId } }),
+  });
+  const buildings = buildingsQ.data ?? [];
+
   const openCreate = () => {
     reset();
+    // Pre-select the only building if the property has exactly one
+    setF((p) => ({ ...p, building_id: buildings.length === 1 ? buildings[0].id : "" }));
     setOpen(true);
   };
   const openEdit = (u: {
@@ -556,9 +565,11 @@ function UnitsSection({
     bedrooms: number | null;
     bathrooms: number | null;
     rent_amount: number | null;
+    building_id?: string | null;
   }) => {
     setEditingId(u.id);
     setF({
+      building_id: (u.building_id as string) ?? "",
       code: u.code ?? "",
       type: u.type ?? "",
       status: (u.status as typeof emptyForm.status) ?? "vacant",
@@ -586,7 +597,9 @@ function UnitsSection({
       if (editingId) {
         return quickUpdateUnitForProperty({ data: { id: editingId, ...payload() } });
       }
-      return quickCreateUnitForProperty({ data: { property_id: propertyId, ...payload() } });
+      return quickCreateUnitForProperty({
+        data: { property_id: propertyId, building_id: f.building_id, ...payload() },
+      });
     },
     onSuccess: async () => {
       toast.success(editingId ? t("units.quickAdd.updated") : t("units.quickAdd.created"));
@@ -594,6 +607,23 @@ function UnitsSection({
       await qc.invalidateQueries({ queryKey: ["units"] });
       reset();
       setOpen(false);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
+  });
+
+  const [buildingDialogOpen, setBuildingDialogOpen] = useState(false);
+  const [newBuildingName, setNewBuildingName] = useState("");
+  const buildingMut = useMutation({
+    mutationFn: () =>
+      createBuildingForProperty({
+        data: { property_id: propertyId, name: newBuildingName.trim() },
+      }),
+    onSuccess: async (b) => {
+      toast.success(t("units.quickAdd.buildingCreated"));
+      await qc.invalidateQueries({ queryKey: ["property-buildings", propertyId] });
+      setF((p) => ({ ...p, building_id: b.id as string }));
+      setNewBuildingName("");
+      setBuildingDialogOpen(false);
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
   });
