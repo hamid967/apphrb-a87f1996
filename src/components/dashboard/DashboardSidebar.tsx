@@ -63,23 +63,6 @@ export function DashboardSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
-
-  const handleSignOut = async () => {
-    try {
-      await queryClient.cancelQueries();
-      queryClient.clear();
-      await supabase.auth.signOut();
-      toast.success(isAr ? "تم تسجيل الخروج" : "Signed out");
-      navigate({ to: "/auth", replace: true });
-    } catch (err) {
-      toast.error(
-        isAr ? "تعذّر تسجيل الخروج" : "Could not sign out",
-        { description: err instanceof Error ? err.message : String(err) },
-      );
-    }
-  };
 
   const groups: {
     labelAr: string;
