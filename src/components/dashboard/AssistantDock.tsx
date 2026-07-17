@@ -13,10 +13,16 @@ import {
   AlertTriangle,
   RotateCw,
   Square,
+  Building2,
+  FileText,
+  ReceiptText,
+  BarChart3,
+  Wrench,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { supabase } from "@/integrations/supabase/client";
 import { getDashboardMetrics, type DashboardMetrics } from "@/lib/dashboard-metrics.functions";
+import { usePlanLimits } from "@/hooks/use-plan-limits";
 import { cn } from "@/lib/utils";
 import { CopyButton } from "@/components/assistant/CopyButton";
 
@@ -45,17 +51,21 @@ Use these figures as context; don't repeat them unless asked.`;
 
 function suggestions(m: DashboardMetrics | undefined, isAr: boolean) {
   if (!m) return [];
-  const s: string[] = [];
+  const s: string[] = [
+    isAr ? "يا حامد، ساعدني أضيف عقار ووحدة" : "Hamid, help me add a property and unit",
+    isAr ? "يا حامد، جهّز خطوات عقد إيجار جديد" : "Hamid, prepare a new lease flow",
+    isAr ? "يا حامد، كيف أسجل دفعة وأصدر سند؟" : "Hamid, how do I record a payment and receipt?",
+  ];
   if (m.occupancy_pct < 80) s.push(isAr ? "كيف أرفع نسبة الإشغال؟" : "How can I raise occupancy?");
   if (m.collection_pct < 90)
     s.push(isAr ? "خطة لتحسين التحصيل هذا الأسبوع" : "Plan to improve collection this week");
   if (m.maintenance_open >= 5)
     s.push(isAr ? "رتّب أولوية تذاكر الصيانة" : "Prioritize maintenance tickets");
-  if (s.length === 0) s.push(isAr ? "لخّص أداء المحفظة اليوم" : "Summarize today's performance");
   return s.slice(0, 3);
 }
 
 export function AssistantDock({ orgId, isAr }: { orgId?: string; isAr: boolean }) {
+  const planLimits = usePlanLimits();
   const metricsQ = useQuery({
     queryKey: ["dashboard-metrics", orgId],
     queryFn: () => getDashboardMetrics({ data: { org_id: orgId! } }),
@@ -65,8 +75,20 @@ export function AssistantDock({ orgId, isAr }: { orgId?: string; isAr: boolean }
 
   const contextRef = useRef<string>("");
   useEffect(() => {
-    if (metricsQ.data) contextRef.current = buildContext(metricsQ.data, isAr);
-  }, [metricsQ.data, isAr]);
+    if (!metricsQ.data) return;
+    const plan = planLimits.plan;
+    const usage = planLimits.usage;
+    const planContext = isAr
+      ? `\nسياق الباقة:
+- الباقة الحالية: ${plan?.name_ar ?? "غير معروفة"} (${plan?.code ?? "unknown"})
+- الاستخدام: ${usage.properties} عقار، ${usage.units} وحدة، ${usage.members} مستخدم، ${usage.exportsThisMonth} تصدير هذا الشهر.
+- لا تقترح إجراء يتجاوز حدود الباقة؛ عند الاقتراب من الحد وجّه المستخدم إلى صفحة الفوترة أو الترقية اليدوية.`
+      : `\nPlan context:
+- Current plan: ${plan?.name_ar ?? "Unknown"} (${plan?.code ?? "unknown"})
+- Usage: ${usage.properties} properties, ${usage.units} units, ${usage.members} users, ${usage.exportsThisMonth} exports this month.
+- Do not suggest actions beyond plan limits; if near a limit, direct the user to billing or manual upgrade.`;
+    contextRef.current = buildContext(metricsQ.data, isAr) + planContext;
+  }, [metricsQ.data, isAr, planLimits.plan, planLimits.usage]);
 
   const transport = useMemo(
     () =>
@@ -152,6 +174,48 @@ export function AssistantDock({ orgId, isAr }: { orgId?: string; isAr: boolean }
   };
 
   const chips = suggestions(metricsQ.data, isAr);
+  const serviceCards = [
+    {
+      icon: <Building2 className="size-4" />,
+      ar: "إدخال عقار",
+      en: "Add property",
+      promptAr: "يا حامد، ساعدني خطوة بخطوة في إدخال عقار ووحداته حسب حدود باقتي.",
+      promptEn: "Hamid, guide me step by step to add a property and units within my plan.",
+      to: "/dashboard/properties/new",
+    },
+    {
+      icon: <FileText className="size-4" />,
+      ar: "عقد إيجار",
+      en: "Lease",
+      promptAr: "يا حامد، جهّز لي خطوات إنشاء عقد إيجار وربطه بالمستأجر والوحدة.",
+      promptEn: "Hamid, prepare the steps to create a lease and connect it to tenant and unit.",
+      to: "/dashboard/contracts/new",
+    },
+    {
+      icon: <ReceiptText className="size-4" />,
+      ar: "تسجيل دفعة",
+      en: "Payment",
+      promptAr: "يا حامد، ساعدني في تسجيل دفعة إيجار وإصدار سند قبض.",
+      promptEn: "Hamid, help me record a rent payment and issue a receipt voucher.",
+      to: "/dashboard/payments",
+    },
+    {
+      icon: <BarChart3 className="size-4" />,
+      ar: "تقرير PDF",
+      en: "PDF report",
+      promptAr: "يا حامد، ساعدني أختار التقرير المناسب وأصدّره حسب باقتي.",
+      promptEn: "Hamid, help me choose and export the right report for my plan.",
+      to: "/dashboard/reports",
+    },
+    {
+      icon: <Wrench className="size-4" />,
+      ar: "طلب صيانة",
+      en: "Maintenance",
+      promptAr: "يا حامد، ساعدني في فتح طلب صيانة وتحديد الأولوية والمورد.",
+      promptEn: "Hamid, help me open a maintenance request with priority and vendor.",
+      to: "/dashboard/maintenance",
+    },
+  ];
 
   const renderText = (m: UIMessage) =>
     (m.parts ?? []).map((p, i) => (p.type === "text" ? <span key={i}>{p.text}</span> : null));
@@ -164,12 +228,14 @@ export function AssistantDock({ orgId, isAr }: { orgId?: string; isAr: boolean }
             <Bot className="size-4" />
           </span>
           <div>
-            <h3 className="text-sm font-semibold">{isAr ? "مساعد الذكاء" : "AI Assistant"}</h3>
+            <h3 className="text-sm font-semibold">
+              {isAr ? "حامد — وكيل العميل" : "Hamid — Client Agent"}
+            </h3>
             <p className="text-[11px] text-muted-foreground">
               {metricsQ.data
                 ? isAr
-                  ? "يعرف سياق لوحتك الحالية"
-                  : "Aware of your dashboard context"
+                  ? `يساعدك حسب باقة ${planLimits.plan?.name_ar ?? "حسابك"}`
+                  : `Helps within ${planLimits.plan?.name_ar ?? "your"} plan`
                 : isAr
                   ? "جاري تحميل السياق…"
                   : "Loading context…"}
@@ -203,9 +269,27 @@ export function AssistantDock({ orgId, isAr }: { orgId?: string; isAr: boolean }
             <Bot className="size-8 text-muted-foreground/60" />
             <p className="max-w-[220px] text-xs text-muted-foreground">
               {isAr
-                ? "اسألني عن الإشغال أو التحصيل أو الصيانة بناءً على مؤشرات لوحتك."
-                : "Ask me about occupancy, collection or maintenance based on your dashboard."}
+                ? "أنا حامد. أساعدك في إدخال البيانات، العقود، الدفعات، الصيانة، واستخراج التقارير حسب باقتك."
+                : "I'm Hamid. I help with data entry, leases, payments, maintenance and reports within your plan."}
             </p>
+            <div className="grid w-full grid-cols-2 gap-2">
+              {serviceCards.slice(0, 4).map((card) => (
+                <button
+                  key={card.en}
+                  type="button"
+                  onClick={() => send(isAr ? card.promptAr : card.promptEn)}
+                  disabled={isPending || !metricsQ.data}
+                  className="rounded-xl border bg-background/60 p-2 text-start text-[11px] transition hover:bg-muted disabled:opacity-50"
+                >
+                  <span className="mb-1 inline-flex items-center gap-1.5 font-semibold">
+                    <span className="grid size-6 place-items-center rounded-lg bg-primary/10 text-primary">
+                      {card.icon}
+                    </span>
+                    {isAr ? card.ar : card.en}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -301,6 +385,14 @@ export function AssistantDock({ orgId, isAr }: { orgId?: string; isAr: boolean }
 
       {messages.length === 0 && chips.length > 0 && (
         <div className="flex flex-wrap gap-1.5 border-t px-3 py-2">
+          <Link
+            to="/dashboard/settings/billing"
+            className="rounded-full border border-primary/30 bg-primary/5 px-2.5 py-1 text-[11px] font-medium text-primary transition hover:bg-primary/10"
+          >
+            {isAr
+              ? `الباقة: ${planLimits.plan?.name_ar ?? "..."}`
+              : `Plan: ${planLimits.plan?.name_ar ?? "..."}`}
+          </Link>
           {chips.map((c) => (
             <button
               key={c}

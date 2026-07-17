@@ -72,7 +72,11 @@ export const getIndividualDashboard = createServerFn({ method: "GET" })
         .is("archived_at", null)
         .gte("spent_at", trendFrom)
         .lte("spent_at", to),
-      (supabase as any).from("units").select("id,status").eq("org_id", data.org_id),
+      (supabase as any)
+        .from("units")
+        .select("id,status")
+        .eq("org_id", data.org_id)
+        .is("deleted_at", null),
       (supabase as any)
         .from("budgets")
         .select("id,monthly_amount,scope,category_id")
@@ -107,6 +111,7 @@ export const getIndividualDashboard = createServerFn({ method: "GET" })
           "id,contract_number,end_date,property:properties(id,title_ar,title_en),tenant:tenants(id,full_name)",
         )
         .eq("org_id", data.org_id)
+        .is("deleted_at", null)
         .gte("end_date", isoDate(today))
         .lte("end_date", in90)
         .limit(8),
@@ -277,7 +282,8 @@ export const getCompanyDashboard = createServerFn({ method: "GET" })
         (supabase as any)
           .from("units")
           .select("id,status,property_id,available_from")
-          .eq("org_id", data.org_id),
+          .eq("org_id", data.org_id)
+          .is("deleted_at", null),
         (supabase as any)
           .from("properties")
           .select("id,title_ar,title_en")
@@ -294,6 +300,7 @@ export const getCompanyDashboard = createServerFn({ method: "GET" })
             "id,contract_number,end_date,property_id,property:properties(id,title_ar,title_en),tenant:tenants(id,full_name)",
           )
           .eq("org_id", data.org_id)
+          .is("deleted_at", null)
           .gte("end_date", isoDate(today))
           .lte("end_date", in60)
           .limit(12),

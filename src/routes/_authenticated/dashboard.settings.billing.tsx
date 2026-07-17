@@ -1,4 +1,5 @@
 import { t } from "@/lib/i18n";
+import type React from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -7,17 +8,17 @@ import {
   Loader2,
   ArrowRight,
   AlertTriangle,
+  Building2,
+  CheckCircle2,
   Mail,
   MessageCircle,
   Phone,
+  Rocket,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  getBillingOverview,
-  listMySubscriptionPayments,
-} from "@/lib/billing.functions";
+import { getBillingOverview, listMySubscriptionPayments } from "@/lib/billing.functions";
 import { StatusBadge } from "./portal.billing";
 
 import { sectionHead } from "@/lib/section-og-head";
@@ -26,24 +27,44 @@ const CONTACT_WHATSAPP = "https://wa.me/966500000000";
 const CONTACT_PHONE = "+966500000000";
 
 export const Route = createFileRoute("/_authenticated/dashboard/settings/billing")({
-  head: () => sectionHead({ section: "dashboard", entityAr: "الفوترة", entityEn: "Billing", path: "/dashboard/settings/billing" }),
+  head: () =>
+    sectionHead({
+      section: "dashboard",
+      entityAr: "الفوترة",
+      entityEn: "Billing",
+      path: "/dashboard/settings/billing",
+    }),
   component: BillingSettingsPage,
-  errorComponent: ({ error, reset }) => {
-    const router = useRouter();
-    return (
-      <div className="p-6 space-y-3">
-        <p className="text-destructive">{error.message}</p>
-        <Button
-          onClick={() => {
-            reset();
-            router.invalidate();
-          }}
-        >{t("common.retry")}</Button>
-      </div>
-    );
-  },
+  errorComponent: BillingSettingsError,
   notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
+
+function BillingSettingsError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <div className="p-6 space-y-3">
+      <p className="text-destructive">{error.message}</p>
+      <Button
+        onClick={() => {
+          reset();
+          router.invalidate();
+        }}
+      >
+        {t("common.retry")}
+      </Button>
+    </div>
+  );
+}
+
+type SubscriptionPaymentRow = {
+  id: string;
+  amount: number | string;
+  currency: string;
+  bank_name: string | null;
+  status: string;
+  rejection_reason: string | null;
+  created_at: string;
+};
 
 function usagePct(used: number, max: number | null | undefined) {
   if (max == null) return null;
@@ -152,9 +173,7 @@ function BillingSettingsPage() {
           <h1 className="text-2xl font-semibold tracking-tight mt-1">
             {tt("billingSettings.title")}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {tt("billingSettings.description")}
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">{tt("billingSettings.description")}</p>
         </div>
         <Button asChild variant="outline" size="sm">
           <Link to="/portal/billing">{tt("billingSettings.viewFullHistory")}</Link>
@@ -201,12 +220,13 @@ function BillingSettingsPage() {
           <div className="text-sm">
             <div className="font-semibold">{tt("billingSettings.alerts.rejectedTitle")}</div>
             <div className="text-muted-foreground mt-0.5">
-              {(sub as any)?.rejection_reason ??
-                tt("billingSettings.alerts.rejectedDefaultReason")}
+              {sub?.rejection_reason ?? tt("billingSettings.alerts.rejectedDefaultReason")}
             </div>
           </div>
         </div>
       )}
+
+      <LaunchActivationCard isAr={isAr} />
 
       {/* Current plan */}
       <Card>
@@ -315,30 +335,36 @@ function BillingSettingsPage() {
               <thead className="bg-muted/40 text-xs text-muted-foreground">
                 <tr>
                   <th className="px-4 py-2 text-start">{tt("billingSettings.history.colDate")}</th>
-                  <th className="px-4 py-2 text-start">{tt("billingSettings.history.colAmount")}</th>
+                  <th className="px-4 py-2 text-start">
+                    {tt("billingSettings.history.colAmount")}
+                  </th>
                   <th className="px-4 py-2 text-start">{tt("billingSettings.history.colBank")}</th>
-                  <th className="px-4 py-2 text-start">{tt("billingSettings.history.colStatus")}</th>
+                  <th className="px-4 py-2 text-start">
+                    {tt("billingSettings.history.colStatus")}
+                  </th>
                   <th className="px-4 py-2 text-start">{tt("billingSettings.history.colNote")}</th>
                 </tr>
               </thead>
               <tbody>
-                {(paymentsQ.data?.items ?? []).slice(0, 10).map((r: any) => (
-                  <tr key={r.id} className="border-t">
-                    <td className="px-4 py-2 text-xs text-muted-foreground">
-                      {new Date(r.created_at).toLocaleDateString(isAr ? "ar-SA" : "en-US")}
-                    </td>
-                    <td className="px-4 py-2 font-medium tabular-nums">
-                      {nf.format(Number(r.amount))} {r.currency}
-                    </td>
-                    <td className="px-4 py-2">{r.bank_name}</td>
-                    <td className="px-4 py-2">
-                      <StatusBadge status={r.status} isAr={isAr} />
-                    </td>
-                    <td className="px-4 py-2 text-xs text-muted-foreground">
-                      {r.rejection_reason ?? dash}
-                    </td>
-                  </tr>
-                ))}
+                {((paymentsQ.data?.items ?? []) as SubscriptionPaymentRow[])
+                  .slice(0, 10)
+                  .map((r) => (
+                    <tr key={r.id} className="border-t">
+                      <td className="px-4 py-2 text-xs text-muted-foreground">
+                        {new Date(r.created_at).toLocaleDateString(isAr ? "ar-SA" : "en-US")}
+                      </td>
+                      <td className="px-4 py-2 font-medium tabular-nums">
+                        {nf.format(Number(r.amount))} {r.currency}
+                      </td>
+                      <td className="px-4 py-2">{r.bank_name}</td>
+                      <td className="px-4 py-2">
+                        <StatusBadge status={r.status} isAr={isAr} />
+                      </td>
+                      <td className="px-4 py-2 text-xs text-muted-foreground">
+                        {r.rejection_reason ?? dash}
+                      </td>
+                    </tr>
+                  ))}
                 {(paymentsQ.data?.items ?? []).length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-4 py-8 text-center text-xs text-muted-foreground">
@@ -352,5 +378,81 @@ function BillingSettingsPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function LaunchActivationCard({ isAr }: { isAr: boolean }) {
+  const steps: Array<{
+    icon: React.ReactNode;
+    ar: string;
+    en: string;
+    descAr: string;
+    descEn: string;
+    href: string;
+    external?: boolean;
+  }> = [
+    {
+      icon: <Building2 className="size-4" />,
+      ar: "ابدأ ببياناتك الأساسية",
+      en: "Start with your basics",
+      descAr: "أضف أول عقار ووحدة أو افتح لوحة التحكم إن كانت بياناتك جاهزة.",
+      descEn: "Add your first property and unit, or open the dashboard if your data is ready.",
+      href: "/dashboard/properties/new",
+    },
+    {
+      icon: <MessageCircle className="size-4" />,
+      ar: "اطلب التفعيل اليدوي",
+      en: "Request manual activation",
+      descAr: "الترقية تتم عبر التواصل فقط حالياً، بدون بوابة دفع أو خصم تلقائي.",
+      descEn:
+        "Upgrades are handled by contact only for now, with no payment gateway or auto-charge.",
+      href: CONTACT_WHATSAPP,
+      external: true,
+    },
+    {
+      icon: <CheckCircle2 className="size-4" />,
+      ar: "اختبر أول تصدير",
+      en: "Test first export",
+      descAr: "بعد التفعيل جرّب سنداً أو تقرير PDF للتأكد من الشعار والبيانات.",
+      descEn: "After activation, export a voucher or PDF report to verify logo and details.",
+      href: "/dashboard/reports",
+    },
+  ] as const;
+
+  return (
+    <Card className="border-primary/30 bg-primary/[0.04]">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Rocket className="size-4 text-primary" />
+          {isAr ? "جاهزية الإطلاق لحسابك" : "Your launch checklist"}
+        </CardTitle>
+        <CardDescription>
+          {isAr
+            ? "خطوات قصيرة لاستقبال أول عميل أو إدارة أول عقار بدون صفحات إضافية."
+            : "Short steps to onboard the first customer or property without extra pages."}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-3 md:grid-cols-3">
+          {steps.map((step) => (
+            <a
+              key={step.en}
+              href={step.href}
+              target={step.external ? "_blank" : undefined}
+              rel={step.external ? "noopener noreferrer" : undefined}
+              className="rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+            >
+              <div className="mb-3 grid size-9 place-items-center rounded-lg bg-primary/10 text-primary">
+                {step.icon}
+              </div>
+              <div className="text-sm font-semibold">{isAr ? step.ar : step.en}</div>
+              <p className="mt-1 text-xs leading-6 text-muted-foreground">
+                {isAr ? step.descAr : step.descEn}
+              </p>
+            </a>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

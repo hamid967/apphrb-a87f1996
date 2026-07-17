@@ -46,13 +46,7 @@ type Category =
   | "onboarding"
   | "api";
 
-type Role =
-  | "guest"
-  | "any_authenticated"
-  | "staff"
-  | "manager"
-  | "super_admin"
-  | "server";
+type Role = "guest" | "any_authenticated" | "staff" | "manager" | "super_admin" | "server";
 
 type RouteRow = {
   path: string;
@@ -82,9 +76,25 @@ function categorize(path: string, scope: Scope): Category {
   if (head === "assistant") return "assistant";
   if (head === "accounting") return "accounting";
   if (head === "onboarding") return "onboarding";
-  if (["auth", "forgot-password", "reset-password", "invite", "portal-invite", "unsubscribe", "access-denied"].includes(head)) return "auth";
+  if (
+    [
+      "auth",
+      "forgot-password",
+      "reset-password",
+      "invite",
+      "portal-invite",
+      "unsubscribe",
+      "access-denied",
+    ].includes(head)
+  )
+    return "auth";
   // Reports: anything explicitly under a reports/ segment or ending with -report(s)
-  if (seg.includes("reports") || /reports?$/.test(path) || /report$/.test(seg[seg.length - 1] ?? "")) return "reports";
+  if (
+    seg.includes("reports") ||
+    /reports?$/.test(path) ||
+    /report$/.test(seg[seg.length - 1] ?? "")
+  )
+    return "reports";
   if (scope === "authenticated") return "employee";
   return "public";
 }
@@ -103,37 +113,47 @@ function roleFor(path: string, category: Category, scope: Scope): Role {
     seg.includes("subscriptions") ||
     seg.includes("plans") ||
     seg.includes("company")
-  ) return "manager";
+  )
+    return "manager";
   if (category === "reports" || category === "accounting") return "manager";
   return "staff";
 }
 
 const CATEGORY_META: Record<Category, { ar: string; en: string; tone: string }> = {
-  admin:       { ar: "إدارة النظام", en: "Admin",       tone: "bg-warning/15 text-warning border-warning/30" },
-  employee:    { ar: "الموظفون",     en: "Employee",    tone: "bg-info/15 text-info border-info/30" },
-  reports:     { ar: "التقارير",     en: "Reports",     tone: "bg-success/15 text-success border-success/30" },
-  accounting:  { ar: "المحاسبة",     en: "Accounting",  tone: "bg-info/15 text-info border-info/30" },
-  assistant:   { ar: "المساعد",      en: "Assistant",   tone: "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30" },
-  onboarding:  { ar: "تهيئة الحساب", en: "Onboarding",  tone: "bg-lime-500/15 text-lime-300 border-lime-500/30" },
-  auth:        { ar: "المصادقة",     en: "Auth",        tone: "bg-destructive/15 text-destructive border-destructive/30" },
-  public:      { ar: "عام / تسويق",  en: "Public",      tone: "bg-success/15 text-success border-success/30" },
-  api:         { ar: "خادم / API",   en: "API",         tone: "bg-primary/15 text-primary border-primary/30" },
+  admin: { ar: "إدارة النظام", en: "Admin", tone: "bg-warning/15 text-warning border-warning/30" },
+  employee: { ar: "الموظفون", en: "Employee", tone: "bg-info/15 text-info border-info/30" },
+  reports: { ar: "التقارير", en: "Reports", tone: "bg-success/15 text-success border-success/30" },
+  accounting: { ar: "المحاسبة", en: "Accounting", tone: "bg-info/15 text-info border-info/30" },
+  assistant: {
+    ar: "المساعد",
+    en: "Assistant",
+    tone: "bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30",
+  },
+  onboarding: {
+    ar: "تهيئة الحساب",
+    en: "Onboarding",
+    tone: "bg-lime-500/15 text-lime-300 border-lime-500/30",
+  },
+  auth: {
+    ar: "المصادقة",
+    en: "Auth",
+    tone: "bg-destructive/15 text-destructive border-destructive/30",
+  },
+  public: { ar: "عام / تسويق", en: "Public", tone: "bg-success/15 text-success border-success/30" },
+  api: { ar: "خادم / API", en: "API", tone: "bg-primary/15 text-primary border-primary/30" },
 };
 
 const ROLE_META: Record<Role, { ar: string; en: string }> = {
-  guest:              { ar: "زائر (بدون تسجيل)",         en: "Guest (no login)" },
-  any_authenticated:  { ar: "أي مستخدم مسجَّل",           en: "Any signed-in user" },
-  staff:              { ar: "موظف الشركة",                en: "Company staff" },
-  manager:            { ar: "مدير الشركة",                en: "Company manager" },
-  super_admin:        { ar: "سوبر أدمن + 2FA",            en: "super_admin + 2FA" },
-  server:             { ar: "خادم / نظام",                en: "Server / system" },
+  guest: { ar: "زائر (بدون تسجيل)", en: "Guest (no login)" },
+  any_authenticated: { ar: "أي مستخدم مسجَّل", en: "Any signed-in user" },
+  staff: { ar: "موظف الشركة", en: "Company staff" },
+  manager: { ar: "مدير الشركة", en: "Company manager" },
+  super_admin: { ar: "سوبر أدمن + 2FA", en: "super_admin + 2FA" },
+  server: { ar: "خادم / نظام", en: "Server / system" },
 };
 
 /** Top-level section descriptions used when a specific path isn't in PATH_META. */
-const SECTION_META: Record<
-  string,
-  { ar: string; en: string; useAr: string; useEn: string }
-> = {
+const SECTION_META: Record<string, { ar: string; en: string; useAr: string; useEn: string }> = {
   admin: {
     ar: "لوحة الإدارة العليا للنظام (سوبر أدمن).",
     en: "Super-admin control panel for the whole platform.",
@@ -170,47 +190,214 @@ const SECTION_META: Record<
     useAr: "عرض المزادات النشطة وتفاصيلها.",
     useEn: "Public list of active auctions with details.",
   },
-  contracts: { ar: "عرض عقد محدد.", en: "View a specific contract.", useAr: "فتح تفاصيل العقد عبر الرابط المباشر.", useEn: "Deep link to a contract detail page." },
-  onboarding: { ar: "خطوات تهيئة الحساب والشركة.", en: "Account/company onboarding.", useAr: "استكمال بيانات المستخدم الجديد قبل الدخول للوحة.", useEn: "New-user setup before entering the dashboard." },
-  security: { ar: "إعدادات الأمان والجلسات و2FA.", en: "Security, sessions & 2FA.", useAr: "تفعيل التحقق الثنائي ومراجعة الأجهزة النشطة.", useEn: "Enable 2FA and review active devices." },
-  billing: { ar: "الفواتير والاشتراك للشركة.", en: "Company billing & subscription.", useAr: "مراجعة الفواتير ورفع إثبات التحويل البنكي.", useEn: "Review invoices and upload bank-transfer receipts." },
-  reports: { ar: "التقارير التشغيلية والمالية.", en: "Operational & financial reports.", useAr: "توليد تقارير مطبوعة أو مصدَّرة.", useEn: "Generate printable or exportable reports." },
-  crm: { ar: "إدارة علاقات العملاء (عملاء محتملين، صفقات).", en: "CRM (leads, deals, meetings).", useAr: "متابعة قمع المبيعات والاجتماعات.", useEn: "Track sales pipeline and meetings." },
-  auth: { ar: "شاشة تسجيل الدخول والتسجيل.", en: "Sign in / sign up screen.", useAr: "بريد+كلمة سر، رمز OTP، أو Google.", useEn: "Password, OTP, or Google sign-in." },
-  invite: { ar: "قبول دعوة إلى شركة عبر رابط توكن.", en: "Accept a company invite via token.", useAr: "يفتح تلقائياً من رسالة الدعوة.", useEn: "Opened from the invitation email." },
-  blog: { ar: "مدوّنة المنصة.", en: "Platform blog.", useAr: "مقالات تسويقية وتحديثات.", useEn: "Marketing articles and updates." },
-  docs: { ar: "توثيق واجهات النظام.", en: "System/API documentation.", useAr: "مرجع للمطوّرين والمكاملين.", useEn: "Reference for developers and integrators." },
-  dev: { ar: "أدوات التطوير والاختبار الداخلي.", en: "Internal dev/test utilities.", useAr: "لأغراض تصحيح الأخطاء فقط.", useEn: "Debug-only utilities." },
-  api: { ar: "نقطة نهاية خادم (JSON/Webhook).", en: "Server endpoint (JSON/Webhook).", useAr: "تُستدعى من خدمات خارجية أو مهام مجدولة.", useEn: "Called by external services or scheduled jobs." },
-  solutions: { ar: "صفحات حلول قطاعية (وسطاء/ملاك/مؤسسات).", en: "Segment-specific solution pages.", useAr: "محتوى تسويقي لكل شريحة عملاء.", useEn: "Marketing content per audience." },
+  contracts: {
+    ar: "عرض عقد محدد.",
+    en: "View a specific contract.",
+    useAr: "فتح تفاصيل العقد عبر الرابط المباشر.",
+    useEn: "Deep link to a contract detail page.",
+  },
+  onboarding: {
+    ar: "خطوات تهيئة الحساب والشركة.",
+    en: "Account/company onboarding.",
+    useAr: "استكمال بيانات المستخدم الجديد قبل الدخول للوحة.",
+    useEn: "New-user setup before entering the dashboard.",
+  },
+  security: {
+    ar: "إعدادات الأمان والجلسات و2FA.",
+    en: "Security, sessions & 2FA.",
+    useAr: "تفعيل التحقق الثنائي ومراجعة الأجهزة النشطة.",
+    useEn: "Enable 2FA and review active devices.",
+  },
+  billing: {
+    ar: "الفواتير والاشتراك للشركة.",
+    en: "Company billing & subscription.",
+    useAr: "مراجعة الفواتير ورفع إثبات التحويل البنكي.",
+    useEn: "Review invoices and upload bank-transfer receipts.",
+  },
+  reports: {
+    ar: "التقارير التشغيلية والمالية.",
+    en: "Operational & financial reports.",
+    useAr: "توليد تقارير مطبوعة أو مصدَّرة.",
+    useEn: "Generate printable or exportable reports.",
+  },
+  crm: {
+    ar: "إدارة علاقات العملاء (عملاء محتملين، صفقات).",
+    en: "CRM (leads, deals, meetings).",
+    useAr: "متابعة قمع المبيعات والاجتماعات.",
+    useEn: "Track sales pipeline and meetings.",
+  },
+  auth: {
+    ar: "شاشة تسجيل الدخول والتسجيل.",
+    en: "Sign in / sign up screen.",
+    useAr: "بريد+كلمة سر، رمز OTP، أو Google.",
+    useEn: "Password, OTP, or Google sign-in.",
+  },
+  invite: {
+    ar: "قبول دعوة إلى شركة عبر رابط توكن.",
+    en: "Accept a company invite via token.",
+    useAr: "يفتح تلقائياً من رسالة الدعوة.",
+    useEn: "Opened from the invitation email.",
+  },
+  blog: {
+    ar: "مدوّنة المنصة.",
+    en: "Platform blog.",
+    useAr: "مقالات تسويقية وتحديثات.",
+    useEn: "Marketing articles and updates.",
+  },
+  docs: {
+    ar: "توثيق واجهات النظام.",
+    en: "System/API documentation.",
+    useAr: "مرجع للمطوّرين والمكاملين.",
+    useEn: "Reference for developers and integrators.",
+  },
+  dev: {
+    ar: "أدوات التطوير والاختبار الداخلي.",
+    en: "Internal dev/test utilities.",
+    useAr: "لأغراض تصحيح الأخطاء فقط.",
+    useEn: "Debug-only utilities.",
+  },
+  api: {
+    ar: "نقطة نهاية خادم (JSON/Webhook).",
+    en: "Server endpoint (JSON/Webhook).",
+    useAr: "تُستدعى من خدمات خارجية أو مهام مجدولة.",
+    useEn: "Called by external services or scheduled jobs.",
+  },
+  solutions: {
+    ar: "صفحات حلول قطاعية (وسطاء/ملاك/مؤسسات).",
+    en: "Segment-specific solution pages.",
+    useAr: "محتوى تسويقي لكل شريحة عملاء.",
+    useEn: "Marketing content per audience.",
+  },
 };
 
 /** Curated overrides for specific paths (highest priority). */
-const PATH_META: Record<
-  string,
-  { ar: string; en: string; useAr: string; useEn: string }
-> = {
-  "/": { ar: "الصفحة الرئيسية للمنصة.", en: "Marketing landing page.", useAr: "نقطة الدخول للزوار الجدد.", useEn: "Entry point for new visitors." },
-  "/pricing": { ar: "الخطط والأسعار.", en: "Plans & pricing.", useAr: "اختيار الخطة قبل التسجيل.", useEn: "Choose a plan before signup." },
-  "/contact": { ar: "نموذج التواصل.", en: "Contact form.", useAr: "طلب عرض أو دعم.", useEn: "Request a demo or support." },
-  "/about": { ar: "عن الشركة.", en: "About us.", useAr: "معلومات تعريفية عن HRHBS.", useEn: "About HRHBS." },
-  "/services": { ar: "الخدمات المقدَّمة.", en: "Services offered.", useAr: "قائمة خدمات المنصة.", useEn: "Platform services overview." },
-  "/faq": { ar: "الأسئلة الشائعة.", en: "FAQ.", useAr: "إجابات سريعة قبل التواصل مع الدعم.", useEn: "Quick answers before contacting support." },
-  "/compare": { ar: "مقارنة الخطط.", en: "Plan comparison.", useAr: "مقارنة تفصيلية بين الخطط.", useEn: "Detailed plan comparison." },
-  "/forgot-password": { ar: "استعادة كلمة المرور.", en: "Forgot password.", useAr: "إرسال رابط الاستعادة للبريد.", useEn: "Send reset link by email." },
-  "/reset-password": { ar: "تعيين كلمة مرور جديدة.", en: "Reset password.", useAr: "يفتح من رابط الاستعادة.", useEn: "Opened from the reset email." },
-  "/access-denied": { ar: "لا تملك صلاحية.", en: "Access denied.", useAr: "تظهر عند محاولة فتح صفحة محمية.", useEn: "Shown when access is blocked." },
-  "/unsubscribe": { ar: "إلغاء الاشتراك بالبريد.", en: "Email unsubscribe.", useAr: "من رابط ذيل الرسائل.", useEn: "From email footer link." },
-  "/dashboard": { ar: "لوحة التحكم الرئيسية للشركة.", en: "Company main dashboard.", useAr: "الشاشة الأولى بعد الدخول.", useEn: "First screen after sign-in." },
-  "/admin": { ar: "الصفحة الرئيسية للسوبر أدمن.", en: "Super-admin home.", useAr: "لوحة KPIs عامة للمنصة.", useEn: "Platform-wide KPIs." },
-  "/admin/route-map": { ar: "هذه الصفحة — خريطة كل المسارات.", en: "This page — full route map.", useAr: "لمراجعة الروابط ومستوى الوصول.", useEn: "Audit links & access scopes." },
-  "/admin/companies": { ar: "إدارة الشركات المشتركة.", en: "Manage tenant companies.", useAr: "تفعيل/إيقاف/عرض تفاصيل الشركات.", useEn: "Enable/disable/view tenants." },
-  "/admin/plans": { ar: "إدارة خطط الاشتراك.", en: "Manage subscription plans.", useAr: "إضافة/تعديل الخطط والأسعار.", useEn: "Add/edit plans and pricing." },
-  "/admin/subscription-payments": { ar: "مراجعة إثباتات التحويل البنكي.", en: "Bank-transfer receipts review.", useAr: "قبول/رفض دفعات الاشتراك.", useEn: "Approve/reject subscription payments." },
-  "/admin/audit-log": { ar: "سجل التدقيق الشامل.", en: "Global audit log.", useAr: "تتبع كل التغييرات الحساسة.", useEn: "Track sensitive changes." },
-  "/admin/users": { ar: "المستخدمون على مستوى المنصة.", en: "Platform-wide users.", useAr: "بحث وإدارة الحسابات.", useEn: "Search & manage accounts." },
-  "/admin/roles": { ar: "أدوار وصلاحيات النظام.", en: "System roles & permissions.", useAr: "منح/سحب صلاحيات السوبر أدمن.", useEn: "Grant/revoke super-admin." },
-  "/auth": { ar: "شاشة تسجيل الدخول.", en: "Sign-in screen.", useAr: "بريد+كلمة سر، OTP، أو Google.", useEn: "Password, OTP, or Google." },
+const PATH_META: Record<string, { ar: string; en: string; useAr: string; useEn: string }> = {
+  "/": {
+    ar: "الصفحة الرئيسية للمنصة.",
+    en: "Marketing landing page.",
+    useAr: "نقطة الدخول للزوار الجدد.",
+    useEn: "Entry point for new visitors.",
+  },
+  "/pricing": {
+    ar: "الخطط والأسعار.",
+    en: "Plans & pricing.",
+    useAr: "اختيار الخطة قبل التسجيل.",
+    useEn: "Choose a plan before signup.",
+  },
+  "/contact": {
+    ar: "نموذج التواصل.",
+    en: "Contact form.",
+    useAr: "طلب عرض أو دعم.",
+    useEn: "Request a demo or support.",
+  },
+  "/about": {
+    ar: "عن الشركة.",
+    en: "About us.",
+    useAr: "معلومات تعريفية عن HRHBS.",
+    useEn: "About HRHBS.",
+  },
+  "/services": {
+    ar: "الخدمات المقدَّمة.",
+    en: "Services offered.",
+    useAr: "قائمة خدمات المنصة.",
+    useEn: "Platform services overview.",
+  },
+  "/faq": {
+    ar: "الأسئلة الشائعة.",
+    en: "FAQ.",
+    useAr: "إجابات سريعة قبل التواصل مع الدعم.",
+    useEn: "Quick answers before contacting support.",
+  },
+  "/compare": {
+    ar: "مقارنة الخطط.",
+    en: "Plan comparison.",
+    useAr: "مقارنة تفصيلية بين الخطط.",
+    useEn: "Detailed plan comparison.",
+  },
+  "/forgot-password": {
+    ar: "استعادة كلمة المرور.",
+    en: "Forgot password.",
+    useAr: "إرسال رابط الاستعادة للبريد.",
+    useEn: "Send reset link by email.",
+  },
+  "/reset-password": {
+    ar: "تعيين كلمة مرور جديدة.",
+    en: "Reset password.",
+    useAr: "يفتح من رابط الاستعادة.",
+    useEn: "Opened from the reset email.",
+  },
+  "/access-denied": {
+    ar: "لا تملك صلاحية.",
+    en: "Access denied.",
+    useAr: "تظهر عند محاولة فتح صفحة محمية.",
+    useEn: "Shown when access is blocked.",
+  },
+  "/unsubscribe": {
+    ar: "إلغاء الاشتراك بالبريد.",
+    en: "Email unsubscribe.",
+    useAr: "من رابط ذيل الرسائل.",
+    useEn: "From email footer link.",
+  },
+  "/dashboard": {
+    ar: "لوحة التحكم الرئيسية للشركة.",
+    en: "Company main dashboard.",
+    useAr: "الشاشة الأولى بعد الدخول.",
+    useEn: "First screen after sign-in.",
+  },
+  "/admin": {
+    ar: "الصفحة الرئيسية للسوبر أدمن.",
+    en: "Super-admin home.",
+    useAr: "لوحة KPIs عامة للمنصة.",
+    useEn: "Platform-wide KPIs.",
+  },
+  "/admin/route-map": {
+    ar: "هذه الصفحة — خريطة كل المسارات.",
+    en: "This page — full route map.",
+    useAr: "لمراجعة الروابط ومستوى الوصول.",
+    useEn: "Audit links & access scopes.",
+  },
+  "/admin/companies": {
+    ar: "إدارة الشركات المشتركة.",
+    en: "Manage tenant companies.",
+    useAr: "تفعيل/إيقاف/عرض تفاصيل الشركات.",
+    useEn: "Enable/disable/view tenants.",
+  },
+  "/admin/plans": {
+    ar: "إدارة خطط الاشتراك.",
+    en: "Manage subscription plans.",
+    useAr: "إضافة/تعديل الخطط والأسعار.",
+    useEn: "Add/edit plans and pricing.",
+  },
+  "/admin/subscription-payments": {
+    ar: "مراجعة إثباتات التحويل البنكي.",
+    en: "Bank-transfer receipts review.",
+    useAr: "قبول/رفض دفعات الاشتراك.",
+    useEn: "Approve/reject subscription payments.",
+  },
+  "/admin/audit-log": {
+    ar: "سجل التدقيق الشامل.",
+    en: "Global audit log.",
+    useAr: "تتبع كل التغييرات الحساسة.",
+    useEn: "Track sensitive changes.",
+  },
+  "/admin/users": {
+    ar: "المستخدمون على مستوى المنصة.",
+    en: "Platform-wide users.",
+    useAr: "بحث وإدارة الحسابات.",
+    useEn: "Search & manage accounts.",
+  },
+  "/admin/roles": {
+    ar: "أدوار وصلاحيات النظام.",
+    en: "System roles & permissions.",
+    useAr: "منح/سحب صلاحيات السوبر أدمن.",
+    useEn: "Grant/revoke super-admin.",
+  },
+  "/auth": {
+    ar: "شاشة تسجيل الدخول.",
+    en: "Sign-in screen.",
+    useAr: "بريد+كلمة سر، OTP، أو Google.",
+    useEn: "Password, OTP, or Google.",
+  },
 };
 
 function metaFor(path: string): {
@@ -293,7 +480,7 @@ const SCOPE_META: Record<
 function useAllRoutes(): RouteRow[] {
   const router = useRouter();
   return useMemo(() => {
-    const byId = (router.routesById ?? {}) as Record<
+    const byId = (router.routesById ?? {}) as unknown as Record<
       string,
       { id: string; fullPath?: string; path?: string }
     >;
@@ -357,7 +544,8 @@ function RouteMapPage() {
       if (category !== "all" && r.category !== category) return false;
       if (role !== "all" && r.role !== role) return false;
       if (!q) return true;
-      const hay = `${r.path} ${r.descriptionAr} ${r.descriptionEn} ${r.usageAr} ${r.usageEn}`.toLowerCase();
+      const hay =
+        `${r.path} ${r.descriptionAr} ${r.descriptionEn} ${r.usageAr} ${r.usageEn}`.toLowerCase();
       return hay.includes(q);
     });
   }, [rows, deferredQuery, scope, category, role]);
@@ -391,7 +579,6 @@ function RouteMapPage() {
         descriptionEn="Every URL the router serves, classified by access scope. Use it to audit dead links or missing pages."
       />
 
-
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {(Object.keys(SCOPE_META) as Scope[]).map((s) => {
           const meta = SCOPE_META[s];
@@ -406,9 +593,7 @@ function RouteMapPage() {
                   <div className="text-xs text-muted-foreground">
                     {isAr ? meta.labelAr : meta.labelEn}
                   </div>
-                  <div className="text-xl font-semibold tabular-nums">
-                    {counts[s]}
-                  </div>
+                  <div className="text-xl font-semibold tabular-nums">{counts[s]}</div>
                 </div>
               </CardContent>
             </Card>
@@ -438,8 +623,7 @@ function RouteMapPage() {
                 </SelectItem>
                 {(Object.keys(SCOPE_META) as Scope[]).map((s) => (
                   <SelectItem key={s} value={s}>
-                    {isAr ? SCOPE_META[s].labelAr : SCOPE_META[s].labelEn} (
-                    {counts[s]})
+                    {isAr ? SCOPE_META[s].labelAr : SCOPE_META[s].labelEn} ({counts[s]})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -479,7 +663,12 @@ function RouteMapPage() {
           {(scope !== "all" || category !== "all" || role !== "all" || query) && (
             <button
               type="button"
-              onClick={() => { setQuery(""); setScope("all"); setCategory("all"); setRole("all"); }}
+              onClick={() => {
+                setQuery("");
+                setScope("all");
+                setCategory("all");
+                setRole("all");
+              }}
               className="text-xs text-primary hover:underline self-start"
             >
               {isAr ? "مسح المرشحات" : "Clear filters"}
@@ -499,18 +688,10 @@ function RouteMapPage() {
                   <TableHead className="w-[26%]">
                     {isAr ? "المسار / الوصف" : "Path / Description"}
                   </TableHead>
-                  <TableHead className="w-[28%]">
-                    {isAr ? "الاستخدام" : "Usage"}
-                  </TableHead>
-                  <TableHead className="w-[26%]">
-                    {isAr ? "حالة الدخول" : "Access"}
-                  </TableHead>
-                  <TableHead className="text-center">
-                    {isAr ? "ديناميكي" : "Dynamic"}
-                  </TableHead>
-                  <TableHead className="text-end">
-                    {isAr ? "فتح" : "Open"}
-                  </TableHead>
+                  <TableHead className="w-[28%]">{isAr ? "الاستخدام" : "Usage"}</TableHead>
+                  <TableHead className="w-[26%]">{isAr ? "حالة الدخول" : "Access"}</TableHead>
+                  <TableHead className="text-center">{isAr ? "ديناميكي" : "Dynamic"}</TableHead>
+                  <TableHead className="text-end">{isAr ? "فتح" : "Open"}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -521,10 +702,11 @@ function RouteMapPage() {
                     <TableRow key={r.path} className="align-top">
                       <TableCell>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <div className="font-mono text-xs md:text-sm break-all">
-                            {r.path}
-                          </div>
-                          <Badge variant="outline" className={`${cat.tone} whitespace-nowrap text-[10px]`}>
+                          <div className="font-mono text-xs md:text-sm break-all">{r.path}</div>
+                          <Badge
+                            variant="outline"
+                            className={`${cat.tone} whitespace-nowrap text-[10px]`}
+                          >
                             {isAr ? cat.ar : cat.en}
                           </Badge>
                         </div>
@@ -570,7 +752,10 @@ function RouteMapPage() {
                 })}
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-8">
+                    <TableCell
+                      colSpan={5}
+                      className="text-center text-sm text-muted-foreground py-8"
+                    >
                       {isAr ? "لا توجد نتائج" : "No routes match your filters"}
                     </TableCell>
                   </TableRow>

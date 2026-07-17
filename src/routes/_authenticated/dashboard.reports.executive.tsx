@@ -127,21 +127,25 @@ export const Route = createFileRoute("/_authenticated/dashboard/reports/executiv
     </RequireRole>
   ),
   errorComponent: ({ error }) => (
-    <div className="p-6 text-sm text-destructive">{t("execReports.errorPrefix")}: {error.message}</div>
+    <div className="p-6 text-sm text-destructive">
+      {t("execReports.errorPrefix")}: {error.message}
+    </div>
   ),
   notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
 
 const CURRENCY = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
 const fmt = (n: number) => CURRENCY.format(Math.round(n));
+const fmtTooltip = (value: unknown) => fmt(Number(value));
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 
 const PIE_COLORS = ["#6366f1", "#8b5cf6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#ec4899"];
+type ExecutiveSearch = z.infer<typeof searchSchema>;
 
 function ExecutivePage() {
   useTranslation(); // subscribe to language changes so t() re-renders
-  const search = Route.useSearch();
-  const navigate = useNavigate({ from: Route.fullPath });
+  const search = Route.useSearch() as ExecutiveSearch;
+  const navigate = useNavigate();
   const months = search.months;
   const page = search.page;
   const drill = search.kpi ? { kpi: search.kpi as KpiKey } : null;
@@ -157,15 +161,25 @@ function ExecutivePage() {
     sortDir: search.sortDir,
   };
 
-  const setSearch = (patch: Record<string, unknown>) =>
-    navigate({ search: (prev: any) => ({ ...prev, ...patch }), replace: true });
+  const setSearch = (patch: Partial<ExecutiveSearch>) =>
+    navigate({
+      to: "/dashboard/reports/executive" as never,
+      search: ((prev: ExecutiveSearch) => ({ ...prev, ...patch })) as never,
+      replace: true,
+    });
   const setMonths = (m: number) => setSearch({ months: m });
   const setPage = (p: number | ((prev: number) => number)) =>
-    setSearch({ page: typeof p === "function" ? (p as any)(page) : p });
+    setSearch({ page: typeof p === "function" ? p(page) : p });
   const openDrill = (kpi: KpiKey) => setSearch({ kpi, page: 1 });
   const closeDrill = () =>
     navigate({
-      search: (prev: any) => ({ months: prev.months, page: 1, sortField: "date", sortDir: "desc" }),
+      to: "/dashboard/reports/executive" as never,
+      search: ((prev: ExecutiveSearch) => ({
+        months: prev.months,
+        page: 1,
+        sortField: "date",
+        sortDir: "desc",
+      })) as never,
       replace: true,
     });
   const resetFilters = () =>
@@ -266,9 +280,7 @@ function ExecutivePage() {
           <h1 className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-2xl font-bold text-transparent md:text-3xl">
             {t("execReports.title")}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            {t("execReports.subtitle")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("execReports.subtitle")}</p>
         </div>
         <Select value={String(months)} onValueChange={(v) => setMonths(Number(v))}>
           <SelectTrigger className="w-40">
@@ -360,7 +372,6 @@ function ExecutivePage() {
         />
       </div>
 
-
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Revenue trend + forecast */}
         <Card className="lg:col-span-2">
@@ -384,7 +395,7 @@ function ExecutivePage() {
                 <XAxis dataKey="month" fontSize={11} />
                 <YAxis fontSize={11} tickFormatter={(v) => fmt(Number(v))} />
                 <Tooltip
-                  formatter={(v: any) => fmt(Number(v))}
+                  formatter={fmtTooltip}
                   contentStyle={{
                     background: "hsl(var(--card))",
                     border: "1px solid hsl(var(--border))",
@@ -428,7 +439,6 @@ function ExecutivePage() {
         </Card>
       </div>
 
-
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Monthly revenue vs expense */}
         <Card className="lg:col-span-2">
@@ -442,7 +452,7 @@ function ExecutivePage() {
                 <XAxis dataKey="month" fontSize={11} />
                 <YAxis fontSize={11} tickFormatter={(v) => fmt(Number(v))} />
                 <Tooltip
-                  formatter={(v: any) => fmt(Number(v))}
+                  formatter={fmtTooltip}
                   contentStyle={{
                     background: "hsl(var(--card))",
                     border: "1px solid hsl(var(--border))",
@@ -450,8 +460,18 @@ function ExecutivePage() {
                   }}
                 />
                 <Legend />
-                <Bar dataKey="collected" fill="#6366f1" name={t("execReports.charts.collected")} radius={[6, 6, 0, 0]} />
-                <Bar dataKey="expenses" fill="#f43f5e" name={t("execReports.charts.expenses")} radius={[6, 6, 0, 0]} />
+                <Bar
+                  dataKey="collected"
+                  fill="#6366f1"
+                  name={t("execReports.charts.collected")}
+                  radius={[6, 6, 0, 0]}
+                />
+                <Bar
+                  dataKey="expenses"
+                  fill="#f43f5e"
+                  name={t("execReports.charts.expenses")}
+                  radius={[6, 6, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -460,7 +480,9 @@ function ExecutivePage() {
         {/* Expenses by category */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">{t("execReports.charts.expensesByCategory")}</CardTitle>
+            <CardTitle className="text-base">
+              {t("execReports.charts.expensesByCategory")}
+            </CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             {expensesCatData.length === 0 ? (
@@ -483,7 +505,7 @@ function ExecutivePage() {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(v: any) => fmt(Number(v))}
+                    formatter={fmtTooltip}
                     contentStyle={{
                       background: "hsl(var(--card))",
                       border: "1px solid hsl(var(--border))",
@@ -541,7 +563,7 @@ function ExecutivePage() {
                 <XAxis dataKey="month" fontSize={11} />
                 <YAxis fontSize={11} tickFormatter={(v) => fmt(Number(v))} />
                 <Tooltip
-                  formatter={(v: any) => fmt(Number(v))}
+                  formatter={fmtTooltip}
                   contentStyle={{
                     background: "hsl(var(--card))",
                     border: "1px solid hsl(var(--border))",
