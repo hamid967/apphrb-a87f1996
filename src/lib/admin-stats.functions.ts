@@ -15,56 +15,19 @@ export const getAdminOverview = createServerFn({ method: "GET" })
     const today = now.toISOString().slice(0, 10);
     const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1).toISOString();
 
+    // Phase 4: 16 KPI counters collapsed into one pre-aggregated MV row.
+    // Remaining queries are lists/series that need row-level detail.
     const [
-      profilesTotal,
-      profilesPending,
-      orgsTotal,
-      contractsActive,
-      loginSuccess24h,
-      loginFailed24h,
-      events24h,
+      overview,
       recentAudit,
       recentLogins,
       activityByDay,
-      activeSubs,
-      trialSubs,
-      pendingReceipts,
-      activeSubsForMrr,
-      revenueMonth,
-      revenueYear,
       planDist,
       expiringSoon,
       newCompanies12m,
       revenue12m,
-      pendingSubs,
-      pendingInvites,
-      rejectedSubs24h,
     ] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }),
-      supabaseAdmin
-        .from("profiles")
-        .select("id", { count: "exact", head: true })
-        .eq("approval_status", "pending"),
-      supabaseAdmin.from("organizations").select("id", { count: "exact", head: true }),
-      supabaseAdmin
-        .from("contracts")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "active")
-        .is("deleted_at", null),
-      supabaseAdmin
-        .from("login_events")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "success")
-        .gte("created_at", since24h),
-      supabaseAdmin
-        .from("login_events")
-        .select("id", { count: "exact", head: true })
-        .in("status", ["failed", "blocked", "rate_limited"])
-        .gte("created_at", since24h),
-      supabaseAdmin
-        .from("audit_log")
-        .select("id", { count: "exact", head: true })
-        .gte("created_at", since24h),
+      supabaseAdmin.rpc("get_admin_overview"),
       supabaseAdmin
         .from("audit_log")
         .select("id, entity, action, actor, created_at")
@@ -76,38 +39,6 @@ export const getAdminOverview = createServerFn({ method: "GET" })
         .order("created_at", { ascending: false })
         .limit(8),
       supabaseAdmin.from("audit_log").select("created_at").gte("created_at", since7d).limit(5000),
-      supabaseAdmin
-        .from("subscriptions")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "active")
-        .is("deleted_at", null),
-      supabaseAdmin
-        .from("subscriptions")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "trial")
-        .is("deleted_at", null),
-      supabaseAdmin
-        .from("subscription_payments")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "pending"),
-      supabaseAdmin
-        .from("subscriptions")
-        .select("amount, billing_cycle")
-        .eq("status", "active")
-        .is("deleted_at", null)
-        .limit(5000),
-      supabaseAdmin
-        .from("subscription_payments")
-        .select("amount")
-        .eq("status", "approved")
-        .gte("reviewed_at", startOfMonth)
-        .limit(5000),
-      supabaseAdmin
-        .from("subscription_payments")
-        .select("amount")
-        .eq("status", "approved")
-        .gte("reviewed_at", startOfYear)
-        .limit(5000),
       supabaseAdmin
         .from("subscriptions")
         .select("package_id, packages(name, code)")
@@ -134,22 +65,16 @@ export const getAdminOverview = createServerFn({ method: "GET" })
         .eq("status", "approved")
         .gte("reviewed_at", twelveMonthsAgo)
         .limit(5000),
-      supabaseAdmin
-        .from("subscriptions")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "pending")
-        .is("deleted_at", null),
-      supabaseAdmin
-        .from("portal_invitations")
-        .select("id", { count: "exact", head: true })
-        .is("accepted_at", null)
-        .gt("expires_at", new Date().toISOString()),
-      supabaseAdmin
-        .from("subscriptions")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "rejected")
-        .gte("reviewed_at", since24h),
     ]);
+
+    const ov = (overview.data ?? {}) as {
+      users_total?: number; users_pending?: number; orgs_total?: number;
+      active_contracts?: number; login_success_24h?: number; login_failed_24h?: number;
+      events_24h?: number; active_subs?: number; trial_subs?: number;
+      pending_receipts?: number; pending_subs?: number; pending_invites?: number;
+      rejected_subs_24h?: number; mrr?: number; revenue_month?: number; revenue_year?: number;
+    };
+
 
     // Bucketize activity by day (last 7 days)
     const buckets = new Map<string, number>();
