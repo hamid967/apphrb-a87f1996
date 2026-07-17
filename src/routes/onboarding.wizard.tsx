@@ -229,7 +229,9 @@ function OnboardingWizardPage() {
           if (org?.national_address) setNationalAddress(org.national_address);
           if (org?.authorized_person_name) setAuthorizedPersonName(org.authorized_person_name);
           if (org?.authorized_person_phone) setAuthorizedPersonPhone(org.authorized_person_phone);
-          setStep(2);
+          // Signup wizard steps disabled — org exists, go straight to dashboard.
+          nav({ to: "/dashboard", replace: true });
+          return;
         } else if (prof?.full_name && prof?.signup_reason) {
           setStep(1);
         }
