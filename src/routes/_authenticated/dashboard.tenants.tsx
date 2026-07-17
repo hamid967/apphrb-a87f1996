@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, Send, Search, ArchiveRestore } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Send, Search, ArchiveRestore, Upload } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
