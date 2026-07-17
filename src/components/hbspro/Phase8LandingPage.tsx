@@ -123,7 +123,18 @@ export function Phase8LandingPage() {
 function Hero() {
   return (
     <section className="relative isolate overflow-hidden px-4 pb-20 pt-28 sm:px-6 lg:px-10">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_16%,rgba(0,217,192,0.20),transparent_34%),radial-gradient(circle_at_18%_82%,rgba(201,169,97,0.16),transparent_38%),linear-gradient(135deg,#071729_0%,#0A1A2F_55%,#03101f_100%)]" />
+      <video
+        src={introVideo.url}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 size-full object-cover opacity-60"
+      />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(7,23,41,0.55)_0%,rgba(7,23,41,0.78)_55%,#071729_100%)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_74%_16%,rgba(0,217,192,0.20),transparent_34%),radial-gradient(circle_at_18%_82%,rgba(201,169,97,0.16),transparent_38%)]" />
       <div className="relative mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.95fr_1.05fr]">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#00D9C0]/25 bg-[#00D9C0]/10 px-4 py-2 text-sm font-black text-[#00D9C0]">
