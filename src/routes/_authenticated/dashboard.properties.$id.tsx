@@ -3,7 +3,16 @@ import { detailHead } from "@/lib/detail-og-head";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Archive, Loader2, Pencil, Trash2, X } from "lucide-react";
+import { ArrowLeft, Archive, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { listUnitsByProperty, quickCreateUnitForProperty } from "@/lib/units.functions";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -188,6 +197,8 @@ function PropertyDetails() {
               </p>
             </div>
           )}
+
+          <UnitsSection propertyId={id} canEdit={!!canEdit} currency={p.currency ?? "SAR"} />
         </article>
       ) : (
         <EditForm
@@ -494,5 +505,225 @@ function F({
       <Label>{label}</Label>
       {children}
     </div>
+  );
+}
+
+function UnitsSection({
+  propertyId,
+  canEdit,
+  currency,
+}: {
+  propertyId: string;
+  canEdit: boolean;
+  currency: string;
+}) {
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language?.startsWith("ar");
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+
+  const unitsQ = useQuery({
+    queryKey: ["property-units", propertyId],
+    queryFn: () => listUnitsByProperty({ data: { property_id: propertyId } }),
+  });
+
+  const [f, setF] = useState({
+    code: "",
+    type: "",
+    status: "vacant" as "vacant" | "occupied" | "reserved" | "maintenance",
+    area: "",
+    bedrooms: "",
+    bathrooms: "",
+    rent_amount: "",
+  });
+  const reset = () =>
+    setF({ code: "", type: "", status: "vacant", area: "", bedrooms: "", bathrooms: "", rent_amount: "" });
+
+  const mut = useMutation({
+    mutationFn: () =>
+      quickCreateUnitForProperty({
+        data: {
+          property_id: propertyId,
+          code: f.code.trim(),
+          type: f.type.trim() || null,
+          status: f.status,
+          area: f.area ? Number(f.area) : null,
+          bedrooms: f.bedrooms ? Number(f.bedrooms) : null,
+          bathrooms: f.bathrooms ? Number(f.bathrooms) : null,
+          rent_amount: f.rent_amount ? Number(f.rent_amount) : null,
+          currency_code: currency,
+        },
+      }),
+    onSuccess: async () => {
+      toast.success(t("units.quickAdd.created"));
+      await qc.invalidateQueries({ queryKey: ["property-units", propertyId] });
+      await qc.invalidateQueries({ queryKey: ["units"] });
+      reset();
+      setOpen(false);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
+  });
+
+  const rows = unitsQ.data ?? [];
+
+  return (
+    <section className="surface-card p-6">
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <h2 className="text-base font-semibold">{t("units.quickAdd.section")}</h2>
+          <div className="mt-0.5 text-xs text-muted-foreground">
+            {t("units.quickAdd.count", { n: rows.length })}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/dashboard/units">{t("units.quickAdd.openList")}</Link>
+          </Button>
+          {canEdit && (
+            <Button size="sm" onClick={() => setOpen(true)}>
+              <Plus className="me-2 size-4" />
+              {t("units.quickAdd.add")}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4">
+        {unitsQ.isLoading ? (
+          <div className="grid place-items-center py-6">
+            <Loader2 className="size-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : rows.length === 0 ? (
+          <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
+            {t("units.quickAdd.empty")}
+          </div>
+        ) : (
+          <ul className="divide-y rounded-md border">
+            {rows.map((u) => (
+              <li key={u.id} className="flex items-center justify-between gap-3 p-3 text-sm">
+                <Link
+                  to="/dashboard/units/$id"
+                  params={{ id: u.id }}
+                  className="font-medium hover:underline"
+                >
+                  {u.code}
+                </Link>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {u.type && <Badge variant="outline">{u.type}</Badge>}
+                  <Badge variant="secondary">{t(`units.${u.status}`, u.status)}</Badge>
+                  {u.rent_amount != null && (
+                    <span className="tabular-nums">
+                      {Number(u.rent_amount).toLocaleString(isAr ? "ar" : "en")}{" "}
+                      {u.currency_code ?? currency}
+                    </span>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("units.quickAdd.addTitle")}</DialogTitle>
+            <DialogDescription>{t("units.quickAdd.addSub")}</DialogDescription>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!f.code.trim()) return;
+              mut.mutate();
+            }}
+            className="grid gap-3 sm:grid-cols-2"
+          >
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>{t("units.quickAdd.code")}</Label>
+              <Input
+                required
+                value={f.code}
+                placeholder={t("units.quickAdd.codePh")}
+                onChange={(e) => setF((p) => ({ ...p, code: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("units.type")}</Label>
+              <Input
+                value={f.type}
+                placeholder={t("units.quickAdd.typePh")}
+                onChange={(e) => setF((p) => ({ ...p, type: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("units.status")}</Label>
+              <Select
+                value={f.status}
+                onValueChange={(v) => setF((p) => ({ ...p, status: v as typeof f.status }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vacant">{t("units.vacant")}</SelectItem>
+                  <SelectItem value="occupied">{t("units.occupied")}</SelectItem>
+                  <SelectItem value="reserved">{t("units.reserved")}</SelectItem>
+                  <SelectItem value="maintenance">{t("units.maintenance")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("units.quickAdd.area")}</Label>
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                value={f.area}
+                onChange={(e) => setF((p) => ({ ...p, area: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("units.quickAdd.rent")}</Label>
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                value={f.rent_amount}
+                onChange={(e) => setF((p) => ({ ...p, rent_amount: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("units.bedrooms")}</Label>
+              <Input
+                type="number"
+                min={0}
+                step="1"
+                value={f.bedrooms}
+                onChange={(e) => setF((p) => ({ ...p, bedrooms: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>{t("units.bathrooms")}</Label>
+              <Input
+                type="number"
+                min={0}
+                step="1"
+                value={f.bathrooms}
+                onChange={(e) => setF((p) => ({ ...p, bathrooms: e.target.value }))}
+              />
+            </div>
+            <DialogFooter className="sm:col-span-2">
+              <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+                {t("common.cancel")}
+              </Button>
+              <Button type="submit" disabled={mut.isPending || !f.code.trim()}>
+                {mut.isPending && <Loader2 className="me-2 size-4 animate-spin" />}
+                {t("units.quickAdd.save")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </section>
   );
 }
