@@ -521,13 +521,14 @@ function UnitsSection({
   const isAr = i18n.language?.startsWith("ar");
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const unitsQ = useQuery({
     queryKey: ["property-units", propertyId],
     queryFn: () => listUnitsByProperty({ data: { property_id: propertyId } }),
   });
 
-  const [f, setF] = useState({
+  const emptyForm = {
     code: "",
     type: "",
     status: "vacant" as "vacant" | "occupied" | "reserved" | "maintenance",
@@ -535,27 +536,60 @@ function UnitsSection({
     bedrooms: "",
     bathrooms: "",
     rent_amount: "",
+  };
+  const [f, setF] = useState(emptyForm);
+  const reset = () => {
+    setF(emptyForm);
+    setEditingId(null);
+  };
+
+  const openCreate = () => {
+    reset();
+    setOpen(true);
+  };
+  const openEdit = (u: {
+    id: string;
+    code: string;
+    type: string | null;
+    status: string;
+    area: number | null;
+    bedrooms: number | null;
+    bathrooms: number | null;
+    rent_amount: number | null;
+  }) => {
+    setEditingId(u.id);
+    setF({
+      code: u.code ?? "",
+      type: u.type ?? "",
+      status: (u.status as typeof emptyForm.status) ?? "vacant",
+      area: u.area != null ? String(u.area) : "",
+      bedrooms: u.bedrooms != null ? String(u.bedrooms) : "",
+      bathrooms: u.bathrooms != null ? String(u.bathrooms) : "",
+      rent_amount: u.rent_amount != null ? String(u.rent_amount) : "",
+    });
+    setOpen(true);
+  };
+
+  const payload = () => ({
+    code: f.code.trim(),
+    type: f.type.trim() || null,
+    status: f.status,
+    area: f.area ? Number(f.area) : null,
+    bedrooms: f.bedrooms ? Number(f.bedrooms) : null,
+    bathrooms: f.bathrooms ? Number(f.bathrooms) : null,
+    rent_amount: f.rent_amount ? Number(f.rent_amount) : null,
+    currency_code: currency,
   });
-  const reset = () =>
-    setF({ code: "", type: "", status: "vacant", area: "", bedrooms: "", bathrooms: "", rent_amount: "" });
 
   const mut = useMutation({
-    mutationFn: () =>
-      quickCreateUnitForProperty({
-        data: {
-          property_id: propertyId,
-          code: f.code.trim(),
-          type: f.type.trim() || null,
-          status: f.status,
-          area: f.area ? Number(f.area) : null,
-          bedrooms: f.bedrooms ? Number(f.bedrooms) : null,
-          bathrooms: f.bathrooms ? Number(f.bathrooms) : null,
-          rent_amount: f.rent_amount ? Number(f.rent_amount) : null,
-          currency_code: currency,
-        },
-      }),
+    mutationFn: async () => {
+      if (editingId) {
+        return quickUpdateUnitForProperty({ data: { id: editingId, ...payload() } });
+      }
+      return quickCreateUnitForProperty({ data: { property_id: propertyId, ...payload() } });
+    },
     onSuccess: async () => {
-      toast.success(t("units.quickAdd.created"));
+      toast.success(editingId ? t("units.quickAdd.updated") : t("units.quickAdd.created"));
       await qc.invalidateQueries({ queryKey: ["property-units", propertyId] });
       await qc.invalidateQueries({ queryKey: ["units"] });
       reset();
