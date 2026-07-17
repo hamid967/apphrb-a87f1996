@@ -15,6 +15,7 @@ import {
 } from "@/components/hbspro/sections";
 import { PortfolioCommandCenter } from "@/components/hbspro/EmeraldSplitHero";
 import { CinematicIntro } from "@/components/hbspro/CinematicIntro";
+import { LuxuryIntroOverlay } from "@/components/hbspro/LuxuryIntroOverlay";
 import { SignupAssistant } from "@/components/SignupAssistant";
 
 export const Route = createFileRoute("/")({
@@ -77,6 +78,7 @@ export const Route = createFileRoute("/")({
 function HBSproHome() {
   return (
     <div className="theme-luxe min-h-screen font-sans antialiased bg-[#043927] text-[#f5f0e0] selection:bg-[#C5A059]/30 selection:text-white">
+      <LuxuryIntroOverlay />
       <Navbar />
       <main>
         <CinematicIntro />
