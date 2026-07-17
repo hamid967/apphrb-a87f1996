@@ -49,6 +49,7 @@ function UnitsIndex() {
   const qc = useQueryClient();
   const orgsQ = useQuery({ queryKey: ["my-organizations"], queryFn: () => listMyOrganizations() });
   const org = orgsQ.data?.[0]?.org;
+  const [importOpen, setImportOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const unitsQ = useQuery({
     queryKey: ["units", org?.id, showArchived ? "archived" : "active"],
