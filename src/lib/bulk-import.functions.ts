@@ -210,8 +210,19 @@ export const bulkInsertUnits = createServerFn({ method: "POST" })
         errors.push({ row: index, message: parsed.error.issues[0]?.message ?? "Invalid row" });
         continue;
       }
-      // ensure a building for this property
-      let buildingId = buildingByProperty.get(String(prop.id));
+      // Prefer explicit building_id from the row when it belongs to the resolved property
+      let buildingId: string | undefined;
+      const rowBid = strOrNull(raw.building_id);
+      if (rowBid) {
+        const owningProp = buildingById.get(rowBid);
+        if (!owningProp || owningProp !== String(prop.id)) {
+          errors.push({ row: index, message: "building_id does not belong to the resolved property" });
+          continue;
+        }
+        buildingId = rowBid;
+      }
+      // fall back to the default building for this property, creating one on demand
+      if (!buildingId) buildingId = buildingByProperty.get(String(prop.id));
       if (!buildingId) {
         const name = (prop.title_ar as string) || (prop.title_en as string) || "Main";
         const { data: nb, error: nbErr } = await context.supabase
@@ -225,6 +236,7 @@ export const bulkInsertUnits = createServerFn({ method: "POST" })
         }
         buildingId = String(nb.id);
         buildingByProperty.set(String(prop.id), buildingId);
+        buildingById.set(buildingId, String(prop.id));
       }
       toInsert.push({
         org_id: data.org_id,
