@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
 import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+
 import { useAuth } from "@/hooks/use-auth";
 import { getMyAccessContext } from "@/lib/company.functions";
 import { resolveHomeRoute } from "@/lib/access-guard";
@@ -39,7 +39,7 @@ import {
   resetFailedAttempts,
 } from "@/lib/auth-attempts";
 import { getDeviceFingerprint } from "@/lib/device-fingerprint";
-import { getAppOrigin, getAppUrl } from "@/lib/app-url";
+import { getAppUrl } from "@/lib/app-url";
 import {
   consumePendingRedirect,
   clearPendingRedirect,
@@ -139,7 +139,7 @@ function AuthPage() {
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [magicLoading, setMagicLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState(false);
+  
   const [devLoading, setDevLoading] = useState(false);
   const [resendIn, setResendIn] = useState(0);
 
@@ -296,15 +296,6 @@ function AuthPage() {
     }
   };
 
-  const onGoogle = async () => {
-    setOauthLoading(true);
-    try {
-      await lovable.auth.signInWithOAuth("google", { redirect_uri: getAppOrigin() });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "OAuth error");
-      setOauthLoading(false);
-    }
-  };
 
   const notImplemented = (label: string) => () => toast(t("auth.comingSoonLabel", { label }));
 
