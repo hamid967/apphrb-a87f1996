@@ -2734,6 +2734,7 @@ const ar: typeof en = {
     unauthorizedTitle: "الوصول مقيّد",
     unauthorizedDesc: "ليست لديك صلاحية لعرض هذا المحتوى.",
     emptyTitle: "لا توجد بيانات بعد",
+    notFound: "غير موجود",
   },
   activity: {
     title: "النشاط",
