@@ -135,23 +135,24 @@ export const getAdminOverview = createServerFn({ method: "GET" })
 
     return {
       kpis: {
-        users: profilesTotal.count ?? 0,
-        pending: profilesPending.count ?? 0,
-        orgs: orgsTotal.count ?? 0,
-        activeContracts: contractsActive.count ?? 0,
-        loginSuccess24h: loginSuccess24h.count ?? 0,
-        loginFailed24h: loginFailed24h.count ?? 0,
-        events24h: events24h.count ?? 0,
-        activeSubs: activeSubs.count ?? 0,
-        trialSubs: trialSubs.count ?? 0,
-        pendingReceipts: pendingReceipts.count ?? 0,
-        mrr: Math.round(mrr),
-        revenueMonth: Math.round(sumAmount(revenueMonth.data)),
-        revenueYear: Math.round(sumAmount(revenueYear.data)),
-        pendingSubs: pendingSubs.count ?? 0,
-        pendingInvites: pendingInvites.count ?? 0,
-        rejectedSubs24h: rejectedSubs24h.count ?? 0,
+        users: ov.users_total ?? 0,
+        pending: ov.users_pending ?? 0,
+        orgs: ov.orgs_total ?? 0,
+        activeContracts: ov.active_contracts ?? 0,
+        loginSuccess24h: ov.login_success_24h ?? 0,
+        loginFailed24h: ov.login_failed_24h ?? 0,
+        events24h: ov.events_24h ?? 0,
+        activeSubs: ov.active_subs ?? 0,
+        trialSubs: ov.trial_subs ?? 0,
+        pendingReceipts: ov.pending_receipts ?? 0,
+        mrr: ov.mrr ?? 0,
+        revenueMonth: ov.revenue_month ?? 0,
+        revenueYear: ov.revenue_year ?? 0,
+        pendingSubs: ov.pending_subs ?? 0,
+        pendingInvites: ov.pending_invites ?? 0,
+        rejectedSubs24h: ov.rejected_subs_24h ?? 0,
       },
+
       recentAudit: (recentAudit.data ?? []) as Array<{
         id: string;
         entity: string;
