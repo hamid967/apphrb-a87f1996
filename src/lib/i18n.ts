@@ -395,6 +395,10 @@ const en = {
     previewNoValid: "No valid rows to import",
     confirmImport: "Confirm and import {{count}}",
     downloadErrors: "Download error report",
+    parsing: "Reading {{name}}…",
+    parsed: "Loaded {{count}} rows",
+    importingRows: "Importing {{count}} rows…",
+    doneDetail: "Created {{created}} · Updated {{updated}} · Skipped {{skipped}} · Errors {{errors}}",
   },
   importSettings: {
     title: "Import & duplicate rules",
