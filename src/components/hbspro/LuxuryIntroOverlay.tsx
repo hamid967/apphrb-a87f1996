@@ -178,7 +178,7 @@ export function LuxuryIntroOverlay() {
             </button>
             <button
               type="button"
-              onClick={closeIntro}
+              onClick={() => closeIntro("skipped")}
               className="inline-flex h-10 items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 text-xs font-bold text-white backdrop-blur-xl transition hover:bg-white/15"
             >
               تخطي
