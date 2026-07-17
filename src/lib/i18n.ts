@@ -793,6 +793,9 @@ const en = {
       buildingName: "Building name",
       buildingNamePh: "e.g. Tower A",
       buildingCreated: "Building created",
+      importCsv: "Import CSV",
+      importCsvTitle: "Import units from CSV",
+      importCsvNote: "Rows will be linked to this property automatically. Choose a target building.",
     },
   },
   contracts: {
@@ -3156,6 +3159,9 @@ const ar: typeof en = {
       buildingName: "اسم المبنى",
       buildingNamePh: "مثال: البرج A",
       buildingCreated: "تمت إضافة المبنى",
+      importCsv: "استيراد CSV",
+      importCsvTitle: "استيراد الوحدات من CSV",
+      importCsvNote: "سيتم ربط الصفوف بهذا العقار تلقائياً. اختر المبنى الهدف.",
     },
   },
   contracts: {

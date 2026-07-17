@@ -3,7 +3,7 @@ import { detailHead } from "@/lib/detail-og-head";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Archive, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ArrowLeft, Archive, FileText, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { archiveUnits, createBuildingForProperty, listBuildingsByProperty, listUnitsByProperty, quickCreateUnitForProperty, quickUpdateUnitForProperty } from "@/lib/units.functions";
+import { bulkInsertUnits } from "@/lib/bulk-import.functions";
+import { CsvImportDialog } from "@/components/csv-import-dialog";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -198,7 +200,7 @@ function PropertyDetails() {
             </div>
           )}
 
-          <UnitsSection propertyId={id} canEdit={!!canEdit} currency={p.currency ?? "SAR"} />
+          <UnitsSection propertyId={id} orgId={p.org_id} canEdit={!!canEdit} currency={p.currency ?? "SAR"} />
         </article>
       ) : (
         <EditForm
@@ -510,10 +512,12 @@ function F({
 
 function UnitsSection({
   propertyId,
+  orgId,
   canEdit,
   currency,
 }: {
   propertyId: string;
+  orgId: string;
   canEdit: boolean;
   currency: string;
 }) {
@@ -612,6 +616,8 @@ function UnitsSection({
   });
 
   const [buildingDialogOpen, setBuildingDialogOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importBuildingId, setImportBuildingId] = useState<string>("");
   const [newBuildingName, setNewBuildingName] = useState("");
   const buildingMut = useMutation({
     mutationFn: () =>
@@ -655,6 +661,12 @@ function UnitsSection({
           <Button asChild variant="ghost" size="sm">
             <Link to="/dashboard/units">{t("units.quickAdd.openList")}</Link>
           </Button>
+          {canEdit && (
+            <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+              <FileText className="me-2 size-4" />
+              {t("units.quickAdd.importCsv")}
+            </Button>
+          )}
           {canEdit && (
             <Button size="sm" onClick={openCreate}>
               <Plus className="me-2 size-4" />
@@ -926,6 +938,74 @@ function UnitsSection({
           </form>
         </DialogContent>
       </Dialog>
+
+      <CsvImportDialog
+        open={importOpen}
+        onOpenChange={(v) => {
+          setImportOpen(v);
+          if (!v) setImportBuildingId("");
+        }}
+        title={t("units.quickAdd.importCsvTitle")}
+        templateHeaders={[
+          "code",
+          "type",
+          "status",
+          "area",
+          "bedrooms",
+          "bathrooms",
+          "rent_amount",
+          "currency_code",
+        ]}
+        sampleRow={{
+          code: "A-101",
+          type: "apartment",
+          status: "vacant",
+          area: "120",
+          bedrooms: "2",
+          bathrooms: "1",
+          rent_amount: "2500",
+          currency_code: currency,
+        }}
+        header={
+          <div className="grid gap-2">
+            <p className="text-xs text-muted-foreground">{t("units.quickAdd.importCsvNote")}</p>
+            <div className="space-y-1.5">
+              <Label>{t("units.quickAdd.building")}</Label>
+              {buildings.length === 0 ? (
+                <div className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">
+                  {t("units.quickAdd.noBuildings")}
+                </div>
+              ) : (
+                <Select value={importBuildingId} onValueChange={setImportBuildingId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("units.quickAdd.buildingPh")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {buildings.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>
+                        {b.name}
+                        {b.code ? ` — ${b.code}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </div>
+        }
+        canImport={!!importBuildingId}
+        onImport={async (rows) => {
+          const withLink = rows.map((r) => ({
+            ...r,
+            property_id: propertyId,
+            building_id: importBuildingId,
+          }));
+          const res = await bulkInsertUnits({ data: { org_id: orgId, rows: withLink } });
+          await qc.invalidateQueries({ queryKey: ["property-units", propertyId] });
+          await qc.invalidateQueries({ queryKey: ["units"] });
+          return res;
+        }}
+      />
     </section>
 
   );

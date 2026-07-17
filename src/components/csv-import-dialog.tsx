@@ -28,6 +28,8 @@ type Props = {
   sampleRow: Record<string, string>;
   onImport: (rows: Record<string, string>[]) => Promise<ImportResult>;
   onDone?: () => void;
+  header?: React.ReactNode;
+  canImport?: boolean;
 };
 
 export function CsvImportDialog({
@@ -38,6 +40,8 @@ export function CsvImportDialog({
   sampleRow,
   onImport,
   onDone,
+  header,
+  canImport = true,
 }: Props) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -112,6 +116,7 @@ export function CsvImportDialog({
         </DialogHeader>
 
         <div className="grid gap-4">
+          {header}
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" size="sm" onClick={downloadTemplate}>
               <FileText className="me-2 size-4" /> {t("csv.downloadTemplate")}
@@ -176,7 +181,7 @@ export function CsvImportDialog({
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             {t("common.close") ?? "Close"}
           </Button>
-          <Button onClick={submit} disabled={!rows.length || busy || !!result}>
+          <Button onClick={submit} disabled={!rows.length || busy || !!result || !canImport}>
             {busy ? t("csv.importing") : t("csv.import")}
           </Button>
         </DialogFooter>
