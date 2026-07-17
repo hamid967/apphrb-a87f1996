@@ -394,6 +394,7 @@ const en = {
     previewSkipInvalid: "Invalid rows will be skipped",
     previewNoValid: "No valid rows to import",
     confirmImport: "Confirm and import {{count}}",
+    downloadErrors: "Download error report",
   },
   importSettings: {
     title: "Import & duplicate rules",
