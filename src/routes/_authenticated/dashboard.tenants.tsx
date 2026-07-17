@@ -153,6 +153,9 @@ function TenantsPage() {
               ? t("tenants.showActive", { defaultValue: "عرض النشطين" })
               : t("tenants.showArchived", { defaultValue: "عرض المؤرشفين" })}
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="size-4 me-2" /> {t("csv.importTenants")}
+          </Button>
           <Dialog open={creating} onOpenChange={setCreating}>
             <DialogTrigger asChild>
               <Button>
