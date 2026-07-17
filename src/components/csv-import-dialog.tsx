@@ -62,9 +62,17 @@ export function CsvImportDialog({
     setRows([]);
     setFileName("");
     setResult(null);
+    setProgress(0);
     sentIndexMapRef.current = [];
     sentRowsRef.current = [];
   };
+
+  // Keep the small progress bar visible for a beat after completion, then clear.
+  useEffect(() => {
+    if (progress !== 100) return;
+    const t = window.setTimeout(() => setProgress(0), 1500);
+    return () => window.clearTimeout(t);
+  }, [progress]);
 
   const normalizeHeader = (h: string) =>
     String(h ?? "").trim().toLowerCase().replace(/\s+/g, "_");
