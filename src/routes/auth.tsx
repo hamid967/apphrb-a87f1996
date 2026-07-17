@@ -39,7 +39,7 @@ import {
   resetFailedAttempts,
 } from "@/lib/auth-attempts";
 import { getDeviceFingerprint } from "@/lib/device-fingerprint";
-import { getAppOrigin, getAppUrl } from "@/lib/app-url";
+import { getAppUrl } from "@/lib/app-url";
 import {
   consumePendingRedirect,
   clearPendingRedirect,
