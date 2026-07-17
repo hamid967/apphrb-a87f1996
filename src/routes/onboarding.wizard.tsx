@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 import { useTranslation } from "react-i18next";
+import { t } from "@/lib/i18n";
 import { toast } from "sonner";
 import {
   Building2,
@@ -49,7 +50,10 @@ export const Route = createFileRoute("/onboarding/wizard")({
       : {};
   },
   head: () => ({
-    meta: [{ title: "تفعيل الحساب — HBSpro" }, { name: "robots", content: "noindex" }],
+    meta: [
+      { title: t("onboardingWizard.meta.title") },
+      { name: "robots", content: "noindex" },
+    ],
   }),
   component: OnboardingWizardPage,
 });
@@ -81,55 +85,40 @@ type Phase1OrganizationsClient = {
 };
 const STEPS: {
   key: StepKey;
-  label_ar: string;
-  label_en: string;
   icon: React.ComponentType<{ className?: string }>;
 }[] = [
-  { key: "profile", label_ar: "بياناتك", label_en: "You", icon: UserRound },
-  { key: "company", label_ar: "الشركة", label_en: "Company", icon: Building2 },
-  { key: "branch", label_ar: "الفرع والأقسام", label_en: "Branch & Depts", icon: Network },
-  { key: "property", label_ar: "أول وحدة", label_en: "First unit", icon: Home },
+  { key: "profile", icon: UserRound },
+  { key: "company", icon: Building2 },
+  { key: "branch", icon: Network },
+  { key: "property", icon: Home },
 ];
 
-const REASONS = [
-  "إدارة عقارات وإيجارات",
-  "إدارة صيانة ومهام",
-  "تنظيم المبيعات والعمولات",
-  "تقارير مالية وتحليلات",
-  "تجربة النظام قبل الاشتراك",
-  "أخرى",
-];
+const REASON_KEYS = [
+  "manage_rentals",
+  "maintenance",
+  "sales",
+  "reports",
+  "trial",
+  "other",
+] as const;
 
 const PROP_TYPES: {
   v: "apartment" | "villa" | "office" | "land" | "shop" | "building";
-  label: string;
 }[] = [
-  { v: "apartment", label: "شقة" },
-  { v: "villa", label: "فيلا" },
-  { v: "office", label: "مكتب" },
-  { v: "shop", label: "محل" },
-  { v: "building", label: "عمارة" },
-  { v: "land", label: "أرض" },
+  { v: "apartment" },
+  { v: "villa" },
+  { v: "office" },
+  { v: "shop" },
+  { v: "building" },
+  { v: "land" },
 ];
 
-const TRUST_ITEMS = [
-  "تجربة مجانية مفعّلة بعد إنشاء الشركة",
-  "إعداد سريع بدون بيانات حساسة",
-  "يمكن تعديل كل شيء لاحقًا من لوحة التحكم",
-];
-
-const STEP_HINTS: Record<StepKey, string> = {
-  profile: "عرّفنا عليك حتى يضبط حامد التجربة واللغة والتنبيهات.",
-  company: "أنشئ مساحة العمل التي ستضم العقارات والفريق والتقارير.",
-  branch: "أضف الفرع والأقسام لتجهيز الصلاحيات وسير العمل.",
-  property: "سجّل أول وحدة تديرها أو تخطّ الخطوة وأكمل من لوحة التحكم.",
-};
+const TRUST_KEYS = ["free", "quick", "editable"] as const;
 
 function OnboardingWizardPage() {
   const nav = useNavigate();
   const search = Route.useSearch();
-  const { i18n } = useTranslation();
-  const isAr = (i18n.language || "ar").startsWith("ar");
+  useTranslation(); // subscribe to language changes so t() re-renders
   const { user, ready } = useAuth();
   const register = useServerFn(registerCompany);
   const getCtx = useServerFn(getMyAccessContext);
@@ -177,10 +166,6 @@ function OnboardingWizardPage() {
   useEffect(() => {
     if (!ready) return;
     if (!user) {
-      // Preserve current location (path + query + hash) so /auth can bounce
-      // the visitor back here after sign-in. WebViews sometimes strip the
-      // ?redirect= query, so we also persist it in sessionStorage as a
-      // backup that survives the OAuth / magic-link round-trip.
       const loc =
         typeof window !== "undefined"
           ? `${window.location.pathname}${window.location.search}${window.location.hash}`
@@ -206,7 +191,6 @@ function OnboardingWizardPage() {
         }
         if (prof?.job_title) setJobTitle(prof.job_title);
         if (prof?.signup_reason) setReason(prof.signup_reason);
-        // Load company data too so the step-1 form pre-fills when editing.
         if (ctx.company_id) {
           setOrgId(ctx.company_id);
           const { data: comp } = await supabase
@@ -234,14 +218,13 @@ function OnboardingWizardPage() {
         } else if (prof?.full_name && prof?.signup_reason) {
           setStep(1);
         }
-        // Optional deep-link override: /onboarding/wizard?step=profile|company|branch|property
         const requested = search.step;
         if (requested) {
           const idx = STEP_KEYS.indexOf(requested);
           if (idx >= 0) setStep(idx as 0 | 1 | 2 | 3);
         }
       } catch (err) {
-        toast.error("تعذّر تحميل معالج التسجيل", {
+        toast.error(t("onboardingWizard.toasts.loadFailed"), {
           description: err instanceof Error ? err.message : String(err),
         });
       } finally {
@@ -255,9 +238,9 @@ function OnboardingWizardPage() {
   const submitProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    if (fullName.trim().length < 2) return toast.error("يرجى إدخال الاسم الكامل");
-    if (!reason) return toast.error("يرجى اختيار سبب الاشتراك");
-    if (phone && !phoneVerified) return toast.error("يرجى تأكيد رقم الجوال");
+    if (fullName.trim().length < 2) return toast.error(t("onboardingWizard.toasts.fullNameRequired"));
+    if (!reason) return toast.error(t("onboardingWizard.toasts.reasonRequired"));
+    if (phone && !phoneVerified) return toast.error(t("onboardingWizard.toasts.verifyPhone"));
     setBusy(true);
     try {
       const { error } = await supabase
@@ -271,10 +254,10 @@ function OnboardingWizardPage() {
         .eq("id", user.id);
       if (error) throw error;
       await markStep({ data: { step: "profile", done: true } }).catch(() => {});
-      if (!wsName) setWsName(""); // no-op prime
+      if (!wsName) setWsName("");
       setStep(1);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "تعذّر الحفظ");
+      toast.error(err instanceof Error ? err.message : t("onboardingWizard.toasts.saveFailed"));
     } finally {
       setBusy(false);
     }
@@ -284,10 +267,14 @@ function OnboardingWizardPage() {
     e.preventDefault();
     const isBusiness = accountType === "business";
     if (wsName.trim().length < 2) {
-      return toast.error(isBusiness ? "يرجى إدخال اسم المنشأة" : "يرجى إدخال الاسم");
+      return toast.error(
+        isBusiness
+          ? t("onboardingWizard.toasts.nameRequiredBusiness")
+          : t("onboardingWizard.toasts.nameRequiredIndividual"),
+      );
     }
     if (isBusiness && taxNumber.trim() && !/^\d{15}$/.test(taxNumber.trim())) {
-      return toast.error("الرقم الضريبي للمنشأة يجب أن يتكون من 15 خانة");
+      return toast.error(t("onboardingWizard.toasts.taxInvalid"));
     }
     setBusy(true);
     try {
@@ -319,7 +306,7 @@ function OnboardingWizardPage() {
         if (logoUpdateError) throw logoUpdateError;
       }
       await markStep({ data: { step: "company", done: true } }).catch(() => {});
-      toast.success(`تم إنشاء الحساب — تجربة مجانية ${res.trial_days} يومًا`);
+      toast.success(t("onboardingWizard.toasts.accountCreated", { days: res.trial_days }));
       setStep(2);
     } catch (err) {
       const hint = describeCompanyCreateError(err);
@@ -339,7 +326,6 @@ function OnboardingWizardPage() {
       ),
     ).slice(0, 20);
 
-  // Regex هاتف سعودي مرن: +9665XXXXXXXX أو 05XXXXXXXX أو 5XXXXXXXX
   const SAUDI_PHONE_RE = /^(?:\+?966|0)?5\d{8}$/;
   const normalizePhone = (raw: string): string | null => {
     const d = raw.replace(/[\s-]/g, "");
@@ -351,33 +337,36 @@ function OnboardingWizardPage() {
 
   const submitBranch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!orgId) return toast.error("مساحة العمل غير جاهزة");
+    if (!orgId) return toast.error(t("onboardingWizard.toasts.orgNotReady"));
 
     const name = brName.trim();
-    if (name.length < 2) return toast.error("اسم الفرع قصير جدًا (حرفان على الأقل)");
-    if (name.length > 120) return toast.error("اسم الفرع طويل جدًا (حتى 120 حرفًا)");
+    if (name.length < 2) return toast.error(t("onboardingWizard.toasts.branchNameShort"));
+    if (name.length > 120) return toast.error(t("onboardingWizard.toasts.branchNameLong"));
 
     let phone: string | null = null;
     if (brPhone.trim()) {
       const p = normalizePhone(brPhone);
-      if (p === "invalid") return toast.error("رقم الجوال غير صالح — استخدم صيغة 05XXXXXXXX");
+      if (p === "invalid") return toast.error(t("onboardingWizard.toasts.phoneInvalid"));
       phone = p;
     }
 
     const address = brAddress.trim();
-    if (address.length > 240) return toast.error("العنوان طويل جدًا (حتى 240 حرفًا)");
+    if (address.length > 240) return toast.error(t("onboardingWizard.toasts.addressLong"));
 
     const departments = parseDepartments(brDepartments);
     const rawCount = brDepartments
       .split(/[،,\n]/g)
       .map((s) => s.trim())
       .filter(Boolean).length;
-    if (rawCount > 20) return toast.error("الحد الأقصى 20 قسمًا في هذه الخطوة");
+    if (rawCount > 20) return toast.error(t("onboardingWizard.toasts.deptsMax"));
     const tooLong = brDepartments
       .split(/[،,\n]/g)
       .map((s) => s.trim())
       .find((s) => s.length > 80);
-    if (tooLong) return toast.error(`اسم القسم "${tooLong.slice(0, 20)}…" طويل جدًا`);
+    if (tooLong)
+      return toast.error(
+        t("onboardingWizard.toasts.deptTooLong", { name: tooLong.slice(0, 20) }),
+      );
 
     setBusy(true);
     try {
@@ -392,11 +381,13 @@ function OnboardingWizardPage() {
       });
       await markStep({ data: { step: "branch", done: true } }).catch(() => {});
       toast.success(
-        res.departments > 0 ? `تم حفظ الفرع و${res.departments} قسمًا` : "تم حفظ الفرع",
+        res.departments > 0
+          ? t("onboardingWizard.toasts.branchSavedWithDepts", { count: res.departments })
+          : t("onboardingWizard.toasts.branchSaved"),
       );
       setStep(3);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "تعذّر حفظ الفرع");
+      toast.error(err instanceof Error ? err.message : t("onboardingWizard.toasts.branchSaveFailed"));
     } finally {
       setBusy(false);
     }
@@ -408,37 +399,22 @@ function OnboardingWizardPage() {
 
   const submitProperty = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.info("[wizard]", "step:4 submitProperty -> start", {
-      orgId: orgId ?? null,
-      hasTitle: propTitle.trim().length >= 2,
-      priceRaw: propPrice,
-      propType,
-      city: propCity.trim() || null,
-    });
     if (!orgId) {
-      console.warn("[wizard]", "step:4 validation-failed", { reason: "missing_org_id" });
-      toast.error("لم يتم إنشاء مساحة العمل بعد", {
-        description: "ارجع إلى خطوة الشركة وأكملها ثم أعِد المحاولة.",
+      toast.error(t("onboardingWizard.toasts.workspaceMissing"), {
+        description: t("onboardingWizard.toasts.workspaceMissingDesc"),
       });
       setStep(1);
       return;
     }
     if (propTitle.trim().length < 2) {
-      console.warn("[wizard]", "step:4 validation-failed", { reason: "title_too_short" });
-      return toast.error("يرجى إدخال اسم العقار");
+      return toast.error(t("onboardingWizard.toasts.propertyNameRequired"));
     }
     const priceNum = Number(propPrice || "0");
     if (!Number.isFinite(priceNum) || priceNum < 0) {
-      console.warn("[wizard]", "step:4 validation-failed", {
-        reason: "invalid_price",
-        priceRaw: propPrice,
-      });
-      return toast.error("السعر غير صحيح");
+      return toast.error(t("onboardingWizard.toasts.priceInvalid"));
     }
     setBusy(true);
     try {
-      console.info("[wizard]", "step:4 api:createProp -> start");
-      const t0 = performance.now();
       await createProp({
         data: {
           org_id: orgId,
@@ -452,29 +428,16 @@ function OnboardingWizardPage() {
           city: propCity.trim() || null,
         },
       });
-      console.info("[wizard]", "step:4 api:createProp -> done", {
-        ms: Math.round(performance.now() - t0),
-      });
-      console.info("[wizard]", "step:4 api:markStep(first_receipt) -> start");
-      const markRes = await markStep({ data: { step: "first_receipt", done: true } });
-      console.info("[wizard]", "step:4 api:markStep -> done", { completed: markRes?.completed });
-      // Invalidate cached onboarding/access queries so /dashboard reads the
-      // fresh completed state instead of a stale "incomplete" snapshot.
+      await markStep({ data: { step: "first_receipt", done: true } });
       await queryClient.invalidateQueries({ queryKey: ["dashboard-onboarding-state"] });
       await queryClient.invalidateQueries({ queryKey: ["my-access-context"] });
-      toast.success("تم تفعيل حسابك بنجاح!");
+      toast.success(t("onboardingWizard.toasts.activated"));
       setBusy(false);
-      console.info("[wizard]", "step:4 nav -> /dashboard");
       setTimeout(() => goDashboard(), 50);
       return;
     } catch (err) {
-      console.error("[wizard]", "step:4 failed", {
-        message: err instanceof Error ? err.message : String(err),
-        name: err instanceof Error ? err.name : undefined,
-        stack: err instanceof Error ? err.stack : undefined,
-      });
-      toast.error(err instanceof Error ? err.message : "تعذّر إنشاء العقار", {
-        description: 'تحقق من اتصالك ثم أعد المحاولة، أو اضغط "تخطّي" للمتابعة.',
+      toast.error(err instanceof Error ? err.message : t("onboardingWizard.toasts.propertyFailed"), {
+        description: t("onboardingWizard.toasts.propertyFailedDesc"),
       });
     } finally {
       setBusy(false);
@@ -482,26 +445,16 @@ function OnboardingWizardPage() {
   };
 
   const skipProperty = async () => {
-    console.info("[wizard]", "step:4 skipProperty -> start");
     setBusy(true);
     try {
-      const markRes = await markStep({ data: { step: "first_receipt", done: true } });
-      console.info("[wizard]", "step:4 skip api:markStep -> done", {
-        completed: markRes?.completed,
-      });
+      await markStep({ data: { step: "first_receipt", done: true } });
       await queryClient.invalidateQueries({ queryKey: ["dashboard-onboarding-state"] });
       await queryClient.invalidateQueries({ queryKey: ["my-access-context"] });
       setBusy(false);
-      console.info("[wizard]", "step:4 skip nav -> /dashboard");
       setTimeout(() => goDashboard(), 50);
     } catch (err) {
-      console.error("[wizard]", "step:4 skip failed", {
-        message: err instanceof Error ? err.message : String(err),
-        name: err instanceof Error ? err.name : undefined,
-        stack: err instanceof Error ? err.stack : undefined,
-      });
-      toast.error(err instanceof Error ? err.message : "تعذّر إكمال التسجيل", {
-        description: "أعد المحاولة، أو حدّث الصفحة.",
+      toast.error(err instanceof Error ? err.message : t("onboardingWizard.toasts.completeFailed"), {
+        description: t("onboardingWizard.toasts.completeFailedDesc"),
       });
       setBusy(false);
     }
@@ -519,34 +472,32 @@ function OnboardingWizardPage() {
           <div className="studio-panel-dark studio-noise p-8">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#C5A059]/35 bg-[#C5A059]/10 px-4 py-2 text-sm font-bold text-[#E8D9A6]">
               <Sparkles className="size-4" />
-              تفعيل HBSpro
+              {t("onboardingWizard.brandActivation")}
             </div>
             <h1 className="text-4xl font-black leading-tight text-white">
-              ابدأ تشغيل محفظتك العقارية خلال دقائق
+              {t("onboardingWizard.heroTitle")}
             </h1>
             <p className="mt-4 text-sm leading-7 text-[#c9ddd4]">
-              هذه الخطوات تجهّز حسابك، بيانات الفرد أو المنشأة، الشعار، والفرع الأول حتى تدخل لوحة
-              التحكم لإدارة الأملاك وتسجيل المصاريف مباشرة.
+              {t("onboardingWizard.heroDescription")}
             </p>
             <div className="mt-8 space-y-3">
-              {TRUST_ITEMS.map((item) => (
+              {TRUST_KEYS.map((k) => (
                 <div
-                  key={item}
+                  key={k}
                   className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4 text-sm text-[#E8D9A6]"
                 >
                   <Check className="mt-0.5 size-4 shrink-0 text-[#C5A059]" />
-                  <span>{item}</span>
+                  <span>{t(`onboardingWizard.trust.${k}`)}</span>
                 </div>
               ))}
             </div>
             <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
               <div className="mb-2 flex items-center gap-2 text-sm font-bold text-[#E8D9A6]">
                 <Sparkles className="size-4 text-[#C5A059]" />
-                حامد يساعدك أثناء التسجيل
+                {t("onboardingWizard.hamidTitle")}
               </div>
               <p className="text-xs leading-6 text-[#c9ddd4]">
-                استخدم زر المساعد في كل خطوة لتعبئة البيانات المقترحة أو معرفة الخطوة التالية بدون
-                مغادرة التسجيل.
+                {t("onboardingWizard.hamidDescription")}
               </p>
             </div>
           </div>
@@ -557,19 +508,19 @@ function OnboardingWizardPage() {
             <div>
               <div className="template-pill mb-3">
                 <Sparkles className="size-3.5" />
-                تسجيل مزدوج للحساب
+                {t("onboardingWizard.header.pill")}
               </div>
               <h1 className="text-2xl font-black tracking-tight text-foreground sm:text-3xl">
-                تفعيل حساب HBSpro
+                {t("onboardingWizard.header.title")}
               </h1>
               <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-                اختر حساب فرد أو منشأة، واحفظ البيانات التي ستظهر لاحقًا في التقارير وملفات PDF.
+                {t("onboardingWizard.header.subtitle")}
               </p>
             </div>
             <Button asChild variant="ghost" size="sm" className="h-8 gap-1 text-xs">
               <Link to="/onboarding/summary">
                 <ListChecks className="size-3.5" />
-                عرض الملخّص
+                {t("onboardingWizard.header.summary")}
               </Link>
             </Button>
           </div>
@@ -604,18 +555,19 @@ function OnboardingWizardPage() {
                         <Icon className="size-4" />
                       )}
                     </span>
-                    <span className="text-[11px] font-bold tabular-nums">{i + 1}/4</span>
+                    <span className="text-[11px] font-bold tabular-nums">
+                      {t("onboardingWizard.progress.counter", { step: i + 1, total: STEPS.length })}
+                    </span>
                   </div>
-                  <div className="text-sm font-bold">{isAr ? s.label_ar : s.label_en}</div>
+                  <div className="text-sm font-bold">{t(`onboardingWizard.steps.${s.key}`)}</div>
                   <p className="mt-1 line-clamp-2 text-[11px] leading-5 opacity-75">
-                    {STEP_HINTS[s.key]}
+                    {t(`onboardingWizard.hints.${s.key}`)}
                   </p>
                 </button>
               );
             })}
           </div>
 
-          {/* Stepper */}
           {/* Dynamic progress bar */}
           {(() => {
             const pct = Math.round(((step + 1) / STEPS.length) * 100);
@@ -627,7 +579,7 @@ function OnboardingWizardPage() {
                   aria-valuenow={pct}
                   aria-valuemin={0}
                   aria-valuemax={100}
-                  aria-label={isAr ? "تقدّم التفعيل" : "Activation progress"}
+                  aria-label={t("onboardingWizard.progress.aria")}
                 >
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-primary to-teal-500 transition-[width] duration-500 ease-out"
@@ -636,9 +588,10 @@ function OnboardingWizardPage() {
                 </div>
                 <div className="mt-1.5 flex items-center justify-between text-xs text-muted-foreground">
                   <span>
-                    {isAr
-                      ? `الخطوة ${step + 1} من ${STEPS.length}`
-                      : `Step ${step + 1} of ${STEPS.length}`}
+                    {t("onboardingWizard.progress.stepOf", {
+                      step: step + 1,
+                      total: STEPS.length,
+                    })}
                   </span>
                   <span className="tabular-nums">{pct}%</span>
                 </div>
@@ -648,15 +601,17 @@ function OnboardingWizardPage() {
 
           {checking ? (
             <div className="flex items-center gap-2 py-8 text-sm text-muted-foreground">
-              <Loader2 className="size-4 animate-spin" /> جارٍ التحقّق…
+              <Loader2 className="size-4 animate-spin" /> {t("onboardingWizard.progress.checking")}
             </div>
           ) : step === 0 ? (
             <>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-black tracking-tight">أكمل بياناتك</h2>
+                  <h2 className="text-2xl font-black tracking-tight">
+                    {t("onboardingWizard.profile.heading")}
+                  </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    ابدأ بمعلوماتك الأساسية حتى يخصص النظام التجربة والتنبيهات لك.
+                    {t("onboardingWizard.profile.subheading")}
                   </p>
                 </div>
                 <OnboardingAiHelper
@@ -665,13 +620,21 @@ function OnboardingWizardPage() {
                     if (f.full_name) setFullName(f.full_name);
                     if (f.phone) setPhone(f.phone);
                     if (f.job_title) setJobTitle(f.job_title);
-                    if (f.reason && REASONS.includes(f.reason)) setReason(f.reason);
+                    if (f.reason) {
+                      // AI may return a key or a localized label; accept either
+                      const matched = REASON_KEYS.find(
+                        (k) =>
+                          k === f.reason ||
+                          t(`onboardingWizard.reasons.${k}`) === f.reason,
+                      );
+                      if (matched) setReason(matched);
+                    }
                   }}
                 />
               </div>
               <form onSubmit={submitProfile} className="mt-6 space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="fullName">الاسم الكامل *</Label>
+                  <Label htmlFor="fullName">{t("onboardingWizard.profile.fullName")}</Label>
                   <Input
                     id="fullName"
                     value={fullName}
@@ -679,7 +642,7 @@ function OnboardingWizardPage() {
                     required
                     minLength={2}
                     autoFocus
-                    placeholder="مثال: حامد الشهري"
+                    placeholder={t("onboardingWizard.profile.fullNamePlaceholder")}
                   />
                 </div>
                 <PhoneVerifyInput
@@ -688,31 +651,32 @@ function OnboardingWizardPage() {
                   onVerifiedChange={setPhoneVerified}
                 />
                 <div className="space-y-1.5">
-                  <Label htmlFor="jobTitle">المسمى الوظيفي</Label>
+                  <Label htmlFor="jobTitle">{t("onboardingWizard.profile.jobTitle")}</Label>
                   <Input
                     id="jobTitle"
                     value={jobTitle}
                     onChange={(e) => setJobTitle(e.target.value)}
-                    placeholder="مثال: مدير عقاري"
+                    placeholder={t("onboardingWizard.profile.jobTitlePlaceholder")}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>سبب الاشتراك *</Label>
+                  <Label>{t("onboardingWizard.profile.reason")}</Label>
                   <Select value={reason} onValueChange={setReason}>
                     <SelectTrigger>
-                      <SelectValue placeholder="اختر سبب استخدامك للنظام" />
+                      <SelectValue placeholder={t("onboardingWizard.profile.reasonPlaceholder")} />
                     </SelectTrigger>
                     <SelectContent>
-                      {REASONS.map((r) => (
-                        <SelectItem key={r} value={r}>
-                          {r}
+                      {REASON_KEYS.map((k) => (
+                        <SelectItem key={k} value={k}>
+                          {t(`onboardingWizard.reasons.${k}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <Button type="submit" className="h-11 w-full studio-button" disabled={busy}>
-                  {busy && <Loader2 className="me-2 size-4 animate-spin" />} متابعة
+                  {busy && <Loader2 className="me-2 size-4 animate-spin" />}{" "}
+                  {t("onboardingWizard.profile.continue")}
                 </Button>
               </form>
             </>
@@ -720,9 +684,11 @@ function OnboardingWizardPage() {
             <>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-black tracking-tight">بيانات الحساب</h2>
+                  <h2 className="text-2xl font-black tracking-tight">
+                    {t("onboardingWizard.company.heading")}
+                  </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    اختر نوع الحساب واحفظ البيانات التي ستُستخدم في ترويسة التقارير وملفات PDF.
+                    {t("onboardingWizard.company.subheading")}
                   </p>
                 </div>
                 <OnboardingAiHelper
@@ -737,7 +703,7 @@ function OnboardingWizardPage() {
                 <div
                   className="grid gap-3 sm:grid-cols-2"
                   role="radiogroup"
-                  aria-label="نوع الحساب"
+                  aria-label={t("onboardingWizard.company.accountTypeAria")}
                 >
                   <button
                     type="button"
@@ -750,9 +716,9 @@ function OnboardingWizardPage() {
                     ].join(" ")}
                   >
                     <UserRound className="mb-3 size-5 text-primary" />
-                    <div className="font-black">حساب فرد</div>
+                    <div className="font-black">{t("onboardingWizard.company.individual")}</div>
                     <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                      لمالك عقار أو إدارة مصاريف شخصية وعقارية.
+                      {t("onboardingWizard.company.individualDesc")}
                     </p>
                   </button>
                   <button
@@ -766,16 +732,18 @@ function OnboardingWizardPage() {
                     ].join(" ")}
                   >
                     <Building2 className="mb-3 size-5 text-primary" />
-                    <div className="font-black">حساب منشأة</div>
+                    <div className="font-black">{t("onboardingWizard.company.business")}</div>
                     <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                      لشركة أو مؤسسة مع بيانات ضريبية ومفوض رسمي.
+                      {t("onboardingWizard.company.businessDesc")}
                     </p>
                   </button>
                 </div>
 
                 <div className="space-y-1.5">
                   <Label htmlFor="ws-name">
-                    {accountType === "business" ? "اسم المنشأة *" : "الاسم *"}
+                    {accountType === "business"
+                      ? t("onboardingWizard.company.nameBusiness")
+                      : t("onboardingWizard.company.nameIndividual")}
                   </Label>
                   <Input
                     id="ws-name"
@@ -787,13 +755,13 @@ function OnboardingWizardPage() {
                     autoFocus
                     placeholder={
                       accountType === "business"
-                        ? "مثال: شركة النور العقارية"
-                        : "مثال: عبدالله الحربي"
+                        ? t("onboardingWizard.company.namePlaceholderBusiness")
+                        : t("onboardingWizard.company.namePlaceholderIndividual")
                     }
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="ws-phone">رقم الجوال أو الاتصال</Label>
+                  <Label htmlFor="ws-phone">{t("onboardingWizard.company.phone")}</Label>
                   <Input
                     id="ws-phone"
                     type="tel"
@@ -805,8 +773,10 @@ function OnboardingWizardPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="tax-number">
-                    الرقم الضريبي{" "}
-                    {accountType === "individual" ? "(اختياري)" : "(اختياري في Phase 1)"}
+                    {t("onboardingWizard.company.taxNumber")}{" "}
+                    {accountType === "individual"
+                      ? t("onboardingWizard.company.taxOptional")
+                      : t("onboardingWizard.company.taxOptionalPhase1")}
                   </Label>
                   <Input
                     id="tax-number"
@@ -814,26 +784,30 @@ function OnboardingWizardPage() {
                     dir="ltr"
                     value={taxNumber}
                     onChange={(e) => setTaxNumber(e.target.value.replace(/\D/g, "").slice(0, 15))}
-                    placeholder="15 خانة"
+                    placeholder={t("onboardingWizard.company.taxPlaceholder")}
                   />
                   <p className="text-xs text-muted-foreground">
-                    سيُستخدم لاحقًا تلقائيًا في ترويسة PDF والفواتير الضريبية.
+                    {t("onboardingWizard.company.taxHint")}
                   </p>
                 </div>
 
                 {accountType === "business" && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                      <Label htmlFor="commercial-registration">السجل التجاري</Label>
+                      <Label htmlFor="commercial-registration">
+                        {t("onboardingWizard.company.commercialRegistration")}
+                      </Label>
                       <Input
                         id="commercial-registration"
                         value={commercialRegistration}
                         onChange={(e) => setCommercialRegistration(e.target.value)}
-                        placeholder="مثال: 4030XXXXXX"
+                        placeholder={t("onboardingWizard.company.commercialRegistrationPlaceholder")}
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="authorized-person-phone">جوال المفوض</Label>
+                      <Label htmlFor="authorized-person-phone">
+                        {t("onboardingWizard.company.authorizedPhone")}
+                      </Label>
                       <Input
                         id="authorized-person-phone"
                         type="tel"
@@ -844,21 +818,25 @@ function OnboardingWizardPage() {
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="authorized-person-name">اسم المفوض</Label>
+                      <Label htmlFor="authorized-person-name">
+                        {t("onboardingWizard.company.authorizedName")}
+                      </Label>
                       <Input
                         id="authorized-person-name"
                         value={authorizedPersonName}
                         onChange={(e) => setAuthorizedPersonName(e.target.value)}
-                        placeholder="اسم الشخص المفوض"
+                        placeholder={t("onboardingWizard.company.authorizedNamePlaceholder")}
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="national-address">العنوان الوطني</Label>
+                      <Label htmlFor="national-address">
+                        {t("onboardingWizard.company.nationalAddress")}
+                      </Label>
                       <Input
                         id="national-address"
                         value={nationalAddress}
                         onChange={(e) => setNationalAddress(e.target.value)}
-                        placeholder="المدينة، الحي، رقم المبنى"
+                        placeholder={t("onboardingWizard.company.nationalAddressPlaceholder")}
                       />
                     </div>
                   </div>
@@ -867,7 +845,9 @@ function OnboardingWizardPage() {
                 <div className="rounded-2xl border border-dashed border-primary/30 bg-primary/5 p-4">
                   <Label htmlFor="account-logo" className="flex items-center gap-2">
                     <FileImage className="size-4 text-primary" />
-                    {accountType === "business" ? "شعار المنشأة" : "الشعار أو الصورة"}
+                    {accountType === "business"
+                      ? t("onboardingWizard.company.logoBusiness")
+                      : t("onboardingWizard.company.logoIndividual")}
                   </Label>
                   <Input
                     id="account-logo"
@@ -877,21 +857,22 @@ function OnboardingWizardPage() {
                     onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
                   />
                   <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                    الحد الأقصى 5MB. يُحفظ داخل مساحة الحساب لاستخدامه لاحقًا في التصدير.
+                    {t("onboardingWizard.company.logoHint")}
                   </p>
                 </div>
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
                   <div className="flex items-start gap-2">
                     <Sparkles className="mt-0.5 size-3.5 shrink-0 text-primary" />
-                    <span>سيتم ربطك بدور «المالك» وتفعيل عزل البيانات الخاص بهذا الحساب.</span>
+                    <span>{t("onboardingWizard.company.ownerNote")}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <Button type="button" variant="ghost" onClick={() => setStep(0)} disabled={busy}>
-                    رجوع
+                    {t("onboardingWizard.company.back")}
                   </Button>
                   <Button type="submit" className="h-11 flex-1 studio-button" disabled={busy}>
-                    {busy && <Loader2 className="me-2 size-4 animate-spin" />} إنشاء ومتابعة
+                    {busy && <Loader2 className="me-2 size-4 animate-spin" />}{" "}
+                    {t("onboardingWizard.company.createAndContinue")}
                   </Button>
                 </div>
               </form>
@@ -900,9 +881,11 @@ function OnboardingWizardPage() {
             <>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-black tracking-tight">الفرع والأقسام</h2>
+                  <h2 className="text-2xl font-black tracking-tight">
+                    {t("onboardingWizard.branch.heading")}
+                  </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    أضف فرعك الرئيسي وأقسامه الأساسية — يمكنك إضافة المزيد لاحقًا من الإعدادات.
+                    {t("onboardingWizard.branch.subheading")}
                   </p>
                 </div>
                 <OnboardingAiHelper
@@ -918,7 +901,7 @@ function OnboardingWizardPage() {
               </div>
               <form onSubmit={submitBranch} className="mt-6 space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="br-name">اسم الفرع *</Label>
+                  <Label htmlFor="br-name">{t("onboardingWizard.branch.name")}</Label>
                   <Input
                     id="br-name"
                     value={brName}
@@ -926,12 +909,12 @@ function OnboardingWizardPage() {
                     minLength={2}
                     maxLength={120}
                     autoFocus
-                    placeholder="مثال: الفرع الرئيسي — الرياض"
+                    placeholder={t("onboardingWizard.branch.namePlaceholder")}
                   />
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <Label htmlFor="br-phone">هاتف الفرع</Label>
+                    <Label htmlFor="br-phone">{t("onboardingWizard.branch.phone")}</Label>
                     <Input
                       id="br-phone"
                       type="tel"
@@ -942,37 +925,41 @@ function OnboardingWizardPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="br-address">العنوان</Label>
+                    <Label htmlFor="br-address">{t("onboardingWizard.branch.address")}</Label>
                     <Input
                       id="br-address"
                       value={brAddress}
                       onChange={(e) => setBrAddress(e.target.value)}
                       maxLength={240}
-                      placeholder="حي، شارع، مدينة"
+                      placeholder={t("onboardingWizard.branch.addressPlaceholder")}
                     />
                   </div>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="br-depts">
-                    الأقسام <span className="text-muted-foreground">(افصل بينها بفاصلة)</span>
+                    {t("onboardingWizard.branch.departments")}{" "}
+                    <span className="text-muted-foreground">
+                      {t("onboardingWizard.branch.departmentsHint")}
+                    </span>
                   </Label>
                   <Input
                     id="br-depts"
                     value={brDepartments}
                     onChange={(e) => setBrDepartments(e.target.value)}
-                    placeholder="المبيعات، الإيجارات، الصيانة، المحاسبة"
+                    placeholder={t("onboardingWizard.branch.departmentsPlaceholder")}
                   />
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <Button type="button" variant="ghost" onClick={() => setStep(1)} disabled={busy}>
-                    رجوع
+                    {t("onboardingWizard.branch.back")}
                   </Button>
                   <div className="flex flex-1 items-center justify-end gap-2">
                     <Button type="button" variant="outline" onClick={skipBranch} disabled={busy}>
-                      تخطّي
+                      {t("onboardingWizard.branch.skip")}
                     </Button>
                     <Button type="submit" className="h-11 flex-1 studio-button" disabled={busy}>
-                      {busy && <Loader2 className="me-2 size-4 animate-spin" />} حفظ ومتابعة
+                      {busy && <Loader2 className="me-2 size-4 animate-spin" />}{" "}
+                      {t("onboardingWizard.branch.saveAndContinue")}
                     </Button>
                   </div>
                 </div>
@@ -982,9 +969,11 @@ function OnboardingWizardPage() {
             <>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-black tracking-tight">أضف أول وحدة تحت الإدارة</h2>
+                  <h2 className="text-2xl font-black tracking-tight">
+                    {t("onboardingWizard.property.heading")}
+                  </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    سجّل أول عقار أو وحدة تديرها، أو تخطَّ الخطوة وأكمل من لوحة التحكم لاحقًا.
+                    {t("onboardingWizard.property.subheading")}
                   </p>
                 </div>
                 <OnboardingAiHelper
@@ -999,7 +988,7 @@ function OnboardingWizardPage() {
               </div>
               <form onSubmit={submitProperty} className="mt-6 space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="p-title">اسم العقار *</Label>
+                  <Label htmlFor="p-title">{t("onboardingWizard.property.title")}</Label>
                   <Input
                     id="p-title"
                     value={propTitle}
@@ -1007,12 +996,12 @@ function OnboardingWizardPage() {
                     minLength={2}
                     maxLength={140}
                     autoFocus
-                    placeholder="مثال: شقة رقم 12 — حي النرجس"
+                    placeholder={t("onboardingWizard.property.titlePlaceholder")}
                   />
                 </div>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <Label>النوع</Label>
+                    <Label>{t("onboardingWizard.property.type")}</Label>
                     <Select
                       value={propType}
                       onValueChange={(v) => setPropType(v as typeof propType)}
@@ -1023,25 +1012,25 @@ function OnboardingWizardPage() {
                       <SelectContent>
                         {PROP_TYPES.map((p) => (
                           <SelectItem key={p.v} value={p.v}>
-                            {p.label}
+                            {t(`onboardingWizard.propertyTypes.${p.v}`)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="p-city">المدينة</Label>
+                    <Label htmlFor="p-city">{t("onboardingWizard.property.city")}</Label>
                     <Input
                       id="p-city"
                       value={propCity}
                       onChange={(e) => setPropCity(e.target.value)}
                       maxLength={80}
-                      placeholder="الرياض"
+                      placeholder={t("onboardingWizard.property.cityPlaceholder")}
                     />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="p-price">قيمة الإيجار الشهري أو التقييم (ر.س)</Label>
+                  <Label htmlFor="p-price">{t("onboardingWizard.property.price")}</Label>
                   <Input
                     id="p-price"
                     type="number"
@@ -1054,14 +1043,15 @@ function OnboardingWizardPage() {
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <Button type="button" variant="ghost" onClick={() => setStep(2)} disabled={busy}>
-                    رجوع
+                    {t("onboardingWizard.property.back")}
                   </Button>
                   <div className="flex flex-1 items-center justify-end gap-2">
                     <Button type="button" variant="outline" onClick={skipProperty} disabled={busy}>
-                      تخطّي
+                      {t("onboardingWizard.property.skip")}
                     </Button>
                     <Button type="submit" className="h-11 flex-1 studio-button" disabled={busy}>
-                      {busy && <Loader2 className="me-2 size-4 animate-spin" />} إنشاء وبدء العمل
+                      {busy && <Loader2 className="me-2 size-4 animate-spin" />}{" "}
+                      {t("onboardingWizard.property.createAndStart")}
                     </Button>
                   </div>
                 </div>
