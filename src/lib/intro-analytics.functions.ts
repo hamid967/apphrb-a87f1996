@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export type IntroEvent = "shown" | "skipped" | "completed";
+export type IntroEvent = "shown" | "skipped" | "completed" | "cta_click";
 
 export interface IntroStatsRow {
   day: string; // YYYY-MM-DD
@@ -9,11 +9,20 @@ export interface IntroStatsRow {
   shown: number;
   skipped: number;
   completed: number;
+  cta_click: number;
   completion_pct: number;
+  ctr_pct: number;
 }
 
 export interface IntroStats {
-  totals: { shown: number; skipped: number; completed: number; completion_pct: number };
+  totals: {
+    shown: number;
+    skipped: number;
+    completed: number;
+    cta_click: number;
+    completion_pct: number;
+    ctr_pct: number;
+  };
   rows: IntroStatsRow[];
   paths: string[];
   days: number;
@@ -34,7 +43,7 @@ export const getIntroStats = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
 
     const bucket = new Map<string, IntroStatsRow>();
-    const totals = { shown: 0, skipped: 0, completed: 0 };
+    const totals = { shown: 0, skipped: 0, completed: 0, cta_click: 0 };
 
     for (const r of rows ?? []) {
       const day = (r.created_at as string).slice(0, 10);
@@ -42,29 +51,48 @@ export const getIntroStats = createServerFn({ method: "GET" })
       const key = `${day}|${path}`;
       let row = bucket.get(key);
       if (!row) {
-        row = { day, path, shown: 0, skipped: 0, completed: 0, completion_pct: 0 };
+        row = {
+          day,
+          path,
+          shown: 0,
+          skipped: 0,
+          completed: 0,
+          cta_click: 0,
+          completion_pct: 0,
+          ctr_pct: 0,
+        };
         bucket.set(key, row);
       }
       const ev = r.event as IntroEvent;
-      if (ev === "shown" || ev === "skipped" || ev === "completed") {
+      if (ev === "shown" || ev === "skipped" || ev === "completed" || ev === "cta_click") {
         row[ev] += 1;
         totals[ev] += 1;
       }
     }
 
+    const pct = (num: number, den: number) =>
+      den ? Math.round((1000 * num) / den) / 10 : 0;
+
     const rowsOut = Array.from(bucket.values())
       .map((r) => ({
         ...r,
-        completion_pct: r.shown ? Math.round((1000 * r.completed) / r.shown) / 10 : 0,
+        completion_pct: pct(r.completed, r.shown),
+        ctr_pct: pct(r.cta_click, r.shown),
       }))
       .sort((a, b) =>
         a.day === b.day ? a.path.localeCompare(b.path) : b.day.localeCompare(a.day),
       );
 
     const paths = Array.from(new Set(rowsOut.map((r) => r.path))).sort();
-    const completion_pct = totals.shown
-      ? Math.round((1000 * totals.completed) / totals.shown) / 10
-      : 0;
 
-    return { totals: { ...totals, completion_pct }, rows: rowsOut, paths, days: data.days };
+    return {
+      totals: {
+        ...totals,
+        completion_pct: pct(totals.completed, totals.shown),
+        ctr_pct: pct(totals.cta_click, totals.shown),
+      },
+      rows: rowsOut,
+      paths,
+      days: data.days,
+    };
   });
