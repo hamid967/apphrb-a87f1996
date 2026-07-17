@@ -651,6 +651,17 @@ function UnitsSection({
                       {u.currency_code ?? currency}
                     </span>
                   )}
+                  {canEdit && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-7"
+                      onClick={() => openEdit(u)}
+                      aria-label={t("units.quickAdd.edit")}
+                    >
+                      <Pencil className="size-3.5" />
+                    </Button>
+                  )}
                 </div>
               </li>
             ))}
