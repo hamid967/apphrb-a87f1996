@@ -198,7 +198,7 @@ function PropertyDetails() {
             </div>
           )}
 
-          <UnitsSection propertyId={id} canEdit={!!canEdit} currency={p.currency ?? "SAR"} />
+          <UnitsSection propertyId={id} orgId={p.org_id} canEdit={!!canEdit} currency={p.currency ?? "SAR"} />
         </article>
       ) : (
         <EditForm
