@@ -36,7 +36,7 @@ export const getLeadDetail = createServerFn({ method: "GET" })
       context.supabase
         .from("listing_lead_matches")
         .select(
-          "*, listing:listings(id, title, price, currency, city, hero_image, bedrooms, bathrooms, area)",
+          "*, listing:listings(id, slug, title, price, currency, city, hero_image, bedrooms, bathrooms, area)",
         )
         .eq("lead_id", data.id)
         .order("created_at", { ascending: false }),
@@ -94,7 +94,7 @@ export const listMatchesForLead = createServerFn({ method: "GET" })
     const { data: rows, error } = await context.supabase
       .from("listing_lead_matches")
       .select(
-        "*, listing:listings(id, title, price, currency, city, hero_image, bedrooms, bathrooms, area)",
+        "*, listing:listings(id, slug, title, price, currency, city, hero_image, bedrooms, bathrooms, area)",
       )
       .eq("lead_id", data.lead_id)
       .order("created_at", { ascending: false });
