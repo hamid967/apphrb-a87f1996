@@ -31,6 +31,7 @@ import {
   Building,
 } from "lucide-react";
 import { toast } from "sonner";
+import { describeAuthError } from "@/lib/auth-errors";
 import { checkLoginRateLimit, recordLoginEvent } from "@/lib/sessions.functions";
 import {
   getFailedAttempts,
