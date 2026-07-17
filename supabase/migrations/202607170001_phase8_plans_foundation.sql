@@ -28,6 +28,9 @@ create table if not exists public.plans (
   updated_at timestamptz not null default now()
 );
 
+grant select on public.plans to anon, authenticated;
+grant all on public.plans to service_role;
+
 alter table public.accounts
   add column if not exists plan_id uuid references public.plans(id),
   add column if not exists plan_expires_at timestamptz,
