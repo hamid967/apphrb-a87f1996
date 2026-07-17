@@ -122,7 +122,7 @@ export function LuxuryIntroOverlay() {
     const interval = window.setInterval(() => {
       const nextElapsed = Date.now() - startedAt;
       setElapsed(Math.min(nextElapsed, INTRO_DURATION_MS));
-      if (nextElapsed >= INTRO_DURATION_MS) closeIntro();
+      if (nextElapsed >= INTRO_DURATION_MS) closeIntro("completed");
     }, 120);
     return () => window.clearInterval(interval);
   }, [closeIntro, visible]);
