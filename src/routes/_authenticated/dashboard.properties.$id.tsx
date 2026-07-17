@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { listUnitsByProperty, quickCreateUnitForProperty } from "@/lib/units.functions";
+import { listUnitsByProperty, quickCreateUnitForProperty, quickUpdateUnitForProperty } from "@/lib/units.functions";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
