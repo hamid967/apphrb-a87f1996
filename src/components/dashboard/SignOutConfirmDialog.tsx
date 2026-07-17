@@ -46,7 +46,7 @@ export function SignOutConfirmDialog({
       queryClient.clear();
       await supabase.auth.signOut();
       toast.success(isAr ? "تم تسجيل الخروج" : "Signed out");
-      navigate({ to: "/auth", replace: true });
+      navigate({ to: "/", replace: true });
     } catch (err) {
       toast.error(isAr ? "تعذّر تسجيل الخروج" : "Could not sign out", {
         description: err instanceof Error ? err.message : String(err),
