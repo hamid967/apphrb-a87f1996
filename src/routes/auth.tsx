@@ -197,7 +197,7 @@ function AuthPage() {
         email: trimmedEmail,
         options: {
           shouldCreateUser: true,
-          emailRedirectTo: getAppUrl("/onboarding/wizard"),
+          emailRedirectTo: getAppUrl("/dashboard"),
         },
       });
       if (error) throw error;
@@ -277,7 +277,7 @@ function AuthPage() {
         email: trimmedEmail,
         options: {
           shouldCreateUser: true,
-          emailRedirectTo: getAppUrl("/onboarding/wizard"),
+          emailRedirectTo: getAppUrl("/dashboard"),
         },
       });
       if (error) throw error;
