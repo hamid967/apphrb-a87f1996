@@ -1,26 +1,26 @@
 /**
  * Central Redirect Map — Single Source of Truth
- * 
+ *
  * All 301-style route redirects (shims) in the app are listed here.
  * Each entry corresponds to a route file under src/routes/ whose only
  * job is `throw redirect({ to, replace: true })` in beforeLoad.
- * 
- * DO NOT EDIT MANUALLY.
- * Regenerate with: bun run redirects:sync
- * Verify with:    bun run redirects:verify
- * Test with:      bun run redirects:test
+ *
+ * AUTO-GENERATED — do not edit by hand.
+ *   Regenerate: bun run redirects:sync
+ *   Verify:     bun run redirects:check
+ *   Test:       bun run test src/lib/redirect-map.test.ts
  */
 
 export type RedirectEntry = {
-  /** Legacy path (what the user visits) */
+  /** Legacy path (what the user visits). */
   from: string;
-  /** Canonical path (where we send them) */
+  /** Canonical path (where we send them). */
   to: string;
-  /** Uses replace: true (301-equivalent) */
+  /** Whether the shim uses replace:true (301-equivalent). */
   replace: boolean;
-  /** Whether the shim lives under the _authenticated layout */
+  /** Whether the shim lives under the _authenticated layout. */
   authProtected: boolean;
-  /** Source file for traceability */
+  /** Source file for traceability. */
   file: string;
 };
 
@@ -72,14 +72,14 @@ export const REDIRECT_MAP: readonly RedirectEntry[] = [
   { from: "/tenant/portal/maintenance", to: "/portal/tenant/maintenance", replace: true, authProtected: true, file: "src/routes/_authenticated/tenant.portal.maintenance.tsx" },
 ] as const;
 
-/** Lookup canonical target for a legacy path (exact match). */
+/** Look up canonical target for a legacy path (exact match). */
 export function getRedirectTarget(from: string): string | undefined {
   return REDIRECT_MAP.find((e) => e.from === from)?.to;
 }
 
 /**
- * Trace a redirect chain from a starting path. Returns the ordered list of
- * hops (including the start) and the final canonical target. Detects loops.
+ * Trace a redirect chain from a starting path. Returns the ordered list
+ * of hops (including the start) and the final target. Detects loops.
  */
 export function traceRedirectChain(from: string): {
   chain: string[];
@@ -89,7 +89,8 @@ export function traceRedirectChain(from: string): {
   const chain: string[] = [from];
   const seen = new Set<string>([from]);
   let cur = from;
-  while (true) {
+  // Bounded to guard against pathological input.
+  for (let i = 0; i < 32; i++) {
     const next = getRedirectTarget(cur);
     if (!next) return { chain, final: cur, loop: false };
     if (seen.has(next)) {
@@ -100,4 +101,5 @@ export function traceRedirectChain(from: string): {
     chain.push(next);
     cur = next;
   }
+  return { chain, final: cur, loop: true };
 }
