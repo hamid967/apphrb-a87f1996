@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/audit")({
     <div className="p-6 text-sm text-destructive">{String(error?.message ?? error)}</div>
   ),
   notFoundComponent: () => (
-    <div className="p-6 text-sm text-muted-foreground">غير موجود</div>
+    <div className="p-6 text-sm text-muted-foreground">{t("common.notFound")}</div>
   ),
 });
 

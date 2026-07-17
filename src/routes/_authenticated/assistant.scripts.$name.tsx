@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
@@ -46,7 +47,7 @@ export const Route = createFileRoute("/_authenticated/assistant/scripts/$name")(
     <div className="p-6 text-destructive">{error.message}</div>
   ),
   notFoundComponent: () => (
-    <div className="p-6 text-muted-foreground">Not found</div>
+    <div className="p-6 text-muted-foreground">{t("common.notFound")}</div>
   ),
 });
 

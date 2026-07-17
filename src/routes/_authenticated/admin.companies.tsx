@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
@@ -31,13 +32,11 @@ export const Route = createFileRoute("/_authenticated/admin/companies")({
             reset();
             router.invalidate();
           }}
-        >
-          Retry
-        </Button>
+        >{t("common.retry")}</Button>
       </div>
     );
   },
-  notFoundComponent: () => <div className="p-6">Not found</div>,
+  notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
 
 function AdminCompaniesPage() {

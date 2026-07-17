@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/admin/zatca-log")({
       {(error as Error)?.message ?? "Error"}
     </div>
   ),
-  notFoundComponent: () => <div className="p-6">Not found</div>,
+  notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
 
 function ZatcaLogPage() {

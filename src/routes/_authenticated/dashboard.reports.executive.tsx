@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -128,7 +129,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/reports/executiv
   errorComponent: ({ error }) => (
     <div className="p-6 text-sm text-destructive">Error: {error.message}</div>
   ),
-  notFoundComponent: () => <div className="p-6">Not found</div>,
+  notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
 
 const CURRENCY = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });

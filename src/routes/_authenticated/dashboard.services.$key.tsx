@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -101,9 +102,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/services/$key")(
           <p className="mt-2 font-mono text-[11px] text-destructive/80">{error.message}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button type="button" size="sm" variant="outline" onClick={reset}>
-              <RefreshCcw className="me-1.5 size-3.5" />
-              إعادة المحاولة
-            </Button>
+              <RefreshCcw className="me-1.5 size-3.5" />{t("common.retry")}</Button>
             <Link
               to="/dashboard/services"
               className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"

@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { Component, type ReactNode, type ErrorInfo } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";
@@ -33,8 +34,7 @@ export class ErrorBoundary extends Component<Props, State> {
             {error.message || "Something went wrong. Please try again."}
           </p>
           <Button onClick={this.reset} className="mt-5 gap-2" size="sm">
-            <RefreshCw className="size-4" /> إعادة المحاولة
-          </Button>
+            <RefreshCw className="size-4" />{t("common.retry")}</Button>
         </div>
       </div>
     );
