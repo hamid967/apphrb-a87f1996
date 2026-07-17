@@ -90,25 +90,27 @@ export const Route = createFileRoute("/_authenticated/admin/")({
       descriptionEn="Unified system, users and live activity command center."
     />
   ),
-  errorComponent: ({ error, reset }) => {
-    const router = useRouter();
-    return (
-      <div className="p-4 sm:p-6 space-y-4">
-        <AdminPageHeader ar="مركز التحكم" en="Control Center" icon={Sparkles} />
-        <p className="text-destructive text-sm">{error.message}</p>
-        <Button
-          onClick={() => {
-            reset();
-            router.invalidate();
-          }}
-        >
-          Retry
-        </Button>
-      </div>
-    );
-  },
+  errorComponent: AdminOverviewError,
   notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
+
+function AdminOverviewError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <div className="p-4 sm:p-6 space-y-4">
+      <AdminPageHeader ar="مركز التحكم" en="Control Center" icon={Sparkles} />
+      <p className="text-destructive text-sm">{error.message}</p>
+      <Button
+        onClick={() => {
+          reset();
+          router.invalidate();
+        }}
+      >
+        Retry
+      </Button>
+    </div>
+  );
+}
 
 function AdminOverview() {
   const { i18n } = useTranslation();
@@ -176,12 +178,13 @@ function AdminOverview() {
         initial="hidden"
         animate="show"
         className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4"
-      >
-
-      </motion.div>
+      ></motion.div>
 
       {/* Unified Decision & Control Center */}
       <DecisionCenter isAr={isAr} data={data} />
+
+      {/* Phase 9: launch operations without adding another admin page */}
+      <LaunchReadinessPanel isAr={isAr} />
 
       <motion.div
         variants={container}
@@ -287,7 +290,6 @@ function AdminOverview() {
           suffix=" ﷼"
           tone="amber"
         />
-
       </motion.div>
 
       {/* Alerts + Revenue chart + Plan distribution */}
@@ -518,6 +520,115 @@ function AdminOverview() {
   );
 }
 
+function LaunchReadinessPanel({ isAr }: { isAr: boolean }) {
+  const checks = [
+    {
+      icon: <Globe className="size-4" />,
+      ar: "الصفحات العامة",
+      en: "Public pages",
+      descAr: "الهبوط، الأسعار، الأسئلة، السياسات، وملفات SEO ظاهرة للزوار فقط.",
+      descEn: "Landing, pricing, FAQ, policies and SEO files are visitor-facing only.",
+      to: "/",
+      status: "ready",
+    },
+    {
+      icon: <Lock className="size-4" />,
+      ar: "عزل اللوحات",
+      en: "Portal isolation",
+      descAr: "لوحة العميل ولوحة الإدارة تعملان تحت مصادقة وصلاحيات منفصلة.",
+      descEn: "Customer and admin portals stay behind separate authenticated access.",
+      to: "/admin/roles",
+      status: "ready",
+    },
+    {
+      icon: <CreditCard className="size-4" />,
+      ar: "التفعيل اليدوي",
+      en: "Manual activation",
+      descAr: "طلبات الاشتراك والإيصالات تمر من لوحة الإدارة قبل التفعيل.",
+      descEn: "Subscription requests and receipts are reviewed before activation.",
+      to: "/admin/subscriptions",
+      status: "action",
+    },
+    {
+      icon: <Receipt className="size-4" />,
+      ar: "اختبار الإطلاق",
+      en: "Launch QA",
+      descAr: "اختبر فرد، منشأة، حد المجاني، ترقية برو، PDF، وتجربة الجوال.",
+      descEn: "Test individual, company, free limit, Pro upgrade, PDF export and mobile.",
+      to: "/admin/audit-log",
+      status: "action",
+    },
+  ] as const;
+
+  const tone = (status: (typeof checks)[number]["status"]) =>
+    status === "ready"
+      ? "border-success/30 bg-success/10 text-success"
+      : "border-warning/30 bg-warning/10 text-warning";
+
+  return (
+    <div className="surface-card border-primary/20 p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="inline-flex items-center gap-2 text-sm font-semibold">
+            <RocketIcon />
+            {isAr ? "مركز جاهزية الإطلاق" : "Launch readiness center"}
+          </h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {isAr
+              ? "تشغيل تجاري منضبط: لا صفحات زائدة، ولا تفعيل آلي للدفع، وكل خطوة قابلة للتتبع."
+              : "Controlled commercial launch: no extra pages, no automatic payments, every step traceable."}
+          </p>
+        </div>
+        <Button asChild size="sm" variant="outline">
+          <Link to="/admin/subscription-payments">
+            <Receipt className="size-4" />
+            {isAr ? "مراجعة الإيصالات" : "Review receipts"}
+          </Link>
+        </Button>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {checks.map((item) => (
+          <Link
+            key={item.en}
+            to={item.to}
+            className="group rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-md"
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className={`grid size-10 shrink-0 place-items-center rounded-lg border ${tone(item.status)}`}
+              >
+                {item.icon}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <div className="truncate text-sm font-semibold">{isAr ? item.ar : item.en}</div>
+                  {item.status === "ready" ? (
+                    <CheckCircle2 className="size-3.5 text-success" />
+                  ) : (
+                    <AlertTriangle className="size-3.5 text-warning" />
+                  )}
+                </div>
+                <p className="mt-1 line-clamp-3 text-[11px] leading-5 text-muted-foreground">
+                  {isAr ? item.descAr : item.descEn}
+                </p>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RocketIcon() {
+  return (
+    <span className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary">
+      <Zap className="size-4" />
+    </span>
+  );
+}
+
 function DecisionCenter({
   isAr,
   data,
@@ -616,14 +727,49 @@ function DecisionCenter({
             : "bg-primary/10 text-primary border-primary/30";
 
   const quick: Array<{ to: string; icon: React.ReactNode; ar: string; en: string }> = [
-    { to: "/admin/users", icon: <UserCog className="size-4" />, ar: "إضافة/إدارة مستخدم", en: "Users" },
-    { to: "/admin/roles", icon: <KeyRound className="size-4" />, ar: "الأدوار والصلاحيات", en: "Roles & Permissions" },
+    {
+      to: "/admin/users",
+      icon: <UserCog className="size-4" />,
+      ar: "إضافة/إدارة مستخدم",
+      en: "Users",
+    },
+    {
+      to: "/admin/roles",
+      icon: <KeyRound className="size-4" />,
+      ar: "الأدوار والصلاحيات",
+      en: "Roles & Permissions",
+    },
     { to: "/admin/policies", icon: <Lock className="size-4" />, ar: "السياسات", en: "Policies" },
-    { to: "/admin/companies", icon: <Building2 className="size-4" />, ar: "المنشآت", en: "Companies" },
-    { to: "/admin/subscriptions", icon: <CreditCard className="size-4" />, ar: "الاشتراكات", en: "Subscriptions" },
-    { to: "/admin/subscription-payments", icon: <Receipt className="size-4" />, ar: "الإيصالات", en: "Receipts" },
-    { to: "/admin/portal-invitations", icon: <Bell className="size-4" />, ar: "دعوات البوابة", en: "Invitations" },
-    { to: "/admin/audit-log", icon: <ScrollText className="size-4" />, ar: "سجل التدقيق", en: "Audit Log" },
+    {
+      to: "/admin/companies",
+      icon: <Building2 className="size-4" />,
+      ar: "المنشآت",
+      en: "Companies",
+    },
+    {
+      to: "/admin/subscriptions",
+      icon: <CreditCard className="size-4" />,
+      ar: "الاشتراكات",
+      en: "Subscriptions",
+    },
+    {
+      to: "/admin/subscription-payments",
+      icon: <Receipt className="size-4" />,
+      ar: "الإيصالات",
+      en: "Receipts",
+    },
+    {
+      to: "/admin/portal-invitations",
+      icon: <Bell className="size-4" />,
+      ar: "دعوات البوابة",
+      en: "Invitations",
+    },
+    {
+      to: "/admin/audit-log",
+      icon: <ScrollText className="size-4" />,
+      ar: "سجل التدقيق",
+      en: "Audit Log",
+    },
     { to: "/admin/settings", icon: <Cog className="size-4" />, ar: "الإعدادات", en: "Settings" },
   ];
 
@@ -647,7 +793,11 @@ function DecisionCenter({
             (totalPending > 0 ? toneCls("amber") : toneCls("emerald"))
           }
         >
-          {totalPending > 0 ? <AlertTriangle className="size-3.5" /> : <CheckCircle2 className="size-3.5" />}
+          {totalPending > 0 ? (
+            <AlertTriangle className="size-3.5" />
+          ) : (
+            <CheckCircle2 className="size-3.5" />
+          )}
           {totalPending > 0
             ? isAr
               ? `${nf.format(totalPending)} عنصر بانتظار قرارك`
@@ -667,7 +817,9 @@ function DecisionCenter({
               (it.count > 0 ? "border-" : "")
             }
           >
-            <div className={"grid size-10 shrink-0 place-items-center rounded-lg " + toneCls(it.tone)}>
+            <div
+              className={"grid size-10 shrink-0 place-items-center rounded-lg " + toneCls(it.tone)}
+            >
               {it.icon}
             </div>
             <div className="min-w-0 flex-1">
