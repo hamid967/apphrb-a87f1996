@@ -3159,6 +3159,9 @@ const ar: typeof en = {
       buildingName: "اسم المبنى",
       buildingNamePh: "مثال: البرج A",
       buildingCreated: "تمت إضافة المبنى",
+      importCsv: "استيراد CSV",
+      importCsvTitle: "استيراد الوحدات من CSV",
+      importCsvNote: "سيتم ربط الصفوف بهذا العقار تلقائياً. اختر المبنى الهدف.",
     },
   },
   contracts: {
