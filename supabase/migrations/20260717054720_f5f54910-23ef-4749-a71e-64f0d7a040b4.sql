@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.reject_user(uuid) TO authenticated;
