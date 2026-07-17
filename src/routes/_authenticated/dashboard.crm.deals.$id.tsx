@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { t } from "@/lib/i18n";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { detailHead } from "@/lib/detail-og-head";
@@ -50,7 +51,16 @@ import { listActivitiesForLead } from "@/lib/lead-activities.functions";
 import { can, type OrgRole } from "@/lib/permissions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/crm/deals/$id")({
-  head: ({ params }) => detailHead({ entityAr: 'صفقة', entityEn: 'Deal', id: String(params.id), path: `/dashboard/crm/deals/${params.id}`, kind: 'article' }),
+  head: ({ params }) => {
+    const { id } = params as { id: string };
+    return detailHead({
+      entityAr: "صفقة",
+      entityEn: "Deal",
+      id,
+      path: `/dashboard/crm/deals/${id}`,
+      kind: "article",
+    });
+  },
   component: DealDetailPage,
 });
 
@@ -69,7 +79,7 @@ const statusTone: Record<DealStatus, string> = {
 };
 
 function DealDetailPage() {
-  const { id } = Route.useParams();
+  const { id } = Route.useParams() as { id: string };
   const { t, i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const nav = useNavigate();
@@ -253,7 +263,7 @@ function DealDetailPage() {
                 {String(t("crm.deals.leadHistory", "Linked lead history"))}
               </h2>
               <div className="text-sm text-muted-foreground">
-                <Link to="/dashboard/crm/leads/$id" params={{ id: leadId }} className="hover:underline">
+                <Link to="/leads/$id" params={{ id: leadId }} className="hover:underline">
                   {String(t("crm.leads.viewDetail", "View lead"))} →
                 </Link>
               </div>
@@ -293,7 +303,6 @@ function DealDetailPage() {
           </div>
         </div>
       )}
-
 
       <EditDealDialog
         open={editOpen}
