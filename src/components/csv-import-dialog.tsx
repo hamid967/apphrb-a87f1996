@@ -44,6 +44,7 @@ export function CsvImportDialog({
   onDone,
   header,
   canImport = true,
+  validateRow,
 }: Props) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
