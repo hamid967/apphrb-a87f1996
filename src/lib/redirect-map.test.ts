@@ -23,7 +23,7 @@ function collectRoutePaths(): Set<string> {
       if (e.isDirectory()) walk(p);
       else if (e.isFile() && p.endsWith(".tsx")) {
         const src = fs.readFileSync(p, "utf8");
-        const m = src.match(/createFileRoute\(\s*["']([^"']+)["']\s*\)/);
+        const m = src.match(/createFileRoute\(\s*["']([^"']+)["']\s*,?\s*\)/);
         if (m) {
           // Normalize: strip _authenticated, trailing slash, index suffix.
           const norm = m[1]
