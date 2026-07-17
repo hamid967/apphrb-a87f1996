@@ -214,7 +214,8 @@ function AuthPage() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err ?? "Error");
       console.error("[auth]", "send-otp failed:", msg);
-      toast.error(msg);
+      const hint = describeAuthError(err, i18n.language);
+      toast.error(hint.title, { description: hint.description });
     } finally {
       setSending(false);
     }
