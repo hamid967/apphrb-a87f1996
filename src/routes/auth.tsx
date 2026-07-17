@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
 import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+
 import { useAuth } from "@/hooks/use-auth";
 import { getMyAccessContext } from "@/lib/company.functions";
 import { resolveHomeRoute } from "@/lib/access-guard";
