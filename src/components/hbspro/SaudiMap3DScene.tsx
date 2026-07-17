@@ -521,11 +521,15 @@ export function SaudiMap3DScene({ compact = false }: SaudiMap3DProps) {
               {tr("hbspro.map.aiNode")} ·{" "}
               {activeCity.hub ? tr("hbspro.map.regionalHub") : tr("hbspro.map.edgeNode")}
             </div>
-            <div className="mt-1 text-lg font-semibold text-white">
-              {activeCity.name}{" "}
-              <span className="text-sm" style={{ color: HBS.gray }}>
-                / {activeCity.ar}
-              </span>
+            <div className="mt-1.5 text-2xl font-semibold tracking-wide text-white"
+              style={{
+                fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                letterSpacing: "0.06em",
+                textShadow: `0 0 24px ${HBS.gold}55`,
+              }}
+              dir="ltr"
+            >
+              {activeCity.name}
             </div>
             <div className="mt-1 flex items-center gap-2 text-xs" style={{ color: HBS.gray }}>
               <span
