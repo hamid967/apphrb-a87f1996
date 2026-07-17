@@ -414,11 +414,16 @@ export function CsvImportDialog({
             onClick={submit}
             disabled={!validRows.length || busy || !!result || !canImport}
           >
-            {busy
-              ? t("csv.importing")
-              : validRows.length && rows.length
-                ? t("csv.confirmImport", { count: validRows.length })
-                : t("csv.import")}
+            {busy ? (
+              <>
+                <Loader2 className="me-2 size-4 animate-spin" />
+                {t("csv.importing")}
+              </>
+            ) : validRows.length && rows.length ? (
+              t("csv.confirmImport", { count: validRows.length })
+            ) : (
+              t("csv.import")
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
