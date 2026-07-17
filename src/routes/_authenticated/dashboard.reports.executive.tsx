@@ -1,4 +1,5 @@
 import { t } from "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -109,25 +110,24 @@ export const Route = createFileRoute("/_authenticated/dashboard/reports/executiv
   validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [
-      { title: "Executive Analytics 2026 — HBSpro" },
+      { title: t("execReports.metaTitle") },
       {
         name: "description",
-        content:
-          "Live executive KPIs, revenue trends, occupancy heatmap, and forecast for real estate portfolio.",
+        content: t("execReports.metaDescription"),
       },
     ],
   }),
   component: () => (
     <RequireRole
       roles={ADMIN_ROLES}
-      title="Executive analytics restricted"
-      description="Cross-module KPIs and financial drill-downs are limited to owners and administrators."
+      title={t("execReports.restrictedTitle")}
+      description={t("execReports.restrictedDescription")}
     >
       <ExecutivePage />
     </RequireRole>
   ),
   errorComponent: ({ error }) => (
-    <div className="p-6 text-sm text-destructive">Error: {error.message}</div>
+    <div className="p-6 text-sm text-destructive">{t("execReports.errorPrefix")}: {error.message}</div>
   ),
   notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
@@ -139,13 +139,15 @@ const pct = (n: number) => `${Math.round(n * 100)}%`;
 const PIE_COLORS = ["#6366f1", "#8b5cf6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#ec4899"];
 
 function ExecutivePage() {
+  useTranslation(); // subscribe to language changes so t() re-renders
   const search = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const months = search.months;
   const page = search.page;
-  const drill = search.kpi
-    ? { kpi: search.kpi as KpiKey, label: search.label ?? search.kpi }
-    : null;
+  const drill = search.kpi ? { kpi: search.kpi as KpiKey } : null;
+  const drillLabel = drill
+    ? (t(`execReports.drill.${drill.kpi}`) as string) || String(drill.kpi)
+    : "";
   const filters = {
     dateFrom: search.dateFrom ?? "",
     dateTo: search.dateTo ?? "",
@@ -160,7 +162,7 @@ function ExecutivePage() {
   const setMonths = (m: number) => setSearch({ months: m });
   const setPage = (p: number | ((prev: number) => number)) =>
     setSearch({ page: typeof p === "function" ? (p as any)(page) : p });
-  const openDrill = (kpi: KpiKey, label: string) => setSearch({ kpi, label, page: 1 });
+  const openDrill = (kpi: KpiKey) => setSearch({ kpi, page: 1 });
   const closeDrill = () =>
     navigate({
       search: (prev: any) => ({ months: prev.months, page: 1, sortField: "date", sortDir: "desc" }),
@@ -262,10 +264,10 @@ function ExecutivePage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-2xl font-bold text-transparent md:text-3xl">
-            Executive Analytics 2026
+            {t("execReports.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Live pulse on revenue, occupancy, pipeline, and forecast.
+            {t("execReports.subtitle")}
           </p>
         </div>
         <Select value={String(months)} onValueChange={(v) => setMonths(Number(v))}>
@@ -273,10 +275,10 @@ function ExecutivePage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="3">Last 3 months</SelectItem>
-            <SelectItem value="6">Last 6 months</SelectItem>
-            <SelectItem value="12">Last 12 months</SelectItem>
-            <SelectItem value="24">Last 24 months</SelectItem>
+            <SelectItem value="3">{t("execReports.months.m3")}</SelectItem>
+            <SelectItem value="6">{t("execReports.months.m6")}</SelectItem>
+            <SelectItem value="12">{t("execReports.months.m12")}</SelectItem>
+            <SelectItem value="24">{t("execReports.months.m24")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -284,17 +286,17 @@ function ExecutivePage() {
       {/* KPI Grid */}
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <KpiCard
-          label="Collected revenue"
+          label={t("execReports.kpi.collectedRevenue")}
           value={fmt(k.collectedTotal)}
-          sub={`${fmt(k.revenueTotal)} invoiced`}
+          sub={t("execReports.kpi.invoicedSuffix", { amount: fmt(k.revenueTotal) })}
           icon={<Wallet className="size-4" />}
           tone="positive"
-          onClick={() => openDrill("collectedTotal", "Collected revenue")}
+          onClick={() => openDrill("collectedTotal")}
         />
         <KpiCard
-          label="Net profit"
+          label={t("execReports.kpi.netProfit")}
           value={fmt(k.netTotal)}
-          sub={k.netTotal >= 0 ? "Profitable" : "Loss"}
+          sub={k.netTotal >= 0 ? t("execReports.kpi.profitable") : t("execReports.kpi.loss")}
           icon={
             k.netTotal >= 0 ? (
               <TrendingUp className="size-4" />
@@ -303,63 +305,67 @@ function ExecutivePage() {
             )
           }
           tone={k.netTotal >= 0 ? "positive" : "negative"}
-          onClick={() => openDrill("netTotal", "Expenses affecting net profit")}
+          onClick={() => openDrill("netTotal")}
         />
         <KpiCard
-          label="Outstanding"
+          label={t("execReports.kpi.outstanding")}
           value={fmt(k.outstanding)}
-          sub={`${pct(k.collectionRate)} collection rate`}
+          sub={t("execReports.kpi.collectionRateSuffix", { rate: pct(k.collectionRate) })}
           icon={<AlertCircle className="size-4" />}
           tone="warning"
-          onClick={() => openDrill("outstanding", "Outstanding invoices")}
+          onClick={() => openDrill("outstanding")}
         />
         <KpiCard
-          label="Occupancy"
+          label={t("execReports.kpi.occupancy")}
           value={pct(k.occupancyRate)}
-          sub={`${k.occupiedUnits}/${k.totalUnits} units occupied`}
+          sub={t("execReports.kpi.unitsOccupied", {
+            occupied: k.occupiedUnits,
+            total: k.totalUnits,
+          })}
           icon={<Building2 className="size-4" />}
           tone="neutral"
-          onClick={() => openDrill("occupancyRate", "All units")}
+          onClick={() => openDrill("occupancyRate")}
         />
         <KpiCard
-          label="Active contracts"
+          label={t("execReports.kpi.activeContracts")}
           value={String(k.activeContracts)}
-          sub={`${k.expiring30} expiring in 30 days`}
+          sub={t("execReports.kpi.expiringSuffix", { count: k.expiring30 })}
           icon={<Users className="size-4" />}
           tone={k.expiring30 > 0 ? "warning" : "neutral"}
-          onClick={() => openDrill("activeContracts", "Active contracts")}
+          onClick={() => openDrill("activeContracts")}
         />
         <KpiCard
-          label="Pipeline value"
+          label={t("execReports.kpi.pipelineValue")}
           value={fmt(k.pipelineValue)}
-          sub={`${fmt(k.wonValue)} closed`}
+          sub={t("execReports.kpi.pipelineClosedSuffix", { amount: fmt(k.wonValue) })}
           icon={<Sparkles className="size-4" />}
           tone="neutral"
-          onClick={() => openDrill("pipelineValue", "Open deals in pipeline")}
+          onClick={() => openDrill("pipelineValue")}
         />
         <KpiCard
-          label="Commissions paid"
+          label={t("execReports.kpi.commissionsPaid")}
           value={fmt(k.commissionsPaid)}
-          sub={`${fmt(k.commissionsPending)} pending`}
+          sub={t("execReports.kpi.commissionsPendingSuffix", { amount: fmt(k.commissionsPending) })}
           icon={<Wallet className="size-4" />}
           tone="neutral"
-          onClick={() => openDrill("commissionsPaid", "Paid commissions")}
+          onClick={() => openDrill("commissionsPaid")}
         />
         <KpiCard
-          label="Vacant units"
+          label={t("execReports.kpi.vacantUnits")}
           value={String(k.vacantUnits)}
-          sub="Available inventory"
+          sub={t("execReports.kpi.availableInventory")}
           icon={<Building2 className="size-4" />}
           tone="neutral"
-          onClick={() => openDrill("vacantUnits", "Vacant units")}
+          onClick={() => openDrill("vacantUnits")}
         />
       </div>
+
 
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Revenue trend + forecast */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Revenue trend & 3-month forecast</CardTitle>
+            <CardTitle className="text-base">{t("execReports.charts.revenueTrend")}</CardTitle>
           </CardHeader>
           <CardContent className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -391,7 +397,7 @@ function ExecutivePage() {
                   dataKey="collected"
                   stroke="#6366f1"
                   fill="url(#gCol)"
-                  name="Collected"
+                  name={t("execReports.charts.collected")}
                 />
                 <Area
                   type="monotone"
@@ -399,7 +405,7 @@ function ExecutivePage() {
                   stroke="#10b981"
                   strokeDasharray="6 4"
                   fill="url(#gFor)"
-                  name="Forecast"
+                  name={t("execReports.charts.forecast")}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -409,24 +415,25 @@ function ExecutivePage() {
         {/* Occupancy gauge */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Portfolio health</CardTitle>
+            <CardTitle className="text-base">{t("execReports.charts.portfolioHealth")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Gauge label="Occupancy" value={k.occupancyRate} />
-            <Gauge label="Collection rate" value={k.collectionRate} />
+            <Gauge label={t("execReports.kpi.occupancy")} value={k.occupancyRate} />
+            <Gauge label={t("execReports.charts.collectionRate")} value={k.collectionRate} />
             <Gauge
-              label="Net margin"
+              label={t("execReports.charts.netMargin")}
               value={k.revenueTotal > 0 ? Math.max(0, k.netTotal / k.revenueTotal) : 0}
             />
           </CardContent>
         </Card>
       </div>
 
+
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Monthly revenue vs expense */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Cash flow (collected vs expenses)</CardTitle>
+            <CardTitle className="text-base">{t("execReports.charts.cashFlow")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -443,8 +450,8 @@ function ExecutivePage() {
                   }}
                 />
                 <Legend />
-                <Bar dataKey="collected" fill="#6366f1" name="Collected" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="expenses" fill="#f43f5e" name="Expenses" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="collected" fill="#6366f1" name={t("execReports.charts.collected")} radius={[6, 6, 0, 0]} />
+                <Bar dataKey="expenses" fill="#f43f5e" name={t("execReports.charts.expenses")} radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -453,12 +460,12 @@ function ExecutivePage() {
         {/* Expenses by category */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Expenses by category</CardTitle>
+            <CardTitle className="text-base">{t("execReports.charts.expensesByCategory")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             {expensesCatData.length === 0 ? (
               <div className="grid h-full place-items-center text-sm text-muted-foreground">
-                No expenses yet
+                {t("execReports.charts.noExpenses")}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -495,12 +502,12 @@ function ExecutivePage() {
         {/* Deals by status */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Deals pipeline</CardTitle>
+            <CardTitle className="text-base">{t("execReports.charts.dealsPipeline")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             {dealsStatusData.length === 0 ? (
               <div className="grid h-full place-items-center text-sm text-muted-foreground">
-                No deals yet
+                {t("execReports.charts.noDeals")}
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -525,7 +532,7 @@ function ExecutivePage() {
         {/* Net trend line */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Net profit trend</CardTitle>
+            <CardTitle className="text-base">{t("execReports.charts.netTrend")}</CardTitle>
           </CardHeader>
           <CardContent className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -557,7 +564,7 @@ function ExecutivePage() {
       <div className="flex justify-end">
         <Button variant="outline" onClick={() => q.refetch()}>
           {q.isFetching ? <Loader2 className="me-2 size-4 animate-spin" /> : null}
-          Refresh
+          {t("execReports.refresh")}
         </Button>
       </div>
 
@@ -575,21 +582,26 @@ function ExecutivePage() {
                 variant="ghost"
                 className="h-8 -ms-2 px-2"
                 onClick={() => window.history.back()}
-                aria-label="Back"
+                aria-label={t("execReports.back")}
               >
-                <ArrowLeft className="me-1 size-4" /> Back
+                <ArrowLeft className="me-1 size-4" /> {t("execReports.back")}
               </Button>
-              <DialogTitle className="flex-1">{drill?.label}</DialogTitle>
+              <DialogTitle className="flex-1">{drillLabel}</DialogTitle>
             </div>
             <DialogDescription>
               {drillQ.data
-                ? `${fmt(drillQ.data.count)} total record${drillQ.data.count === 1 ? "" : "s"} · showing ${drillQ.data.records.length} on page ${drillQ.data.page}`
-                : "Loading records…"}
+                ? t("execReports.dialog.recordsSummary", {
+                    count: fmt(drillQ.data.count),
+                    plural: drillQ.data.count === 1 ? "" : "s",
+                    shown: drillQ.data.records.length,
+                    page: drillQ.data.page,
+                  })
+                : t("execReports.dialog.loadingRecords")}
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-2 rounded-md border bg-muted/30 p-3 md:grid-cols-5">
             <div>
-              <Label className="text-xs">From</Label>
+              <Label className="text-xs">{t("execReports.filters.from")}</Label>
               <Input
                 type="date"
                 value={filters.dateFrom}
@@ -598,7 +610,7 @@ function ExecutivePage() {
               />
             </div>
             <div>
-              <Label className="text-xs">To</Label>
+              <Label className="text-xs">{t("execReports.filters.to")}</Label>
               <Input
                 type="date"
                 value={filters.dateTo}
@@ -607,18 +619,18 @@ function ExecutivePage() {
               />
             </div>
             <div>
-              <Label className="text-xs">Status</Label>
+              <Label className="text-xs">{t("execReports.filters.status")}</Label>
               <Input
-                placeholder="any"
+                placeholder={t("execReports.filters.anyPlaceholder")}
                 value={filters.status}
                 onChange={(e) => setSearch({ status: e.target.value || undefined, page: 1 })}
                 className="h-8"
               />
             </div>
             <div>
-              <Label className="text-xs">Category / Type</Label>
+              <Label className="text-xs">{t("execReports.filters.categoryOrType")}</Label>
               <Input
-                placeholder="any"
+                placeholder={t("execReports.filters.anyPlaceholder")}
                 value={filters.category}
                 onChange={(e) => setSearch({ category: e.target.value || undefined, page: 1 })}
                 className="h-8"
@@ -626,7 +638,7 @@ function ExecutivePage() {
             </div>
             <div className="flex items-end">
               <Button size="sm" variant="ghost" onClick={resetFilters} className="h-8 w-full">
-                <X className="me-1 size-3" /> Clear
+                <X className="me-1 size-3" /> {t("execReports.filters.clear")}
               </Button>
             </div>
           </div>
@@ -637,7 +649,7 @@ function ExecutivePage() {
               <SkeletonTable rows={8} />
             ) : !drillQ.data?.records.length ? (
               <div className="grid h-40 place-items-center text-sm text-muted-foreground">
-                No records
+                {t("execReports.table.noRecords")}
               </div>
             ) : (
               <Table
@@ -647,15 +659,15 @@ function ExecutivePage() {
               >
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Reference</TableHead>
-                    <TableHead>Details</TableHead>
+                    <TableHead>{t("execReports.table.reference")}</TableHead>
+                    <TableHead>{t("execReports.table.details")}</TableHead>
                     <TableHead>
                       <button
                         type="button"
                         onClick={() => toggleSort("date")}
                         className="inline-flex items-center hover:text-foreground"
                       >
-                        Date
+                        {t("execReports.table.date")}
                         <SortIcon field="date" />
                       </button>
                     </TableHead>
@@ -665,7 +677,7 @@ function ExecutivePage() {
                         onClick={() => toggleSort("status")}
                         className="inline-flex items-center hover:text-foreground"
                       >
-                        Status
+                        {t("execReports.table.status")}
                         <SortIcon field="status" />
                       </button>
                     </TableHead>
@@ -675,11 +687,11 @@ function ExecutivePage() {
                         onClick={() => toggleSort("amount")}
                         className="inline-flex items-center hover:text-foreground"
                       >
-                        Amount
+                        {t("execReports.table.amount")}
                         <SortIcon field="amount" />
                       </button>
                     </TableHead>
-                    <TableHead className="w-16 text-right">Open</TableHead>
+                    <TableHead className="w-16 text-right">{t("execReports.table.open")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -712,7 +724,7 @@ function ExecutivePage() {
                         {r.href ? (
                           <Link
                             to={r.href}
-                            aria-label={`Open ${r.primary}`}
+                            aria-label={t("execReports.dialog.openAria", { label: r.primary })}
                             className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
                           >
                             <ExternalLink className="size-4" />
@@ -730,7 +742,10 @@ function ExecutivePage() {
           {drillQ.data && drillQ.data.count > pageSize && (
             <div className="flex items-center justify-between pt-2 text-xs text-muted-foreground">
               <span>
-                Page {drillQ.data.page} of {Math.max(1, Math.ceil(drillQ.data.count / pageSize))}
+                {t("execReports.dialog.pageOf", {
+                  page: drillQ.data.page,
+                  pages: Math.max(1, Math.ceil(drillQ.data.count / pageSize)),
+                })}
               </span>
               <div className="flex items-center gap-2">
                 <Button
@@ -739,7 +754,7 @@ function ExecutivePage() {
                   disabled={page <= 1 || drillQ.isFetching}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
-                  <ChevronLeft className="size-4" /> Prev
+                  <ChevronLeft className="size-4" /> {t("execReports.prev")}
                 </Button>
                 <Button
                   size="sm"
@@ -747,7 +762,7 @@ function ExecutivePage() {
                   disabled={page >= Math.ceil(drillQ.data.count / pageSize) || drillQ.isFetching}
                   onClick={() => setPage((p) => p + 1)}
                 >
-                  Next <ChevronRight className="size-4" />
+                  {t("execReports.next")} <ChevronRight className="size-4" />
                 </Button>
               </div>
             </div>
