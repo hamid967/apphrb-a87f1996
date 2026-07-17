@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { Volume2, VolumeX, X } from "lucide-react";
+import { ChevronDown, Volume2, VolumeX, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const INTRO_DURATION_MS = 20_000;
