@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
@@ -32,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/admin/search-insights")({
       </div>
     );
   },
-  notFoundComponent: () => <div className="p-6">Not found</div>,
+  notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
 
 const LINE_COLORS = [

@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { portalHead } from "@/lib/portal-og-head";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -38,10 +39,10 @@ export const Route = createFileRoute("/_authenticated/portal/tenant/")({
     <div className="mx-auto max-w-lg p-6 text-center">
       <AlertCircle className="mx-auto mb-2 size-8 text-destructive" />
       <p className="mb-4 text-sm text-muted-foreground">{error.message}</p>
-      <Button onClick={() => reset()}>إعادة المحاولة</Button>
+      <Button onClick={() => reset()}>{t("common.retry")}</Button>
     </div>
   ),
-  notFoundComponent: () => <div className="p-6">غير موجود</div>,
+  notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
   component: TenantPortalPage,
 });
 
@@ -58,7 +59,7 @@ function TenantPortalPage() {
     queryFn: () => fetchTenantPayments(),
   });
   if (isLoading || !data)
-    return <div className="p-6 text-sm text-muted-foreground">جارٍ التحميل…</div>;
+    return <div className="p-6 text-sm text-muted-foreground">{t("common.loading")}</div>;
   const currency = (data.charges[0]?.currency as string) ?? "SAR";
   const pending = data.charges.filter((c) => c.status !== "paid");
   const totalDue = pending.reduce((s, c) => s + Number(c.amount ?? 0), 0);

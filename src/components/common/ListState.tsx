@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import type { ReactNode } from "react";
 import { AlertCircle, Loader2, ShieldAlert, Inbox } from "lucide-react";
 import { useTranslation } from "react-i18next";

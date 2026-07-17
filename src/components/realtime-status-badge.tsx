@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { AlertTriangle, Loader2, Radio, RefreshCcw, RefreshCw, WifiOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -103,8 +104,7 @@ export function RealtimeStatusBadge({
           className="h-6 gap-1 px-2 text-xs text-destructive hover:text-destructive"
           onClick={onRetry}
         >
-          <RefreshCw className="size-3" /> إعادة المحاولة
-        </Button>
+          <RefreshCw className="size-3" />{t("common.retry")}</Button>
       )}
     </div>
   );

@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { portalHead } from "@/lib/portal-og-head";
 import { useTranslation } from "react-i18next";
@@ -59,7 +60,7 @@ export const Route = createFileRoute("/_authenticated/portal/")({
       </div>
     );
   },
-  notFoundComponent: () => <div className="p-8">Not found</div>,
+  notFoundComponent: () => <div className="p-8">{t("common.notFound")}</div>,
 });
 
 function PortalOverviewPage() {

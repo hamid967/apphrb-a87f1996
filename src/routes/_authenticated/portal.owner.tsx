@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { portalHead } from "@/lib/portal-og-head";
 import { useQuery } from "@tanstack/react-query";
@@ -15,10 +16,10 @@ export const Route = createFileRoute("/_authenticated/portal/owner")({
     <div className="mx-auto max-w-lg p-6 text-center">
       <AlertCircle className="mx-auto mb-2 size-8 text-destructive" />
       <p className="mb-4 text-sm text-muted-foreground">{error.message}</p>
-      <Button onClick={() => reset()}>إعادة المحاولة</Button>
+      <Button onClick={() => reset()}>{t("common.retry")}</Button>
     </div>
   ),
-  notFoundComponent: () => <div className="p-6">غير موجود</div>,
+  notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
   component: OwnerPortalPage,
 });
 
@@ -34,7 +35,7 @@ function OwnerPortalPage() {
     queryFn: () => fetchPayments(),
   });
   if (isLoading || !data)
-    return <div className="p-6 text-sm text-muted-foreground">جارٍ التحميل…</div>;
+    return <div className="p-6 text-sm text-muted-foreground">{t("common.loading")}</div>;
   const totalNet = data.statements.reduce((s, x) => s + Number(x.net_payout ?? 0), 0);
   const currency = (data.statements[0]?.currency as string) ?? "SAR";
   const activeCount = data.contracts.filter((c) => c.status === "active").length;

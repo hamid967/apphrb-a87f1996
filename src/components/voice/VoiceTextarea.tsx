@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useId, useRef, useState, forwardRef, type KeyboardEvent, type TextareaHTMLAttributes } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { AlertCircle, Check, Globe, Loader2, Mic, MicOff, Pause, Play, RotateCcw, Square, X } from "lucide-react";
@@ -444,9 +445,7 @@ export const VoiceTextarea = forwardRef<HTMLTextAreaElement, VoiceTextareaProps>
                     disabled={disabled}
                     className="ms-1 inline-flex items-center gap-1 rounded-full border border-current/40 px-2 py-0.5 text-[10px] font-semibold hover:bg-current/10 disabled:opacity-50"
                   >
-                    <RotateCcw className="size-3" />
-                    إعادة المحاولة
-                  </button>
+                    <RotateCcw className="size-3" />{t("common.retry")}</button>
                   <button
                     type="button"
                     onClick={() => setPhase("idle")}

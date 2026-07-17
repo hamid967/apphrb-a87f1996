@@ -352,6 +352,7 @@ const en = {
     unauthorizedTitle: "Access restricted",
     unauthorizedDesc: "You don't have permission to view this content.",
     emptyTitle: "Nothing here yet",
+    notFound: "Not found",
   },
   activity: {
     title: "Activity",
@@ -2680,6 +2681,7 @@ const ar: typeof en = {
     unauthorizedTitle: "الوصول مقيّد",
     unauthorizedDesc: "ليست لديك صلاحية لعرض هذا المحتوى.",
     emptyTitle: "لا توجد بيانات بعد",
+    notFound: "غير موجود",
   },
   activity: {
     title: "النشاط",
@@ -4712,5 +4714,13 @@ export function applyDirection(lng: string) {
 }
 
 i18n.on("languageChanged", applyDirection);
+
+/**
+ * Imperative translator — safe to call outside React (route errorComponent,
+ * notFoundComponent, toasts, server-side helpers). Inside components prefer
+ * `useTranslation()` so re-render happens on language change.
+ */
+export const t = (key: string, options?: Record<string, unknown>): string =>
+  i18n.t(key, options) as string;
 
 export default i18n;
