@@ -96,7 +96,6 @@ export function DashboardTopbar({
   const { t, i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const nav = useNavigate();
-  const queryClient = useQueryClient();
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [q, setQ] = useState("");
   const [activeBranchId, setActiveBranchId] = useState<string | null>(null);
