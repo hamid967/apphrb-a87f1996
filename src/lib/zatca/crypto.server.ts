@@ -11,8 +11,8 @@
  * `zatca-onboarding.functions.ts` and `fatoora-client.server.ts`.
  */
 
-import { secp256k1 } from "@noble/curves/secp256k1";
-import { sha256 } from "@noble/hashes/sha2";
+import { secp256k1 } from "@noble/curves/secp256k1.js";
+import { sha256 } from "@noble/hashes/sha2.js";
 
 // ---------------------------------------------------------------------------
 // Key pair
@@ -64,9 +64,7 @@ const AES_IV_LEN = 12;
 function getMasterKeyMaterial(): Uint8Array {
   const raw = process.env.ZATCA_KEY_ENCRYPTION_KEY;
   if (!raw || raw.length < 32) {
-    throw new Error(
-      "ZATCA_KEY_ENCRYPTION_KEY is not configured (expected a 32+ char secret).",
-    );
+    throw new Error("ZATCA_KEY_ENCRYPTION_KEY is not configured (expected a 32+ char secret).");
   }
   // Normalize any string length to a stable 32-byte AES key.
   return sha256(new TextEncoder().encode(raw));
@@ -78,13 +76,7 @@ async function importAesKey(): Promise<CryptoKey> {
   // (Uint8Array<ArrayBufferLike> is not assignable to ArrayBufferView<ArrayBuffer>).
   const buf = new ArrayBuffer(material.byteLength);
   new Uint8Array(buf).set(material);
-  return crypto.subtle.importKey(
-    "raw",
-    buf,
-    { name: AES_ALGO },
-    false,
-    ["encrypt", "decrypt"],
-  );
+  return crypto.subtle.importKey("raw", buf, { name: AES_ALGO }, false, ["encrypt", "decrypt"]);
 }
 
 function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
@@ -140,9 +132,7 @@ export async function decryptPrivateKey(ciphertextB64: string): Promise<string> 
 // ---------------------------------------------------------------------------
 
 /** DER OID for id-ecPublicKey (1.2.840.10045.2.1). */
-const OID_EC_PUBLIC_KEY = new Uint8Array([
-  0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01,
-]);
+const OID_EC_PUBLIC_KEY = new Uint8Array([0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01]);
 /** DER OID for secp256k1 (1.3.132.0.10). */
 const OID_SECP256K1 = new Uint8Array([0x06, 0x05, 0x2b, 0x81, 0x04, 0x00, 0x0a]);
 
@@ -173,9 +163,7 @@ function derBitString(body: Uint8Array): Uint8Array {
 }
 
 function derInteger(n: number): Uint8Array {
-  return concatBytes(
-    new Uint8Array([0x02, 0x01, n & 0xff]),
-  );
+  return concatBytes(new Uint8Array([0x02, 0x01, n & 0xff]));
 }
 
 /** PKCS#8 wrapper for a secp256k1 raw private key + uncompressed public. */
@@ -195,11 +183,7 @@ function encodePkcs8Secp256k1Pem(privRaw: Uint8Array, pubRaw: Uint8Array): strin
   const algorithmIdentifier = derSequence(OID_EC_PUBLIC_KEY, OID_SECP256K1);
 
   // PrivateKeyInfo: SEQ { INT 0, algorithm, OCTET STRING ecPrivateKey }
-  const pkcs8 = derSequence(
-    derInteger(0),
-    algorithmIdentifier,
-    derOctetString(ecPrivateKey),
-  );
+  const pkcs8 = derSequence(derInteger(0), algorithmIdentifier, derOctetString(ecPrivateKey));
 
   return derToPem(pkcs8, "PRIVATE KEY");
 }
