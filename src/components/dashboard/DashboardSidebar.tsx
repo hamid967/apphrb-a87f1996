@@ -1,4 +1,7 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "react-i18next";
 import { motion, LayoutGroup } from "motion/react";
 import {
@@ -62,6 +65,23 @@ export function DashboardSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const handleSignOut = async () => {
+    try {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      await supabase.auth.signOut();
+      toast.success(isAr ? "تم تسجيل الخروج" : "Signed out");
+      navigate({ to: "/auth", replace: true });
+    } catch (err) {
+      toast.error(
+        isAr ? "تعذّر تسجيل الخروج" : "Could not sign out",
+        { description: err instanceof Error ? err.message : String(err) },
+      );
+    }
+  };
 
   const groups: {
     labelAr: string;
@@ -282,10 +302,13 @@ export function DashboardSidebar() {
         )}
         <button
           type="button"
-          className="flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] text-sidebar-foreground/80 transition hover:bg-sidebar-accent"
+          onClick={handleSignOut}
+          aria-label={isAr ? "تسجيل الخروج" : "Sign out"}
+          title={isAr ? "تسجيل الخروج" : "Sign out"}
+          className="flex w-full items-center gap-3 rounded-xl border border-destructive/25 bg-destructive/5 px-3 py-2 text-[13px] font-medium text-destructive transition hover:bg-destructive/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
         >
-          <LogOut className="size-[18px] text-sidebar-foreground/60" aria-hidden />
-          {!collapsed && <span>{isAr ? "تسجيل خروج" : "Logout"}</span>}
+          <LogOut className="size-[18px]" aria-hidden />
+          {!collapsed && <span>{isAr ? "تسجيل الخروج" : "Sign out"}</span>}
         </button>
       </SidebarFooter>
     </Sidebar>
