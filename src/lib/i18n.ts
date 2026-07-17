@@ -3149,6 +3149,13 @@ const ar: typeof en = {
       deleteTitle: "حذف هذه الوحدة؟",
       deleteSub: "سيتم فكّ ربط الوحدة بهذا العقار ونقلها للأرشيف، ويمكن استرجاعها لاحقاً.",
       deleted: "تم حذف الوحدة",
+      building: "المبنى",
+      buildingPh: "اختر مبنى",
+      noBuildings: "لا توجد مبانٍ لهذا العقار بعد.",
+      addBuilding: "إضافة مبنى",
+      buildingName: "اسم المبنى",
+      buildingNamePh: "مثال: البرج A",
+      buildingCreated: "تمت إضافة المبنى",
     },
   },
   contracts: {
