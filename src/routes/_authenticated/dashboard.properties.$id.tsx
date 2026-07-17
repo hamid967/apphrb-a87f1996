@@ -938,6 +938,74 @@ function UnitsSection({
           </form>
         </DialogContent>
       </Dialog>
+
+      <CsvImportDialog
+        open={importOpen}
+        onOpenChange={(v) => {
+          setImportOpen(v);
+          if (!v) setImportBuildingId("");
+        }}
+        title={t("units.quickAdd.importCsvTitle")}
+        templateHeaders={[
+          "code",
+          "type",
+          "status",
+          "area",
+          "bedrooms",
+          "bathrooms",
+          "rent_amount",
+          "currency_code",
+        ]}
+        sampleRow={{
+          code: "A-101",
+          type: "apartment",
+          status: "vacant",
+          area: "120",
+          bedrooms: "2",
+          bathrooms: "1",
+          rent_amount: "2500",
+          currency_code: currency,
+        }}
+        header={
+          <div className="grid gap-2">
+            <p className="text-xs text-muted-foreground">{t("units.quickAdd.importCsvNote")}</p>
+            <div className="space-y-1.5">
+              <Label>{t("units.quickAdd.building")}</Label>
+              {buildings.length === 0 ? (
+                <div className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">
+                  {t("units.quickAdd.noBuildings")}
+                </div>
+              ) : (
+                <Select value={importBuildingId} onValueChange={setImportBuildingId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t("units.quickAdd.buildingPh")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {buildings.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>
+                        {b.name}
+                        {b.code ? ` — ${b.code}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </div>
+        }
+        canImport={!!importBuildingId}
+        onImport={async (rows) => {
+          const withLink = rows.map((r) => ({
+            ...r,
+            property_id: propertyId,
+            building_id: importBuildingId,
+          }));
+          const res = await bulkInsertUnits({ data: { org_id: orgId, rows: withLink } });
+          await qc.invalidateQueries({ queryKey: ["property-units", propertyId] });
+          await qc.invalidateQueries({ queryKey: ["units"] });
+          return res;
+        }}
+      />
     </section>
 
   );
