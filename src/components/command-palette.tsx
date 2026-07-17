@@ -82,7 +82,7 @@ const AUTH_ITEMS: Item[] = [
   { id: "assistant", label: "المساعد الذكي", labelEn: "AI Assistant", to: "/assistant", icon: Bot, group: "dashboard", keywords: "ai ذكاء" },
 
   // Services (matches the sidebar service groups)
-  { id: "properties", label: "العقارات", labelEn: "Properties", to: "/properties", icon: Building2, group: "services", keywords: "properties units عقارات وحدات" },
+  { id: "properties", label: "العقارات", labelEn: "Properties", to: "/dashboard/properties", icon: Building2, group: "services", keywords: "properties units عقارات وحدات" },
   { id: "rentals", label: "التأجير", labelEn: "Rentals", to: "/rentals", icon: Building2, group: "services" },
   { id: "leasing", label: "عقود الإيجار", labelEn: "Leasing", to: "/leasing", icon: FileText, group: "services" },
   { id: "contracts", label: "العقود", labelEn: "Contracts", to: "/dashboard/contracts", icon: FileText, group: "services" },
