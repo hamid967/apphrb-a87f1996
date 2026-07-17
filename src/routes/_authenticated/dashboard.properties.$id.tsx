@@ -598,6 +598,18 @@ function UnitsSection({
     onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
   });
 
+  const [deleteUnitId, setDeleteUnitId] = useState<string | null>(null);
+  const delMut = useMutation({
+    mutationFn: (id: string) => archiveUnits({ data: { ids: [id] } }),
+    onSuccess: async () => {
+      toast.success(t("units.quickAdd.deleted"));
+      await qc.invalidateQueries({ queryKey: ["property-units", propertyId] });
+      await qc.invalidateQueries({ queryKey: ["units"] });
+      setDeleteUnitId(null);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
+  });
+
   const rows = unitsQ.data ?? [];
 
   return (
