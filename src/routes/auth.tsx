@@ -289,7 +289,8 @@ function AuthPage() {
           : "Magic link sent — check your inbox",
       );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error");
+      const hint = describeAuthError(err, i18n.language);
+      toast.error(hint.title, { description: hint.description });
     } finally {
       setMagicLoading(false);
     }
