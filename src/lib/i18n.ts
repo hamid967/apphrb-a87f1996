@@ -778,6 +778,10 @@ const en = {
       empty: "No units yet for this property.",
       created: "Unit created",
       openList: "Open units list",
+      edit: "Edit",
+      editTitle: "Edit unit",
+      editSub: "Update the unit fields and save.",
+      updated: "Unit updated",
     },
   },
   contracts: {
@@ -3126,6 +3130,10 @@ const ar: typeof en = {
       empty: "لا توجد وحدات لهذا العقار بعد.",
       created: "تمت إضافة الوحدة",
       openList: "فتح قائمة الوحدات",
+      edit: "تعديل",
+      editTitle: "تعديل الوحدة",
+      editSub: "حدّث بيانات الوحدة ثم احفظ.",
+      updated: "تم تحديث الوحدة",
     },
   },
   contracts: {
