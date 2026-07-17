@@ -536,6 +536,7 @@ export function DashboardTopbar({
         onOpenChange={(v) => !v && setOpenThread(null)}
         isAr={!!isAr}
       />
+      <SignOutConfirmDialog open={signOutOpen} onOpenChange={setSignOutOpen} />
     </header>
   );
 }
