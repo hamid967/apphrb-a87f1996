@@ -510,10 +510,12 @@ function F({
 
 function UnitsSection({
   propertyId,
+  orgId,
   canEdit,
   currency,
 }: {
   propertyId: string;
+  orgId: string;
   canEdit: boolean;
   currency: string;
 }) {
