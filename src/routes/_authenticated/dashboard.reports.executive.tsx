@@ -139,13 +139,15 @@ const pct = (n: number) => `${Math.round(n * 100)}%`;
 const PIE_COLORS = ["#6366f1", "#8b5cf6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444", "#ec4899"];
 
 function ExecutivePage() {
+  useTranslation(); // subscribe to language changes so t() re-renders
   const search = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
   const months = search.months;
   const page = search.page;
-  const drill = search.kpi
-    ? { kpi: search.kpi as KpiKey, label: search.label ?? search.kpi }
-    : null;
+  const drill = search.kpi ? { kpi: search.kpi as KpiKey } : null;
+  const drillLabel = drill
+    ? (t(`execReports.drill.${drill.kpi}`) as string) || String(drill.kpi)
+    : "";
   const filters = {
     dateFrom: search.dateFrom ?? "",
     dateTo: search.dateTo ?? "",
@@ -160,7 +162,7 @@ function ExecutivePage() {
   const setMonths = (m: number) => setSearch({ months: m });
   const setPage = (p: number | ((prev: number) => number)) =>
     setSearch({ page: typeof p === "function" ? (p as any)(page) : p });
-  const openDrill = (kpi: KpiKey, label: string) => setSearch({ kpi, label, page: 1 });
+  const openDrill = (kpi: KpiKey) => setSearch({ kpi, page: 1 });
   const closeDrill = () =>
     navigate({
       search: (prev: any) => ({ months: prev.months, page: 1, sortField: "date", sortDir: "desc" }),
