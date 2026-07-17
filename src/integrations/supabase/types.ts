@@ -4191,6 +4191,13 @@ export type Database = {
             foreignKeyName: "payment_transactions_charge_id_fkey"
             columns: ["charge_id"]
             isOneToOne: false
+            referencedRelation: "lease_payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_charge_id_fkey"
+            columns: ["charge_id"]
+            isOneToOne: false
             referencedRelation: "rent_charges"
             referencedColumns: ["id"]
           },
@@ -6910,6 +6917,96 @@ export type Database = {
           users_total: number | null
         }
         Relationships: []
+      }
+      lease_payments: {
+        Row: {
+          amount: number | null
+          contract_id: string | null
+          due_date: string | null
+          id: string | null
+          notes: string | null
+          org_id: string | null
+          paid_amount: number | null
+          paid_at: string | null
+          payment_method: string | null
+          property_id: string | null
+          receipt_number: string | null
+          status: string | null
+          tenant_id: string | null
+          unit_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buildings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "v_occupancy"
+            referencedColumns: ["unit_id"]
+          },
+          {
+            foreignKeyName: "contracts_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "v_unit_occupancy"
+            referencedColumns: ["unit_id"]
+          },
+          {
+            foreignKeyName: "rent_charges_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rent_charges_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "v_contract_balance"
+            referencedColumns: ["contract_id"]
+          },
+          {
+            foreignKeyName: "rent_charges_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "v_occupancy"
+            referencedColumns: ["active_contract_id"]
+          },
+          {
+            foreignKeyName: "rent_charges_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "v_unit_occupancy"
+            referencedColumns: ["active_contract_id"]
+          },
+          {
+            foreignKeyName: "rent_charges_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rent_charges_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mv_billing_pay_om: {
         Row: {
