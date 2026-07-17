@@ -674,6 +674,17 @@ function UnitsSection({
                       <Pencil className="size-3.5" />
                     </Button>
                   )}
+                  {canEdit && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-7 text-destructive hover:text-destructive"
+                      onClick={() => setDeleteUnitId(u.id)}
+                      aria-label={t("units.quickAdd.delete")}
+                    >
+                      <Trash2 className="size-3.5" />
+                    </Button>
+                  )}
                 </div>
               </li>
             ))}
