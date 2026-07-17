@@ -118,6 +118,10 @@ function UnitsIndex() {
           <p className="mt-1 text-sm text-muted-foreground">{t("units.sub")}</p>
         </div>
         <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="me-2 size-4" />
+            {t("csv.importUnits")}
+          </Button>
           <Button
             variant={showArchived ? "default" : "outline"}
             size="sm"
@@ -132,6 +136,40 @@ function UnitsIndex() {
           </div>
         </div>
       </div>
+
+      {org && (
+        <CsvImportDialog
+          open={importOpen}
+          onOpenChange={setImportOpen}
+          title={t("csv.importUnits")}
+          templateHeaders={[
+            "property_title",
+            "property_id",
+            "code",
+            "type",
+            "status",
+            "area",
+            "bedrooms",
+            "bathrooms",
+            "rent_amount",
+            "currency_code",
+          ]}
+          sampleRow={{
+            property_title: "شقة الرياض",
+            property_id: "",
+            code: "A-101",
+            type: "apartment",
+            status: "vacant",
+            area: "120",
+            bedrooms: "3",
+            bathrooms: "2",
+            rent_amount: "5000",
+            currency_code: "SAR",
+          }}
+          onImport={(rows) => bulkInsertUnits({ data: { org_id: org.id, rows } })}
+          onDone={() => qc.invalidateQueries({ queryKey: ["units", org.id] })}
+        />
+      )}
 
       <div className="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         <div className="relative">
