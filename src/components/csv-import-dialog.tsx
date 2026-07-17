@@ -347,6 +347,20 @@ export function CsvImportDialog({
             </div>
           )}
 
+          {(busy || (progress > 0 && progress < 100)) && (
+            <div className="grid gap-1.5">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <Loader2 className="size-3.5 animate-spin" />
+                  {t("csv.importingRows", { count: validRows.length })}
+                </span>
+                <span>{progress}%</span>
+              </div>
+              <Progress value={progress} className="h-1.5" />
+            </div>
+          )}
+
+
           {result && (
             <div className="grid gap-2 rounded-lg border p-3 text-sm">
               <div className="flex items-center gap-2 text-emerald-600">
