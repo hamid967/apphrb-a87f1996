@@ -1,11 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { listMyOrganizations } from "@/lib/organizations.functions";
 import { listOwners } from "@/lib/owners.functions";
+import { bulkInsertOwners } from "@/lib/bulk-import.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, ExternalLink, Loader2 } from "lucide-react";
+import { CsvImportDialog } from "@/components/csv-import-dialog";
+import { Users, ExternalLink, Loader2, Upload } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/owners/")({
@@ -17,6 +21,8 @@ function fmt(n: number) {
 }
 
 function OwnersList() {
+  const { t } = useTranslation();
+  const qc = useQueryClient();
   const orgsQ = useQuery({ queryKey: ["my-organizations"], queryFn: () => listMyOrganizations() });
   const orgId = orgsQ.data?.[0]?.org?.id as string | undefined;
   const ownersQ = useQuery({
@@ -25,6 +31,7 @@ function OwnersList() {
     enabled: !!orgId,
   });
   const [q, setQ] = useState("");
+  const [importOpen, setImportOpen] = useState(false);
   const filtered = useMemo(() => {
     const list = (ownersQ.data ?? []) as any[];
     if (!q) return list;
@@ -36,7 +43,7 @@ function OwnersList() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
             <Users className="size-6" /> Owner Portal
@@ -45,13 +52,37 @@ function OwnersList() {
             Owners, contracts, and monthly payout statements.
           </p>
         </div>
-        <Input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search owners…"
-          className="max-w-xs"
-        />
+        <div className="flex items-center gap-2">
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search owners…"
+            className="max-w-xs"
+          />
+          <Button variant="outline" onClick={() => setImportOpen(true)}>
+            <Upload className="me-2 size-4" />
+            {t("csv.importOwners")}
+          </Button>
+        </div>
       </div>
+
+      {orgId && (
+        <CsvImportDialog
+          open={importOpen}
+          onOpenChange={setImportOpen}
+          title={t("csv.importOwners")}
+          templateHeaders={["full_name", "email", "phone", "address", "notes"]}
+          sampleRow={{
+            full_name: "محمد العتيبي",
+            email: "owner@example.com",
+            phone: "+966500000000",
+            address: "الرياض",
+            notes: "",
+          }}
+          onImport={(rows) => bulkInsertOwners({ data: { org_id: orgId, rows } })}
+          onDone={() => qc.invalidateQueries({ queryKey: ["owners", orgId] })}
+        />
+      )}
 
       {ownersQ.isLoading ? (
         <div className="grid place-items-center py-24 text-muted-foreground">

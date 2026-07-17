@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search, ArchiveRestore } from "lucide-react";
+import { Search, ArchiveRestore, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/select";
 import { listMyOrganizations } from "@/lib/organizations.functions";
 import { listUnits, listArchivedUnits, restoreUnits } from "@/lib/units.functions";
+import { bulkInsertUnits } from "@/lib/bulk-import.functions";
+import { CsvImportDialog } from "@/components/csv-import-dialog";
 import { useTranslation } from "react-i18next";
 
 import { sectionHead } from "@/lib/section-og-head";
@@ -47,6 +49,7 @@ function UnitsIndex() {
   const qc = useQueryClient();
   const orgsQ = useQuery({ queryKey: ["my-organizations"], queryFn: () => listMyOrganizations() });
   const org = orgsQ.data?.[0]?.org;
+  const [importOpen, setImportOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const unitsQ = useQuery({
     queryKey: ["units", org?.id, showArchived ? "archived" : "active"],
@@ -115,6 +118,10 @@ function UnitsIndex() {
           <p className="mt-1 text-sm text-muted-foreground">{t("units.sub")}</p>
         </div>
         <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="me-2 size-4" />
+            {t("csv.importUnits")}
+          </Button>
           <Button
             variant={showArchived ? "default" : "outline"}
             size="sm"
@@ -129,6 +136,40 @@ function UnitsIndex() {
           </div>
         </div>
       </div>
+
+      {org && (
+        <CsvImportDialog
+          open={importOpen}
+          onOpenChange={setImportOpen}
+          title={t("csv.importUnits")}
+          templateHeaders={[
+            "property_title",
+            "property_id",
+            "code",
+            "type",
+            "status",
+            "area",
+            "bedrooms",
+            "bathrooms",
+            "rent_amount",
+            "currency_code",
+          ]}
+          sampleRow={{
+            property_title: "شقة الرياض",
+            property_id: "",
+            code: "A-101",
+            type: "apartment",
+            status: "vacant",
+            area: "120",
+            bedrooms: "3",
+            bathrooms: "2",
+            rent_amount: "5000",
+            currency_code: "SAR",
+          }}
+          onImport={(rows) => bulkInsertUnits({ data: { org_id: org.id, rows } })}
+          onDone={() => qc.invalidateQueries({ queryKey: ["units", org.id] })}
+        />
+      )}
 
       <div className="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         <div className="relative">

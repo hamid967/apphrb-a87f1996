@@ -381,6 +381,10 @@ const en = {
     skipped: "Skipped duplicates",
     errors: "Errors",
     emptyFile: "No rows found in file",
+    importProperties: "Import properties",
+    importUnits: "Import units",
+    importOwners: "Import owners",
+    importTenants: "Import tenants",
   },
   importSettings: {
     title: "Import & duplicate rules",
@@ -2725,6 +2729,10 @@ const ar: typeof en = {
     skipped: "تكرارات متجاوزة",
     errors: "أخطاء",
     emptyFile: "لا توجد صفوف في الملف",
+    importProperties: "استيراد العقارات",
+    importUnits: "استيراد الوحدات",
+    importOwners: "استيراد الملاك",
+    importTenants: "استيراد المستأجرين",
   },
   importSettings: {
     title: "قواعد الاستيراد والتكرارات",

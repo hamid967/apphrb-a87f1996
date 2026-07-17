@@ -1,18 +1,20 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
-import { Plus, Search, LayoutGrid, Rows3, Trash2 } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Plus, Search, LayoutGrid, Rows3, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { listMyOrganizations } from "@/lib/organizations.functions";
 import { listProperties } from "@/lib/properties.functions";
+import { bulkInsertProperties } from "@/lib/bulk-import.functions";
 import { can, type OrgRole } from "@/lib/permissions";
 import { useCanCreate } from "@/hooks/use-can-create";
 import { UpgradeDialog } from "@/components/billing/upgrade-dialog";
 import { EnterpriseDataTable, type DTColumn } from "@/components/dashboard/EnterpriseDataTable";
+import { CsvImportDialog } from "@/components/csv-import-dialog";
 
 import { sectionHead } from "@/lib/section-og-head";
 export const Route = createFileRoute("/_authenticated/dashboard/properties/")({
@@ -30,6 +32,8 @@ function PropertiesList() {
   const canCreate = can.createProperty(role);
   const gate = useCanCreate("property");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const qc = useQueryClient();
   const navigate = useNavigate();
   const propsQ = useQuery({
     queryKey: ["properties", org?.id],
@@ -100,18 +104,24 @@ function PropertiesList() {
           {t("properties.title")}
         </h1>
         {canCreate && (
-          <Button
-            onClick={() => {
-              if (!gate.allowed) {
-                setUpgradeOpen(true);
-                return;
-              }
-              navigate({ to: "/dashboard/properties/new" });
-            }}
-          >
-            <Plus className="me-2 size-4" />
-            {t("properties.add")}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setImportOpen(true)}>
+              <Upload className="me-2 size-4" />
+              {t("csv.importProperties")}
+            </Button>
+            <Button
+              onClick={() => {
+                if (!gate.allowed) {
+                  setUpgradeOpen(true);
+                  return;
+                }
+                navigate({ to: "/dashboard/properties/new" });
+              }}
+            >
+              <Plus className="me-2 size-4" />
+              {t("properties.add")}
+            </Button>
+          </div>
         )}
         <UpgradeDialog
           open={upgradeOpen}
@@ -121,6 +131,43 @@ function PropertiesList() {
           max={gate.max}
           planName={gate.planName}
         />
+        {org && (
+          <CsvImportDialog
+            open={importOpen}
+            onOpenChange={setImportOpen}
+            title={t("csv.importProperties")}
+            templateHeaders={[
+              "title_ar",
+              "title_en",
+              "property_type",
+              "listing_type",
+              "status",
+              "price",
+              "currency",
+              "area_sqm",
+              "bedrooms",
+              "bathrooms",
+              "city",
+              "address",
+            ]}
+            sampleRow={{
+              title_ar: "شقة الرياض",
+              title_en: "Riyadh Apartment",
+              property_type: "apartment",
+              listing_type: "rent",
+              status: "available",
+              price: "60000",
+              currency: "SAR",
+              area_sqm: "120",
+              bedrooms: "3",
+              bathrooms: "2",
+              city: "الرياض",
+              address: "حي النرجس",
+            }}
+            onImport={(rows) => bulkInsertProperties({ data: { org_id: org.id, rows } })}
+            onDone={() => qc.invalidateQueries({ queryKey: ["properties", org.id] })}
+          />
+        )}
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
