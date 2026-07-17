@@ -30,6 +30,8 @@ type Props = {
   onDone?: () => void;
   header?: React.ReactNode;
   canImport?: boolean;
+  /** Optional client-side validator; return an array of error messages (empty = valid). */
+  validateRow?: (row: Record<string, string>, index: number) => string[];
 };
 
 export function CsvImportDialog({
@@ -42,6 +44,7 @@ export function CsvImportDialog({
   onDone,
   header,
   canImport = true,
+  validateRow,
 }: Props) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -86,11 +89,18 @@ export function CsvImportDialog({
     URL.revokeObjectURL(url);
   };
 
+  const validations = validateRow
+    ? rows.map((r, i) => validateRow(r, i))
+    : rows.map(() => [] as string[]);
+  const validCount = validations.filter((e) => e.length === 0).length;
+  const invalidCount = validations.length - validCount;
+  const validRows = rows.filter((_, i) => validations[i].length === 0);
+
   const submit = async () => {
-    if (!rows.length) return;
+    if (!validRows.length) return;
     setBusy(true);
     try {
-      const r = await onImport(rows);
+      const r = await onImport(validRows);
       setResult(r);
       toast.success(t("csv.done", { created: r.created, skipped: r.skipped }));
       onDone?.();
@@ -140,8 +150,66 @@ export function CsvImportDialog({
           </label>
 
           {rows.length > 0 && !result && (
-            <div className="rounded-lg border bg-muted/30 p-3 text-sm">
-              {t("csv.preview", { count: rows.length })}
+            <div className="grid gap-2 rounded-lg border bg-muted/20 p-3 text-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="font-medium">{t("csv.previewTitle")}</div>
+                <div className="flex items-center gap-3 text-xs">
+                  <span className="inline-flex items-center gap-1 text-emerald-600">
+                    <CheckCircle2 className="size-3.5" />
+                    {t("csv.previewValid", { count: validCount })}
+                  </span>
+                  {invalidCount > 0 && (
+                    <span className="inline-flex items-center gap-1 text-amber-600">
+                      <AlertTriangle className="size-3.5" />
+                      {t("csv.previewInvalid", { count: invalidCount })}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="max-h-64 overflow-auto rounded border bg-background">
+                <table className="w-full text-xs">
+                  <thead className="sticky top-0 bg-muted/60">
+                    <tr>
+                      <th className="px-2 py-1 text-start">{t("csv.previewRow")}</th>
+                      {templateHeaders.slice(0, 5).map((h) => (
+                        <th key={h} className="px-2 py-1 text-start font-medium">{h}</th>
+                      ))}
+                      <th className="px-2 py-1 text-start">{t("csv.previewStatus")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.slice(0, 100).map((r, i) => {
+                      const errs = validations[i];
+                      const ok = errs.length === 0;
+                      return (
+                        <tr key={i} className={ok ? "" : "bg-amber-500/10"}>
+                          <td className="px-2 py-1 text-muted-foreground">{i + 1}</td>
+                          {templateHeaders.slice(0, 5).map((h) => (
+                            <td key={h} className="px-2 py-1 max-w-[10rem] truncate">
+                              {String(r[h] ?? "")}
+                            </td>
+                          ))}
+                          <td className="px-2 py-1">
+                            {ok ? (
+                              <span className="text-emerald-600">{t("csv.previewOk")}</span>
+                            ) : (
+                              <span className="text-amber-700" title={errs.join("; ")}>
+                                {errs[0]}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              {invalidCount > 0 && (
+                <p className="text-xs text-muted-foreground">{t("csv.previewSkipInvalid")}</p>
+              )}
+              {validCount === 0 && (
+                <p className="text-xs text-amber-600">{t("csv.previewNoValid")}</p>
+              )}
             </div>
           )}
 
@@ -181,8 +249,15 @@ export function CsvImportDialog({
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             {t("common.close") ?? "Close"}
           </Button>
-          <Button onClick={submit} disabled={!rows.length || busy || !!result || !canImport}>
-            {busy ? t("csv.importing") : t("csv.import")}
+          <Button
+            onClick={submit}
+            disabled={!validRows.length || busy || !!result || !canImport}
+          >
+            {busy
+              ? t("csv.importing")
+              : validRows.length && rows.length
+                ? t("csv.confirmImport", { count: validRows.length })
+                : t("csv.import")}
           </Button>
         </DialogFooter>
       </DialogContent>

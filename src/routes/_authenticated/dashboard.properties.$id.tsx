@@ -994,6 +994,29 @@ function UnitsSection({
           </div>
         }
         canImport={!!importBuildingId}
+        validateRow={(r) => {
+          const errs: string[] = [];
+          const code = String(r.code ?? "").trim();
+          if (!code) errs.push(t("units.quickAdd.codeRequired") ?? "code is required");
+          else if (code.length > 64) errs.push("code too long");
+          const status = String(r.status ?? "").trim().toLowerCase();
+          if (status && !["vacant", "occupied", "reserved", "maintenance"].includes(status))
+            errs.push("invalid status");
+          const numeric: Array<[string, boolean]> = [
+            ["area", false],
+            ["bedrooms", true],
+            ["bathrooms", true],
+            ["rent_amount", false],
+          ];
+          for (const [k, intOnly] of numeric) {
+            const v = r[k];
+            if (v === undefined || v === null || String(v).trim() === "") continue;
+            const n = Number(String(v).replace(/,/g, ""));
+            if (!Number.isFinite(n) || n < 0) errs.push(`${k}: invalid number`);
+            else if (intOnly && !Number.isInteger(n)) errs.push(`${k}: must be integer`);
+          }
+          return errs;
+        }}
         onImport={async (rows) => {
           const withLink = rows.map((r) => ({
             ...r,
