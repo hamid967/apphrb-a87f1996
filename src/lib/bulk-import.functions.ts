@@ -173,9 +173,12 @@ export const bulkInsertUnits = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true });
     if (bErr) throw bErr;
     const buildingByProperty = new Map<string, string>();
+    const buildingById = new Map<string, string>(); // building_id -> property_id
     for (const b of bldgs ?? []) {
       const pid = String(b.property_id ?? "");
-      if (pid && !buildingByProperty.has(pid)) buildingByProperty.set(pid, String(b.id));
+      const bid = String(b.id);
+      buildingById.set(bid, pid);
+      if (pid && !buildingByProperty.has(pid)) buildingByProperty.set(pid, bid);
     }
 
     const errors: { row: number; message: string }[] = [];
