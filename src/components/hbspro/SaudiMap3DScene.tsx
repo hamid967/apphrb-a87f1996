@@ -514,8 +514,13 @@ export function SaudiMap3DScene({ compact = false }: SaudiMap3DProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
-            className="absolute bottom-4 left-4 right-4 rounded-2xl border px-4 py-3 backdrop-blur-md sm:right-auto sm:min-w-[240px]"
-            style={{ borderColor: HBS.border, background: "rgba(7,19,32,0.78)" }}
+            className="absolute bottom-4 left-4 right-4 rounded-2xl px-5 py-4 backdrop-blur-xl sm:right-auto sm:min-w-[260px]"
+            style={{
+              border: `1px solid ${HBS.gold}66`,
+              background:
+                "linear-gradient(140deg, rgba(7,19,32,0.92) 0%, rgba(15,32,48,0.88) 100%)",
+              boxShadow: `0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 ${HBS.gold}33`,
+            }}
           >
             <div className="text-[10px] uppercase tracking-[0.24em]" style={{ color: HBS.gold }}>
               {tr("hbspro.map.aiNode")} ·{" "}
