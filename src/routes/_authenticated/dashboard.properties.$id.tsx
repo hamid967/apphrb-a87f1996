@@ -672,8 +672,8 @@ function UnitsSection({
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("units.quickAdd.addTitle")}</DialogTitle>
-            <DialogDescription>{t("units.quickAdd.addSub")}</DialogDescription>
+            <DialogTitle>{editingId ? t("units.quickAdd.editTitle") : t("units.quickAdd.addTitle")}</DialogTitle>
+            <DialogDescription>{editingId ? t("units.quickAdd.editSub") : t("units.quickAdd.addSub")}</DialogDescription>
           </DialogHeader>
           <form
             onSubmit={(e) => {
