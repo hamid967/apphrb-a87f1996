@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Volume2, VolumeX, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const INTRO_KEY = "hbspro.luxuryIntro.seen.v1";
 const INTRO_DURATION_MS = 20_000;
@@ -51,50 +51,22 @@ export function LuxuryIntroOverlay() {
   const audioRef = useRef<AudioContext | null>(null);
   const timersRef = useRef<number[]>([]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const alreadySeen = window.localStorage.getItem(INTRO_KEY) === "1";
-    if (!alreadySeen && !reducedMotion) setVisible(true);
+  const stopIntroSound = useCallback(() => {
+    if (typeof window !== "undefined") {
+      timersRef.current.forEach((timer) => window.clearTimeout(timer));
+    }
+    timersRef.current = [];
+    audioRef.current?.close().catch(() => {});
+    audioRef.current = null;
   }, []);
 
-  useEffect(() => {
-    if (!visible || typeof window === "undefined") return;
-    const startedAt = Date.now();
-    const interval = window.setInterval(() => {
-      const nextElapsed = Date.now() - startedAt;
-      setElapsed(Math.min(nextElapsed, INTRO_DURATION_MS));
-      if (nextElapsed >= INTRO_DURATION_MS) closeIntro();
-    }, 120);
-    return () => window.clearInterval(interval);
-  }, [visible]);
-
-  useEffect(() => {
-    return () => stopIntroSound();
-  }, []);
-
-  const sceneIndex = Math.min(scenes.length - 1, Math.floor(elapsed / SCENE_DURATION_MS));
-  const scene = scenes[sceneIndex];
-  const progress = Math.min(100, (elapsed / INTRO_DURATION_MS) * 100);
-  const particles = useMemo(() => Array.from({ length: 18 }, (_, i) => i), []);
-
-  function closeIntro() {
+  const closeIntro = useCallback(() => {
     if (typeof window !== "undefined") window.localStorage.setItem(INTRO_KEY, "1");
     stopIntroSound();
     setVisible(false);
-  }
+  }, [stopIntroSound]);
 
-  function toggleSound() {
-    if (soundOn) {
-      stopIntroSound();
-      setSoundOn(false);
-      return;
-    }
-    startIntroSound();
-    setSoundOn(true);
-  }
-
-  function startIntroSound() {
+  const startIntroSound = useCallback(() => {
     if (typeof window === "undefined") return;
     stopIntroSound();
     const AudioCtor = window.AudioContext || window.webkitAudioContext;
@@ -122,14 +94,44 @@ export function LuxuryIntroOverlay() {
 
     const timeout = window.setTimeout(() => setSoundOn(false), INTRO_DURATION_MS);
     timersRef.current.push(timeout);
-  }
+  }, [stopIntroSound]);
 
-  function stopIntroSound() {
-    timersRef.current.forEach((timer) => window.clearTimeout(timer));
-    timersRef.current = [];
-    audioRef.current?.close().catch(() => {});
-    audioRef.current = null;
-  }
+  const toggleSound = useCallback(() => {
+    if (soundOn) {
+      stopIntroSound();
+      setSoundOn(false);
+      return;
+    }
+    startIntroSound();
+    setSoundOn(true);
+  }, [soundOn, startIntroSound, stopIntroSound]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const alreadySeen = window.localStorage.getItem(INTRO_KEY) === "1";
+    if (!alreadySeen && !reducedMotion) setVisible(true);
+  }, []);
+
+  useEffect(() => {
+    if (!visible || typeof window === "undefined") return;
+    const startedAt = Date.now();
+    const interval = window.setInterval(() => {
+      const nextElapsed = Date.now() - startedAt;
+      setElapsed(Math.min(nextElapsed, INTRO_DURATION_MS));
+      if (nextElapsed >= INTRO_DURATION_MS) closeIntro();
+    }, 120);
+    return () => window.clearInterval(interval);
+  }, [closeIntro, visible]);
+
+  useEffect(() => {
+    return () => stopIntroSound();
+  }, [stopIntroSound]);
+
+  const sceneIndex = Math.min(scenes.length - 1, Math.floor(elapsed / SCENE_DURATION_MS));
+  const scene = scenes[sceneIndex];
+  const progress = Math.min(100, (elapsed / INTRO_DURATION_MS) * 100);
+  const particles = useMemo(() => Array.from({ length: 18 }, (_, i) => i), []);
 
   return (
     <AnimatePresence>
