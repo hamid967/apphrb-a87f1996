@@ -2776,6 +2776,10 @@ const ar: typeof en = {
     previewNoValid: "لا توجد صفوف صالحة للاستيراد",
     confirmImport: "تأكيد واستيراد {{count}}",
     downloadErrors: "تنزيل تقرير الأخطاء",
+    parsing: "جارٍ قراءة {{name}}…",
+    parsed: "تم تحميل {{count}} صف",
+    importingRows: "جارٍ استيراد {{count}} صف…",
+    doneDetail: "تم إنشاء {{created}} · تحديث {{updated}} · تجاوز {{skipped}} · أخطاء {{errors}}",
   },
   importSettings: {
     title: "قواعد الاستيراد والتكرارات",
