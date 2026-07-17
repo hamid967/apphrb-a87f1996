@@ -4821,4 +4821,12 @@ export function applyDirection(lng: string) {
 
 i18n.on("languageChanged", applyDirection);
 
+/**
+ * Imperative translator — safe to call outside React (route errorComponent,
+ * notFoundComponent, toasts, server-side helpers). Inside components prefer
+ * `useTranslation()` so re-render happens on language change.
+ */
+export const t = (key: string, options?: Record<string, unknown>): string =>
+  i18n.t(key, options) as string;
+
 export default i18n;
