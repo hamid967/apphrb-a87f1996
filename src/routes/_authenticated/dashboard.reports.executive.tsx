@@ -365,7 +365,7 @@ function ExecutivePage() {
         {/* Revenue trend + forecast */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Revenue trend & 3-month forecast</CardTitle>
+            <CardTitle className="text-base">{t("execReports.charts.revenueTrend")}</CardTitle>
           </CardHeader>
           <CardContent className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -397,7 +397,7 @@ function ExecutivePage() {
                   dataKey="collected"
                   stroke="#6366f1"
                   fill="url(#gCol)"
-                  name="Collected"
+                  name={t("execReports.charts.collected")}
                 />
                 <Area
                   type="monotone"
@@ -405,7 +405,7 @@ function ExecutivePage() {
                   stroke="#10b981"
                   strokeDasharray="6 4"
                   fill="url(#gFor)"
-                  name="Forecast"
+                  name={t("execReports.charts.forecast")}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -415,18 +415,19 @@ function ExecutivePage() {
         {/* Occupancy gauge */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">Portfolio health</CardTitle>
+            <CardTitle className="text-base">{t("execReports.charts.portfolioHealth")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Gauge label="Occupancy" value={k.occupancyRate} />
-            <Gauge label="Collection rate" value={k.collectionRate} />
+            <Gauge label={t("execReports.kpi.occupancy")} value={k.occupancyRate} />
+            <Gauge label={t("execReports.charts.collectionRate")} value={k.collectionRate} />
             <Gauge
-              label="Net margin"
+              label={t("execReports.charts.netMargin")}
               value={k.revenueTotal > 0 ? Math.max(0, k.netTotal / k.revenueTotal) : 0}
             />
           </CardContent>
         </Card>
       </div>
+
 
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Monthly revenue vs expense */}
