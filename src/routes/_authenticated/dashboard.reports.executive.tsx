@@ -264,10 +264,10 @@ function ExecutivePage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-2xl font-bold text-transparent md:text-3xl">
-            Executive Analytics 2026
+            {t("execReports.title")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            Live pulse on revenue, occupancy, pipeline, and forecast.
+            {t("execReports.subtitle")}
           </p>
         </div>
         <Select value={String(months)} onValueChange={(v) => setMonths(Number(v))}>
@@ -275,10 +275,10 @@ function ExecutivePage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="3">Last 3 months</SelectItem>
-            <SelectItem value="6">Last 6 months</SelectItem>
-            <SelectItem value="12">Last 12 months</SelectItem>
-            <SelectItem value="24">Last 24 months</SelectItem>
+            <SelectItem value="3">{t("execReports.months.m3")}</SelectItem>
+            <SelectItem value="6">{t("execReports.months.m6")}</SelectItem>
+            <SelectItem value="12">{t("execReports.months.m12")}</SelectItem>
+            <SelectItem value="24">{t("execReports.months.m24")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -286,17 +286,17 @@ function ExecutivePage() {
       {/* KPI Grid */}
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <KpiCard
-          label="Collected revenue"
+          label={t("execReports.kpi.collectedRevenue")}
           value={fmt(k.collectedTotal)}
-          sub={`${fmt(k.revenueTotal)} invoiced`}
+          sub={t("execReports.kpi.invoicedSuffix", { amount: fmt(k.revenueTotal) })}
           icon={<Wallet className="size-4" />}
           tone="positive"
-          onClick={() => openDrill("collectedTotal", "Collected revenue")}
+          onClick={() => openDrill("collectedTotal")}
         />
         <KpiCard
-          label="Net profit"
+          label={t("execReports.kpi.netProfit")}
           value={fmt(k.netTotal)}
-          sub={k.netTotal >= 0 ? "Profitable" : "Loss"}
+          sub={k.netTotal >= 0 ? t("execReports.kpi.profitable") : t("execReports.kpi.loss")}
           icon={
             k.netTotal >= 0 ? (
               <TrendingUp className="size-4" />
@@ -305,57 +305,61 @@ function ExecutivePage() {
             )
           }
           tone={k.netTotal >= 0 ? "positive" : "negative"}
-          onClick={() => openDrill("netTotal", "Expenses affecting net profit")}
+          onClick={() => openDrill("netTotal")}
         />
         <KpiCard
-          label="Outstanding"
+          label={t("execReports.kpi.outstanding")}
           value={fmt(k.outstanding)}
-          sub={`${pct(k.collectionRate)} collection rate`}
+          sub={t("execReports.kpi.collectionRateSuffix", { rate: pct(k.collectionRate) })}
           icon={<AlertCircle className="size-4" />}
           tone="warning"
-          onClick={() => openDrill("outstanding", "Outstanding invoices")}
+          onClick={() => openDrill("outstanding")}
         />
         <KpiCard
-          label="Occupancy"
+          label={t("execReports.kpi.occupancy")}
           value={pct(k.occupancyRate)}
-          sub={`${k.occupiedUnits}/${k.totalUnits} units occupied`}
+          sub={t("execReports.kpi.unitsOccupied", {
+            occupied: k.occupiedUnits,
+            total: k.totalUnits,
+          })}
           icon={<Building2 className="size-4" />}
           tone="neutral"
-          onClick={() => openDrill("occupancyRate", "All units")}
+          onClick={() => openDrill("occupancyRate")}
         />
         <KpiCard
-          label="Active contracts"
+          label={t("execReports.kpi.activeContracts")}
           value={String(k.activeContracts)}
-          sub={`${k.expiring30} expiring in 30 days`}
+          sub={t("execReports.kpi.expiringSuffix", { count: k.expiring30 })}
           icon={<Users className="size-4" />}
           tone={k.expiring30 > 0 ? "warning" : "neutral"}
-          onClick={() => openDrill("activeContracts", "Active contracts")}
+          onClick={() => openDrill("activeContracts")}
         />
         <KpiCard
-          label="Pipeline value"
+          label={t("execReports.kpi.pipelineValue")}
           value={fmt(k.pipelineValue)}
-          sub={`${fmt(k.wonValue)} closed`}
+          sub={t("execReports.kpi.pipelineClosedSuffix", { amount: fmt(k.wonValue) })}
           icon={<Sparkles className="size-4" />}
           tone="neutral"
-          onClick={() => openDrill("pipelineValue", "Open deals in pipeline")}
+          onClick={() => openDrill("pipelineValue")}
         />
         <KpiCard
-          label="Commissions paid"
+          label={t("execReports.kpi.commissionsPaid")}
           value={fmt(k.commissionsPaid)}
-          sub={`${fmt(k.commissionsPending)} pending`}
+          sub={t("execReports.kpi.commissionsPendingSuffix", { amount: fmt(k.commissionsPending) })}
           icon={<Wallet className="size-4" />}
           tone="neutral"
-          onClick={() => openDrill("commissionsPaid", "Paid commissions")}
+          onClick={() => openDrill("commissionsPaid")}
         />
         <KpiCard
-          label="Vacant units"
+          label={t("execReports.kpi.vacantUnits")}
           value={String(k.vacantUnits)}
-          sub="Available inventory"
+          sub={t("execReports.kpi.availableInventory")}
           icon={<Building2 className="size-4" />}
           tone="neutral"
-          onClick={() => openDrill("vacantUnits", "Vacant units")}
+          onClick={() => openDrill("vacantUnits")}
         />
       </div>
+
 
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Revenue trend + forecast */}
