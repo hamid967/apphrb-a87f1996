@@ -103,6 +103,7 @@ function TenantsPage() {
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Tenant | null>(null);
   const [creating, setCreating] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [inviting, setInviting] = useState<Tenant | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Tenant | null>(null);
 
