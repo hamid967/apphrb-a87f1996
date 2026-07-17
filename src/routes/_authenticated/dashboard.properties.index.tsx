@@ -32,6 +32,8 @@ function PropertiesList() {
   const canCreate = can.createProperty(role);
   const gate = useCanCreate("property");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const qc = useQueryClient();
   const navigate = useNavigate();
   const propsQ = useQuery({
     queryKey: ["properties", org?.id],
