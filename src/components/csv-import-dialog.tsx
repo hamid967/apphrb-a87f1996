@@ -59,14 +59,54 @@ export function CsvImportDialog({
     setResult(null);
   };
 
-  const onFile = (f: File | null) => {
+  const normalizeHeader = (h: string) =>
+    String(h ?? "").trim().toLowerCase().replace(/\s+/g, "_");
+
+  const parseXlsx = async (f: File) => {
+    const XLSX = await import("xlsx");
+    const buf = await f.arrayBuffer();
+    const wb = XLSX.read(buf, { type: "array" });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    if (!ws) return [] as Record<string, string>[];
+    const raw = XLSX.utils.sheet_to_json<Record<string, unknown>>(ws, {
+      defval: "",
+      raw: false,
+    });
+    return raw
+      .map((r) => {
+        const out: Record<string, string> = {};
+        for (const [k, v] of Object.entries(r)) {
+          out[normalizeHeader(k)] = v == null ? "" : String(v);
+        }
+        return out;
+      })
+      .filter((r) => Object.values(r).some((v) => v && v.trim() !== ""));
+  };
+
+  const onFile = async (f: File | null) => {
     if (!f) return;
     setFileName(f.name);
     setResult(null);
+    const name = f.name.toLowerCase();
+    const isXlsx =
+      name.endsWith(".xlsx") ||
+      name.endsWith(".xls") ||
+      f.type.includes("spreadsheetml") ||
+      f.type.includes("ms-excel");
+    if (isXlsx) {
+      try {
+        const clean = await parseXlsx(f);
+        setRows(clean);
+        if (!clean.length) toast.error(t("csv.emptyFile"));
+      } catch (e: any) {
+        toast.error(e?.message ?? "Failed to parse Excel file");
+      }
+      return;
+    }
     Papa.parse<Record<string, string>>(f, {
       header: true,
       skipEmptyLines: true,
-      transformHeader: (h) => h.trim().toLowerCase().replace(/\s+/g, "_"),
+      transformHeader: (h) => normalizeHeader(h),
       complete: (res) => {
         const clean = (res.data || []).filter((r) =>
           Object.values(r).some((v) => v && String(v).trim() !== ""),
@@ -143,7 +183,7 @@ export function CsvImportDialog({
             <input
               ref={inputRef}
               type="file"
-              accept=".csv,text/csv"
+              accept=".csv,text/csv,.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
               className="sr-only"
               onChange={(e) => onFile(e.target.files?.[0] ?? null)}
             />
