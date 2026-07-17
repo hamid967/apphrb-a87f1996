@@ -31,6 +31,7 @@ import {
   Building,
 } from "lucide-react";
 import { toast } from "sonner";
+import { describeAuthError } from "@/lib/auth-errors";
 import { checkLoginRateLimit, recordLoginEvent } from "@/lib/sessions.functions";
 import {
   getFailedAttempts,
@@ -213,7 +214,8 @@ function AuthPage() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err ?? "Error");
       console.error("[auth]", "send-otp failed:", msg);
-      toast.error(msg);
+      const hint = describeAuthError(err, i18n.language);
+      toast.error(hint.title, { description: hint.description });
     } finally {
       setSending(false);
     }
@@ -257,8 +259,8 @@ function AuthPage() {
       resetFailedAttempts(trimmedEmail);
       await routeAfterLogin(nav, redirectTarget);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err ?? "Error");
-      toast.error(msg);
+      const hint = describeAuthError(err, i18n.language);
+      toast.error(hint.title, { description: hint.description });
     } finally {
       setVerifying(false);
     }
@@ -287,7 +289,8 @@ function AuthPage() {
           : "Magic link sent — check your inbox",
       );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error");
+      const hint = describeAuthError(err, i18n.language);
+      toast.error(hint.title, { description: hint.description });
     } finally {
       setMagicLoading(false);
     }
@@ -326,7 +329,8 @@ function AuthPage() {
           : `Code sent to ${devEmail}`,
       );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Developer signup failed");
+      const hint = describeAuthError(err, i18n.language);
+      toast.error(hint.title, { description: hint.description });
     } finally {
       setDevLoading(false);
     }
