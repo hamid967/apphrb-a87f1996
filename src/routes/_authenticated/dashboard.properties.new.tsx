@@ -178,11 +178,16 @@ function NewProperty() {
         },
       });
     },
-    onSuccess: async () => {
+    onSuccess: async (row) => {
       toast.success(isAr ? "تم إنشاء العقار" : "Property created");
       if (org?.id) localStorage.removeItem(DRAFT_KEY(org.id));
       await qc.invalidateQueries({ queryKey: ["properties"] });
-      nav({ to: "/dashboard/properties" });
+      const newId = (row as { id?: string } | null)?.id;
+      if (newId) {
+        nav({ to: "/dashboard/properties/$id", params: { id: newId } });
+      } else {
+        nav({ to: "/dashboard/properties" });
+      }
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
   });
