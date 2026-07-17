@@ -211,22 +211,32 @@ function CityMarker({
         />
       </mesh>
       {active && (
-        <Html center distanceFactor={8} position={[0, 0.35, 0]} style={{ pointerEvents: "none" }}>
+        <Html center distanceFactor={6} position={[0, 0.42, 0]} style={{ pointerEvents: "none" }}>
           <div
-            className="whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold backdrop-blur-md"
+            dir="ltr"
+            className="whitespace-nowrap rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] backdrop-blur-xl"
             style={{
-              borderColor: HBS.border,
-              background: "rgba(7,19,32,0.85)",
+              border: `1px solid ${HBS.gold}`,
+              background:
+                "linear-gradient(135deg, rgba(7,19,32,0.92) 0%, rgba(15,32,48,0.92) 100%)",
               color: HBS.white,
+              boxShadow: `0 8px 32px rgba(0,0,0,0.55), 0 0 24px ${HBS.gold}40, inset 0 1px 0 ${HBS.gold}55`,
+              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+              letterSpacing: "0.34em",
             }}
           >
-            {city.name} · <span style={{ color: HBS.gold }}>{city.ar}</span>
+            <span style={{ color: HBS.gold }}>◆</span>{" "}
+            <span style={{ color: HBS.white }}>{city.name}</span>
             {typeof count === "number" && (
               <span
-                className="ms-2 rounded-full bg-white/10 px-2 py-0.5 text-[10px]"
-                style={{ color: HBS.gold }}
+                className="ms-2 rounded-full px-2 py-0.5 text-[9px]"
+                style={{
+                  background: `linear-gradient(135deg, ${HBS.gold}, ${HBS.goldSoft})`,
+                  color: "#0a1420",
+                  letterSpacing: "0.2em",
+                }}
               >
-                {tr("hbspro.map.propertiesShort", { count })}
+                {count}
               </span>
             )}
           </div>
