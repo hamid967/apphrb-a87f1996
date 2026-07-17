@@ -45,6 +45,8 @@ import {
   listArchivedTenants,
   restoreTenants,
 } from "@/lib/tenants.functions";
+import { bulkInsertTenants } from "@/lib/bulk-import.functions";
+import { CsvImportDialog } from "@/components/csv-import-dialog";
 import { createPortalInvitation } from "@/lib/portal-invitations.functions";
 
 import { sectionHead } from "@/lib/section-og-head";
