@@ -6870,6 +6870,29 @@ export type Database = {
       }
     }
     Views: {
+      admin_overview_mv: {
+        Row: {
+          active_contracts: number | null
+          active_subs: number | null
+          events_24h: number | null
+          generated_at: string | null
+          login_failed_24h: number | null
+          login_success_24h: number | null
+          mrr: number | null
+          orgs_total: number | null
+          pending_invites: number | null
+          pending_receipts: number | null
+          pending_subs: number | null
+          rejected_subs_24h: number | null
+          revenue_month: number | null
+          revenue_year: number | null
+          singleton: number | null
+          trial_subs: number | null
+          users_pending: number | null
+          users_total: number | null
+        }
+        Relationships: []
+      }
       mv_billing_pay_om: {
         Row: {
           month_start: string | null
@@ -7321,6 +7344,35 @@ export type Database = {
         Args: { _contract_id: string; _months?: number }
         Returns: number
       }
+      get_admin_overview: {
+        Args: never
+        Returns: {
+          active_contracts: number | null
+          active_subs: number | null
+          events_24h: number | null
+          generated_at: string | null
+          login_failed_24h: number | null
+          login_success_24h: number | null
+          mrr: number | null
+          orgs_total: number | null
+          pending_invites: number | null
+          pending_receipts: number | null
+          pending_subs: number | null
+          rejected_subs_24h: number | null
+          revenue_month: number | null
+          revenue_year: number | null
+          singleton: number | null
+          trial_subs: number | null
+          users_pending: number | null
+          users_total: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "admin_overview_mv"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_app_setting: { Args: { _key: string }; Returns: string }
       get_invitation_by_token: {
         Args: { _token: string }
@@ -7485,6 +7537,7 @@ export type Database = {
         }
         Returns: string
       }
+      refresh_admin_overview: { Args: never; Returns: undefined }
       refresh_billing_mvs: { Args: never; Returns: Json }
       register_company: {
         Args: { _name: string; _phone?: string }
