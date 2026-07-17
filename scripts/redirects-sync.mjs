@@ -33,7 +33,7 @@ function extractEntries() {
   const entries = [];
   for (const f of files) {
     const src = fs.readFileSync(f, "utf8");
-    const routeMatch = src.match(/createFileRoute\(\s*["']([^"']+)["']\s*\)/);
+    const routeMatch = src.match(/createFileRoute\(\s*["']([^"']+)["']\s*,?\s*\)/);
     if (!routeMatch) continue;
     const routeId = routeMatch[1];
     const from = routeId.replace(/^\/_authenticated/, "").replace(/\/$/, "") || "/";
