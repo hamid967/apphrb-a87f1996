@@ -564,7 +564,7 @@ function ExecutivePage() {
       <div className="flex justify-end">
         <Button variant="outline" onClick={() => q.refetch()}>
           {q.isFetching ? <Loader2 className="me-2 size-4 animate-spin" /> : null}
-          Refresh
+          {t("execReports.refresh")}
         </Button>
       </div>
 
@@ -582,21 +582,26 @@ function ExecutivePage() {
                 variant="ghost"
                 className="h-8 -ms-2 px-2"
                 onClick={() => window.history.back()}
-                aria-label="Back"
+                aria-label={t("execReports.back")}
               >
-                <ArrowLeft className="me-1 size-4" /> Back
+                <ArrowLeft className="me-1 size-4" /> {t("execReports.back")}
               </Button>
-              <DialogTitle className="flex-1">{drill?.label}</DialogTitle>
+              <DialogTitle className="flex-1">{drillLabel}</DialogTitle>
             </div>
             <DialogDescription>
               {drillQ.data
-                ? `${fmt(drillQ.data.count)} total record${drillQ.data.count === 1 ? "" : "s"} · showing ${drillQ.data.records.length} on page ${drillQ.data.page}`
-                : "Loading records…"}
+                ? t("execReports.dialog.recordsSummary", {
+                    count: fmt(drillQ.data.count),
+                    plural: drillQ.data.count === 1 ? "" : "s",
+                    shown: drillQ.data.records.length,
+                    page: drillQ.data.page,
+                  })
+                : t("execReports.dialog.loadingRecords")}
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-2 rounded-md border bg-muted/30 p-3 md:grid-cols-5">
             <div>
-              <Label className="text-xs">From</Label>
+              <Label className="text-xs">{t("execReports.filters.from")}</Label>
               <Input
                 type="date"
                 value={filters.dateFrom}
@@ -605,7 +610,7 @@ function ExecutivePage() {
               />
             </div>
             <div>
-              <Label className="text-xs">To</Label>
+              <Label className="text-xs">{t("execReports.filters.to")}</Label>
               <Input
                 type="date"
                 value={filters.dateTo}
@@ -614,18 +619,18 @@ function ExecutivePage() {
               />
             </div>
             <div>
-              <Label className="text-xs">Status</Label>
+              <Label className="text-xs">{t("execReports.filters.status")}</Label>
               <Input
-                placeholder="any"
+                placeholder={t("execReports.filters.anyPlaceholder")}
                 value={filters.status}
                 onChange={(e) => setSearch({ status: e.target.value || undefined, page: 1 })}
                 className="h-8"
               />
             </div>
             <div>
-              <Label className="text-xs">Category / Type</Label>
+              <Label className="text-xs">{t("execReports.filters.categoryOrType")}</Label>
               <Input
-                placeholder="any"
+                placeholder={t("execReports.filters.anyPlaceholder")}
                 value={filters.category}
                 onChange={(e) => setSearch({ category: e.target.value || undefined, page: 1 })}
                 className="h-8"
@@ -633,7 +638,7 @@ function ExecutivePage() {
             </div>
             <div className="flex items-end">
               <Button size="sm" variant="ghost" onClick={resetFilters} className="h-8 w-full">
-                <X className="me-1 size-3" /> Clear
+                <X className="me-1 size-3" /> {t("execReports.filters.clear")}
               </Button>
             </div>
           </div>
@@ -644,7 +649,7 @@ function ExecutivePage() {
               <SkeletonTable rows={8} />
             ) : !drillQ.data?.records.length ? (
               <div className="grid h-40 place-items-center text-sm text-muted-foreground">
-                No records
+                {t("execReports.table.noRecords")}
               </div>
             ) : (
               <Table
@@ -654,15 +659,15 @@ function ExecutivePage() {
               >
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Reference</TableHead>
-                    <TableHead>Details</TableHead>
+                    <TableHead>{t("execReports.table.reference")}</TableHead>
+                    <TableHead>{t("execReports.table.details")}</TableHead>
                     <TableHead>
                       <button
                         type="button"
                         onClick={() => toggleSort("date")}
                         className="inline-flex items-center hover:text-foreground"
                       >
-                        Date
+                        {t("execReports.table.date")}
                         <SortIcon field="date" />
                       </button>
                     </TableHead>
@@ -672,7 +677,7 @@ function ExecutivePage() {
                         onClick={() => toggleSort("status")}
                         className="inline-flex items-center hover:text-foreground"
                       >
-                        Status
+                        {t("execReports.table.status")}
                         <SortIcon field="status" />
                       </button>
                     </TableHead>
@@ -682,11 +687,11 @@ function ExecutivePage() {
                         onClick={() => toggleSort("amount")}
                         className="inline-flex items-center hover:text-foreground"
                       >
-                        Amount
+                        {t("execReports.table.amount")}
                         <SortIcon field="amount" />
                       </button>
                     </TableHead>
-                    <TableHead className="w-16 text-right">Open</TableHead>
+                    <TableHead className="w-16 text-right">{t("execReports.table.open")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -719,7 +724,7 @@ function ExecutivePage() {
                         {r.href ? (
                           <Link
                             to={r.href}
-                            aria-label={`Open ${r.primary}`}
+                            aria-label={t("execReports.dialog.openAria", { label: r.primary })}
                             className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
                           >
                             <ExternalLink className="size-4" />
@@ -737,7 +742,10 @@ function ExecutivePage() {
           {drillQ.data && drillQ.data.count > pageSize && (
             <div className="flex items-center justify-between pt-2 text-xs text-muted-foreground">
               <span>
-                Page {drillQ.data.page} of {Math.max(1, Math.ceil(drillQ.data.count / pageSize))}
+                {t("execReports.dialog.pageOf", {
+                  page: drillQ.data.page,
+                  pages: Math.max(1, Math.ceil(drillQ.data.count / pageSize)),
+                })}
               </span>
               <div className="flex items-center gap-2">
                 <Button
@@ -746,7 +754,7 @@ function ExecutivePage() {
                   disabled={page <= 1 || drillQ.isFetching}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
-                  <ChevronLeft className="size-4" /> Prev
+                  <ChevronLeft className="size-4" /> {t("execReports.prev")}
                 </Button>
                 <Button
                   size="sm"
@@ -754,7 +762,7 @@ function ExecutivePage() {
                   disabled={page >= Math.ceil(drillQ.data.count / pageSize) || drillQ.isFetching}
                   onClick={() => setPage((p) => p + 1)}
                 >
-                  Next <ChevronRight className="size-4" />
+                  {t("execReports.next")} <ChevronRight className="size-4" />
                 </Button>
               </div>
             </div>
