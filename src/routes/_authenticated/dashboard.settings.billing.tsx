@@ -1,6 +1,7 @@
 import { t } from "@/lib/i18n";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
   CreditCard,
   Loader2,
@@ -44,8 +45,6 @@ export const Route = createFileRoute("/_authenticated/dashboard/settings/billing
   notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
 
-const nf = new Intl.NumberFormat("ar-SA", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-
 function usagePct(used: number, max: number | null | undefined) {
   if (max == null) return null;
   if (max <= 0) return 100;
@@ -61,6 +60,11 @@ function UsageBar({
   used: number;
   max: number | null | undefined;
 }) {
+  const { i18n: i18nInst } = useTranslation();
+  const nf = new Intl.NumberFormat(i18nInst.language === "ar" ? "ar-SA" : "en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
   const pct = usagePct(used, max);
   const isUnlimited = max == null;
   const nearLimit = pct != null && pct >= 80;
@@ -86,6 +90,12 @@ function UsageBar({
 }
 
 function BillingSettingsPage() {
+  const { t: tt, i18n: i18nInst } = useTranslation();
+  const isAr = i18nInst.language === "ar";
+  const nf = new Intl.NumberFormat(isAr ? "ar-SA" : "en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
   const overviewQ = useQuery({
     queryKey: ["billing", "overview"],
     queryFn: () => getBillingOverview(),
@@ -108,19 +118,21 @@ function BillingSettingsPage() {
     );
   }
 
-  const statusLabels: Record<string, { label: string; cls: string }> = {
-    active: { label: "نشط", cls: "bg-success/10 text-success border-success/30" },
-    pending: { label: "بانتظار الموافقة", cls: "bg-warning/10 text-warning border-warning/30" },
-    pending_payment: {
-      label: "بانتظار الموافقة",
-      cls: "bg-warning/10 text-warning border-warning/30",
-    },
-    expired: { label: "منتهي", cls: "bg-destructive/10 text-destructive border-destructive/30" },
-    cancelled: { label: "ملغي", cls: "bg-muted text-muted-foreground border-border" },
-    rejected: { label: "مرفوض", cls: "bg-destructive/10 text-destructive border-destructive/30" },
-    none: { label: "لا يوجد اشتراك", cls: "bg-muted text-muted-foreground border-border" },
+  const statusClass: Record<string, string> = {
+    active: "bg-success/10 text-success border-success/30",
+    pending: "bg-warning/10 text-warning border-warning/30",
+    pending_payment: "bg-warning/10 text-warning border-warning/30",
+    expired: "bg-destructive/10 text-destructive border-destructive/30",
+    cancelled: "bg-muted text-muted-foreground border-border",
+    rejected: "bg-destructive/10 text-destructive border-destructive/30",
+    none: "bg-muted text-muted-foreground border-border",
   };
-  const statusInfo = statusLabels[sub?.status ?? "none"] ?? statusLabels.none;
+  const statusKey = sub?.status ?? "none";
+  const statusLabel = tt(`billingSettings.status.${statusKey}`, {
+    defaultValue: tt("billingSettings.status.none"),
+  });
+  const statusCls = statusClass[statusKey] ?? statusClass.none;
+  const dash = tt("billingSettings.dash");
 
   const nearExpiry =
     sub?.days_remaining != null && sub.days_remaining <= 7 && sub.status === "active";
@@ -132,18 +144,20 @@ function BillingSettingsPage() {
         <div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Link to="/dashboard/settings" className="hover:text-foreground">
-              الإعدادات
+              {tt("billingSettings.breadcrumbSettings")}
             </Link>
             <ArrowRight className="size-3 rotate-180" />
-            <span>الاشتراك والفوترة</span>
+            <span>{tt("billingSettings.title")}</span>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight mt-1">الاشتراك والفوترة</h1>
+          <h1 className="text-2xl font-semibold tracking-tight mt-1">
+            {tt("billingSettings.title")}
+          </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            حالة اشتراكك الحالي. للتفعيل أو التجديد يرجى التواصل مع فريقنا.
+            {tt("billingSettings.description")}
           </p>
         </div>
         <Button asChild variant="outline" size="sm">
-          <Link to="/portal/billing">سجل المدفوعات الكامل</Link>
+          <Link to="/portal/billing">{tt("billingSettings.viewFullHistory")}</Link>
         </Button>
       </div>
 
@@ -156,12 +170,14 @@ function BillingSettingsPage() {
           />
           <div className="text-sm">
             <div className="font-semibold">
-              {expired ? "انتهى اشتراكك" : `اشتراكك ينتهي خلال ${sub!.days_remaining} يوم`}
+              {expired
+                ? tt("billingSettings.alerts.expiredTitle")
+                : tt("billingSettings.alerts.expiryTitle", { days: sub!.days_remaining })}
             </div>
             <div className="text-muted-foreground mt-0.5">
               {expired
-                ? "تواصل مع فريقنا لتجديد اشتراكك والاستمرار في استخدام جميع الميزات."
-                : "تواصل مع فريقنا قبل الانتهاء لتجديد اشتراكك وتفادي انقطاع الخدمة."}
+                ? tt("billingSettings.alerts.expiredBody")
+                : tt("billingSettings.alerts.expiryBody")}
             </div>
           </div>
         </div>
@@ -171,9 +187,9 @@ function BillingSettingsPage() {
         <div className="rounded-lg border border-warning/30 bg-warning/10 p-4 flex items-start gap-3">
           <AlertTriangle className="size-5 shrink-0 text-warning" />
           <div className="text-sm">
-            <div className="font-semibold">طلب الاشتراك قيد المراجعة</div>
+            <div className="font-semibold">{tt("billingSettings.alerts.pendingTitle")}</div>
             <div className="text-muted-foreground mt-0.5">
-              سيتم تفعيل اشتراكك بمجرد موافقة الإدارة. يمكنك التواصل معنا لتسريع العملية.
+              {tt("billingSettings.alerts.pendingBody")}
             </div>
           </div>
         </div>
@@ -183,9 +199,10 @@ function BillingSettingsPage() {
         <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 flex items-start gap-3">
           <AlertTriangle className="size-5 shrink-0 text-destructive" />
           <div className="text-sm">
-            <div className="font-semibold">تم رفض طلب التفعيل</div>
+            <div className="font-semibold">{tt("billingSettings.alerts.rejectedTitle")}</div>
             <div className="text-muted-foreground mt-0.5">
-              {(sub as any)?.rejection_reason ?? "يرجى التواصل مع فريق الدعم لمزيد من التفاصيل."}
+              {(sub as any)?.rejection_reason ??
+                tt("billingSettings.alerts.rejectedDefaultReason")}
             </div>
           </div>
         </div>
@@ -196,49 +213,65 @@ function BillingSettingsPage() {
         <CardHeader className="flex-row items-start justify-between gap-3 space-y-0">
           <div>
             <CardTitle className="text-base flex items-center gap-2">
-              <CreditCard className="size-4" /> الخطة الحالية
+              <CreditCard className="size-4" /> {tt("billingSettings.currentPlan.title")}
             </CardTitle>
-            <CardDescription>تفاصيل اشتراكك الجاري.</CardDescription>
+            <CardDescription>{tt("billingSettings.currentPlan.description")}</CardDescription>
           </div>
           <span
-            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${statusInfo.cls}`}
+            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium ${statusCls}`}
           >
-            {statusInfo.label}
+            {statusLabel}
           </span>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-0.5">
-              <div className="text-xs text-muted-foreground">الباقة</div>
-              <div className="font-semibold">{currentPkg?.name ?? "—"}</div>
+              <div className="text-xs text-muted-foreground">
+                {tt("billingSettings.currentPlan.package")}
+              </div>
+              <div className="font-semibold">{currentPkg?.name ?? dash}</div>
             </div>
             <div className="space-y-0.5">
-              <div className="text-xs text-muted-foreground">الدورة</div>
+              <div className="text-xs text-muted-foreground">
+                {tt("billingSettings.currentPlan.cycle")}
+              </div>
               <div className="font-semibold">
                 {sub?.billing_cycle === "yearly"
-                  ? "سنوي"
+                  ? tt("billingSettings.currentPlan.cycleYearly")
                   : sub?.billing_cycle === "monthly"
-                    ? "شهري"
-                    : "—"}
+                    ? tt("billingSettings.currentPlan.cycleMonthly")
+                    : dash}
               </div>
             </div>
             <div className="space-y-0.5">
-              <div className="text-xs text-muted-foreground">الأيام المتبقية</div>
+              <div className="text-xs text-muted-foreground">
+                {tt("billingSettings.currentPlan.daysRemaining")}
+              </div>
               <div className="font-semibold tabular-nums">
-                {sub?.days_remaining != null ? `${sub.days_remaining} يوم` : "—"}
+                {sub?.days_remaining != null
+                  ? tt("billingSettings.currentPlan.daysValue", { days: sub.days_remaining })
+                  : dash}
               </div>
             </div>
           </div>
 
           <div className="space-y-4">
-            <div className="text-sm font-medium">الاستخدام</div>
-            <UsageBar label="الوحدات" used={usage.units} max={currentPkg?.max_units ?? null} />
+            <div className="text-sm font-medium">{tt("billingSettings.usage.title")}</div>
             <UsageBar
-              label="العقارات"
+              label={tt("billingSettings.usage.units")}
+              used={usage.units}
+              max={currentPkg?.max_units ?? null}
+            />
+            <UsageBar
+              label={tt("billingSettings.usage.properties")}
               used={usage.properties}
               max={currentPkg?.max_properties ?? null}
             />
-            <UsageBar label="المستخدمون" used={usage.users} max={currentPkg?.max_users ?? null} />
+            <UsageBar
+              label={tt("billingSettings.usage.users")}
+              used={usage.users}
+              max={currentPkg?.max_users ?? null}
+            />
           </div>
         </CardContent>
       </Card>
@@ -247,17 +280,14 @@ function BillingSettingsPage() {
       <Card className="border-primary/30 bg-primary/5">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <MessageCircle className="size-4" /> تفعيل أو تجديد الاشتراك
+            <MessageCircle className="size-4" /> {tt("billingSettings.contact.title")}
           </CardTitle>
-          <CardDescription>
-            لا يوجد دفع إلكتروني عبر الموقع. تواصل مع فريقنا لتفعيل الباقة الموحدة أو تجديد اشتراكك،
-            وسنعالج طلبك في أسرع وقت.
-          </CardDescription>
+          <CardDescription>{tt("billingSettings.contact.description")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-3">
           <Button asChild>
             <a href={CONTACT_WHATSAPP} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="me-2 size-4" /> تواصل عبر واتساب
+              <MessageCircle className="me-2 size-4" /> {tt("billingSettings.contact.whatsapp")}
             </a>
           </Button>
           <Button asChild variant="outline">
@@ -276,43 +306,43 @@ function BillingSettingsPage() {
       {/* Recent payments */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">سجل الاشتراكات السابقة</CardTitle>
-          <CardDescription>حالة عمليات التفعيل السابقة على حسابك.</CardDescription>
+          <CardTitle className="text-base">{tt("billingSettings.history.title")}</CardTitle>
+          <CardDescription>{tt("billingSettings.history.description")}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-hidden rounded-b-xl border-t">
             <table className="w-full text-sm">
               <thead className="bg-muted/40 text-xs text-muted-foreground">
                 <tr>
-                  <th className="px-4 py-2 text-start">التاريخ</th>
-                  <th className="px-4 py-2 text-start">المبلغ</th>
-                  <th className="px-4 py-2 text-start">البنك</th>
-                  <th className="px-4 py-2 text-start">الحالة</th>
-                  <th className="px-4 py-2 text-start">ملاحظة</th>
+                  <th className="px-4 py-2 text-start">{tt("billingSettings.history.colDate")}</th>
+                  <th className="px-4 py-2 text-start">{tt("billingSettings.history.colAmount")}</th>
+                  <th className="px-4 py-2 text-start">{tt("billingSettings.history.colBank")}</th>
+                  <th className="px-4 py-2 text-start">{tt("billingSettings.history.colStatus")}</th>
+                  <th className="px-4 py-2 text-start">{tt("billingSettings.history.colNote")}</th>
                 </tr>
               </thead>
               <tbody>
                 {(paymentsQ.data?.items ?? []).slice(0, 10).map((r: any) => (
                   <tr key={r.id} className="border-t">
                     <td className="px-4 py-2 text-xs text-muted-foreground">
-                      {new Date(r.created_at).toLocaleDateString("ar-SA")}
+                      {new Date(r.created_at).toLocaleDateString(isAr ? "ar-SA" : "en-US")}
                     </td>
                     <td className="px-4 py-2 font-medium tabular-nums">
                       {nf.format(Number(r.amount))} {r.currency}
                     </td>
                     <td className="px-4 py-2">{r.bank_name}</td>
                     <td className="px-4 py-2">
-                      <StatusBadge status={r.status} isAr={true} />
+                      <StatusBadge status={r.status} isAr={isAr} />
                     </td>
                     <td className="px-4 py-2 text-xs text-muted-foreground">
-                      {r.rejection_reason ?? "—"}
+                      {r.rejection_reason ?? dash}
                     </td>
                   </tr>
                 ))}
                 {(paymentsQ.data?.items ?? []).length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-4 py-8 text-center text-xs text-muted-foreground">
-                      لا توجد طلبات بعد
+                      {tt("billingSettings.history.empty")}
                     </td>
                   </tr>
                 )}
