@@ -53,6 +53,7 @@ export function CsvImportDialog({
   const [fileName, setFileName] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
+  const [progress, setProgress] = useState(0);
   // Map: index in submitted (valid) rows -> original file row index (0-based)
   const sentIndexMapRef = useRef<number[]>([]);
   const sentRowsRef = useRef<Record<string, string>[]>([]);
