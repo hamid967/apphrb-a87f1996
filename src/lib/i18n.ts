@@ -2729,6 +2729,10 @@ const ar: typeof en = {
     skipped: "تكرارات متجاوزة",
     errors: "أخطاء",
     emptyFile: "لا توجد صفوف في الملف",
+    importProperties: "استيراد العقارات",
+    importUnits: "استيراد الوحدات",
+    importOwners: "استيراد الملاك",
+    importTenants: "استيراد المستأجرين",
   },
   importSettings: {
     title: "قواعد الاستيراد والتكرارات",
