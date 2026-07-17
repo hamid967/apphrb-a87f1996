@@ -595,11 +595,17 @@ export function SaudiMap3DScene({ compact = false }: SaudiMap3DProps) {
               setActive(c.name);
               setOpenCity(c.name);
             }}
-            className="rounded-full border px-2.5 py-1 text-[11px] transition"
+            className="rounded-full border px-3 py-1 text-[10px] font-semibold uppercase transition"
+            dir="ltr"
             style={{
-              borderColor: active === c.name ? HBS.gold : HBS.border,
-              color: active === c.name ? HBS.gold : HBS.gray,
-              background: "rgba(7,19,32,0.6)",
+              borderColor: active === c.name ? HBS.gold : `${HBS.gold}33`,
+              color: active === c.name ? "#0a1420" : HBS.goldSoft,
+              background:
+                active === c.name
+                  ? `linear-gradient(135deg, ${HBS.gold}, ${HBS.goldSoft})`
+                  : "rgba(7,19,32,0.7)",
+              letterSpacing: "0.24em",
+              boxShadow: active === c.name ? `0 4px 18px ${HBS.gold}55` : "none",
             }}
           >
             {c.name}
