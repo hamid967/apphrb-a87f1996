@@ -1,14 +1,6 @@
 import { t } from "@/lib/i18n";
 import { Link } from "@tanstack/react-router";
-import {
-  ShieldAlert,
-  ShieldCheck,
-  KeyRound,
-  UserX,
-  RefreshCw,
-  Home,
-  LifeBuoy,
-} from "lucide-react";
+import { ShieldAlert, ShieldCheck, KeyRound, UserX, RefreshCw, Home, LifeBuoy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { AdminAccessResult, AdminAccessReason } from "@/lib/admin-guard.functions";
@@ -43,7 +35,7 @@ function copyFor(reason: AdminAccessReason): Copy {
           "افتح إعدادات الأمان وفعّل التحقق بخطوتين إن لم يكن مفعّلاً.",
           "سجّل خروجك ثم أعد الدخول، وأدخل رمز TOTP عندما يُطلب منك.",
         ],
-        primary: { label: "إعدادات الأمان", to: "/dashboard/settings/security" },
+        primary: { label: "إعدادات الحساب", to: "/dashboard/settings" },
       };
     case "role_check_failed":
       return {
@@ -145,7 +137,9 @@ export function AdminAccessCheck({
             )}
             {onRetry && (
               <Button variant="outline" onClick={onRetry}>
-                <RefreshCw className="size-4 me-1" />{t("common.retry")}</Button>
+                <RefreshCw className="size-4 me-1" />
+                {t("common.retry")}
+              </Button>
             )}
             <Button asChild variant="ghost">
               <Link to="/">
