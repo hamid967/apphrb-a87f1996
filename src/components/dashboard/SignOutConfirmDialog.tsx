@@ -46,7 +46,9 @@ export function SignOutConfirmDialog({
       queryClient.clear();
       await supabase.auth.signOut();
       toast.success(isAr ? "تم تسجيل الخروج" : "Signed out");
-      navigate({ to: "/", replace: true });
+      const redirectTo =
+        (import.meta.env.VITE_SIGN_OUT_REDIRECT_PATH as string | undefined)?.trim() || "/";
+      navigate({ to: redirectTo as string, replace: true } as never);
     } catch (err) {
       toast.error(isAr ? "تعذّر تسجيل الخروج" : "Could not sign out", {
         description: err instanceof Error ? err.message : String(err),
