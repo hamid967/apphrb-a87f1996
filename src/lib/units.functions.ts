@@ -208,3 +208,44 @@ export const quickCreateUnitForProperty = createServerFn({ method: "POST" })
     if (uErr) throw uErr;
     return unit;
   });
+
+export const quickUpdateUnitForProperty = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        code: z.string().trim().min(1).max(64),
+        type: z.string().trim().max(64).optional().nullable(),
+        status: z.enum(["vacant", "occupied", "reserved", "maintenance"]),
+        area: z.number().nonnegative().optional().nullable(),
+        bedrooms: z.number().int().nonnegative().optional().nullable(),
+        bathrooms: z.number().int().nonnegative().optional().nullable(),
+        rent_amount: z.number().nonnegative().optional().nullable(),
+        currency_code: z.string().trim().max(6).optional().nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { id, ...patch } = data;
+    const { data: unit, error } = await context.supabase
+      .from("units")
+      .update({
+        code: patch.code,
+        type: patch.type ?? null,
+        status: patch.status,
+        area: patch.area ?? null,
+        bedrooms: patch.bedrooms ?? null,
+        bathrooms: patch.bathrooms ?? null,
+        rent_amount: patch.rent_amount ?? null,
+        currency_code: patch.currency_code ?? null,
+      })
+      .eq("id", id)
+      .is("deleted_at", null)
+      .select(
+        "id, code, type, status, area, bedrooms, bathrooms, rent_amount, currency_code, building_id",
+      )
+      .single();
+    if (error) throw error;
+    return unit;
+  });
