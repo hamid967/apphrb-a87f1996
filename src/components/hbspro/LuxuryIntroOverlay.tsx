@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronDown, Volume2, VolumeX, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { trackIntroEvent } from "@/lib/intro-tracker";
 
 const INTRO_DURATION_MS = 20_000;
 const SCENE_DURATION_MS = 4_000;
@@ -59,10 +60,14 @@ export function LuxuryIntroOverlay() {
     audioRef.current = null;
   }, []);
 
-  const closeIntro = useCallback(() => {
-    stopIntroSound();
-    setVisible(false);
-  }, [stopIntroSound]);
+  const closeIntro = useCallback(
+    (reason: "skipped" | "completed" = "skipped") => {
+      stopIntroSound();
+      trackIntroEvent(reason);
+      setVisible(false);
+    },
+    [stopIntroSound],
+  );
 
   const startIntroSound = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -107,7 +112,10 @@ export function LuxuryIntroOverlay() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!reducedMotion) setVisible(true);
+    if (!reducedMotion) {
+      setVisible(true);
+      trackIntroEvent("shown");
+    }
   }, []);
 
   useEffect(() => {
@@ -117,7 +125,7 @@ export function LuxuryIntroOverlay() {
     const interval = window.setInterval(() => {
       const nextElapsed = Date.now() - startedAt;
       setElapsed(Math.min(nextElapsed, INTRO_DURATION_MS));
-      if (nextElapsed >= INTRO_DURATION_MS) closeIntro();
+      if (nextElapsed >= INTRO_DURATION_MS) closeIntro("completed");
     }, 120);
     return () => window.clearInterval(interval);
   }, [closeIntro, visible]);
@@ -173,7 +181,7 @@ export function LuxuryIntroOverlay() {
             </button>
             <button
               type="button"
-              onClick={closeIntro}
+              onClick={() => closeIntro("skipped")}
               className="inline-flex h-10 items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 text-xs font-bold text-white backdrop-blur-xl transition hover:bg-white/15"
             >
               تخطي
@@ -246,7 +254,7 @@ export function LuxuryIntroOverlay() {
           >
             <button
               type="button"
-              onClick={closeIntro}
+              onClick={() => closeIntro("skipped")}
               aria-label="تخطي الإنترو والانتقال إلى المحتوى"
               className="pointer-events-auto group inline-flex items-center gap-3 rounded-full border border-[#00D9C0]/40 bg-[#00D9C0]/15 px-7 py-3.5 text-sm font-black text-white shadow-[0_18px_60px_-24px_rgba(0,217,192,0.9)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-[#00D9C0]/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00D9C0]"
             >

@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import introVideo from "@/assets/hbspro-intro.mp4.asset.json";
+import { trackIntroEvent } from "@/lib/intro-tracker";
 import {
   ArrowLeft,
   BarChart3,
@@ -146,6 +147,7 @@ function Hero() {
           to="/auth"
           search={{ mode: "signup" } as never}
           aria-label="بدء الاستخدام - التسجيل في HBSpro"
+          onClick={() => trackIntroEvent("cta_click", "/#hero-primary")}
           className="group inline-flex items-center gap-3 rounded-full border border-[#00D9C0]/40 bg-[#00D9C0] px-8 py-4 text-base font-black text-[#071729] shadow-[0_20px_60px_-18px_rgba(0,217,192,0.75)] ring-1 ring-white/10 backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-[#00E8CE] hover:shadow-[0_28px_80px_-18px_rgba(0,217,192,0.95)]"
         >
           <Sparkles className="size-5" aria-hidden />
@@ -168,7 +170,12 @@ function Hero() {
             صدّر تقارير PDF احترافية تحمل شعارك وبياناتك الضريبية دون إدخال مزدوج.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/auth" search={{ mode: "signup" } as never} className="rounded-2xl bg-[#00D9C0] px-7 py-4 text-sm font-black text-[#071729] shadow-[0_18px_52px_-24px_rgba(0,217,192,0.9)] transition hover:-translate-y-0.5">
+            <Link
+              to="/auth"
+              search={{ mode: "signup" } as never}
+              onClick={() => trackIntroEvent("cta_click", "/#hero-secondary")}
+              className="rounded-2xl bg-[#00D9C0] px-7 py-4 text-sm font-black text-[#071729] shadow-[0_18px_52px_-24px_rgba(0,217,192,0.9)] transition hover:-translate-y-0.5"
+            >
               ابدأ مجاناً
             </Link>
             <a href="#features" className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/[0.06] px-7 py-4 text-sm font-bold text-white backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-white/[0.1]">
