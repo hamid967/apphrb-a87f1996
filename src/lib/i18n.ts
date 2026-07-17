@@ -352,6 +352,7 @@ const en = {
     unauthorizedTitle: "Access restricted",
     unauthorizedDesc: "You don't have permission to view this content.",
     emptyTitle: "Nothing here yet",
+    notFound: "Not found",
   },
   activity: {
     title: "Activity",
