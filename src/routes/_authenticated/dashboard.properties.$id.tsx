@@ -3,7 +3,7 @@ import { detailHead } from "@/lib/detail-og-head";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Archive, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ArrowLeft, Archive, FileText, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
