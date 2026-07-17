@@ -32,9 +32,7 @@ export const Route = createFileRoute("/_authenticated/admin/companies")({
             reset();
             router.invalidate();
           }}
-        >
-          Retry
-        </Button>
+        >{t("common.retry")}</Button>
       </div>
     );
   },

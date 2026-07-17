@@ -23,9 +23,7 @@ export const Route = createFileRoute("/_authenticated/admin/intro-analytics")({
             reset();
             router.invalidate();
           }}
-        >
-          إعادة المحاولة
-        </Button>
+        >{t("common.retry")}</Button>
       </div>
     );
   },

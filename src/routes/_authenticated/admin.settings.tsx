@@ -43,9 +43,7 @@ export const Route = createFileRoute("/_authenticated/admin/settings")({
             reset();
             router.invalidate();
           }}
-        >
-          إعادة المحاولة
-        </Button>
+        >{t("common.retry")}</Button>
       </div>
     );
   },

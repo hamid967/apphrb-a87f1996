@@ -33,8 +33,7 @@ export class ErrorBoundary extends Component<Props, State> {
             {error.message || "Something went wrong. Please try again."}
           </p>
           <Button onClick={this.reset} className="mt-5 gap-2" size="sm">
-            <RefreshCw className="size-4" /> إعادة المحاولة
-          </Button>
+            <RefreshCw className="size-4" />{t("common.retry")}</Button>
         </div>
       </div>
     );

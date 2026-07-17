@@ -37,9 +37,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/settings/billing
             reset();
             router.invalidate();
           }}
-        >
-          إعادة المحاولة
-        </Button>
+        >{t("common.retry")}</Button>
       </div>
     );
   },

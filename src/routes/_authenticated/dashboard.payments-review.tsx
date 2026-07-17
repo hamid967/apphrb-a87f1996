@@ -20,9 +20,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/payments-review"
   errorComponent: ({ error, reset }) => (
     <div className="p-6 text-sm text-destructive">
       {error.message}{" "}
-      <Button size="sm" variant="outline" onClick={() => reset()}>
-        إعادة المحاولة
-      </Button>
+      <Button size="sm" variant="outline" onClick={() => reset()}>{t("common.retry")}</Button>
     </div>
   ),
   notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,

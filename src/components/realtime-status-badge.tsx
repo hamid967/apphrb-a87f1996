@@ -103,8 +103,7 @@ export function RealtimeStatusBadge({
           className="h-6 gap-1 px-2 text-xs text-destructive hover:text-destructive"
           onClick={onRetry}
         >
-          <RefreshCw className="size-3" /> إعادة المحاولة
-        </Button>
+          <RefreshCw className="size-3" />{t("common.retry")}</Button>
       )}
     </div>
   );

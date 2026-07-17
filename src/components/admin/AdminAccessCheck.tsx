@@ -144,9 +144,7 @@ export function AdminAccessCheck({
             )}
             {onRetry && (
               <Button variant="outline" onClick={onRetry}>
-                <RefreshCw className="size-4 me-1" />
-                إعادة المحاولة
-              </Button>
+                <RefreshCw className="size-4 me-1" />{t("common.retry")}</Button>
             )}
             <Button asChild variant="ghost">
               <Link to="/">
