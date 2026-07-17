@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { useEffect, useId, useRef, useState, forwardRef, type KeyboardEvent, type TextareaHTMLAttributes } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { AlertCircle, Check, Globe, Loader2, Mic, MicOff, Pause, Play, RotateCcw, Square, X } from "lucide-react";

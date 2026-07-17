@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { Component, type ReactNode, type ErrorInfo } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCw } from "lucide-react";

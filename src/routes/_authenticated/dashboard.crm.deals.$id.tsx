@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { detailHead } from "@/lib/detail-og-head";
 import { useState } from "react";

@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { Link } from "@tanstack/react-router";
 import {
   ShieldAlert,

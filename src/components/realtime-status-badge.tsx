@@ -1,3 +1,4 @@
+import { t } from "@/lib/i18n";
 import { AlertTriangle, Loader2, Radio, RefreshCcw, RefreshCw, WifiOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
