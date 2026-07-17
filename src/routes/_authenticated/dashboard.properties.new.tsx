@@ -97,7 +97,7 @@ function NewProperty() {
     onSuccess: async () => {
       toast.success("✓");
       await qc.invalidateQueries({ queryKey: ["properties"] });
-      nav({ to: "/properties" });
+      nav({ to: "/dashboard/properties" });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
   });

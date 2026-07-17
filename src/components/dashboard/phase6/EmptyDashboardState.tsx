@@ -20,7 +20,7 @@ export function EmptyDashboardState({ isAr }: { isAr: boolean }) {
       </div>
       <div className="mt-5 flex flex-wrap gap-2">
         <Button asChild>
-          <Link to="/properties/new">
+          <Link to="/dashboard/properties/new">
             <Building2 className="me-2 size-4" />
             {isAr ? "أضف أول عقار" : "Add first property"}
           </Link>

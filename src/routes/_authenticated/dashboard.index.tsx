@@ -982,7 +982,7 @@ function Dashboard() {
                   title={t("dashboard.empty")}
                   cta={
                     canCreate
-                      ? { to: "/properties/new", label: t("dashboard.addFirst") }
+                      ? { to: "/dashboard/properties/new", label: t("dashboard.addFirst") }
                       : undefined
                   }
                 />

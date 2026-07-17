@@ -216,7 +216,7 @@ function PropertyDetails() {
                   await deleteProperty({ data: { id } });
                   await qc.invalidateQueries({ queryKey: ["properties"] });
                   toast.success("✓");
-                  nav({ to: "/properties" });
+                  nav({ to: "/dashboard/properties" });
                 } catch (e) {
                   toast.error(e instanceof Error ? e.message : "Error");
                 }
