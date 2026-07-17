@@ -321,18 +321,31 @@ export function CsvImportDialog({
               <div className="text-muted-foreground">
                 {t("csv.skipped")}: {result.skipped}
               </div>
-              {result.errors.length > 0 && (
-                <div className="mt-1">
-                  <div className="mb-1 flex items-center gap-2 text-amber-600">
-                    <AlertTriangle className="size-4" /> {t("csv.errors")}: {result.errors.length}
+              {(result.errors.length > 0 || invalidCount > 0) && (
+                <div className="mt-1 grid gap-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-amber-600">
+                      <AlertTriangle className="size-4" /> {t("csv.errors")}:{" "}
+                      {result.errors.length + invalidCount}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={downloadErrorReport}
+                      disabled={result.errors.length + invalidCount === 0}
+                    >
+                      <FileText className="me-2 size-4" /> {t("csv.downloadErrors")}
+                    </Button>
                   </div>
-                  <ul className="max-h-40 overflow-auto rounded bg-muted p-2 text-xs">
-                    {result.errors.slice(0, 50).map((e, i) => (
-                      <li key={i}>
-                        #{e.row}: {e.message}
-                      </li>
-                    ))}
-                  </ul>
+                  {result.errors.length > 0 && (
+                    <ul className="max-h-40 overflow-auto rounded bg-muted p-2 text-xs">
+                      {result.errors.slice(0, 50).map((e, i) => (
+                        <li key={i}>
+                          #{e.row}: {e.message}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               )}
             </div>
