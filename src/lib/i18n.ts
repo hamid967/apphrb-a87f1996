@@ -2771,6 +2771,7 @@ const ar: typeof en = {
     previewSkipInvalid: "سيتم تجاوز الصفوف غير الصالحة",
     previewNoValid: "لا توجد صفوف صالحة للاستيراد",
     confirmImport: "تأكيد واستيراد {{count}}",
+    downloadErrors: "تنزيل تقرير الأخطاء",
   },
   importSettings: {
     title: "قواعد الاستيراد والتكرارات",
