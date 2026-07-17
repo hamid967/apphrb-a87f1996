@@ -11,7 +11,13 @@ import { getPortalOverview } from "@/lib/portal.functions";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/portal")({
-  head: () => portalHead({ titleAr: 'محطات العملاء', titleEn: 'Portal', descAr: 'بوابة موحّدة للملاك والمستأجرين والموظفين.', path: '/portal' }),
+  head: () =>
+    portalHead({
+      titleAr: "محطات العملاء",
+      titleEn: "Portal",
+      descAr: "بوابة موحّدة للملاك والمستأجرين والموظفين.",
+      path: "/portal",
+    }),
   component: PortalLayout,
   errorComponent: ({ error }) => (
     <div className="p-6 text-sm text-destructive">{error.message}</div>
@@ -55,7 +61,7 @@ function PortalLayout() {
               </Button>
             </div>
             <div onClick={() => setMobileOpen(false)}>
-              <PortalSidebar />
+              <PortalSidebar mobile />
             </div>
           </div>
         </div>

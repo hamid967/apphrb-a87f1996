@@ -419,7 +419,7 @@ export const getKpiRecords = createServerFn({ method: "GET" })
             date: r.close_date ?? r.created_at,
             amount: Number(r.agreed_amount ?? r.offer_amount ?? 0),
             status: r.status,
-            href: `/dashboard/crm/deals/${r.id}`,
+            href: `/deals/${r.id}`,
           })),
           count,
         );
@@ -447,7 +447,7 @@ export const getKpiRecords = createServerFn({ method: "GET" })
             date: r.paid_at ?? r.created_at,
             amount: Number(r.amount ?? 0),
             status: r.status,
-            href: `/dashboard/crm/deals`,
+            href: `/deals`,
           })),
           count,
         );

@@ -91,7 +91,7 @@ const services: ServiceItem[] = [
     bullets: ["e-Signature", "Renewal reminders", "Bulk actions"],
     bulletsAr: ["توقيع إلكتروني", "تذكير التجديد", "عمليات جماعية"],
     image: contractsShot,
-    href: "/dashboard/owners/contracts",
+    href: "/owners/contracts",
   },
   {
     key: "payments",
@@ -127,7 +127,7 @@ const services: ServiceItem[] = [
     bullets: ["Real-time KPIs", "Custom exports", "Trend analysis"],
     bulletsAr: ["مؤشرات لحظية", "تصدير مخصص", "تحليل اتجاهات"],
     image: reportsShot,
-    href: "/dashboard/reports",
+    href: "/reports",
   },
   {
     key: "tenants",
@@ -151,7 +151,7 @@ const services: ServiceItem[] = [
     bullets: ["Drag-and-drop", "Lead scoring", "Assignment rules"],
     bulletsAr: ["سحب وإفلات", "تقييم العملاء", "قواعد الإسناد"],
     image: leadsShot,
-    href: "/dashboard/crm/leads",
+    href: "/leads",
   },
   {
     key: "owner",

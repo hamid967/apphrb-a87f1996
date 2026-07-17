@@ -47,6 +47,7 @@ jobs:
           python -m playwright install --with-deps chromium
 
       - name: Preflight — required secrets present
+        id: preflight
         env:
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
@@ -61,6 +62,11 @@ jobs:
           [ -n "$VITE_SUPABASE_URL" ] || missing+=("VITE_SUPABASE_URL")
           [ -n "$VITE_SUPABASE_PUBLISHABLE_KEY" ] || missing+=("VITE_SUPABASE_PUBLISHABLE_KEY")
           if [ ${#missing[@]} -gt 0 ]; then
+            if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+              echo "::notice::Skipping admin signed-in scan for this PR because CI secrets are unavailable: ${missing[*]}"
+              echo "ready=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
             echo "::error::Missing required repository secrets: ${missing[*]}"
             echo "Add them in Settings → Secrets and variables → Actions."
             exit 1
@@ -69,8 +75,10 @@ jobs:
             echo "::error::E2E_BYPASS_TOKEN must be at least 16 characters."
             exit 1
           fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
 
       - name: Start dev server (with AAL2 bypass token baked in)
+        if: steps.preflight.outputs.ready == 'true'
         env:
           VITE_E2E_BYPASS_AAL2: "true"
           VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
@@ -90,6 +98,7 @@ jobs:
           exit 1
 
       - name: Mint super-admin session
+        if: steps.preflight.outputs.ready == 'true'
         env:
           # scripts/e2e-mint-admin-session.py reads VITE_* from .env,
           # but the CI checkout may not have those; pass them explicitly.
@@ -106,6 +115,7 @@ jobs:
           python scripts/e2e-mint-admin-session.py
 
       - name: Run admin routes signed-in scan
+        if: steps.preflight.outputs.ready == 'true'
         env:
           E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
           VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
@@ -125,6 +135,7 @@ jobs:
           python tests/e2e/admin-routes-signed-in.spec.py
 
       - name: Run route-map UI smoke
+        if: steps.preflight.outputs.ready == 'true'
         env:
           E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
           VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
@@ -138,6 +149,7 @@ jobs:
           python tests/e2e/admin-route-map.spec.py
 
       - name: Run admin perf budgets (multi-viewport)
+        if: steps.preflight.outputs.ready == 'true'
         env:
           E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
           VITE_E2E_BYPASS_TOKEN: ${{ secrets.E2E_BYPASS_TOKEN }}
@@ -160,7 +172,10 @@ jobs:
 
       - name: Stop dev server
         if: always()
-        run: kill "$(cat /tmp/dev-server.pid)" 2>/dev/null || true
+        run: |
+          if [ -f /tmp/dev-server.pid ]; then
+            kill "$(cat /tmp/dev-server.pid)" 2>/dev/null || true
+          fi
 
       - name: Upload run artifacts (screenshots + video + report)
         if: always()

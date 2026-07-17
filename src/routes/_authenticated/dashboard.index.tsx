@@ -176,7 +176,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
     // Keep the URL clean when opening /dashboard from the root: strip any
     // fields that equal their defaults, and only retain params explicitly
     // set by the user across navigations.
-    middlewares: [retainSearchParams(true), stripSearchParams(DEFAULT_SEARCH)],
+    middlewares: [retainSearchParams(true), stripSearchParams(DEFAULT_SEARCH)] as any,
   },
   component: Dashboard,
   head: () =>
@@ -194,7 +194,7 @@ function Dashboard() {
   const isAr = i18n.language?.startsWith("ar");
   const { user } = useAuth();
   const { q, filter, sort, type, status, minBeds, minBaths, page, scrollY, view } =
-    Route.useSearch();
+    Route.useSearch() as DashSearch;
   const navigate = Route.useNavigate();
   const currentSearch: DashSearch = {
     q,

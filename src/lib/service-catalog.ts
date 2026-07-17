@@ -61,7 +61,7 @@ export const SERVICE_CATALOG: ServiceDefinition[] = [
   { key: "valuation", to: "/dashboard/valuation", icon: Sparkles, titleAr: "التقييم الذكي", titleEn: "AI Valuation", descAr: "تقييم عقاري ذكي ومقارنات محلية.", descEn: "AI valuation with local comparables.", category: "ai", defaultEnabled: false, premium: true },
   { key: "viewings", to: "/dashboard/viewings", icon: CalendarClock, titleAr: "مواعيد الزيارات", titleEn: "Viewing Appointments", descAr: "جدولة زيارات ومعاينات العقارات.", descEn: "Schedule property tours and viewings.", category: "ops", defaultEnabled: false, premium: true },
   { key: "archive", to: "/dashboard/archive", icon: Archive, titleAr: "الأرشيف الإلكتروني", titleEn: "Electronic Archive", descAr: "أرشفة مستندات وربطها بالعقارات والعملاء.", descEn: "Archive documents and link them to records.", category: "ops", defaultEnabled: false, premium: true },
-  { key: "analytics-builder", to: "/dashboard/reports/builder", icon: Sigma, titleAr: "باني التحليلات", titleEn: "Analytics Builder", descAr: "بناء تقارير مخصصة وحفظ قوالب.", descEn: "Build custom reports and saved templates.", category: "ai", defaultEnabled: false, premium: true },
+  { key: "analytics-builder", to: "/reports/builder", icon: Sigma, titleAr: "باني التحليلات", titleEn: "Analytics Builder", descAr: "بناء تقارير مخصصة وحفظ قوالب.", descEn: "Build custom reports and saved templates.", category: "ai", defaultEnabled: false, premium: true },
 ];
 
 export const DEFAULT_SERVICE_KEYS = SERVICE_CATALOG.filter((service) => service.defaultEnabled).map((service) => service.key);

@@ -118,7 +118,7 @@ const INTENT_RULES: IntentRule[] = [
     patterns: [/تقرير|تقارير|ملخص|اداء|أداء|مؤشرات|report|analytics|kpi/],
     text: "ابدأ بتقرير تنفيذي مختصر: التحصيل، المتأخرات، الشغور، العقود القريبة، الصيانة المفتوحة.",
     actionLabel: "افتح التقارير",
-    actionPath: "/dashboard/reports",
+    actionPath: "/reports",
   },
   {
     mode: "task",

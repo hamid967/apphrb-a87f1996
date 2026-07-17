@@ -95,7 +95,7 @@ export function DashboardSidebar() {
       items: [
         { url: "/dashboard/properties", icon: Home, ar: "العقارات", en: "Properties" },
         { url: "/dashboard/units", icon: KeyRound, ar: "الوحدات", en: "Units" },
-        { url: "/dashboard/owners", icon: Users2, ar: "الملّاك", en: "Owners" },
+        { url: "/owners", icon: Users2, ar: "الملّاك", en: "Owners" },
         { url: "/dashboard/valuations", icon: Gauge, ar: "التقييمات", en: "Valuations" },
       ],
     },
@@ -141,7 +141,7 @@ export function DashboardSidebar() {
       labelEn: "Operations",
       items: [
         { url: "/dashboard/tasks", icon: CheckSquare, ar: "المهام", en: "Tasks" },
-        { url: "/dashboard/documents", icon: FolderOpen, ar: "المستندات", en: "Documents" },
+        { url: "/documents", icon: FolderOpen, ar: "المستندات", en: "Documents" },
         { url: "/dashboard/maintenance", icon: Settings, ar: "الصيانة", en: "Maintenance" },
       ],
     },

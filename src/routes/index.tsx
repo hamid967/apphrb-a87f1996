@@ -1,48 +1,35 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-  Navbar,
-  Stats,
-  Features,
-  DashboardPreview,
-  AISection,
-  Integrations,
-  Testimonials,
-  Pricing,
-  FAQ,
-  CTA,
-  Footer,
-  DemoModalRoot,
-} from "@/components/hbspro/sections";
-import { PortfolioCommandCenter } from "@/components/hbspro/EmeraldSplitHero";
-import { CinematicIntro } from "@/components/hbspro/CinematicIntro";
+import { LuxuryIntroOverlay } from "@/components/hbspro/LuxuryIntroOverlay";
+import { Phase8LandingPage } from "@/components/hbspro/Phase8LandingPage";
+import { DemoModalRoot } from "@/components/hbspro/sections";
 import { SignupAssistant } from "@/components/SignupAssistant";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "HBSpro — مركز قيادة ذكي لإدارة الأملاك والعقارات" },
+      { title: "HBSpro — أملاكك ومصاريفك وصيانتك في منصة واحدة" },
       {
         name: "description",
         content:
-          "HBSpro منصة سعودية ذكية لإدارة المحافظ العقارية: أملاك، وحدات، عقود، تحصيل، صيانة، تقارير تنفيذية، ومساعد ذكاء اصطناعي في نظام واحد.",
+          "HBSpro منصة سعودية عربية لإدارة الأملاك والوحدات والعقود والتحصيل والمصاريف والصيانة، مع تقارير PDF احترافية وأسعار واضحة للأفراد والمنشآت.",
       },
       {
         property: "og:title",
-        content: "HBSpro — مركز قيادة ذكي لإدارة الأملاك والعقارات",
+        content: "HBSpro — أملاكك ومصاريفك وصيانتك في منصة واحدة",
       },
       {
         property: "og:description",
         content:
-          "منصة عقارية متكاملة لإدارة المحافظ، التحصيل، الشغور، الصيانة، العقود، والتقارير الذكية للسوق السعودي.",
+          "منصة واحدة للعقارات، التحصيل، الصيانة، المصاريف، وتقارير PDF بشعارك وبياناتك.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://hrhbs.com/" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/aff05cce-c377-413e-bb68-ddcfed90d484" },
+      { property: "og:image", content: "https://hrhbs.com/og-image.jpg" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/aff05cce-c377-413e-bb68-ddcfed90d484" },
+      { name: "twitter:image", content: "https://hrhbs.com/og-image.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#043927" },
+      { name: "theme-color", content: "#071729" },
     ],
     links: [{ rel: "canonical", href: "https://hrhbs.com/" }],
     scripts: [
@@ -56,17 +43,19 @@ export const Route = createFileRoute("/")({
           operatingSystem: "Web",
           url: "https://hrhbs.com/",
           inLanguage: ["ar", "en"],
-          featureList: [
-            "إدارة المحافظ العقارية",
-            "إدارة العقود والتحصيل",
-            "إدارة الصيانة والتذاكر",
-            "تقارير تنفيذية ذكية",
-            "مساعد ذكاء اصطناعي عقاري",
+          offers: [
+            { "@type": "Offer", name: "مجاني", price: "0", priceCurrency: "SAR" },
+            { "@type": "Offer", name: "برو للأفراد", price: "49", priceCurrency: "SAR" },
+            { "@type": "Offer", name: "منشآت", price: "149", priceCurrency: "SAR" },
           ],
-          audience: {
-            "@type": "BusinessAudience",
-            audienceType: "Real estate companies and property managers",
-          },
+          featureList: [
+            "إدارة العقارات والوحدات",
+            "العقود والتحصيل بالسندات",
+            "الصيانة والموردون",
+            "المصاريف العقارية والشخصية",
+            "تقارير PDF بشعار العميل",
+            "لوحة تحكم ذكية",
+          ],
         }),
       },
     ],
@@ -76,23 +65,9 @@ export const Route = createFileRoute("/")({
 
 function HBSproHome() {
   return (
-    <div className="theme-luxe min-h-screen font-sans antialiased bg-[#043927] text-[#f5f0e0] selection:bg-[#C5A059]/30 selection:text-white">
-      <Navbar />
-      <main>
-        <CinematicIntro />
-        <PortfolioCommandCenter />
-        <Stats />
-        <Features />
-        <AISection />
-        <DashboardPreview />
-        
-        <Testimonials />
-        <Pricing />
-        <Integrations />
-        <FAQ />
-        <CTA />
-      </main>
-      <Footer />
+    <div className="theme-luxe min-h-screen font-sans antialiased bg-[#071729] text-white selection:bg-[#00D9C0]/30 selection:text-white">
+      <LuxuryIntroOverlay />
+      <Phase8LandingPage />
       <DemoModalRoot />
       <SignupAssistant />
     </div>

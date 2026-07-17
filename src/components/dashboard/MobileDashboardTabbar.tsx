@@ -35,7 +35,7 @@ const ITEMS: readonly Item[] = [
   { url: "/dashboard/expenses", icon: Receipt, ar: "المصروفات", en: "Expenses", badge: "myPending" },
   { url: "/dashboard/tenants", icon: Users2, ar: "المستأجرون", en: "Tenants" },
   { url: "/dashboard/applications", icon: ClipboardList, ar: "الطلبات", en: "Applications", badge: "approval" },
-  { url: "/dashboard/reports/builder", icon: BarChart3, ar: "التقارير", en: "Reports" },
+  { url: "/reports/builder", icon: BarChart3, ar: "التقارير", en: "Reports" },
   { url: "/dashboard/settings", icon: Settings, ar: "الإعدادات", en: "Settings" },
 ] as const;
 

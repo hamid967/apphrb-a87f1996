@@ -27,9 +27,6 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:coverage:redirects": "vitest run --coverage src/lib/app-url.test.ts src/routes/auth.redirect.test.ts",
-    "redirects:sync": "node scripts/redirects-sync.mjs",
-    "redirects:check": "node scripts/redirects-sync.mjs --check",
-    "redirects:test": "vitest run src/lib/redirect-map.test.ts",
     "build:analyze": "ANALYZE=true NODE_OPTIONS=--max-old-space-size=6144 vite build",
     "cap:add:ios": "cap add ios",
     "cap:add:android": "cap add android",
@@ -176,7 +173,7 @@
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
     "@eslint/js": "^9.32.0",
-    "@lovable.dev/vite-tanstack-config": "2.7.6",
+    "@lovable.dev/vite-tanstack-config": "2.7.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",

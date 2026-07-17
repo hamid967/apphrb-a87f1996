@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, Send, Search, ArchiveRestore, Upload } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Send, Search, ArchiveRestore } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import i18n from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -45,8 +45,6 @@ import {
   listArchivedTenants,
   restoreTenants,
 } from "@/lib/tenants.functions";
-import { bulkInsertTenants } from "@/lib/bulk-import.functions";
-import { CsvImportDialog } from "@/components/csv-import-dialog";
 import { createPortalInvitation } from "@/lib/portal-invitations.functions";
 
 import { sectionHead } from "@/lib/section-og-head";
@@ -103,7 +101,6 @@ function TenantsPage() {
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<Tenant | null>(null);
   const [creating, setCreating] = useState(false);
-  const [importOpen, setImportOpen] = useState(false);
   const [inviting, setInviting] = useState<Tenant | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Tenant | null>(null);
 
@@ -153,9 +150,6 @@ function TenantsPage() {
               ? t("tenants.showActive", { defaultValue: "عرض النشطين" })
               : t("tenants.showArchived", { defaultValue: "عرض المؤرشفين" })}
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
-            <Upload className="size-4 me-2" /> {t("csv.importTenants")}
-          </Button>
           <Dialog open={creating} onOpenChange={setCreating}>
             <DialogTrigger asChild>
               <Button>
@@ -174,25 +168,6 @@ function TenantsPage() {
           </Dialog>
         </div>
       </div>
-
-      {orgId && (
-        <CsvImportDialog
-          open={importOpen}
-          onOpenChange={setImportOpen}
-          title={t("csv.importTenants")}
-          templateHeaders={["full_name", "email", "phone", "nationality", "notes"]}
-          sampleRow={{
-            full_name: "سالم القحطاني",
-            email: "tenant@example.com",
-            phone: "+966500000001",
-            nationality: "سعودي",
-            notes: "",
-          }}
-          onImport={(rows) => bulkInsertTenants({ data: { org_id: orgId, rows } })}
-          onDone={() => qc.invalidateQueries({ queryKey: ["tenants", orgId] })}
-        />
-      )}
-
 
       <Card>
         <CardHeader className="flex-row items-center justify-between gap-2">

@@ -83,7 +83,7 @@ export function ConvertLeadDialog({ open, onOpenChange, lead, onConverted }: Pro
       toast.success(String(t("crm.leads.convert", "Converted")));
       onOpenChange(false);
       onConverted?.(res.id);
-      navigate({ to: "/dashboard/crm/deals/$id", params: { id: res.id } });
+      navigate({ to: "/deals/$id", params: { id: res.id } });
     },
     onError: (e: any) => toast.error(e.message ?? "Failed"),
   });
