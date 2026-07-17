@@ -100,13 +100,15 @@ export function CsvImportDialog({
       name.endsWith(".xls") ||
       f.type.includes("spreadsheetml") ||
       f.type.includes("ms-excel");
+    const parseId = toast.loading(t("csv.parsing", { name: f.name }));
     if (isXlsx) {
       try {
         const clean = await parseXlsx(f);
         setRows(clean);
-        if (!clean.length) toast.error(t("csv.emptyFile"));
+        if (!clean.length) toast.error(t("csv.emptyFile"), { id: parseId });
+        else toast.success(t("csv.parsed", { count: clean.length }), { id: parseId });
       } catch (e: any) {
-        toast.error(e?.message ?? "Failed to parse Excel file");
+        toast.error(e?.message ?? "Failed to parse Excel file", { id: parseId });
       }
       return;
     }
@@ -119,9 +121,10 @@ export function CsvImportDialog({
           Object.values(r).some((v) => v && String(v).trim() !== ""),
         );
         setRows(clean);
-        if (!clean.length) toast.error(t("csv.emptyFile"));
+        if (!clean.length) toast.error(t("csv.emptyFile"), { id: parseId });
+        else toast.success(t("csv.parsed", { count: clean.length }), { id: parseId });
       },
-      error: (err) => toast.error(err.message),
+      error: (err) => toast.error(err.message, { id: parseId }),
     });
   };
 
