@@ -30,6 +30,8 @@ type Props = {
   onDone?: () => void;
   header?: React.ReactNode;
   canImport?: boolean;
+  /** Optional client-side validator; return an array of error messages (empty = valid). */
+  validateRow?: (row: Record<string, string>, index: number) => string[];
 };
 
 export function CsvImportDialog({
