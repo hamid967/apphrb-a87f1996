@@ -3569,30 +3569,48 @@ export type Database = {
       }
       organizations: {
         Row: {
+          account_type: Database["public"]["Enums"]["org_account_type"] | null
+          authorized_person_name: string | null
+          authorized_person_phone: string | null
+          commercial_registration: string | null
           created_at: string
           created_by: string
           id: string
           logo_url: string | null
           name: string
+          national_address: string | null
           slug: string
+          tax_number: string | null
           updated_at: string
         }
         Insert: {
+          account_type?: Database["public"]["Enums"]["org_account_type"] | null
+          authorized_person_name?: string | null
+          authorized_person_phone?: string | null
+          commercial_registration?: string | null
           created_at?: string
           created_by: string
           id?: string
           logo_url?: string | null
           name: string
+          national_address?: string | null
           slug: string
+          tax_number?: string | null
           updated_at?: string
         }
         Update: {
+          account_type?: Database["public"]["Enums"]["org_account_type"] | null
+          authorized_person_name?: string | null
+          authorized_person_phone?: string | null
+          commercial_registration?: string | null
           created_at?: string
           created_by?: string
           id?: string
           logo_url?: string | null
           name?: string
+          national_address?: string | null
           slug?: string
+          tax_number?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -7676,6 +7694,7 @@ export type Database = {
         | "lost"
       listing_status: "available" | "reserved" | "sold" | "rented" | "inactive"
       listing_type: "sale" | "rent"
+      org_account_type: "individual" | "business" | "company" | "enterprise"
       org_role:
         | "owner"
         | "admin"
@@ -7930,6 +7949,7 @@ export const Constants = {
       ],
       listing_status: ["available", "reserved", "sold", "rented", "inactive"],
       listing_type: ["sale", "rent"],
+      org_account_type: ["individual", "business", "company", "enterprise"],
       org_role: [
         "owner",
         "admin",
