@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -45,15 +46,7 @@ export const Route = createFileRoute("/_authenticated/leads/$id")({
   component: LeadDetailPage,
 });
 
-const STAGES = [
-  "new",
-  "contacted",
-  "qualified",
-  "viewing",
-  "negotiation",
-  "won",
-  "lost",
-] as const;
+const STAGES = ["new", "contacted", "qualified", "viewing", "negotiation", "won", "lost"] as const;
 type Stage = (typeof STAGES)[number];
 const ACTIVITY_KINDS = ["note", "call", "email", "whatsapp"] as const;
 type Kind = (typeof ACTIVITY_KINDS)[number];
@@ -120,7 +113,11 @@ function LeadDetailPage() {
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
       <div className="mb-4 flex items-center gap-2 text-sm">
         <Link to="/leads" className="text-muted-foreground hover:underline">
-          {isAr ? <ArrowRight className="inline size-4" /> : <ArrowLeft className="inline size-4" />}{" "}
+          {isAr ? (
+            <ArrowRight className="inline size-4" />
+          ) : (
+            <ArrowLeft className="inline size-4" />
+          )}{" "}
           {t("crm.leads.title", "Leads")}
         </Link>
       </div>
@@ -136,11 +133,10 @@ function LeadDetailPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary">{String(t(`crm.leads.stages.${lead.stage}`, { defaultValue: lead.stage }))}</Badge>
-                <Select
-                  value={lead.stage}
-                  onValueChange={(v) => stageMut.mutate(v as Stage)}
-                >
+                <Badge variant="secondary">
+                  {String(t(`crm.leads.stages.${lead.stage}`, { defaultValue: lead.stage }))}
+                </Badge>
+                <Select value={lead.stage} onValueChange={(v) => stageMut.mutate(v as Stage)}>
                   <SelectTrigger className="w-40">
                     <SelectValue />
                   </SelectTrigger>
@@ -156,18 +152,15 @@ function LeadDetailPage() {
             </div>
             {(lead.budget_min != null || lead.budget_max != null) && (
               <div className="mt-3 text-sm tabular-nums text-muted-foreground">
-                {t("crm.leads.budget", "Budget")}:{" "}
-                {(lead.budget_min ?? 0).toLocaleString()} – {(lead.budget_max ?? 0).toLocaleString()}{" "}
-                {lead.currency}
+                {t("crm.leads.budget", "Budget")}: {(lead.budget_min ?? 0).toLocaleString()} –{" "}
+                {(lead.budget_max ?? 0).toLocaleString()} {lead.currency}
               </div>
             )}
           </div>
 
           <div className="surface-card p-5">
             <div className="mb-3 flex items-center justify-between gap-2">
-              <h2 className="text-lg font-semibold">
-                {t("crm.leads.activity", "Activity")}
-              </h2>
+              <h2 className="text-lg font-semibold">{t("crm.leads.activity", "Activity")}</h2>
               <ExportMenu
                 label={t("crm.leads.exportActivities")}
                 disabled={activities.length === 0}
@@ -252,9 +245,7 @@ function LeadDetailPage() {
         <aside className="space-y-4">
           <div className="surface-card p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-lg font-semibold">
-                {t("crm.leads.matches", "Matches")}
-              </h2>
+              <h2 className="text-lg font-semibold">{t("crm.leads.matches", "Matches")}</h2>
               <div className="flex items-center gap-2">
                 <ExportMenu
                   label={t("crm.leads.exportMatches")}
