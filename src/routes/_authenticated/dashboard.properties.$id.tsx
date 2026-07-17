@@ -658,6 +658,12 @@ function UnitsSection({
             <Link to="/dashboard/units">{t("units.quickAdd.openList")}</Link>
           </Button>
           {canEdit && (
+            <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+              <FileText className="me-2 size-4" />
+              {t("units.quickAdd.importCsv")}
+            </Button>
+          )}
+          {canEdit && (
             <Button size="sm" onClick={openCreate}>
               <Plus className="me-2 size-4" />
               {t("units.quickAdd.add")}
