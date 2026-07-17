@@ -364,53 +364,15 @@ function AuthenticatedShell() {
     }
   }, [orgsQuery.isSuccess, orgsQuery.data, user, onOnboarding, onDevVerify, isSuperAdmin, nav]);
 
-  // Redirect to onboarding wizard if signed in + has org but hasn't completed
-  // the required steps (profile / company / first_receipt). Without this
-  // guard a user with an org can bypass the wizard and land on /dashboard
-  // with an unfinished profile.
+  // Signup wizard steps disabled — users with an org go directly to the
+  // dashboard regardless of onboarding_progress. Kept the query as a no-op
+  // stub so downstream `onboardingStateQuery.isSuccess` gates still resolve.
   const onboardingStateQuery = useQuery({
-    queryKey: ["my-onboarding-state", user?.id],
+    queryKey: ["my-onboarding-state", user?.id, "disabled"],
     enabled: !!user && !isSuperAdmin,
-    staleTime: 30_000,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("onboarding_progress, onboarding_completed_at")
-        .eq("id", user!.id)
-        .maybeSingle();
-      if (error) throw error;
-      const progress = (data?.onboarding_progress ?? {}) as Record<
-        string,
-        { done?: boolean } | undefined
-      >;
-      const REQUIRED_STEPS = ["profile", "company", "first_receipt"] as const;
-      const allStepsDone = REQUIRED_STEPS.every((s) => progress[s]?.done === true);
-      return {
-        completed_at: data?.onboarding_completed_at ?? null,
-        all_steps_done: allStepsDone,
-      };
-    },
+    staleTime: Infinity,
+    queryFn: async () => ({ completed_at: new Date().toISOString(), all_steps_done: true }),
   });
-  useEffect(() => {
-    if (!user || isSuperAdmin) return;
-    if (!onboardingStateQuery.isSuccess) return;
-    if ((orgsQuery.data?.length ?? 0) === 0) return; // handled by the guard above
-    const s = onboardingStateQuery.data;
-    // Gate strictly on the three required steps — completed_at alone is not
-    // enough because a stale timestamp could exist without every step done.
-    if (s?.all_steps_done && s?.completed_at) return;
-    if (onOnboarding || onDevVerify) return;
-    nav({ to: "/onboarding/wizard", replace: true });
-  }, [
-    user,
-    isSuperAdmin,
-    onboardingStateQuery.isSuccess,
-    onboardingStateQuery.data,
-    orgsQuery.data,
-    onOnboarding,
-    onDevVerify,
-    nav,
-  ]);
 
   const access = accessQuery.data;
 
