@@ -494,29 +494,7 @@ function AuthenticatedShell() {
     );
   }
 
-  // Block dashboard shell paint until onboarding state is resolved.
-  // Without this, `dashboard-shell` flashes for a frame before the
-  // redirect effect fires, letting users glimpse the dashboard while
-  // their onboarding is still incomplete.
-  if (!isSuperAdmin && orgs.length > 0 && !onAdmin) {
-    if (!onboardingStateQuery.isSuccess) {
-      return (
-        <div className="grid min-h-[var(--app-height,100vh)] place-items-center">
-          <Loader2 className="size-6 animate-spin text-muted-foreground" />
-        </div>
-      );
-    }
-    const s = onboardingStateQuery.data;
-    const onboardingComplete = !!(s?.all_steps_done && s?.completed_at);
-    if (!onboardingComplete) {
-      // Redirect effect will fire; render a loader instead of the shell.
-      return (
-        <div className="grid min-h-[var(--app-height,100vh)] place-items-center">
-          <Loader2 className="size-6 animate-spin text-muted-foreground" />
-        </div>
-      );
-    }
-  }
+  // Signup wizard steps disabled — no onboarding-completion gate.
 
   return (
     <div className="relative grid min-h-[var(--app-height,100vh)] overflow-hidden bg-background md:grid-cols-[260px_1fr]">
