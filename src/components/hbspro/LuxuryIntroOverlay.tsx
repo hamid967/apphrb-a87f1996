@@ -251,7 +251,7 @@ export function LuxuryIntroOverlay() {
           >
             <button
               type="button"
-              onClick={closeIntro}
+              onClick={() => closeIntro("skipped")}
               aria-label="تخطي الإنترو والانتقال إلى المحتوى"
               className="pointer-events-auto group inline-flex items-center gap-3 rounded-full border border-[#00D9C0]/40 bg-[#00D9C0]/15 px-7 py-3.5 text-sm font-black text-white shadow-[0_18px_60px_-24px_rgba(0,217,192,0.9)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-[#00D9C0]/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00D9C0]"
             >
