@@ -793,6 +793,9 @@ const en = {
       buildingName: "Building name",
       buildingNamePh: "e.g. Tower A",
       buildingCreated: "Building created",
+      importCsv: "Import CSV",
+      importCsvTitle: "Import units from CSV",
+      importCsvNote: "Rows will be linked to this property automatically. Choose a target building.",
     },
   },
   contracts: {
