@@ -16,6 +16,7 @@ import {
 import { PortfolioCommandCenter } from "@/components/hbspro/EmeraldSplitHero";
 import { CinematicIntro } from "@/components/hbspro/CinematicIntro";
 import { LuxuryIntroOverlay } from "@/components/hbspro/LuxuryIntroOverlay";
+import { TemplateUpgradeShowcase } from "@/components/hbspro/TemplateUpgradeShowcase";
 import { SignupAssistant } from "@/components/SignupAssistant";
 
 export const Route = createFileRoute("/")({
@@ -82,12 +83,12 @@ function HBSproHome() {
       <Navbar />
       <main>
         <CinematicIntro />
+        <TemplateUpgradeShowcase />
         <PortfolioCommandCenter />
         <Stats />
         <Features />
         <AISection />
         <DashboardPreview />
-        
         <Testimonials />
         <Pricing />
         <Integrations />
