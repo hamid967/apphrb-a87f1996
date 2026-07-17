@@ -616,6 +616,8 @@ function UnitsSection({
   });
 
   const [buildingDialogOpen, setBuildingDialogOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importBuildingId, setImportBuildingId] = useState<string>("");
   const [newBuildingName, setNewBuildingName] = useState("");
   const buildingMut = useMutation({
     mutationFn: () =>
