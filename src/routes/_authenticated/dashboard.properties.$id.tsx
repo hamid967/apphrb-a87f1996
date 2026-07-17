@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { archiveUnits, listUnitsByProperty, quickCreateUnitForProperty, quickUpdateUnitForProperty } from "@/lib/units.functions";
+import { archiveUnits, createBuildingForProperty, listBuildingsByProperty, listUnitsByProperty, quickCreateUnitForProperty, quickUpdateUnitForProperty } from "@/lib/units.functions";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -529,6 +529,7 @@ function UnitsSection({
   });
 
   const emptyForm = {
+    building_id: "",
     code: "",
     type: "",
     status: "vacant" as "vacant" | "occupied" | "reserved" | "maintenance",
@@ -543,8 +544,16 @@ function UnitsSection({
     setEditingId(null);
   };
 
+  const buildingsQ = useQuery({
+    queryKey: ["property-buildings", propertyId],
+    queryFn: () => listBuildingsByProperty({ data: { property_id: propertyId } }),
+  });
+  const buildings = buildingsQ.data ?? [];
+
   const openCreate = () => {
     reset();
+    // Pre-select the only building if the property has exactly one
+    setF((p) => ({ ...p, building_id: buildings.length === 1 ? buildings[0].id : "" }));
     setOpen(true);
   };
   const openEdit = (u: {
@@ -556,9 +565,11 @@ function UnitsSection({
     bedrooms: number | null;
     bathrooms: number | null;
     rent_amount: number | null;
+    building_id?: string | null;
   }) => {
     setEditingId(u.id);
     setF({
+      building_id: (u.building_id as string) ?? "",
       code: u.code ?? "",
       type: u.type ?? "",
       status: (u.status as typeof emptyForm.status) ?? "vacant",
@@ -586,7 +597,9 @@ function UnitsSection({
       if (editingId) {
         return quickUpdateUnitForProperty({ data: { id: editingId, ...payload() } });
       }
-      return quickCreateUnitForProperty({ data: { property_id: propertyId, ...payload() } });
+      return quickCreateUnitForProperty({
+        data: { property_id: propertyId, building_id: f.building_id, ...payload() },
+      });
     },
     onSuccess: async () => {
       toast.success(editingId ? t("units.quickAdd.updated") : t("units.quickAdd.created"));
@@ -594,6 +607,23 @@ function UnitsSection({
       await qc.invalidateQueries({ queryKey: ["units"] });
       reset();
       setOpen(false);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
+  });
+
+  const [buildingDialogOpen, setBuildingDialogOpen] = useState(false);
+  const [newBuildingName, setNewBuildingName] = useState("");
+  const buildingMut = useMutation({
+    mutationFn: () =>
+      createBuildingForProperty({
+        data: { property_id: propertyId, name: newBuildingName.trim() },
+      }),
+    onSuccess: async (b) => {
+      toast.success(t("units.quickAdd.buildingCreated"));
+      await qc.invalidateQueries({ queryKey: ["property-buildings", propertyId] });
+      setF((p) => ({ ...p, building_id: b.id as string }));
+      setNewBuildingName("");
+      setBuildingDialogOpen(false);
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
   });
@@ -702,10 +732,50 @@ function UnitsSection({
             onSubmit={(e) => {
               e.preventDefault();
               if (!f.code.trim()) return;
+              if (!editingId && !f.building_id) return;
               mut.mutate();
             }}
             className="grid gap-3 sm:grid-cols-2"
           >
+            {!editingId && (
+              <div className="space-y-1.5 sm:col-span-2">
+                <div className="flex items-center justify-between gap-2">
+                  <Label>{t("units.quickAdd.building")}</Label>
+                  <Button
+                    type="button"
+                    variant="link"
+                    size="sm"
+                    className="h-auto p-0"
+                    onClick={() => setBuildingDialogOpen(true)}
+                  >
+                    <Plus className="me-1 size-3.5" />
+                    {t("units.quickAdd.addBuilding")}
+                  </Button>
+                </div>
+                {buildings.length === 0 ? (
+                  <div className="rounded-md border border-dashed p-3 text-xs text-muted-foreground">
+                    {t("units.quickAdd.noBuildings")}
+                  </div>
+                ) : (
+                  <Select
+                    value={f.building_id}
+                    onValueChange={(v) => setF((p) => ({ ...p, building_id: v }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t("units.quickAdd.buildingPh")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {buildings.map((b) => (
+                        <SelectItem key={b.id} value={b.id}>
+                          {b.name}
+                          {b.code ? ` — ${b.code}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+            )}
             <div className="space-y-1.5 sm:col-span-2">
               <Label>{t("units.quickAdd.code")}</Label>
               <Input
@@ -784,7 +854,7 @@ function UnitsSection({
               <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
                 {t("common.cancel")}
               </Button>
-              <Button type="submit" disabled={mut.isPending || !f.code.trim()}>
+              <Button type="submit" disabled={mut.isPending || !f.code.trim() || (!editingId && !f.building_id)}>
                 {mut.isPending && <Loader2 className="me-2 size-4 animate-spin" />}
                 {t("units.quickAdd.save")}
               </Button>
@@ -815,6 +885,47 @@ function UnitsSection({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog
+        open={buildingDialogOpen}
+        onOpenChange={(v) => {
+          setBuildingDialogOpen(v);
+          if (!v) setNewBuildingName("");
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("units.quickAdd.addBuilding")}</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!newBuildingName.trim()) return;
+              buildingMut.mutate();
+            }}
+            className="space-y-3"
+          >
+            <div className="space-y-1.5">
+              <Label>{t("units.quickAdd.buildingName")}</Label>
+              <Input
+                required
+                value={newBuildingName}
+                placeholder={t("units.quickAdd.buildingNamePh")}
+                onChange={(e) => setNewBuildingName(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="ghost" onClick={() => setBuildingDialogOpen(false)}>
+                {t("common.cancel")}
+              </Button>
+              <Button type="submit" disabled={buildingMut.isPending || !newBuildingName.trim()}>
+                {buildingMut.isPending && <Loader2 className="me-2 size-4 animate-spin" />}
+                {t("units.quickAdd.addBuilding")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </section>
 
   );

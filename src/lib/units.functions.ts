@@ -139,12 +139,60 @@ export const listUnitsByProperty = createServerFn({ method: "GET" })
     return rows ?? [];
   });
 
+export const listBuildingsByProperty = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ property_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("buildings")
+      .select("id, name, code")
+      .eq("property_id", data.property_id)
+      .is("deleted_at", null)
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+    return rows ?? [];
+  });
+
+export const createBuildingForProperty = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        property_id: z.string().uuid(),
+        name: z.string().trim().min(1).max(120),
+        code: z.string().trim().max(64).optional().nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: prop, error: pErr } = await context.supabase
+      .from("properties")
+      .select("id, org_id")
+      .eq("id", data.property_id)
+      .maybeSingle();
+    if (pErr) throw pErr;
+    if (!prop) throw new Error("Property not found");
+    const { data: b, error } = await context.supabase
+      .from("buildings")
+      .insert({
+        org_id: prop.org_id as string,
+        property_id: data.property_id,
+        name: data.name,
+        code: data.code ?? null,
+      })
+      .select("id, name, code")
+      .single();
+    if (error) throw error;
+    return b;
+  });
+
 export const quickCreateUnitForProperty = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
     z
       .object({
         property_id: z.string().uuid(),
+        building_id: z.string().uuid(),
         code: z.string().trim().min(1).max(64),
         type: z.string().trim().max(64).optional().nullable(),
         status: z.enum(["vacant", "occupied", "reserved", "maintenance"]).optional().default("vacant"),
@@ -159,41 +207,30 @@ export const quickCreateUnitForProperty = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: prop, error: pErr } = await context.supabase
       .from("properties")
-      .select("id, org_id, title_ar, title_en, currency")
+      .select("id, org_id, currency")
       .eq("id", data.property_id)
       .maybeSingle();
     if (pErr) throw pErr;
     if (!prop) throw new Error("Property not found");
     const orgId = prop.org_id as string;
 
-    // Find or auto-create a default building for this property
-    const { data: existing, error: bErr } = await context.supabase
+    // Verify the selected building belongs to this property (defence in depth on top of RLS)
+    const { data: bldg, error: bErr } = await context.supabase
       .from("buildings")
-      .select("id")
-      .eq("property_id", data.property_id)
+      .select("id, property_id")
+      .eq("id", data.building_id)
       .is("deleted_at", null)
-      .order("created_at", { ascending: true })
-      .limit(1)
       .maybeSingle();
     if (bErr) throw bErr;
-
-    let buildingId = existing?.id as string | undefined;
-    if (!buildingId) {
-      const name = (prop.title_ar as string) || (prop.title_en as string) || "Main";
-      const { data: nb, error: nbErr } = await context.supabase
-        .from("buildings")
-        .insert({ org_id: orgId, property_id: data.property_id, name })
-        .select("id")
-        .single();
-      if (nbErr) throw nbErr;
-      buildingId = nb.id as string;
+    if (!bldg || (bldg.property_id as string | null) !== data.property_id) {
+      throw new Error("Building does not belong to this property");
     }
 
     const { data: unit, error: uErr } = await context.supabase
       .from("units")
       .insert({
         org_id: orgId,
-        building_id: buildingId,
+        building_id: data.building_id,
         code: data.code,
         type: data.type ?? null,
         status: data.status ?? "vacant",
