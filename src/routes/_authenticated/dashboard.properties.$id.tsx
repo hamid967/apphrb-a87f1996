@@ -885,6 +885,47 @@ function UnitsSection({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog
+        open={buildingDialogOpen}
+        onOpenChange={(v) => {
+          setBuildingDialogOpen(v);
+          if (!v) setNewBuildingName("");
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("units.quickAdd.addBuilding")}</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!newBuildingName.trim()) return;
+              buildingMut.mutate();
+            }}
+            className="space-y-3"
+          >
+            <div className="space-y-1.5">
+              <Label>{t("units.quickAdd.buildingName")}</Label>
+              <Input
+                required
+                value={newBuildingName}
+                placeholder={t("units.quickAdd.buildingNamePh")}
+                onChange={(e) => setNewBuildingName(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="ghost" onClick={() => setBuildingDialogOpen(false)}>
+                {t("common.cancel")}
+              </Button>
+              <Button type="submit" disabled={buildingMut.isPending || !newBuildingName.trim()}>
+                {buildingMut.isPending && <Loader2 className="me-2 size-4 animate-spin" />}
+                {t("units.quickAdd.addBuilding")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </section>
 
   );
