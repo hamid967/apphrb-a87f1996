@@ -181,7 +181,7 @@ export function CsvImportDialog({
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             {t("common.close") ?? "Close"}
           </Button>
-          <Button onClick={submit} disabled={!rows.length || busy || !!result}>
+          <Button onClick={submit} disabled={!rows.length || busy || !!result || !canImport}>
             {busy ? t("csv.importing") : t("csv.import")}
           </Button>
         </DialogFooter>
