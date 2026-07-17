@@ -1,9 +1,10 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Papa from "papaparse";
 import { useTranslation } from "react-i18next";
-import { Upload, FileText, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Upload, FileText, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
   Dialog,
   DialogContent,
