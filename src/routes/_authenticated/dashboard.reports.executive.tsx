@@ -110,25 +110,24 @@ export const Route = createFileRoute("/_authenticated/dashboard/reports/executiv
   validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [
-      { title: "Executive Analytics 2026 — HBSpro" },
+      { title: t("execReports.metaTitle") },
       {
         name: "description",
-        content:
-          "Live executive KPIs, revenue trends, occupancy heatmap, and forecast for real estate portfolio.",
+        content: t("execReports.metaDescription"),
       },
     ],
   }),
   component: () => (
     <RequireRole
       roles={ADMIN_ROLES}
-      title="Executive analytics restricted"
-      description="Cross-module KPIs and financial drill-downs are limited to owners and administrators."
+      title={t("execReports.restrictedTitle")}
+      description={t("execReports.restrictedDescription")}
     >
       <ExecutivePage />
     </RequireRole>
   ),
   errorComponent: ({ error }) => (
-    <div className="p-6 text-sm text-destructive">Error: {error.message}</div>
+    <div className="p-6 text-sm text-destructive">{t("execReports.errorPrefix")}: {error.message}</div>
   ),
   notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
