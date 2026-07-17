@@ -786,6 +786,13 @@ const en = {
       deleteTitle: "Delete this unit?",
       deleteSub: "The unit will be unlinked from this property and moved to the archive. You can restore it later.",
       deleted: "Unit deleted",
+      building: "Building",
+      buildingPh: "Select a building",
+      noBuildings: "No buildings for this property yet.",
+      addBuilding: "Add building",
+      buildingName: "Building name",
+      buildingNamePh: "e.g. Tower A",
+      buildingCreated: "Building created",
     },
   },
   contracts: {
