@@ -782,6 +782,10 @@ const en = {
       editTitle: "Edit unit",
       editSub: "Update the unit fields and save.",
       updated: "Unit updated",
+      delete: "Delete",
+      deleteTitle: "Delete this unit?",
+      deleteSub: "The unit will be unlinked from this property and moved to the archive. You can restore it later.",
+      deleted: "Unit deleted",
     },
   },
   contracts: {
@@ -3134,6 +3138,10 @@ const ar: typeof en = {
       editTitle: "تعديل الوحدة",
       editSub: "حدّث بيانات الوحدة ثم احفظ.",
       updated: "تم تحديث الوحدة",
+      delete: "حذف",
+      deleteTitle: "حذف هذه الوحدة؟",
+      deleteSub: "سيتم فكّ ربط الوحدة بهذا العقار ونقلها للأرشيف، ويمكن استرجاعها لاحقاً.",
+      deleted: "تم حذف الوحدة",
     },
   },
   contracts: {

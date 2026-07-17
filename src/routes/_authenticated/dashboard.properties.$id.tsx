@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { listUnitsByProperty, quickCreateUnitForProperty, quickUpdateUnitForProperty } from "@/lib/units.functions";
+import { archiveUnits, listUnitsByProperty, quickCreateUnitForProperty, quickUpdateUnitForProperty } from "@/lib/units.functions";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -598,6 +598,18 @@ function UnitsSection({
     onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
   });
 
+  const [deleteUnitId, setDeleteUnitId] = useState<string | null>(null);
+  const delMut = useMutation({
+    mutationFn: (id: string) => archiveUnits({ data: { ids: [id] } }),
+    onSuccess: async () => {
+      toast.success(t("units.quickAdd.deleted"));
+      await qc.invalidateQueries({ queryKey: ["property-units", propertyId] });
+      await qc.invalidateQueries({ queryKey: ["units"] });
+      setDeleteUnitId(null);
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Error"),
+  });
+
   const rows = unitsQ.data ?? [];
 
   return (
@@ -660,6 +672,17 @@ function UnitsSection({
                       aria-label={t("units.quickAdd.edit")}
                     >
                       <Pencil className="size-3.5" />
+                    </Button>
+                  )}
+                  {canEdit && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-7 text-destructive hover:text-destructive"
+                      onClick={() => setDeleteUnitId(u.id)}
+                      aria-label={t("units.quickAdd.delete")}
+                    >
+                      <Trash2 className="size-3.5" />
                     </Button>
                   )}
                 </div>
@@ -769,6 +792,30 @@ function UnitsSection({
           </form>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deleteUnitId} onOpenChange={(v) => !v && setDeleteUnitId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("units.quickAdd.deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("units.quickAdd.deleteSub")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={delMut.isPending}>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={delMut.isPending}
+              onClick={(e) => {
+                e.preventDefault();
+                if (deleteUnitId) delMut.mutate(deleteUnitId);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {delMut.isPending && <Loader2 className="me-2 size-4 animate-spin" />}
+              {t("units.quickAdd.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
+
   );
 }
