@@ -18,21 +18,25 @@ import {
 
 export function SignOutConfirmDialog({
   trigger,
-  onOpenChange,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: {
-  trigger: ReactNode;
+  trigger?: ReactNode;
+  open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
   const { i18n } = useTranslation();
   const isAr = i18n.language?.startsWith("ar");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
 
   const handleOpen = (v: boolean) => {
-    setOpen(v);
-    onOpenChange?.(v);
+    if (!isControlled) setUncontrolledOpen(v);
+    controlledOnOpenChange?.(v);
   };
 
   const handleConfirm = async () => {
