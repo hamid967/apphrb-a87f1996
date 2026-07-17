@@ -2,6 +2,7 @@ import { t } from "@/lib/i18n";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -64,28 +65,29 @@ export const Route = createFileRoute("/_authenticated/dashboard/settings/notific
   notFoundComponent: () => <div className="p-6">{t("common.notFound")}</div>,
 });
 
-const CHANNEL_META: Record<
+const CHANNEL_META_KEYS: Record<
   Channel,
-  { label: string; icon: React.ComponentType<{ className?: string }>; hint: string }
+  { labelKey: string; hintKey: string; icon: React.ComponentType<{ className?: string }> }
 > = {
   whatsapp: {
-    label: "واتساب",
+    labelKey: "notificationSettings.channelMeta.whatsappLabel",
+    hintKey: "notificationSettings.channelMeta.whatsappHint",
     icon: MessageSquare,
-    hint: "مطلوب مفتاح Meta Cloud API معدّ من قبل المشرف العام.",
   },
   sms: {
-    label: "رسائل SMS",
+    labelKey: "notificationSettings.channelMeta.smsLabel",
+    hintKey: "notificationSettings.channelMeta.smsHint",
     icon: MessageSquare,
-    hint: "يتطلّب إعداد مزوّد SMS في الإعدادات العامة.",
   },
   email: {
-    label: "البريد الإلكتروني",
+    labelKey: "notificationSettings.channelMeta.emailLabel",
+    hintKey: "notificationSettings.channelMeta.emailHint",
     icon: Mail,
-    hint: "يعمل تلقائيًا عبر خط أنابيب البريد المدار.",
   },
 };
 
 function NotificationSettingsPage() {
+  const { t: tt } = useTranslation();
   const orgsQ = useQuery({ queryKey: ["my-organizations"], queryFn: () => listMyOrganizations() });
   const org = orgsQ.data?.[0]?.org as { id: string; name: string } | undefined;
 
@@ -93,11 +95,11 @@ function NotificationSettingsPage() {
     <div className="mx-auto max-w-4xl space-y-6 p-4 md:p-6">
       <div className="flex items-center justify-between">
         <h1 className="flex items-center gap-2 text-2xl font-semibold md:text-3xl">
-          <Bell className="size-6 text-primary" /> إعدادات الإشعارات
+          <Bell className="size-6 text-primary" /> {tt("notificationSettings.pageTitle")}
         </h1>
         <Button asChild variant="ghost" size="sm">
           <Link to="/dashboard/settings">
-            <ArrowRight className="size-4 me-1" /> رجوع للإعدادات
+            <ArrowRight className="size-4 me-1" /> {tt("notificationSettings.backToSettings")}
           </Link>
         </Button>
       </div>
@@ -116,10 +118,7 @@ function NotificationSettingsPage() {
 }
 
 function NotificationTabs({ orgId }: { orgId: string }) {
-  // Gate the "اختبار الإرسال" tab: only super_admin or org owner/admin may
-  // trigger test sends. Regular members should not see the tab at all —
-  // the server enforces the same rule, this just hides a button that would
-  // 403.
+  const { t: tt } = useTranslation();
   const gate = useQuery({
     queryKey: ["can-test-send", orgId],
     queryFn: () => canTestSendNotifications({ data: { org_id: orgId } }),
@@ -128,10 +127,10 @@ function NotificationTabs({ orgId }: { orgId: string }) {
   return (
     <>
       <TabsList>
-        <TabsTrigger value="channels">القنوات</TabsTrigger>
-        <TabsTrigger value="templates">قوالب فوز المزاد</TabsTrigger>
-        <TabsTrigger value="events">أحداثي</TabsTrigger>
-        {canTest && <TabsTrigger value="test">اختبار الإرسال</TabsTrigger>}
+        <TabsTrigger value="channels">{tt("notificationSettings.tabs.channels")}</TabsTrigger>
+        <TabsTrigger value="templates">{tt("notificationSettings.tabs.templates")}</TabsTrigger>
+        <TabsTrigger value="events">{tt("notificationSettings.tabs.events")}</TabsTrigger>
+        {canTest && <TabsTrigger value="test">{tt("notificationSettings.tabs.test")}</TabsTrigger>}
       </TabsList>
       <TabsContent value="channels" className="mt-4">
         <ChannelsSection orgId={orgId} />
@@ -152,6 +151,7 @@ function NotificationTabs({ orgId }: { orgId: string }) {
 }
 
 function TestSendSection({ orgId }: { orgId: string }) {
+  const { t: tt, i18n: i18nInst } = useTranslation();
   const sendFn = useServerFn(sendTestNotification);
   const qc = useQueryClient();
   const [channel, setChannel] = useState<Channel>("email");
@@ -171,10 +171,10 @@ function TestSendSection({ orgId }: { orgId: string }) {
           if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
             variables = parsed;
           } else {
-            throw new Error("متغيرات يجب أن تكون كائن JSON");
+            throw new Error(tt("notificationSettings.test.invalidJsonObject"));
           }
         } catch (e) {
-          throw new Error((e as Error).message || "تعذّر تحليل JSON");
+          throw new Error((e as Error).message || tt("notificationSettings.test.invalidJson"));
         }
       }
       return sendFn({
@@ -189,57 +189,58 @@ function TestSendSection({ orgId }: { orgId: string }) {
       });
     },
     onSuccess: (r) => {
+      const dispatchedLabel = r.dispatched
+        ? tt("notificationSettings.test.dispatchYes")
+        : tt("notificationSettings.test.dispatchNo");
+      const dash = t("billingSettings.dash");
       setLastResult(
-        `id=${r.id ?? "—"} · status=${r.status} · dispatched=${r.dispatched ? "نعم" : "لا"}` +
+        `id=${r.id ?? dash} · status=${r.status} · dispatched=${dispatchedLabel}` +
           (r.error ? ` · error=${r.error}` : ""),
       );
-      if (r.dispatched) toast.success("تم الإرسال");
-      else if (r.status === "pending_credentials") toast.info("لا توجد بيانات اعتماد — تم وضعه في الانتظار");
-      else toast.success("تمت الإضافة للطابور");
+      if (r.dispatched) toast.success(tt("notificationSettings.test.sentToast"));
+      else if (r.status === "pending_credentials")
+        toast.info(tt("notificationSettings.test.pendingCredentialsToast"));
+      else toast.success(tt("notificationSettings.test.queuedToast"));
       qc.invalidateQueries({ queryKey: ["test-send-history", orgId] });
     },
     onError: (e: unknown) => {
-      const msg = e instanceof Error ? e.message : "فشل الإرسال";
+      const msg = e instanceof Error ? e.message : tt("notificationSettings.test.sendFailed");
       toast.error(msg);
       setLastResult(msg);
     },
   });
 
   const recipientPlaceholder =
-    channel === "email"
-      ? "user@example.com"
-      : channel === "whatsapp"
-        ? "+9665XXXXXXXX"
-        : "+9665XXXXXXXX";
+    channel === "email" ? "user@example.com" : "+9665XXXXXXXX";
+
+  // suppress unused warning for locale
+  void i18nInst;
 
   return (
     <div className="grid gap-4">
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
-          <Send className="size-4 text-primary" /> إرسال إشعار تجريبي
+          <Send className="size-4 text-primary" /> {tt("notificationSettings.test.cardTitle")}
         </CardTitle>
-        <CardDescription>
-          يُرسل رسالة عبر <code className="rounded bg-muted px-1 text-[11px]">enqueueNotification</code>{" "}
-          للتحقق من إعدادات القناة قبل ربطها بأي تدفّق فعلي. لا يتأثر أي عميل.
-        </CardDescription>
+        <CardDescription>{tt("notificationSettings.test.cardDesc")}</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
         <div className="grid gap-3 md:grid-cols-3">
           <div>
-            <Label>القناة</Label>
+            <Label>{tt("notificationSettings.test.channelLabel")}</Label>
             <select
               className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm"
               value={channel}
               onChange={(e) => setChannel(e.target.value as Channel)}
             >
-              <option value="email">البريد الإلكتروني</option>
-              <option value="whatsapp">واتساب</option>
-              <option value="sms">SMS</option>
+              <option value="email">{tt("notificationSettings.test.optionEmail")}</option>
+              <option value="whatsapp">{tt("notificationSettings.test.optionWhatsapp")}</option>
+              <option value="sms">{tt("notificationSettings.test.optionSms")}</option>
             </select>
           </div>
           <div className="md:col-span-2">
-            <Label>المستلم</Label>
+            <Label>{tt("notificationSettings.test.recipientLabel")}</Label>
             <Input
               value={recipient}
               onChange={(e) => setRecipient(e.target.value)}
@@ -249,7 +250,7 @@ function TestSendSection({ orgId }: { orgId: string }) {
           </div>
         </div>
         <div>
-          <Label>مفتاح القالب</Label>
+          <Label>{tt("notificationSettings.test.templateLabel")}</Label>
           <Input
             value={template}
             onChange={(e) => setTemplate(e.target.value)}
@@ -258,7 +259,7 @@ function TestSendSection({ orgId }: { orgId: string }) {
           />
         </div>
         <div>
-          <Label>المتغيرات (JSON)</Label>
+          <Label>{tt("notificationSettings.test.variablesLabel")}</Label>
           <Textarea
             rows={6}
             value={variablesJson}
@@ -271,9 +272,9 @@ function TestSendSection({ orgId }: { orgId: string }) {
           <Switch
             checked={dispatchNow}
             onCheckedChange={setDispatchNow}
-            aria-label="إرسال فوري"
+            aria-label={tt("notificationSettings.test.dispatchNowAria")}
           />
-          إرسال فوري (dispatch_now)
+          {tt("notificationSettings.test.dispatchNow")}
         </label>
         {lastResult && (
           <div className="rounded-md border bg-muted/40 p-3 text-xs" dir="ltr">
@@ -290,7 +291,7 @@ function TestSendSection({ orgId }: { orgId: string }) {
             ) : (
               <Send className="me-2 size-4" />
             )}
-            إرسال تجريبي
+            {tt("notificationSettings.test.sendButton")}
           </Button>
         </div>
       </CardContent>
@@ -301,37 +302,45 @@ function TestSendSection({ orgId }: { orgId: string }) {
 }
 
 function TestSendHistory({ orgId }: { orgId: string }) {
+  const { t: tt, i18n: i18nInst } = useTranslation();
+  const isAr = i18nInst.language === "ar";
   const listFn = useServerFn(listTestSendHistory);
   const q = useQuery({
     queryKey: ["test-send-history", orgId],
     queryFn: () => listFn({ data: { org_id: orgId, limit: 25 } }),
   });
   const rows = q.data ?? [];
-  const CHANNEL_LABEL: Record<string, string> = {
-    email: "بريد",
-    whatsapp: "واتساب",
-    sms: "SMS",
+  const channelLabel = (c: string) =>
+    tt(`notificationSettings.history.channelLabels.${c}`, { defaultValue: c });
+  const statusBadge = (
+    s: string,
+  ): { label: string; variant: "default" | "secondary" | "destructive" | "outline" } => {
+    const variantMap: Record<
+      string,
+      "default" | "secondary" | "destructive" | "outline"
+    > = {
+      sent: "default",
+      failed: "destructive",
+      dead_letter: "destructive",
+      pending_credentials: "outline",
+      pending: "secondary",
+      skipped: "outline",
+    };
+    return {
+      label: tt(`notificationSettings.history.statusLabels.${s}`, { defaultValue: s }),
+      variant: variantMap[s] ?? "outline",
+    };
   };
-  const statusBadge = (s: string): { label: string; variant: "default" | "secondary" | "destructive" | "outline" } => {
-    if (s === "sent") return { label: "أُرسل", variant: "default" };
-    if (s === "failed") return { label: "فشل", variant: "destructive" };
-    if (s === "dead_letter") return { label: "متوقّف", variant: "destructive" };
-    if (s === "pending_credentials") return { label: "بانتظار الاعتماد", variant: "outline" };
-    if (s === "pending") return { label: "بالانتظار", variant: "secondary" };
-    if (s === "skipped") return { label: "تم التخطّي", variant: "outline" };
-    return { label: s, variant: "outline" };
-  };
+  const dash = tt("billingSettings.dash");
   const fmt = (iso: string | null) =>
-    iso ? new Date(iso).toLocaleString("ar-SA", { hour12: false }) : "—";
+    iso ? new Date(iso).toLocaleString(isAr ? "ar-SA" : "en-US", { hour12: false }) : dash;
   return (
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
-          <Bell className="size-4 text-primary" /> سجل الاختبارات الأخيرة
+          <Bell className="size-4 text-primary" /> {tt("notificationSettings.history.title")}
         </CardTitle>
-        <CardDescription>
-          آخر 25 محاولة إرسال تجريبي قمت بها في هذه المنظمة — القناة، المستلم، الوقت والنتيجة.
-        </CardDescription>
+        <CardDescription>{tt("notificationSettings.history.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         {q.isLoading ? (
@@ -340,20 +349,34 @@ function TestSendHistory({ orgId }: { orgId: string }) {
           </div>
         ) : rows.length === 0 ? (
           <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-            لا توجد اختبارات إرسال بعد.
+            {tt("notificationSettings.history.empty")}
           </div>
         ) : (
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
               <thead className="bg-muted/40 text-muted-foreground">
                 <tr className="text-start">
-                  <th className="px-3 py-2 text-start font-medium">القناة</th>
-                  <th className="px-3 py-2 text-start font-medium">المستلم</th>
-                  <th className="px-3 py-2 text-start font-medium">القالب</th>
-                  <th className="px-3 py-2 text-start font-medium">الحالة</th>
-                  <th className="px-3 py-2 text-start font-medium">المحاولات</th>
-                  <th className="px-3 py-2 text-start font-medium">أُنشئ</th>
-                  <th className="px-3 py-2 text-start font-medium">أُرسل</th>
+                  <th className="px-3 py-2 text-start font-medium">
+                    {tt("notificationSettings.history.colChannel")}
+                  </th>
+                  <th className="px-3 py-2 text-start font-medium">
+                    {tt("notificationSettings.history.colRecipient")}
+                  </th>
+                  <th className="px-3 py-2 text-start font-medium">
+                    {tt("notificationSettings.history.colTemplate")}
+                  </th>
+                  <th className="px-3 py-2 text-start font-medium">
+                    {tt("notificationSettings.history.colStatus")}
+                  </th>
+                  <th className="px-3 py-2 text-start font-medium">
+                    {tt("notificationSettings.history.colAttempts")}
+                  </th>
+                  <th className="px-3 py-2 text-start font-medium">
+                    {tt("notificationSettings.history.colCreated")}
+                  </th>
+                  <th className="px-3 py-2 text-start font-medium">
+                    {tt("notificationSettings.history.colSent")}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -361,7 +384,7 @@ function TestSendHistory({ orgId }: { orgId: string }) {
                   const b = statusBadge(r.status);
                   return (
                     <tr key={r.id} className="border-t align-top">
-                      <td className="px-3 py-2">{CHANNEL_LABEL[r.channel] ?? r.channel}</td>
+                      <td className="px-3 py-2">{channelLabel(r.channel)}</td>
                       <td className="px-3 py-2" dir="ltr">{r.recipient}</td>
                       <td className="px-3 py-2 font-mono text-xs" dir="ltr">{r.template}</td>
                       <td className="px-3 py-2">
@@ -389,34 +412,27 @@ function TestSendHistory({ orgId }: { orgId: string }) {
   );
 }
 
-const EXPENSE_EVENTS: Array<{ key: string; label: string; hint: string }> = [
-  { key: "expense_claim_submitted", label: "إرسال طلب مصروفات", hint: "عند إرسال مطالبة جديدة" },
-  { key: "expense_batch_submitted", label: "إرسال دفعة مصروفات", hint: "عند رفع دفعة للاعتماد" },
-  { key: "expense_batch_approved", label: "اعتماد الدفعة", hint: "بعد موافقة المشرف" },
-  { key: "expense_batch_rejected", label: "رفض الدفعة", hint: "عند رفض المشرف" },
-  { key: "expense_claim_corrected", label: "تصحيح طلب سابق", hint: "بعد رفع نسخة مصحّحة" },
-  { key: "expense_reimbursed", label: "صرف التعويض", hint: "عند تحويل المبلغ للموظّف" },
-];
+const EXPENSE_EVENT_KEYS = [
+  "expense_claim_submitted",
+  "expense_batch_submitted",
+  "expense_batch_approved",
+  "expense_batch_rejected",
+  "expense_claim_corrected",
+  "expense_reimbursed",
+] as const;
 
-const APPLICATION_EVENTS: Array<{ key: string; label: string; hint: string }> = [
-  { key: "application.status_changed", label: "تغيّر حالة طلب إيجار", hint: "عند تعديل حالة أي طلب" },
-  { key: "application.note_added", label: "إضافة ملاحظة على طلب", hint: "عند كتابة ملاحظة داخلية للطلب" },
-  { key: "application.approved", label: "قبول طلب إيجار", hint: "عند اعتماد الطلب وتحويله لعقد" },
-  { key: "application.rejected", label: "رفض طلب إيجار", hint: "عند رفض الطلب مع السبب" },
-];
+const APPLICATION_EVENT_KEYS = [
+  "application.status_changed",
+  "application.note_added",
+  "application.approved",
+  "application.rejected",
+] as const;
 
 const EVENT_CHANNELS: EventChannel[] = ["email", "in_app", "whatsapp", "sms", "push"];
-// Applications only support email (to applicant) and in-app (to reviewers).
 const APPLICATION_CHANNELS: EventChannel[] = ["email", "in_app"];
-const EVENT_CHANNEL_LABEL: Record<EventChannel, string> = {
-  email: "بريد",
-  whatsapp: "واتساب",
-  sms: "SMS",
-  push: "متصفح",
-  in_app: "داخل التطبيق",
-};
 
 function EventPrefsSection({ orgId }: { orgId: string }) {
+  const { t: tt } = useTranslation();
   const qc = useQueryClient();
   const listFn = useServerFn(listUserEventPrefs);
   const saveFn = useServerFn(upsertUserEventPref);
@@ -436,7 +452,10 @@ function EventPrefsSection({ orgId }: { orgId: string }) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["user-event-prefs", orgId] });
     },
-    onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "فشل الحفظ"),
+    onError: (e: unknown) =>
+      toast.error(
+        e instanceof Error ? e.message : tt("notificationSettings.events.saveFailedToast"),
+      ),
   });
 
   if (q.isLoading)
@@ -451,24 +470,31 @@ function EventPrefsSection({ orgId }: { orgId: string }) {
   const freqMap = new Map<string, "instant" | "daily" | "weekly" | "off">();
   for (const r of q.data ?? []) {
     enabledMap.set(key(r.event_key, r.channel), r.enabled);
-    freqMap.set(key(r.event_key, r.channel), (r.frequency ?? "instant") as "instant" | "daily" | "weekly" | "off");
+    freqMap.set(
+      key(r.event_key, r.channel),
+      (r.frequency ?? "instant") as "instant" | "daily" | "weekly" | "off",
+    );
   }
   const isEnabled = (event_key: string, ch: EventChannel) =>
     enabledMap.get(key(event_key, ch)) ?? true;
   const getFreq = (event_key: string, ch: EventChannel) =>
     freqMap.get(key(event_key, ch)) ?? "instant";
 
-  const FREQ_LABEL: Record<"instant" | "daily" | "weekly" | "off", string> = {
-    instant: "فوري",
-    daily: "ملخّص يومي",
-    weekly: "ملخّص أسبوعي",
-    off: "إيقاف",
-  };
+  const channelLabel = (c: EventChannel) =>
+    tt(`notificationSettings.events.channelLabels.${c}`);
+  const freqLabel = (f: "instant" | "daily" | "weekly" | "off") =>
+    tt(`notificationSettings.events.freqLabels.${f}`);
+
+  const eventLabel = (group: "expense" | "application", k: string) =>
+    tt(`notificationSettings.events.${group}.${k}.label`, { defaultValue: k });
+  const eventHint = (group: "expense" | "application", k: string) =>
+    tt(`notificationSettings.events.${group}.${k}.hint`, { defaultValue: "" });
 
   const renderTable = (
     title: string,
     description: string,
-    events: Array<{ key: string; label: string; hint: string }>,
+    group: "expense" | "application",
+    eventKeys: readonly string[],
     channels: EventChannel[],
   ) => (
     <Card>
@@ -482,78 +508,92 @@ function EventPrefsSection({ orgId }: { orgId: string }) {
         <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="border-b text-xs text-muted-foreground">
-              <th className="py-2 text-start font-medium">الحدث</th>
+              <th className="py-2 text-start font-medium">
+                {tt("notificationSettings.events.eventCol")}
+              </th>
               {channels.map((c) => (
                 <th key={c} className="py-2 text-center font-medium">
-                  {EVENT_CHANNEL_LABEL[c]}
+                  {channelLabel(c)}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {events.map((ev) => (
-              <tr key={ev.key} className="border-b last:border-0 align-top">
-                <td className="py-3 pe-3">
-                  <div className="font-medium">{ev.label}</div>
-                  <div className="text-xs text-muted-foreground">{ev.hint}</div>
-                </td>
-                {channels.map((ch) => {
-                  const on = isEnabled(ev.key, ch);
-                  const freq = getFreq(ev.key, ch);
-                  return (
-                    <td key={ch} className="py-3 text-center">
-                      <div className="flex flex-col items-center gap-2">
-                        <Switch
-                          checked={on}
-                          onCheckedChange={(next) =>
-                            save.mutate({ event_key: ev.key, channel: ch, enabled: next })
-                          }
-                          aria-label={`${ev.label} — ${EVENT_CHANNEL_LABEL[ch]}`}
-                        />
-                        <select
-                          className="rounded-md border border-border bg-background px-2 py-1 text-xs disabled:opacity-50"
-                          disabled={!on}
-                          value={freq}
-                          onChange={(e) =>
-                            save.mutate({
-                              event_key: ev.key,
-                              channel: ch,
-                              frequency: e.target.value as "instant" | "daily" | "weekly" | "off",
-                            })
-                          }
-                          aria-label={`${ev.label} — ${EVENT_CHANNEL_LABEL[ch]} — التواتر`}
-                        >
-                          {(["instant", "daily", "weekly", "off"] as const).map((f) => (
-                            <option key={f} value={f}>
-                              {FREQ_LABEL[f]}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
+            {eventKeys.map((evKey) => {
+              const label = eventLabel(group, evKey);
+              const hint = eventHint(group, evKey);
+              return (
+                <tr key={evKey} className="border-b last:border-0 align-top">
+                  <td className="py-3 pe-3">
+                    <div className="font-medium">{label}</div>
+                    <div className="text-xs text-muted-foreground">{hint}</div>
+                  </td>
+                  {channels.map((ch) => {
+                    const on = isEnabled(evKey, ch);
+                    const freq = getFreq(evKey, ch);
+                    return (
+                      <td key={ch} className="py-3 text-center">
+                        <div className="flex flex-col items-center gap-2">
+                          <Switch
+                            checked={on}
+                            onCheckedChange={(next) =>
+                              save.mutate({ event_key: evKey, channel: ch, enabled: next })
+                            }
+                            aria-label={`${label} — ${channelLabel(ch)}`}
+                          />
+                          <select
+                            className="rounded-md border border-border bg-background px-2 py-1 text-xs disabled:opacity-50"
+                            disabled={!on}
+                            value={freq}
+                            onChange={(e) =>
+                              save.mutate({
+                                event_key: evKey,
+                                channel: ch,
+                                frequency: e.target.value as
+                                  | "instant"
+                                  | "daily"
+                                  | "weekly"
+                                  | "off",
+                              })
+                            }
+                            aria-label={tt("notificationSettings.events.freqAria", {
+                              event: label,
+                              channel: channelLabel(ch),
+                            })}
+                          >
+                            {(["instant", "daily", "weekly", "off"] as const).map((f) => (
+                              <option key={f} value={f}>
+                                {freqLabel(f)}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </CardContent>
     </Card>
   );
 
-
   return (
     <div className="grid gap-4">
       {renderTable(
-        "أحداث المصروفات",
-        'فعّل أو عطّل استلامك لكل حدث حسب القناة. القيمة الافتراضية "مفعّل"، ولن يُرسل النظام إشعارًا لأي قناة عطّلتها هنا حتى لو كانت القناة نفسها مفعّلة على مستوى المؤسسة.',
-        EXPENSE_EVENTS,
+        tt("notificationSettings.events.expenseTitle"),
+        tt("notificationSettings.events.expenseDesc"),
+        "expense",
+        EXPENSE_EVENT_KEYS as readonly string[],
         EVENT_CHANNELS,
       )}
       {renderTable(
-        "أحداث طلبات الإيجار",
-        "تحكّم في وصول تحديثات طلبات الإيجار: بريد إلكتروني للمتقدم وإشعار داخل التطبيق للمراجعين. القيمة الافتراضية مفعّلة.",
-        APPLICATION_EVENTS,
+        tt("notificationSettings.events.applicationTitle"),
+        tt("notificationSettings.events.applicationDesc"),
+        "application",
+        APPLICATION_EVENT_KEYS as readonly string[],
         APPLICATION_CHANNELS,
       )}
     </div>
@@ -561,6 +601,7 @@ function EventPrefsSection({ orgId }: { orgId: string }) {
 }
 
 function ChannelsSection({ orgId }: { orgId: string }) {
+  const { t: tt } = useTranslation();
   const qc = useQueryClient();
   const listFn = useServerFn(listChannelSettings);
   const saveFn = useServerFn(upsertChannelSetting);
@@ -578,10 +619,11 @@ function ChannelsSection({ orgId }: { orgId: string }) {
       reply_to: string | null;
     }) => saveFn({ data: { orgId, ...v } }),
     onSuccess: () => {
-      toast.success("تم الحفظ");
+      toast.success(tt("notificationSettings.channelCard.savedToast"));
       qc.invalidateQueries({ queryKey: ["channel-settings", orgId] });
     },
-    onError: (e: any) => toast.error(e?.message ?? "فشل الحفظ"),
+    onError: (e: any) =>
+      toast.error(e?.message ?? tt("notificationSettings.channelCard.saveFailedToast")),
   });
 
   if (q.isLoading)
@@ -598,14 +640,14 @@ function ChannelsSection({ orgId }: { orgId: string }) {
     <div className="grid gap-4">
       {channels.map((ch) => {
         const cur = byChannel.get(ch);
-        const meta = CHANNEL_META[ch];
+        const meta = CHANNEL_META_KEYS[ch];
         const Icon = meta.icon;
         return (
           <ChannelCard
             key={ch}
             channel={ch}
-            label={meta.label}
-            hint={meta.hint}
+            label={tt(meta.labelKey)}
+            hint={tt(meta.hintKey)}
             Icon={Icon}
             initial={{
               enabled: cur?.enabled ?? true,
@@ -638,6 +680,7 @@ function ChannelCard({
   onSave: (v: { enabled: boolean; sender_name: string | null; reply_to: string | null }) => void;
   saving: boolean;
 }) {
+  const { t: tt } = useTranslation();
   const [enabled, setEnabled] = useState(initial.enabled);
   const [senderName, setSenderName] = useState(initial.sender_name);
   const [replyTo, setReplyTo] = useState(initial.reply_to);
@@ -654,41 +697,57 @@ function ChannelCard({
           <CardTitle className="flex items-center gap-2 text-base">
             <Icon className="size-4 text-primary" /> {label}
             {enabled ? (
-              <Badge className="bg-primary/10 text-primary">مفعّل</Badge>
+              <Badge className="bg-primary/10 text-primary">
+                {tt("notificationSettings.channelCard.enabledBadge")}
+              </Badge>
             ) : (
-              <Badge variant="outline">متوقف</Badge>
+              <Badge variant="outline">
+                {tt("notificationSettings.channelCard.disabledBadge")}
+              </Badge>
             )}
           </CardTitle>
           <CardDescription className="mt-1">{hint}</CardDescription>
         </div>
-        <Switch checked={enabled} onCheckedChange={setEnabled} aria-label={`تفعيل ${label}`} />
+        <Switch
+          checked={enabled}
+          onCheckedChange={setEnabled}
+          aria-label={tt("notificationSettings.channelCard.toggleAria", { label })}
+        />
       </CardHeader>
       <CardContent className="grid gap-3 md:grid-cols-2">
         <div>
-          <Label>اسم المرسل</Label>
+          <Label>{tt("notificationSettings.channelCard.senderName")}</Label>
           <Input
             value={senderName}
             onChange={(e) => setSenderName(e.target.value)}
-            placeholder={channel === "email" ? "HBSpro Notifications" : "اسم يظهر للمستلم"}
+            placeholder={
+              channel === "email"
+                ? tt("notificationSettings.channelCard.senderPlaceholderEmail")
+                : tt("notificationSettings.channelCard.senderPlaceholderOther")
+            }
           />
         </div>
         {channel === "email" ? (
           <div>
-            <Label>عنوان الرد (Reply-To)</Label>
+            <Label>{tt("notificationSettings.channelCard.replyToLabel")}</Label>
             <Input
               type="email"
               value={replyTo}
               onChange={(e) => setReplyTo(e.target.value)}
-              placeholder="support@example.com"
+              placeholder={tt("notificationSettings.channelCard.replyToPlaceholder")}
             />
           </div>
         ) : (
           <div>
-            <Label>رقم/معرّف المرسل</Label>
+            <Label>{tt("notificationSettings.channelCard.senderIdLabel")}</Label>
             <Input
               value={replyTo}
               onChange={(e) => setReplyTo(e.target.value)}
-              placeholder={channel === "sms" ? "HBSPRO" : "معرّف الحساب"}
+              placeholder={
+                channel === "sms"
+                  ? tt("notificationSettings.channelCard.smsPlaceholder")
+                  : tt("notificationSettings.channelCard.accountIdPlaceholder")
+              }
             />
           </div>
         )}
@@ -708,7 +767,7 @@ function ChannelCard({
             ) : (
               <Save className="me-2 size-4" />
             )}
-            حفظ
+            {tt("notificationSettings.channelCard.save")}
           </Button>
         </div>
       </CardContent>
@@ -717,6 +776,7 @@ function ChannelCard({
 }
 
 function TemplatesSection({ orgId }: { orgId: string }) {
+  const { t: tt } = useTranslation();
   const qc = useQueryClient();
   const listFn = useServerFn(listNotificationTemplates);
   const saveFn = useServerFn(upsertNotificationTemplate);
@@ -737,10 +797,11 @@ function TemplatesSection({ orgId }: { orgId: string }) {
       variables: string[];
     }) => saveFn({ data: { orgId, template_key: "auction_winner", ...v } }),
     onSuccess: () => {
-      toast.success("تم حفظ القالب");
+      toast.success(tt("notificationSettings.templates.savedToast"));
       qc.invalidateQueries({ queryKey: ["notification-templates", orgId, "auction_winner"] });
     },
-    onError: (e: any) => toast.error(e?.message ?? "فشل الحفظ"),
+    onError: (e: any) =>
+      toast.error(e?.message ?? tt("notificationSettings.templates.saveFailedToast")),
   });
 
   if (q.isLoading)
@@ -758,10 +819,10 @@ function TemplatesSection({ orgId }: { orgId: string }) {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Trophy className="size-4 text-primary" /> قالب فوز المزاد
+            <Trophy className="size-4 text-primary" /> {tt("notificationSettings.templates.header")}
           </CardTitle>
           <CardDescription>
-            يُرسل هذا القالب تلقائيًا عند انتهاء المزاد وإعلان الفائز. المتغيرات المتاحة:{" "}
+            {tt("notificationSettings.templates.description")}{" "}
             <code className="rounded bg-muted px-1 text-[11px]">
               {"{{bidder_name}} {{auction_title}} {{amount}} {{deadline}}"}
             </code>
@@ -771,13 +832,13 @@ function TemplatesSection({ orgId }: { orgId: string }) {
 
       {channels.map((ch) => {
         const cur = byChannel.get(ch);
-        const meta = CHANNEL_META[ch];
+        const meta = CHANNEL_META_KEYS[ch];
         const Icon = meta.icon;
         return (
           <TemplateCard
             key={ch}
             channel={ch}
-            label={meta.label}
+            label={tt(meta.labelKey)}
             Icon={Icon}
             initial={{
               enabled: cur?.enabled ?? true,
@@ -825,6 +886,7 @@ function TemplateCard({
   }) => void;
   saving: boolean;
 }) {
+  const { t: tt } = useTranslation();
   const [enabled, setEnabled] = useState(initial.enabled);
   const [sa, setSa] = useState(initial.subject_ar);
   const [se, setSe] = useState(initial.subject_en);
@@ -847,34 +909,38 @@ function TemplateCard({
         <CardTitle className="flex items-center gap-2 text-base">
           <Icon className="size-4 text-primary" /> {label}
         </CardTitle>
-        <Switch checked={enabled} onCheckedChange={setEnabled} aria-label={`تفعيل قالب ${label}`} />
+        <Switch
+          checked={enabled}
+          onCheckedChange={setEnabled}
+          aria-label={tt("notificationSettings.templates.activateAria", { label })}
+        />
       </CardHeader>
       <CardContent className="grid gap-3">
         {showSubject && (
           <div className="grid gap-3 md:grid-cols-2">
             <div>
-              <Label>الموضوع (عربي)</Label>
+              <Label>{tt("notificationSettings.templates.subjectAr")}</Label>
               <Input value={sa} onChange={(e) => setSa(e.target.value)} />
             </div>
             <div>
-              <Label>الموضوع (إنجليزي)</Label>
+              <Label>{tt("notificationSettings.templates.subjectEn")}</Label>
               <Input value={se} onChange={(e) => setSe(e.target.value)} dir="ltr" />
             </div>
           </div>
         )}
         <div className="grid gap-3 md:grid-cols-2">
           <div>
-            <Label>النص (عربي)</Label>
+            <Label>{tt("notificationSettings.templates.bodyAr")}</Label>
             <Textarea rows={5} value={ba} onChange={(e) => setBa(e.target.value)} />
           </div>
           <div>
-            <Label>النص (إنجليزي)</Label>
+            <Label>{tt("notificationSettings.templates.bodyEn")}</Label>
             <Textarea rows={5} value={be} onChange={(e) => setBe(e.target.value)} dir="ltr" />
           </div>
         </div>
         {smsLen !== null && (
           <p className={`text-xs ${smsLen > 160 ? "text-warning" : "text-muted-foreground"}`}>
-            {smsLen}/160 حرف — يُقسّم إلى عدة رسائل عند تجاوز 160.
+            {tt("notificationSettings.templates.smsCounter", { count: smsLen })}
           </p>
         )}
         <div className="flex justify-end">
@@ -896,7 +962,7 @@ function TemplateCard({
             ) : (
               <Save className="me-2 size-4" />
             )}
-            حفظ
+            {tt("notificationSettings.templates.save")}
           </Button>
         </div>
       </CardContent>
