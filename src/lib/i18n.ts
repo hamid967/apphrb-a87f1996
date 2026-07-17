@@ -778,6 +778,10 @@ const en = {
       empty: "No units yet for this property.",
       created: "Unit created",
       openList: "Open units list",
+      edit: "Edit",
+      editTitle: "Edit unit",
+      editSub: "Update the unit fields and save.",
+      updated: "Unit updated",
     },
   },
   contracts: {
