@@ -300,16 +300,20 @@ export function DashboardSidebar() {
             </Button>
           </div>
         )}
-        <button
-          type="button"
-          onClick={handleSignOut}
-          aria-label={isAr ? "تسجيل الخروج" : "Sign out"}
-          title={isAr ? "تسجيل الخروج" : "Sign out"}
-          className="flex w-full items-center gap-3 rounded-xl border border-destructive/25 bg-destructive/5 px-3 py-2 text-[13px] font-medium text-destructive transition hover:bg-destructive/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
-        >
-          <LogOut className="size-[18px]" aria-hidden />
-          {!collapsed && <span>{isAr ? "تسجيل الخروج" : "Sign out"}</span>}
-        </button>
+        <SignOutConfirmDialog
+          trigger={
+            <button
+              type="button"
+              aria-label={isAr ? "تسجيل الخروج" : "Sign out"}
+              title={isAr ? "تسجيل الخروج" : "Sign out"}
+              className="flex w-full items-center gap-3 rounded-xl border border-destructive/25 bg-destructive/5 px-3 py-2 text-[13px] font-medium text-destructive transition hover:bg-destructive/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
+            >
+              <LogOut className="size-[18px]" aria-hidden />
+              {!collapsed && <span>{isAr ? "تسجيل الخروج" : "Sign out"}</span>}
+            </button>
+          }
+        />
+
       </SidebarFooter>
     </Sidebar>
   );
