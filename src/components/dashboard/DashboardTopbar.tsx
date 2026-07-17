@@ -529,7 +529,10 @@ export function DashboardTopbar({
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onSelect={handleSignOut}
+              onSelect={(e) => {
+                e.preventDefault();
+                setSignOutOpen(true);
+              }}
               className="text-destructive focus:text-destructive"
             >
               <LogOut className="me-2 size-4" />
