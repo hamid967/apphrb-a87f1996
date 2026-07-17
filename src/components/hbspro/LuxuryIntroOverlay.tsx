@@ -112,7 +112,10 @@ export function LuxuryIntroOverlay() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!reducedMotion) setVisible(true);
+    if (!reducedMotion) {
+      setVisible(true);
+      trackIntroEvent("shown");
+    }
   }, []);
 
   useEffect(() => {
