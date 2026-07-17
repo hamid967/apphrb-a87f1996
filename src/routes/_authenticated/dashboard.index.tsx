@@ -72,6 +72,7 @@ import { WelcomeChecklist } from "@/components/dashboard/WelcomeChecklist";
 import { SubscriptionStatusCard } from "@/components/dashboard/SubscriptionStatusCard";
 import { SubscriptionAuditTrail } from "@/components/dashboard/SubscriptionAuditTrail";
 import { DashboardEmptyState } from "@/components/dashboard/DashboardEmptyState";
+import { CompanyDashboard } from "@/components/dashboard/phase6/CompanyDashboard";
 import { IndividualDashboard } from "@/components/dashboard/phase6/IndividualDashboard";
 import {
   getPeriodRange,
@@ -175,7 +176,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
     // Keep the URL clean when opening /dashboard from the root: strip any
     // fields that equal their defaults, and only retain params explicitly
     // set by the user across navigations.
-    middlewares: [retainSearchParams(true), stripSearchParams(DEFAULT_SEARCH)],
+    middlewares: [retainSearchParams(true), stripSearchParams(DEFAULT_SEARCH)] as any,
   },
   component: Dashboard,
   head: () =>
@@ -193,7 +194,7 @@ function Dashboard() {
   const isAr = i18n.language?.startsWith("ar");
   const { user } = useAuth();
   const { q, filter, sort, type, status, minBeds, minBaths, page, scrollY, view } =
-    Route.useSearch();
+    Route.useSearch() as DashSearch;
   const navigate = Route.useNavigate();
   const currentSearch: DashSearch = {
     q,
@@ -469,6 +470,32 @@ function Dashboard() {
           to={phase6Range.to}
           isAr={isAr}
         />
+      </motion.div>
+    );
+  }
+
+  if (org?.id && ["company", "business", "enterprise"].includes(String(orgProfile?.account_type))) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="mx-auto max-w-7xl px-4 py-8 sm:px-6"
+      >
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              {isAr ? "لوحة المنشأة" : "Company dashboard"}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {isAr
+                ? "أداء المحفظة، المتأخرات، الصيانة، والتنبيه الضريبي التمهيدي من مكان واحد."
+                : "Portfolio performance, overdue payments, maintenance, and tax readiness in one place."}
+            </p>
+          </div>
+          <PeriodFilter value={phase6Period} onChange={setPhase6Period} isAr={isAr} />
+        </div>
+        <CompanyDashboard orgId={org.id} from={phase6Range.from} to={phase6Range.to} isAr={isAr} />
       </motion.div>
     );
   }
@@ -955,7 +982,7 @@ function Dashboard() {
                   title={t("dashboard.empty")}
                   cta={
                     canCreate
-                      ? { to: "/properties/new", label: t("dashboard.addFirst") }
+                      ? { to: "/dashboard/properties/new", label: t("dashboard.addFirst") }
                       : undefined
                   }
                 />
