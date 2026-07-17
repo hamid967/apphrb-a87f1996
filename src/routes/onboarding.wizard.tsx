@@ -190,7 +190,22 @@ function OnboardingWizardPage() {
           setPhoneVerified(true);
         }
         if (prof?.job_title) setJobTitle(prof.job_title);
-        if (prof?.signup_reason) setReason(prof.signup_reason);
+        if (prof?.signup_reason) {
+          // Legacy DB rows may store the Arabic label; map back to the key.
+          const legacyMap: Record<string, (typeof REASON_KEYS)[number]> = {
+            "إدارة عقارات وإيجارات": "manage_rentals",
+            "إدارة صيانة ومهام": "maintenance",
+            "تنظيم المبيعات والعمولات": "sales",
+            "تقارير مالية وتحليلات": "reports",
+            "تجربة النظام قبل الاشتراك": "trial",
+            "أخرى": "other",
+          };
+          const matched =
+            (REASON_KEYS as readonly string[]).includes(prof.signup_reason)
+              ? prof.signup_reason
+              : legacyMap[prof.signup_reason];
+          if (matched) setReason(matched);
+        }
         if (ctx.company_id) {
           setOrgId(ctx.company_id);
           const { data: comp } = await supabase
