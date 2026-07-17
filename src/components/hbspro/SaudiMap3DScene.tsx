@@ -211,22 +211,32 @@ function CityMarker({
         />
       </mesh>
       {active && (
-        <Html center distanceFactor={8} position={[0, 0.35, 0]} style={{ pointerEvents: "none" }}>
+        <Html center distanceFactor={6} position={[0, 0.42, 0]} style={{ pointerEvents: "none" }}>
           <div
-            className="whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold backdrop-blur-md"
+            dir="ltr"
+            className="whitespace-nowrap rounded-full px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] backdrop-blur-xl"
             style={{
-              borderColor: HBS.border,
-              background: "rgba(7,19,32,0.85)",
+              border: `1px solid ${HBS.gold}`,
+              background:
+                "linear-gradient(135deg, rgba(7,19,32,0.92) 0%, rgba(15,32,48,0.92) 100%)",
               color: HBS.white,
+              boxShadow: `0 8px 32px rgba(0,0,0,0.55), 0 0 24px ${HBS.gold}40, inset 0 1px 0 ${HBS.gold}55`,
+              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+              letterSpacing: "0.34em",
             }}
           >
-            {city.name} · <span style={{ color: HBS.gold }}>{city.ar}</span>
+            <span style={{ color: HBS.gold }}>◆</span>{" "}
+            <span style={{ color: HBS.white }}>{city.name}</span>
             {typeof count === "number" && (
               <span
-                className="ms-2 rounded-full bg-white/10 px-2 py-0.5 text-[10px]"
-                style={{ color: HBS.gold }}
+                className="ms-2 rounded-full px-2 py-0.5 text-[9px]"
+                style={{
+                  background: `linear-gradient(135deg, ${HBS.gold}, ${HBS.goldSoft})`,
+                  color: "#0a1420",
+                  letterSpacing: "0.2em",
+                }}
               >
-                {tr("hbspro.map.propertiesShort", { count })}
+                {count}
               </span>
             )}
           </div>
@@ -504,18 +514,27 @@ export function SaudiMap3DScene({ compact = false }: SaudiMap3DProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
-            className="absolute bottom-4 left-4 right-4 rounded-2xl border px-4 py-3 backdrop-blur-md sm:right-auto sm:min-w-[240px]"
-            style={{ borderColor: HBS.border, background: "rgba(7,19,32,0.78)" }}
+            className="absolute bottom-4 left-4 right-4 rounded-2xl px-5 py-4 backdrop-blur-xl sm:right-auto sm:min-w-[260px]"
+            style={{
+              border: `1px solid ${HBS.gold}66`,
+              background:
+                "linear-gradient(140deg, rgba(7,19,32,0.92) 0%, rgba(15,32,48,0.88) 100%)",
+              boxShadow: `0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 ${HBS.gold}33`,
+            }}
           >
             <div className="text-[10px] uppercase tracking-[0.24em]" style={{ color: HBS.gold }}>
               {tr("hbspro.map.aiNode")} ·{" "}
               {activeCity.hub ? tr("hbspro.map.regionalHub") : tr("hbspro.map.edgeNode")}
             </div>
-            <div className="mt-1 text-lg font-semibold text-white">
-              {activeCity.name}{" "}
-              <span className="text-sm" style={{ color: HBS.gray }}>
-                / {activeCity.ar}
-              </span>
+            <div className="mt-1.5 text-2xl font-semibold tracking-wide text-white"
+              style={{
+                fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                letterSpacing: "0.06em",
+                textShadow: `0 0 24px ${HBS.gold}55`,
+              }}
+              dir="ltr"
+            >
+              {activeCity.name}
             </div>
             <div className="mt-1 flex items-center gap-2 text-xs" style={{ color: HBS.gray }}>
               <span
@@ -576,11 +595,17 @@ export function SaudiMap3DScene({ compact = false }: SaudiMap3DProps) {
               setActive(c.name);
               setOpenCity(c.name);
             }}
-            className="rounded-full border px-2.5 py-1 text-[11px] transition"
+            className="rounded-full border px-3 py-1 text-[10px] font-semibold uppercase transition"
+            dir="ltr"
             style={{
-              borderColor: active === c.name ? HBS.gold : HBS.border,
-              color: active === c.name ? HBS.gold : HBS.gray,
-              background: "rgba(7,19,32,0.6)",
+              borderColor: active === c.name ? HBS.gold : `${HBS.gold}33`,
+              color: active === c.name ? "#0a1420" : HBS.goldSoft,
+              background:
+                active === c.name
+                  ? `linear-gradient(135deg, ${HBS.gold}, ${HBS.goldSoft})`
+                  : "rgba(7,19,32,0.7)",
+              letterSpacing: "0.24em",
+              boxShadow: active === c.name ? `0 4px 18px ${HBS.gold}55` : "none",
             }}
           >
             {c.name}
