@@ -381,6 +381,10 @@ const en = {
     skipped: "Skipped duplicates",
     errors: "Errors",
     emptyFile: "No rows found in file",
+    importProperties: "Import properties",
+    importUnits: "Import units",
+    importOwners: "Import owners",
+    importTenants: "Import tenants",
   },
   importSettings: {
     title: "Import & duplicate rules",
