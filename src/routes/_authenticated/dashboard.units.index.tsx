@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search, ArchiveRestore } from "lucide-react";
+import { Search, ArchiveRestore, Upload } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/select";
 import { listMyOrganizations } from "@/lib/organizations.functions";
 import { listUnits, listArchivedUnits, restoreUnits } from "@/lib/units.functions";
+import { bulkInsertUnits } from "@/lib/bulk-import.functions";
+import { CsvImportDialog } from "@/components/csv-import-dialog";
 import { useTranslation } from "react-i18next";
 
 import { sectionHead } from "@/lib/section-og-head";
