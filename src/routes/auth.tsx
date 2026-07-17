@@ -296,15 +296,6 @@ function AuthPage() {
     }
   };
 
-  const onGoogle = async () => {
-    setOauthLoading(true);
-    try {
-      await lovable.auth.signInWithOAuth("google", { redirect_uri: getAppOrigin() });
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "OAuth error");
-      setOauthLoading(false);
-    }
-  };
 
   const notImplemented = (label: string) => () => toast(t("auth.comingSoonLabel", { label }));
 
