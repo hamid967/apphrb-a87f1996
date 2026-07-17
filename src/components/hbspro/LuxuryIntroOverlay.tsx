@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronDown, Volume2, VolumeX, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { trackIntroEvent } from "@/lib/intro-tracker";
 
 const INTRO_DURATION_MS = 20_000;
 const SCENE_DURATION_MS = 4_000;
