@@ -594,7 +594,7 @@ function AuthenticatedShell() {
           <SideLink to="/contacts" icon={<Users className="size-4" />}>
             {t("sidebar.contacts")}
           </SideLink>
-          <SideLink to="/deals" icon={<Handshake className="size-4" />}>
+          <SideLink to="/dashboard/crm/deals" icon={<Handshake className="size-4" />}>
             {t("sidebar.deals")}
           </SideLink>
           <SideLink to="/accounting" icon={<Calculator className="size-4" />}>
@@ -667,7 +667,7 @@ function AuthenticatedShell() {
           <MobileLink to="/contacts" icon={<Users className="size-4" />}>
             {t("sidebar.contacts")}
           </MobileLink>
-          <MobileLink to="/deals" icon={<Handshake className="size-4" />}>
+          <MobileLink to="/dashboard/crm/deals" icon={<Handshake className="size-4" />}>
             {t("sidebar.deals")}
           </MobileLink>
           <MobileLink to="/accounting" icon={<Calculator className="size-4" />}>
