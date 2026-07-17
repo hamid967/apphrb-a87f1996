@@ -1,11 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { listMyOrganizations } from "@/lib/organizations.functions";
 import { listOwners } from "@/lib/owners.functions";
+import { bulkInsertOwners } from "@/lib/bulk-import.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, ExternalLink, Loader2 } from "lucide-react";
+import { CsvImportDialog } from "@/components/csv-import-dialog";
+import { Users, ExternalLink, Loader2, Upload } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/dashboard/owners/")({
