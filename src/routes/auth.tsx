@@ -139,7 +139,7 @@ function AuthPage() {
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [magicLoading, setMagicLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState(false);
+  
   const [devLoading, setDevLoading] = useState(false);
   const [resendIn, setResendIn] = useState(0);
 
