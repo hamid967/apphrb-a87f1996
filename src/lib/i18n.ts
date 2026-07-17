@@ -805,6 +805,7 @@ const en = {
       importCsv: "Import CSV",
       importCsvTitle: "Import units from CSV",
       importCsvNote: "Rows will be linked to this property automatically. Choose a target building.",
+      codeRequired: "code is required",
     },
   },
   contracts: {
