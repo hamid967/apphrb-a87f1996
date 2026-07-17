@@ -140,10 +140,15 @@ export function CsvImportDialog({
   const validCount = validations.filter((e) => e.length === 0).length;
   const invalidCount = validations.length - validCount;
   const validRows = rows.filter((_, i) => validations[i].length === 0);
+  const validIndexMap = rows
+    .map((_, i) => i)
+    .filter((i) => validations[i].length === 0);
 
   const submit = async () => {
     if (!validRows.length) return;
     setBusy(true);
+    sentIndexMapRef.current = validIndexMap;
+    sentRowsRef.current = validRows;
     try {
       const r = await onImport(validRows);
       setResult(r);
@@ -154,6 +159,50 @@ export function CsvImportDialog({
     } finally {
       setBusy(false);
     }
+  };
+
+  const downloadErrorReport = () => {
+    // Collect: client-side invalid rows (from current `rows` + validations)
+    // plus server-side errors mapped back to original file rows.
+    type ReportRow = { file_row: number; errors: string; data: Record<string, string> };
+    const out: ReportRow[] = [];
+    validations.forEach((errs, i) => {
+      if (errs.length > 0) {
+        out.push({ file_row: i + 1, errors: errs.join("; "), data: rows[i] ?? {} });
+      }
+    });
+    for (const e of result?.errors ?? []) {
+      // Server row 0 = batch-level (no specific row); include with empty data.
+      if (!e.row) {
+        out.push({ file_row: 0, errors: e.message, data: {} });
+        continue;
+      }
+      const origIdx = sentIndexMapRef.current[e.row - 1];
+      const data = sentRowsRef.current[e.row - 1] ?? {};
+      out.push({
+        file_row: typeof origIdx === "number" ? origIdx + 1 : e.row,
+        errors: e.message,
+        data,
+      });
+    }
+    if (!out.length) return;
+    const extraCols = Array.from(
+      new Set(out.flatMap((r) => Object.keys(r.data))),
+    ).filter((c) => !templateHeaders.includes(c));
+    const columns = ["file_row", "errors", ...templateHeaders, ...extraCols];
+    const csv = Papa.unparse(
+      out.map((r) => ({ file_row: r.file_row, errors: r.errors, ...r.data })),
+      { columns },
+    );
+    // Prepend UTF-8 BOM so Excel opens Arabic correctly.
+    const blob = new Blob(["\ufeff", csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const base = (fileName || "import").replace(/\.(csv|xlsx|xls)$/i, "");
+    a.href = url;
+    a.download = `${base}-errors.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
