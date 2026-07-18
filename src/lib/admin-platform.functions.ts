@@ -170,13 +170,13 @@ export const listBanks = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("banks")
-      .select("id, name, swift, country_id, created_at, countries(name_en, name_ar)")
+      .select("id, name, swift, country_id, created_at, countries(name, name_ar)")
       .order("name", { ascending: true });
     if (error) throw error;
     return (data ?? []).map((b: any) => ({
       ...b,
       country_name_ar: b.countries?.name_ar ?? null,
-      country_name_en: b.countries?.name_en ?? null,
+      country_name_en: b.countries?.name ?? null,
     }));
   });
 
